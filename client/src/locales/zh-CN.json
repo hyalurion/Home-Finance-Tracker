@@ -189,7 +189,7 @@
     "amountMustBeAtLeast": "金额不能小于0.01",
     "amountMaxTwoDecimals": "金额最多保留两位小数",
     "feeNoticeTitle": "支付手续费说明",
-    "feeNoticeContent": "支付渠道可能收取最高30%的手续费，此处显示金额为税前金额",
+    "feeNoticeContent": "支付渠道可能收取最高15%的手续费，此处显示金额为税前金额",
     "successTitle": "感谢支持！",
     "failureTitle": "捐赠失败",
     "successMessage": "感谢您的{amount}元捐赠！您的支持帮助我们改进应用",
