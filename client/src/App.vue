@@ -33,7 +33,6 @@ watchEffect(() => {
   transition: background-color var(--transition-time), color var(--transition-time) !important;
   position: relative !important;
   background: var(--bg-primary) !important;
-  min-height: 100vh !important;
 }
 
 /* 全局滚动条隐藏样式 */

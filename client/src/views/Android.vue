@@ -46,7 +46,6 @@ export default {
   margin: 0 auto;
   padding: 16px;
   background: #fafafa;
-  min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 

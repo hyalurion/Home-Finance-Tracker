@@ -10,14 +10,19 @@ const Member = require('./models/member')(sequelize)
 const SubscriptionPlan = require('./models/subscriptionPlan')(sequelize)
 const UserSubscription = require('./models/userSubscription')(sequelize)
 
+// 导入错误报告模型
+const ErrorReport = require('./models/errorReport')(sequelize)
+
 // 导入日志相关函数
 const { initLogTable, saveLog, getLogs, getLogsCount, cleanOldLogs } = require('./models/log')
 
 // 定义模型关系
 Member.hasMany(UserSubscription, { foreignKey: 'memberId' })
+Member.hasMany(ErrorReport, { foreignKey: 'memberId' })
 SubscriptionPlan.hasMany(UserSubscription, { foreignKey: 'planId' })
 UserSubscription.belongsTo(Member, { foreignKey: 'memberId' })
 UserSubscription.belongsTo(SubscriptionPlan, { foreignKey: 'planId' })
+ErrorReport.belongsTo(Member, { foreignKey: 'memberId' })
 
 const syncDatabase = async () => {
   try {
@@ -35,6 +40,7 @@ module.exports = {
   Member,
   SubscriptionPlan,
   UserSubscription,
+  ErrorReport,
   syncDatabase,
   initLogTable,
   saveLog,

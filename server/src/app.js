@@ -31,7 +31,7 @@ app.use('/api/expenses', require('./routes/expense'))
 app.use('/api/json-files', require('./routes/jsonFiles'))
 app.use('/api/payments', require('./routes/payment'))
 app.use('/api/members', require('./routes/memberRoutes'))
-
+app.use('/api', require('./routes/errorReportRoutes'))
 app.use('/api', require('./routes/api'))
 
 // 根路径路由
