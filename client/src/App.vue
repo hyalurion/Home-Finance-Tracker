@@ -36,6 +36,26 @@ watchEffect(() => {
   min-height: 100vh !important;
 }
 
+/* 全局滚动条隐藏样式 */
+html, body {
+  /* 隐藏滚动条但保留功能 */
+  -ms-overflow-style: none;  /* IE 和 Edge */
+  scrollbar-width: none;     /* Firefox */
+  overflow-x: hidden;        /* 防止水平滚动条 */
+}
+
+/* Chrome, Safari 和 Opera */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.app-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* 确保滚动功能仍然正常工作 */
+html, body {
+  -webkit-overflow-scrolling: touch;  /* iOS Safari 平滑滚动 */
+}
+
 .contain {
   background-color: transparent !important;
 }
