@@ -198,35 +198,37 @@ const isFocused = ref(false)
 }
 
 /* Dark theme */
-.glass-input-container.dark-theme .glass-input-label {
+@media (prefers-color-scheme: dark) {
+.glass-input-container .glass-input-label {
   color: #e2e8f0;
 }
 
-.glass-input-container.dark-theme .glass-input-wrapper {
+.glass-input-container .glass-input-wrapper {
   background: rgba(26, 32, 44, 0.7);
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.glass-input-container.dark-theme .glass-input-wrapper::before {
+.glass-input-container .glass-input-wrapper::before {
   background: rgba(0, 0, 0, 0.1);
 }
 
-.glass-input-container.dark-theme .glass-input,
-.glass-input-container.dark-theme .glass-textarea {
+.glass-input-container .glass-input,
+.glass-input-container .glass-textarea {
   color: #e2e8f0;
 }
 
-.glass-input-container.dark-theme .glass-input::placeholder,
-.glass-input-container.dark-theme .glass-textarea::placeholder {
+.glass-input-container .glass-input::placeholder,
+.glass-input-container .glass-textarea::placeholder {
   color: #718096;
 }
 
-.glass-input-container.dark-theme .glass-input-count {
+.glass-input-container .glass-input-count {
   color: #718096;
 }
 
-.glass-input-container.dark-theme .glass-input-error {
+.glass-input-container .glass-input-error {
   color: #fc8181;
+}
 }
 </style>

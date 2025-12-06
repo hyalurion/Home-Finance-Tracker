@@ -58,7 +58,10 @@ const props = defineProps({
 }
 
 .glass-form-item-content {
+  display: flex;
   width: 100%;
+  justify-content: center;
+  align-items: center;
 }
 
 .glass-form-item-error {

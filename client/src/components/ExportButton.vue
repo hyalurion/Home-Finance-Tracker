@@ -28,5 +28,8 @@ const handleExport = () => { emits('export-excel'); };
 </script>
 
 <style scoped>
-/* 已迁移至common.css，仅保留作用域标识 */
+.export-section {
+  display: flex;
+  justify-content: center;
+}
 </style>
