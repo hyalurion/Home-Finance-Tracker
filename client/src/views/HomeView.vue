@@ -2573,7 +2573,6 @@ body.donation-modal-open {
   color: #e53e3e;
 }
 
-.form-select,
 .form-input,
 .form-textarea {
   padding: 10px 12px;
