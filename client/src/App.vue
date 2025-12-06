@@ -365,51 +365,6 @@ button {
     border-color: #3366cc !important;
   }
 
-  /* 按钮组件 */
-  .el-button {
-    --el-button-bg-color: #333 !important;
-    --el-button-text-color: var(--text-primary) !important;
-    --el-button-border-color: #444 !important;
-    transition: all var(--transition-time) ease !important;
-    border-radius: var(--border-radius) !important;
-  }
-
-  .el-button:hover {
-    --el-button-bg-color: #444 !important;
-    --el-button-border-color: #555 !important;
-    transform: translateY(-1px) !important;
-  }
-
-  .el-button:active {
-    --el-button-bg-color: #222 !important;
-    --el-button-border-color: #333 !important;
-    transform: translateY(0) !important;
-  }
-
-  .el-button.is-disabled {
-    --el-button-bg-color: #2d2d2d !important;
-    --el-button-text-color: #666 !important;
-    --el-button-border-color: #444 !important;
-    cursor: not-allowed !important;
-    transform: none !important;
-  }
-
-  .el-button--primary {
-    --el-button-bg-color: #3366cc !important;
-    --el-button-text-color: #ffffff !important;
-    --el-button-border-color: #3366cc !important;
-  }
-
-  .el-button--primary:hover {
-    --el-button-bg-color: #4477dd !important;
-    --el-button-border-color: #4477dd !important;
-  }
-
-  .el-button--primary:active {
-    --el-button-bg-color: #2255bb !important;
-    --el-button-border-color: #2255bb !important;
-  }
-
   .el-table {
     background-color: #20222a !important;
   }

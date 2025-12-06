@@ -993,10 +993,6 @@ const debounce = (func, wait) => {
       height: 350px;
     }
     
-    .el-select {
-      width: 100%;
-    }
-    
     .date-range-picker {
       width: 100%;
     }

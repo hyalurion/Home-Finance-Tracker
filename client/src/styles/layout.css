@@ -98,18 +98,18 @@
 }
 
 /* 功能组按钮样式优化 */
-.card-content .el-button {
+.card-content {
   transition: all 0.2s ease;
   min-width: 120px;
 }
 
-.card-content .el-button:hover {
+.card-content:hover {
   transform: translateY(-1px);
 }
 
 /* 大屏幕按钮样式优化 */
 @media (min-width: 1200px) {
-  .card-content .el-button {
+  .card-content {
     font-size: 15px;
     padding: 12px 20px;
   }
@@ -117,7 +117,7 @@
 
 /* 超大屏幕按钮样式优化 */
 @media (min-width: 1400px) {
-  .card-content .el-button {
+  .card-content {
     font-size: 16px;
     padding: 14px 24px;
     min-width: 140px;

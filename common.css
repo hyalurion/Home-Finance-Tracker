@@ -12,7 +12,6 @@
     --el-fill-color-blank: transparent;
     --el-fill-color-light: transparent;
     --el-card-bg-color: transparent;
-    --el-button-bg-color: transparent;
     --el-input-bg-color: transparent;
     --el-select-dropdown-bg-color: transparent;
     --el-dialog-bg-color: transparent;
@@ -36,7 +35,7 @@
 }
 
 /* 强制覆盖Element Plus组件背景 */
-html, body, #app, #app :deep(*), #app :deep(.el-loading), #app :deep(.el-loading-mask), #app :deep(.el-message-box__container), #app :deep(.el-tooltip__popper), #app :deep(.el-popover__content), #app :deep(.el-drawer__container), #app :deep(.el-form-item__content), #app :deep(.el-button.is-disabled), #app :deep(.el-upload-dragger), #app :deep(.el-progress-bar), #app :deep(.el-tabs__nav-wrap), #app :deep(.el-pagination__sizes), #app :deep(.el-cascader-menu__item), #app :deep(.el-time-select__content), #app :deep(.el-date-table-cell), #app :deep(.el-tree-node__content), #app :deep(.el-transfer-panel__header), #app :deep(.el-rate__icon), #app :deep(.el-slider__runway), #app :deep(.el-slider__bar) {
+html, body, #app, #app :deep(*), #app :deep(.el-loading), #app :deep(.el-loading-mask), #app :deep(.el-message-box__container), #app :deep(.el-tooltip__popper), #app :deep(.el-popover__content), #app :deep(.el-drawer__container), #app :deep(.el-form-item__content), #app :deep(.el-upload-dragger), #app :deep(.el-progress-bar), #app :deep(.el-tabs__nav-wrap), #app :deep(.el-pagination__sizes), #app :deep(.el-cascader-menu__item), #app :deep(.el-time-select__content), #app :deep(.el-date-table-cell), #app :deep(.el-tree-node__content), #app :deep(.el-transfer-panel__header), #app :deep(.el-rate__icon), #app :deep(.el-slider__runway), #app :deep(.el-slider__bar) {
     background-color: transparent !important;
 }
     --text-light: #333333;

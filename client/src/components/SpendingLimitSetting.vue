@@ -57,7 +57,7 @@
       <div class="setting-item">
         <label class="setting-label">{{ $t('spending.settings.quickSet') }}</label>
         <div class="quick-buttons">
-          <el-button
+          <GlassButton
             v-for="amount in quickAmounts"
             :key="amount"
             @click="setQuickLimit(amount)"
@@ -66,7 +66,7 @@
             class="quick-btn"
           >
             ¥{{ formatAmount(amount) }}
-          </el-button>
+          </GlassButton>
         </div>
       </div>
 
@@ -468,17 +468,6 @@ onMounted(() => {
 
   :deep(.el-slider__button) {
     background-color: #fff;
-    border-color: #4361ee;
-  }
-
-  :deep(.el-button--default) {
-    background-color: rgba(50, 50, 50, 0.7);
-    border-color: #555;
-    color: #e5e7eb;
-  }
-
-  :deep(.el-button--primary) {
-    background-color: #4361ee;
     border-color: #4361ee;
   }
 

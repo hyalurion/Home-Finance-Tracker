@@ -6,7 +6,7 @@
         <span class="current-month">{{ currentMonthName }}</span>
       </div>
       <div class="header-right">
-        <el-button
+        <GlassButton
           @click="showSettings = !showSettings"
           :icon="Setting"
           size="small"
@@ -14,7 +14,7 @@
           class="settings-btn"
         >
           {{ $t('spending.settings.title') }}
-        </el-button>
+        </GlassButton>
       </div>
     </div>
 
@@ -98,14 +98,14 @@
         <h4>{{ $t('spending.enablePrompt.title') }}</h4>
         <p>{{ $t('spending.enablePrompt.description') }}</p>
       </div>
-      <el-button
+      <GlassButton
         @click="enableSpendingLimit"
         type="primary"
         :icon="Plus"
         class="enable-btn"
       >
         {{ $t('spending.enablePrompt.button') }}
-      </el-button>
+      </GlassButton>
     </div>
   </div>
 </template>
@@ -487,23 +487,6 @@ onMounted(() => {
 
   :deep(.el-alert__title) {
     color: #f9fafb;
-  }
-
-  :deep(.el-button) {
-    --el-button-text-color: #e5e7eb;
-    --el-button-hover-text-color: #ffffff;
-    --el-button-bg-color: #374151;
-    --el-button-hover-bg-color: #4b5563;
-    --el-button-border-color: #4b5563;
-    --el-button-hover-border-color: #6b7280;
-  }
-
-  :deep(.el-button--primary) {
-    --el-button-text-color: #ffffff;
-    --el-button-bg-color: #3b82f6;
-    --el-button-hover-bg-color: #2563eb;
-    --el-button-border-color: #3b82f6;
-    --el-button-hover-border-color: #2563eb;
   }
 
     /* 月度预算相关元素颜色区分 */

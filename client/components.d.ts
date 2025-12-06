@@ -10,7 +10,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     CustomSelect: typeof import('./src/components/CustomSelect.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
-    ElButton: typeof import('element-plus/es')['ElButton']
     ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
     ElCollapseTransition: typeof import('element-plus/es')['ElCollapseTransition']
     ElDialog: typeof import('element-plus/es')['ElDialog']

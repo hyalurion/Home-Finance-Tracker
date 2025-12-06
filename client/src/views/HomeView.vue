@@ -2771,7 +2771,7 @@ body.donation-modal-open {
     padding: 0 !important;
   }
   
-  .mobile-button-group .upload-excel .el-button {
+  .mobile-button-group .upload-excel {
     width: 100% !important;
     width: 93vw !important;
     margin: 0 !important;
@@ -2785,17 +2785,17 @@ body.donation-modal-open {
   }
   
   /* 确保Element Plus按钮组样式不影响布局 */
-  .mobile-button-group .el-button-group {
+  .mobile-button-group  {
     width: 100% !important;
   }
   
   /* 确保所有按钮内容居中对齐 */
-  .mobile-button-group .el-button .el-icon + span {
+  .mobile-button-group .el-icon + span {
     margin-left: 8px;
   }
   
   /* 修复可能的文本对齐问题 */
-  .mobile-button-group .el-button {
+  .mobile-button-group {
     text-align: center !important;
   }
 }

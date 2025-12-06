@@ -35,16 +35,6 @@
       <p v-if="!currentSubscription">
         {{ $t('membership.noActiveSubscription') }}
       </p>
-      <!--
-      取消订阅功能，此功能未完成，当前取消订阅不会为用户退款，当前不应该启用此功能
-      <el-button 
-        v-if="currentSubscription" 
-        type="danger" 
-        @click="cancelSubscription"
-        :loading="isCancelling"
-      >
-        {{ $t('membership.cancelSubscription') }}
-      </el-button> -->
       <GlassButton 
         type="warning" 
         @click="logout"
