@@ -683,7 +683,6 @@ export default {
   .history-container,
   .login-form {
     background-color: #202020;
-    border-color: #409eff;
   }
 
   .plan-header h3,

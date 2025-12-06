@@ -150,22 +150,24 @@ const handleClose = () => {
 }
 
 /* Dark theme */
-.glass-alert.dark-theme {
+@media (prefers-color-scheme: dark) {
+.glass-alert {
   background: rgba(26, 32, 44, 0.8);
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.glass-alert.dark-theme .glass-alert-message {
+.glass-alert .glass-alert-message {
   color: #cbd5e0;
 }
 
-.glass-alert.dark-theme .glass-alert-close {
+.glass-alert .glass-alert-close {
   color: #a0aec0;
 }
 
-.glass-alert.dark-theme .glass-alert-close:hover {
+.glass-alert .glass-alert-close:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #e2e8f0;
+}
 }
 </style>

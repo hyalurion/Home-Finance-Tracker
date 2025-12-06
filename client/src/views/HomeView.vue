@@ -404,7 +404,7 @@
   </transition>
 
   <!-- API密钥设置对话框 -->
-  <GlassDialog v-model:visible="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%" :dark-theme="isDarkMode">
+  <GlassDialog v-model:visible="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%" :dark-theme="isDarkMode" :z-index="9999">
     <GlassForm :model="apiKeyForm" ref="apiKeyFormRef">
       <GlassFormItem :label="'API密钥'" prop="apiKey">
         <GlassInput
@@ -456,6 +456,12 @@
           </template>
         </GlassUpload>
       </GlassFormItem>
+      <div :class="['api-key-prompt', { 'dark-theme': isDarkMode }]">
+        <span>需要设置API密钥才能使用AI功能</span>
+        <GlassButton type="info" @click="showApiKeyDialog = true" :dark-theme="isDarkMode" size="small">
+          设置API密钥
+        </GlassButton>
+      </div>
     </GlassForm>
     <template #footer>
       <GlassButton @click="handleAiCancel" :dark-theme="isDarkMode">{{ t('common.cancel') }}</GlassButton>
@@ -1783,6 +1789,32 @@ const refreshPage = () => {
   --error-bg: #ffebee;
   --error-border: #ffcdd2;
   --donation-modal-overlay: rgba(0, 0, 0, 0.8);
+}
+
+/* API密钥提示框样式 */
+.api-key-prompt {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #f0f2f5;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.api-key-prompt span {
+  font-size: 14px;
+  color: #606266;
+}
+
+@media (prefers-color-scheme: dark) {
+.api-key-prompt {
+  background-color: #2a3142;
+}
+
+.api-key-prompt span {
+  color: #a0aec0;
+}
 }
 
 .container {

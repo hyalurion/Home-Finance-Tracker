@@ -49,6 +49,10 @@ const props = defineProps({
   preventScroll: {
     type: Boolean,
     default: true
+  },
+  zIndex: {
+    type: Number,
+    default: 1000
   }
 })
 
@@ -101,7 +105,7 @@ const afterLeave = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: v-bind('zIndex');
   backdrop-filter: blur(4px);
 }
 
