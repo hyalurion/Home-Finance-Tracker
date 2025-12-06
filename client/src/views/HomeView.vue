@@ -5,12 +5,12 @@
       <h2 class="donation-modal-title">请开通会员<br>Please Activate Membership</h2>
       <p class="donation-modal-message">为了继续使用完整功能，请开通会员订阅。开通会员后您可以无限制使用所有功能。<br>To continue using all features, please activate a membership subscription. With an active membership, you can enjoy unlimited access to all functionalities.</p>
       <div class="donation-modal-footer">
-        <button type="primary" @click="proceedToMembership">
+        <GlassButton type="primary" @click="proceedToMembership" :dark-theme="isDarkMode">
           开通会员<br>Activate Membership
-        </button>
-        <button type="primary" @click="exportMonthData" size="default">
+        </GlassButton>
+        <GlassButton type="primary" @click="exportMonthData" :dark-theme="isDarkMode">
           或者免费导出本月数据图片<br>Or avail yourself of the complimentary exportation for the current month's data schematic
-        </button>
+        </GlassButton>
       </div>
     </div>
   </div>
@@ -36,19 +36,20 @@
     </div>
 
        <div v-if="isAndroidDevice" class="android-download-section">
-         <el-button 
+         <GlassButton 
            type="info" 
            size="large" 
            class="android-download-btn"
            @click="openAndroidAppStore"
-           style="width: 100%; white-space: normal; height: auto; line-height: 1.5; padding: 16px;"
+           :dark-theme="isDarkMode"
+           style="width: 100%;display: flex; justify-content: center; margin-bottom: 20px; white-space: normal; height: auto; line-height: 1.5; padding: 16px;"
          >
            <div style="text-align: center;">
              <el-icon style="margin-bottom: 4px;"><Iphone /></el-icon>
              <div>在应用商店获取安卓版本客户端</div>
              <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">提升使用体验！</div>
            </div>
-         </el-button>
+         </GlassButton>
        </div>
 
     <!-- 功能组网格布局 -->
@@ -66,17 +67,12 @@
       <!-- 桌面端网格布局 -->
       <div class="card-grid">
         <!-- 主要功能组 -->
-        <el-card>
-          <template #header>
-            <div class="card-header">
-              <span>{{ t('function.primary') }}</span>
-            </div>
-          </template>
+        <GlassCard :dark-theme="isDarkMode" :title="t('function.primary')">
           <div class="card-content">
-            <el-button type="primary" @click="showAddDialog = true" size="default">
-              <el-icon><Plus /></el-icon>
+            <GlassButton type="primary" @click="showAddDialog = true" :dark-theme="isDarkMode">
+              <template #icon><el-icon><Plus /></el-icon></template>
               {{ t('expense.addRecord') }}
-            </el-button>
+            </GlassButton>
             <el-upload
               class="upload-excel"
               action="/api/import/excel"
@@ -85,80 +81,65 @@
               :on-error="handleImportError"
               accept=".xlsx, .xls"
             >
-              <el-button type="warning" size="default">
-                <el-icon><Upload /></el-icon>
+              <GlassButton type="warning" @click="$event.preventDefault()" :dark-theme="isDarkMode">
+                <template #icon><el-icon><Upload /></el-icon></template>
                 {{ t('import.title') }}
-              </el-button>
+              </GlassButton>
             </el-upload>
-            <el-button type="primary" @click="exportMonthData" size="default">
-              <el-icon><Download /></el-icon>
+            <GlassButton type="primary" @click="exportMonthData" :dark-theme="isDarkMode">
+              <template #icon><el-icon><Download /></el-icon></template>
               导出本月数据
-            </el-button>
+            </GlassButton>
           </div>
-        </el-card>
+        </GlassCard>
         
         <!-- AI功能组 -->
-        <el-card>
-          <template #header>
-            <div class="card-header">
-              <span>{{ t('function.aiFeatures') }}</span>
-            </div>
-          </template>
+        <GlassCard :dark-theme="isDarkMode" :title="t('function.aiFeatures')">
           <div class="card-content">
-            <el-button type="primary" @click="showAiAddDialog = true" size="default">
-              <el-icon><Cpu /></el-icon>
+            <GlassButton type="primary" @click="showAiAddDialog = true" :dark-theme="isDarkMode">
+              <template #icon><el-icon><Cpu /></el-icon></template>
               AI智能记录
-            </el-button>
-            <el-button type="primary" @click="showAiReportDialog = true" size="default">
-              <el-icon><Document /></el-icon>
+            </GlassButton>
+            <GlassButton type="primary" @click="showAiReportDialog = true" :dark-theme="isDarkMode">
+              <template #icon><el-icon><Document /></el-icon></template>
               AI消费问答
-            </el-button>
+            </GlassButton>
           </div>
-        </el-card>
+        </GlassCard>
         
         <!-- 其他组件组 -->
-        <el-card>
-          <template #header>
-            <div class="card-header">
-              <span>{{ t('function.other') }}</span>
-            </div>
-          </template>
+        <GlassCard :dark-theme="isDarkMode" :title="t('function.other')">
           <div class="card-content">
-            <el-button type="success" @click="goToMembership" size="default">
-              <el-icon><Star /></el-icon>
+            <GlassButton type="success" @click="goToMembership" :dark-theme="isDarkMode">
+              <template #icon><el-icon><Star /></el-icon></template>
               {{ t('membership.title') }}
-            </el-button>
+            </GlassButton>
           </div>
-        </el-card>
-        
-        <!-- 关于我们组 -->
-        <el-card>
-          <template #header>
-            <div class="card-header">
-              <span>{{ t('function.aboutus') }}</span>
-            </div>
-          </template>
+        </GlassCard>
+
+        <!-- 支持与帮助组 -->
+        <GlassCard :dark-theme="isDarkMode" :title="t('function.support')">
           <div class="card-content">
-            <el-button type="primary" @click="handleFeedback" size="default">
-              <el-icon><Message /></el-icon>
+            <GlassButton type="primary" @click="handleFeedback" :dark-theme="isDarkMode">
+              <template #icon><el-icon><Message /></el-icon></template>
               {{ t('feedback.title') }}
-            </el-button>
-          <el-button type="primary" @click="goToHowToUse" size="default">
-            <el-icon><Help /></el-icon>
-            使用方法
-          </el-button>
+            </GlassButton>
+            <GlassButton type="primary" @click="goToHowToUse" :dark-theme="isDarkMode">
+              <template #icon><el-icon><Help /></el-icon></template>
+              {{ t('howToUse.title') }}
+            </GlassButton>
           </div>
-        </el-card>
+        </GlassCard>
       </div>
       
       <!-- 手机端按钮显示 -->
       <div class="mobile-buttons">
         <!-- 主要功能组按钮 -->
         <div v-if="selectedFunctionGroup === 'primary'" class="mobile-button-group">
-          <el-button type="primary" @click="showAddDialog = true" size="large" class="mobile-btn">
-            <el-icon><Plus /></el-icon>
+          <GlassButton type="primary" @click="showAddDialog = true" size="large" class="mobile-btn" :dark-theme="isDarkMode">
+            <template #icon><el-icon><Plus /></el-icon></template>
             {{ t('expense.addRecord') }}
-          </el-button>
+          </GlassButton>
           <el-upload
             class="upload-excel"
             action="/api/import/excel"
@@ -167,47 +148,47 @@
             :on-error="handleImportError"
             accept=".xlsx, .xls"
           >
-            <el-button type="warning" size="large" class="mobile-btn">
-              <el-icon><Upload /></el-icon>
+            <GlassButton type="warning" size="large" class="mobile-btn" @click="$event.preventDefault()" :dark-theme="isDarkMode">
+              <template #icon><el-icon><Upload /></el-icon></template>
               {{ t('import.title') }}
-            </el-button>
+            </GlassButton>
           </el-upload>
-          <el-button type="primary" @click="exportMonthData" size="large" class="mobile-btn">
-            <el-icon><Download /></el-icon>
+          <GlassButton type="primary" @click="exportMonthData" size="large" class="mobile-btn" :dark-theme="isDarkMode">
+            <template #icon><el-icon><Download /></el-icon></template>
             导出本月数据
-          </el-button>
+          </GlassButton>
         </div>
         
         <!-- AI功能组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'ai'" class="mobile-button-group">
-          <el-button type="primary" @click="showAiAddDialog = true" size="large" class="mobile-btn">
-            <el-icon><Cpu /></el-icon>
+          <GlassButton type="primary" @click="showAiAddDialog = true" size="large" class="mobile-btn" :dark-theme="isDarkMode">
+            <template #icon><el-icon><Cpu /></el-icon></template>
             AI智能记录
-          </el-button>
-          <el-button type="primary" @click="showAiReportDialog = true" size="large" class="mobile-btn">
-            <el-icon><Document /></el-icon>
+          </GlassButton>
+          <GlassButton type="primary" @click="showAiReportDialog = true" size="large" class="mobile-btn" :dark-theme="isDarkMode">
+            <template #icon><el-icon><Document /></el-icon></template>
             AI消费问答
-          </el-button>
+          </GlassButton>
         </div>
         
         <!-- 其他组件组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'other'" class="mobile-button-group">
-          <el-button type="success" @click="goToMembership" size="large" class="mobile-btn">
-            <el-icon><Star /></el-icon>
+          <GlassButton type="success" @click="goToMembership" :dark-theme="isDarkMode" class="mobile-btn">
+            <template #icon><el-icon><Star /></el-icon></template>
             {{ t('membership.title') }}
-          </el-button>
+          </GlassButton>
         </div>
         
         <!-- 关于我们组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'about'" class="mobile-button-group">
-          <el-button type="primary" @click="handleFeedback" size="large" class="mobile-btn">
-            <el-icon><Message /></el-icon>
+          <GlassButton type="primary" @click="handleFeedback" :dark-theme="isDarkMode" class="mobile-btn">
+            <template #icon><el-icon><Message /></el-icon></template>
             {{ t('feedback.title') }}
-          </el-button>
-          <el-button type="primary" @click="goToHowToUse" size="large" class="mobile-btn">
-            <el-icon><Help /></el-icon>
+          </GlassButton>
+          <GlassButton type="primary" @click="goToHowToUse" :dark-theme="isDarkMode" class="mobile-btn">
+            <template #icon><el-icon><Help /></el-icon></template>
             使用方法
-          </el-button>
+          </GlassButton>
         </div>
       </div>
     </div>
@@ -216,10 +197,12 @@
     <SpendingLimitDisplay :expenses="Expenses" />
     
     <!-- 图表分析按钮 -->
-    <el-button type="primary" @click="goToCharts" size="default" style="margin-bottom: 20px;">
-      <el-icon><PieChart /></el-icon>
-      {{ t('chart.title') }}
-    </el-button>
+    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+      <GlassButton type="primary" @click="goToCharts" :dark-theme="isDarkMode">
+        <template #icon><el-icon><PieChart /></el-icon></template>
+        {{ t('chart.title') }}
+      </GlassButton>
+    </div>
     
     <ExpenseList 
       :refresh-trigger="refreshTrigger" 
@@ -238,7 +221,9 @@
 
   <!-- 悬浮刷新按钮 -->
   <div class="floating-refresh-btn">
-    <el-button type="primary" icon="Refresh" @click="refreshPage()" size="default" circle />
+    <GlassButton type="primary" @click="refreshPage()" :dark-theme="isDarkMode" circle>
+      <template #icon><el-icon><Refresh /></el-icon></template>
+    </GlassButton>
   </div>
 
   <!-- 自定义添加记录弹窗 -->
@@ -434,8 +419,8 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="showApiKeyDialog = false">取消</el-button>
-      <el-button type="primary" @click="handleApiKeySave">保存</el-button>
+      <GlassButton @click="showApiKeyDialog = false" :dark-theme="isDarkMode">取消</GlassButton>
+      <GlassButton type="primary" @click="handleApiKeySave" :dark-theme="isDarkMode">保存</GlassButton>
     </template>
   </el-dialog>
 
@@ -460,7 +445,7 @@
           :show-file-list="true"
           accept=".jpg,.jpeg,.png,.gif"
         >
-          <el-button size="small" type="primary">点击上传</el-button>
+          <GlassButton size="small" type="primary" :dark-theme="isDarkMode">点击上传</GlassButton>
           <template #tip>
             <div class="el-upload__tip">
               请上传包含消费信息的图片（如收据、账单截图等）
@@ -470,10 +455,10 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="handleAiCancel">{{ t('common.cancel') }}</el-button>
-      <el-button type="primary" @click="handleAiGenerate" :loading="isParsing">
+      <GlassButton @click="handleAiCancel" :dark-theme="isDarkMode">{{ t('common.cancel') }}</GlassButton>
+      <GlassButton type="primary" @click="handleAiGenerate" :disabled="isParsing" :dark-theme="isDarkMode">
         {{ isParsing ? '生成中...' : '生成记录' }}
-      </el-button>
+      </GlassButton>
     </template>
   </el-dialog>
 
@@ -520,8 +505,8 @@
       </div>
     </div>
     <template #footer>
-      <el-button @click="handleMultiRecordsCancel">{{ t('common.cancel') }}</el-button>
-      <el-button type="primary" @click="handleMultiRecordsSubmit">{{ t('common.submit') }} ({{ selectedRecordsCount }}/{{ multiRecords.length }})</el-button>
+      <GlassButton @click="handleMultiRecordsCancel" :dark-theme="isDarkMode">{{ t('common.cancel') }}</GlassButton>
+      <GlassButton type="primary" @click="handleMultiRecordsSubmit" :dark-theme="isDarkMode">{{ t('common.submit') }} ({{ selectedRecordsCount }}/{{ multiRecords.length }})</GlassButton>
     </template>
   </el-dialog>
 
@@ -558,7 +543,7 @@
       </div>
     </div>
     <template #footer>
-      <el-button @click="showAiReportDialog = false">关闭</el-button>
+      <GlassButton @click="showAiReportDialog = false" :dark-theme="isDarkMode">关闭</GlassButton>
     </template>
   </el-dialog>
 
@@ -596,6 +581,9 @@ const ExpenseCharts = defineAsyncComponent(() => import('@/components/ExpenseCha
 const ExportButton = defineAsyncComponent(() => import('@/components/ExportButton.vue'));
 const MarkdownDialog = defineAsyncComponent(() => import('@/components/MarkdownDialog.vue'));
 const SpendingLimitDisplay = defineAsyncComponent(() => import('@/components/SpendingLimitDisplay.vue'));
+const GlassCard = defineAsyncComponent(() => import('@/components/GlassCard.vue'));
+const GlassButton = defineAsyncComponent(() => import('@/components/GlassButton.vue'));
+const GlassInput = defineAsyncComponent(() => import('@/components/GlassInput.vue'));
 
 
 const { t, locale } = useI18n();
@@ -2166,19 +2154,6 @@ const refreshPage = () => {
   z-index: 1000;
 }
 
-.floating-refresh-btn .el-button {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-}
-
-.floating-refresh-btn .el-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
 /* 全局强制捐款弹窗样式 */
 .donation-modal-overlay {
   position: fixed;
@@ -2273,6 +2248,7 @@ const refreshPage = () => {
   border-radius: 8px;
   width: 100%;
   max-width: 320px;
+  justify-content: center;
 }
 
 /* 阻止背景滚动 */

@@ -14,17 +14,18 @@
 
     <!-- 返回主页按钮 -->
     <div class="back-button-container">
-      <el-button type="primary" @click="goBack" size="default">
-        <el-icon><ArrowLeft /></el-icon>
+      <GlassButton type="primary" @click="goBack" size="default">
+        <template #icon><el-icon><ArrowLeft /></el-icon></template>
         {{ t('common.back') }}
-      </el-button>
+      </GlassButton>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { ElButton, ElIcon } from 'element-plus';
+import { ElIcon } from 'element-plus';
+import GlassButton from '@/components/GlassButton.vue';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';

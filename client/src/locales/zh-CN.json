@@ -49,6 +49,8 @@
   "expense.enterRemark": "添加备注（可选）",
   "common.confirm": "确认",
   "expense.serverError": "服务器错误",
+  "function.support": "关于我们",
+  "howToUse.title": "使用说明",
   "app": {
     "title": "家庭记账本",
     "addRecord": "记一笔",

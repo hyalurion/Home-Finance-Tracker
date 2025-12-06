@@ -107,6 +107,8 @@
   "expense.stats.averageAmount": "平均值",
   "expense.stats.medianAmount": "中位數",
   "expense.stats.amountRange": "金額範圍",
+  "function.support": "關於我們",
+  "howToUse.title": "使用說明",
   "expense": {
     "search": {
       "month": "月份",
