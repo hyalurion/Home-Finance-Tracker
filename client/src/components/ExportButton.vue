@@ -8,7 +8,7 @@
 -->
 <template>
   <div class="export-section">
-    <button @click="handleExport" class="btn btn-primary">{{ $t('app.export') }}</button>
+    <GlassButton type="primary" @click="handleExport" class="btn btn-primary">{{ $t('app.export') }}</GlassButton>
   </div>
 </template>
 

@@ -113,39 +113,41 @@ defineEmits(['click'])
 }
 
 /* Dark theme */
-.glass-button.dark-theme {
-  background: rgba(26, 32, 44, 0.7);
+@media (prefers-color-scheme: dark) {
+.glass-button {
+  background: rgba(255, 255, 255, 0.08);
   color: #e2e8f0;
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
-.glass-button.dark-theme::before {
-  background: rgba(0, 0, 0, 0.1);
+.glass-button::before {
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.glass-button.dark-theme:hover {
-  background: rgba(26, 32, 44, 0.9);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-.glass-button.dark-theme.primary:hover {
-  background: rgba(59, 130, 246, 0.9);
+.glass-button.primary:hover {
+  background: rgba(128, 128, 128, 0.9);
 }
 
-.glass-button.dark-theme.success {
+.glass-button.success {
   background: rgba(34, 197, 94, 0.7);
 }
 
-.glass-button.dark-theme.success:hover {
+.glass-button.success:hover {
   background: rgba(34, 197, 94, 0.9);
 }
 
-.glass-button.dark-theme.warning {
+.glass-button.warning {
   background: rgba(234, 179, 8, 0.7);
 }
 
-.glass-button.dark-theme.warning:hover {
+.glass-button.warning:hover {
   background: rgba(234, 179, 8, 0.9);
+}
 }
 </style>

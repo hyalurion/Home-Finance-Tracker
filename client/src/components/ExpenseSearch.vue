@@ -4,10 +4,10 @@
       <div class="search-header">
         <h2>{{ $t('expense.search.title') }}</h2>
         <div class="search-actions">
-          <button @click="handleReset" class="reset-button">
+          <GlassButton @click="handleReset" class="reset-button">
             <i class="icon-reset"></i>
             {{ $t('expense.search.reset') }}
-          </button>
+          </GlassButton>
         </div>
       </div>
 

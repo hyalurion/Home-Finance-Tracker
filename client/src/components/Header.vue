@@ -3,7 +3,7 @@
     <h1>{{ title }}</h1>
 
     <div class="language-buttons">
-      <button
+      <GlassButton
         v-for="lang in languages"
         :key="lang.code"
         @click="switchLanguage(lang.code)"
@@ -11,7 +11,7 @@
         :aria-label="`切换到${lang.label}`"
       >
         {{ lang.shortLabel }}
-      </button>
+      </GlassButton>
     </div>
 
   </div>
@@ -143,28 +143,6 @@ onUnmounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 阴影效果 */
 }
 
-/* 语言按钮悬停效果 */
-.language-btn:hover {
-  border-color: var(--el-color-primary, #409eff); /* 边框颜色变为主题色 */
-  color: var(--el-color-primary, #409eff); /* 文本颜色变为主题色 */
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15); /* 增强阴影 */
-  transform: translateY(-1px); /* 轻微上移 */
-}
-
-/* 选中状态的语言按钮 */
-.language-btn.active {
-  background-color: var(--el-color-primary, #409eff); /* 背景色变为主题色 */
-  color: white; /* 文本颜色变为白色 */
-  border-color: var(--el-color-primary, #409eff); /* 边框颜色变为主题色 */
-  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.2); /* 增强阴影 */
-}
-
-/* 选中状态的语言按钮悬停效果 */
-.language-btn.active:hover {
-  background-color: var(--el-color-primary-dark-2, #3a8ee6); /* 背景色稍微变深 */
-  border-color: var(--el-color-primary-dark-2, #3a8ee6); /* 边框颜色稍微变深 */
-}
-
 /* 移动端适配 */
 @media (max-width: 768px) {
   .header {
@@ -215,24 +193,6 @@ onUnmounted(() => {
     color: #e0e0e0;
     border-color: #555;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-
-  .language-btn:hover {
-    border-color: #79bbff;
-    color: #79bbff;
-    box-shadow: 0 4px 12px rgba(121, 187, 255, 0.15);
-  }
-
-  .language-btn.active {
-    background-color: #79bbff;
-    color: #1a1a1a;
-    border-color: #79bbff;
-    box-shadow: 0 4px 16px rgba(121, 187, 255, 0.25);
-  }
-
-  .language-btn.active:hover {
-    background-color: #5da8ff;
-    border-color: #5da8ff;
   }
 }
 

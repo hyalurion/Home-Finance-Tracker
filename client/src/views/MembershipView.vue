@@ -15,9 +15,9 @@
           ></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleLogin" :loading="isLoggingIn">
+          <GlassButton type="primary" @click="handleLogin" :disabled="isLoggingIn">
             {{ $t('membership.loginOrRegister') }}
-          </el-button>
+          </GlassButton>
         </el-form-item>
       </el-form>
     </div>
@@ -45,13 +45,13 @@
       >
         {{ $t('membership.cancelSubscription') }}
       </el-button> -->
-      <el-button 
+      <GlassButton 
         type="warning" 
         @click="logout"
         style="margin-left: 10px"
       >
         {{ $t('membership.logout') }}
-      </el-button>
+      </GlassButton>
     </div>
     
     <div style="text-align: center;">
@@ -75,20 +75,14 @@
             <div class="price-tag">¥{{ plan.price }}</div>
           </div>
           <div class="plan-description">{{ plan.description }}</div>
-          <div class="plan-features">
-            <div class="feature">{{ $t('membership.feature1') }}</div>
-            <div class="feature">{{ $t('membership.feature2') }}</div>
-            <div class="feature">{{ $t('membership.feature3') }}</div>
-            <div class="feature">{{ $t('membership.feature4') }}</div>
-          </div>
-          <el-button 
+          <GlassButton 
             type="primary" 
             class="subscribe-button"
-            :loading="isProcessing"
+            :disabled="isProcessing"
             @click.stop="subscribe(plan)"
           >
             {{ $t('membership.subscribe') }}
-          </el-button>
+          </GlassButton>
         </div>
       </div>
     </div>
@@ -143,9 +137,13 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import Header from '@/components/Header.vue';
+import GlassButton from '@/components/GlassButton.vue';
 
 export default {
   name: 'MembershipView',
+  components: {
+    GlassButton
+  },
   setup() {
     const subscriptionPlans = ref([])
     const selectedPlanId = ref(null)
@@ -602,6 +600,7 @@ export default {
 
 .subscribe-button {
   width: 100%;
+  justify-content: center;
 }
 
 .history-container {

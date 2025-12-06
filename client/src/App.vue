@@ -79,13 +79,9 @@ main {
 }
 
 button {
-  padding: 0.5rem 1rem !important;
-  border: none !important;
   border-radius: var(--border-radius) !important;
   cursor: pointer !important;
   transition: all var(--transition-time) ease !important;
-  font-family: inherit !important;
-  font-size: inherit !important;
 }
 
 /* 深色模式支持 */
@@ -94,11 +90,6 @@ button {
     --text-primary: #e0e0e0 !important;
     --bg-primary: #121212 !important;
     --border-light: #333 !important;
-    --button-bg: #333 !important;
-    --button-hover: #444 !important;
-    --button-active: #333 !important;
-    --button-disabled: #2d2d2d !important;
-    --button-disabled-text: #666666 !important;
   }
 
   html, body {
@@ -114,28 +105,6 @@ button {
 
   header {
     border-bottom: 1px solid var(--border-light) !important;
-  }
-
-  button {
-    background-color: var(--button-bg) !important;
-    color: var(--text-primary) !important;
-  }
-
-  button:hover {
-    background-color: var(--button-hover) !important;
-    transform: translateY(-1px) !important;
-  }
-
-  button:active {
-    background-color: var(--button-active) !important;
-    transform: translateY(0) !important;
-  }
-
-  button:disabled {
-    background-color: var(--button-disabled) !important;
-    color: var(--button-disabled-text) !important;
-    cursor: not-allowed !important;
-    transform: none !important;
   }
 
   /* ===== 深色模式日期选择器优化 ===== */

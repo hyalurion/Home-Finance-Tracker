@@ -73,12 +73,12 @@
               <span class="remark-text">{{ expense.remark }}</span>
             </div>
             <div class="card-actions">
-              <button class="card-edit-btn" @click="handleEdit(expense)">
+              <GlassButton type="primary" class="card-edit-btn" @click="handleEdit(expense)">
                 {{ $t('common.edit') }}
-              </button>
-              <button class="card-delete-btn" @click="handleDelete(expense.id)">
+              </GlassButton>
+              <GlassButton type="danger" class="card-delete-btn" @click="handleDelete(expense.id)">
                 {{ $t('common.delete') }}
-              </button>
+              </GlassButton>
             </div>
           </div>
         </div>
@@ -290,9 +290,6 @@ export default {
   .card-edit-btn,
   .card-delete-btn {
     padding: 4px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
     font-size: 12px;
     font-weight: 500;
     transition: all 0.2s ease;

@@ -296,8 +296,8 @@
         </div>
         
         <div class="dialog-footer">
-          <button class="btn btn-secondary" @click="closeAddDialog">{{ t('common.cancel') }}</button>
-          <button class="btn btn-primary" @click="handleAddRecord">{{ t('common.confirm') }}</button>
+          <GlassButton type="secondary" @click="closeAddDialog">{{ t('common.cancel') }}</GlassButton>
+          <GlassButton type="primary" @click="handleAddRecord">{{ t('common.confirm') }}</GlassButton>
         </div>
       </div>
     </div>
@@ -373,8 +373,8 @@
         </div>
         
         <div class="dialog-footer">
-          <button class="btn btn-secondary" @click="showEditDialog = false">{{ t('common.cancel') }}</button>
-          <button class="btn btn-primary" @click="confirmEdit">{{ t('common.confirm') }}</button>
+          <GlassButton type="secondary" @click="showEditDialog = false">{{ t('common.cancel') }}</GlassButton>
+          <GlassButton type="primary" @click="confirmEdit">{{ t('common.confirm') }}</GlassButton>
         </div>
       </div>
     </div>
@@ -396,8 +396,8 @@
         </div>
         
         <div class="dialog-footer">
-          <button class="btn btn-secondary" @click="showDeleteDialog = false">{{ t('common.cancel') }}</button>
-          <button class="btn btn-danger" @click="confirmDelete">{{ t('common.delete') }}</button>
+          <GlassButton type="secondary" @click="showDeleteDialog = false">{{ t('common.cancel') }}</GlassButton>
+          <GlassButton type="warning" @click="confirmDelete">{{ t('common.delete') }}</GlassButton>
         </div>
       </div>
     </div>
@@ -524,10 +524,10 @@
               placeholder="您可以向AI提问关于您的消费情况，例如：'我本月的主要消费类别是什么？'或'如何减少我的日常开支？'"
             />
             <div style="margin-top: 10px; display: flex; gap: 10px;">
-              <el-button type="primary" @click="handleGenerateReport" :loading="isGeneratingReport">
+              <GlassButton type="primary" @click="handleGenerateReport" :disabled="isGeneratingReport" :dark-theme="isDarkMode">
                 {{ isGeneratingReport ? '生成中...' : '生成' }}
-              </el-button>
-              <el-button @click="clearReportQuestion">清空问题</el-button>
+              </GlassButton>
+              <GlassButton @click="clearReportQuestion" :dark-theme="isDarkMode">清空问题</GlassButton>
             </div>
           </el-form-item>
         </el-form>
