@@ -56,12 +56,6 @@
 
     <!-- 详细信息 -->
     <div class="details-section">
-      <div class="detail-item">
-        <span class="detail-label">{{ $t('spending.remaining') }}:</span>
-        <span class="detail-value" :class="remainingClass">
-          ¥{{ formatAmount(spendingStore.remainingAmount) }}
-        </span>
-      </div>
       <div class="detail-item" v-if="spendingStore.isOverLimit">
         <span class="detail-label">{{ $t('spending.exceeded') }}:</span>
         <span class="detail-value exceeded-amount">

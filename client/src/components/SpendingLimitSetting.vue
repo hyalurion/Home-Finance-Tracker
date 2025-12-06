@@ -69,31 +69,6 @@
           </GlassButton>
         </div>
       </div>
-
-      <!-- 当前状态预览 -->
-      <div class="setting-item">
-        <label class="setting-label">{{ $t('spending.settings.preview') }}</label>
-        <div class="preview-card">
-          <div class="preview-item">
-            <span class="preview-label">{{ $t('spending.currentMonth') }}:</span>
-            <span class="preview-value">{{ currentMonthName }}</span>
-          </div>
-          <div class="preview-item">
-            <span class="preview-label">{{ $t('spending.currentSpending') }}:</span>
-            <span class="preview-value spending-amount">¥{{ formatAmount(spendingStore.currentMonthSpending) }}</span>
-          </div>
-          <div class="preview-item">
-            <span class="preview-label">{{ $t('spending.monthlyLimit') }}:</span>
-            <span class="preview-value limit-amount">¥{{ formatAmount(spendingStore.monthlyLimit) }}</span>
-          </div>
-          <div class="preview-item">
-            <span class="preview-label">{{ $t('spending.remaining') }}:</span>
-            <span class="preview-value" :class="remainingClass">
-              ¥{{ formatAmount(spendingStore.remainingAmount) }}
-            </span>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- 禁用状态说明 -->
@@ -217,10 +192,6 @@ onMounted(() => {
   font-size: 18px;
   font-weight: 600;
   color: #303133;
-}
-
-.enable-switch {
-  /* 使用自定义开关的颜色变量 */
 }
 
 .setting-content {
