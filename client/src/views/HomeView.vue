@@ -319,100 +319,104 @@
   </transition>
 
   <!-- 编辑消费记录对话框 -->
-  <div v-if="showEditDialog" class="custom-dialog-overlay" @click.self="showEditDialog = false">
-    <div class="custom-dialog" :class="{ 'dark-theme': isDarkMode }">
-      <div class="dialog-header">
-        <h3 class="dialog-title">{{ t('expense.edit') }}</h3>
-        <button class="dialog-close-btn" @click="showEditDialog = false" aria-label="关闭">
-          ×
-        </button>
-      </div>
-      
-      <div class="dialog-body">
-        <form class="custom-form" @submit.prevent="confirmEdit">
-          <div class="form-group">
-            <label class="form-label" :class="{ 'error': editErrors.type }">
-              {{ t('expense.type') }}
-            </label>
-            <CustomSelect 
-              v-model="editingExpense.type" 
-              :options="expenseTypes.map(type => ({ label: type, value: type }))"
-              :empty-option-label="t('expense.selectType')"
-              class="form-select"
-              :class="{ 'error': editErrors.type }"
-            />
-            <span v-if="editErrors.type" class="error-message">{{ editErrors.type }}</span>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" :class="{ 'error': editErrors.amount }">
-              {{ t('expense.amount') }}
-            </label>
-            <input 
-              v-model="editingExpense.amount" 
-              type="number" 
-              step="0.01" 
-              min="0" 
-              class="form-input" 
-              :class="{ 'error': editErrors.amount }" 
-              :placeholder="0"
-              required
-            />
-            <span v-if="editErrors.amount" class="error-message">{{ editErrors.amount }}</span>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" :class="{ 'error': editErrors.date }">
-              {{ t('expense.date') }}
-            </label>
-            <input 
-              v-model="editingExpense.date" 
-              type="date" 
-              class="form-input" 
-              :class="{ 'error': editErrors.date }" 
-              required
-            />
-            <span v-if="editErrors.date" class="error-message">{{ editErrors.date }}</span>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">{{ t('expense.remark') }}</label>
-            <textarea 
-              v-model="editingExpense.remark" 
-              class="form-textarea" 
-              :placeholder="t('expense.enterRemark')"
-            ></textarea>
-          </div>
-        </form>
-      </div>
-      
-      <div class="dialog-footer">
-        <button class="btn btn-secondary" @click="showEditDialog = false">{{ t('common.cancel') }}</button>
-        <button class="btn btn-primary" @click="confirmEdit">{{ t('common.confirm') }}</button>
+  <transition name="dialog-fade">
+    <div v-if="showEditDialog" class="custom-dialog-overlay" @click.self="showEditDialog = false">
+      <div class="custom-dialog" :class="{ 'dark-theme': isDarkMode }">
+        <div class="dialog-header">
+          <h3 class="dialog-title">{{ t('expense.edit') }}</h3>
+          <button class="dialog-close-btn" @click="showEditDialog = false" aria-label="关闭">
+            ×
+          </button>
+        </div>
+        
+        <div class="dialog-body">
+          <form class="custom-form" @submit.prevent="confirmEdit">
+            <div class="form-group">
+              <label class="form-label" :class="{ 'error': editErrors.type }">
+                {{ t('expense.type') }}
+              </label>
+              <CustomSelect 
+                v-model="editingExpense.type" 
+                :options="expenseTypes.map(type => ({ label: type, value: type }))"
+                :empty-option-label="t('expense.selectType')"
+                class="form-select"
+                :class="{ 'error': editErrors.type }"
+              />
+              <span v-if="editErrors.type" class="error-message">{{ editErrors.type }}</span>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" :class="{ 'error': editErrors.amount }">
+                {{ t('expense.amount') }}
+              </label>
+              <input 
+                v-model="editingExpense.amount" 
+                type="number" 
+                step="0.01" 
+                min="0" 
+                class="form-input" 
+                :class="{ 'error': editErrors.amount }" 
+                :placeholder="0"
+                required
+              />
+              <span v-if="editErrors.amount" class="error-message">{{ editErrors.amount }}</span>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" :class="{ 'error': editErrors.date }">
+                {{ t('expense.date') }}
+              </label>
+              <input 
+                v-model="editingExpense.date" 
+                type="date" 
+                class="form-input" 
+                :class="{ 'error': editErrors.date }" 
+                required
+              />
+              <span v-if="editErrors.date" class="error-message">{{ editErrors.date }}</span>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">{{ t('expense.remark') }}</label>
+              <textarea 
+                v-model="editingExpense.remark" 
+                class="form-textarea" 
+                :placeholder="t('expense.enterRemark')"
+              ></textarea>
+            </div>
+          </form>
+        </div>
+        
+        <div class="dialog-footer">
+          <button class="btn btn-secondary" @click="showEditDialog = false">{{ t('common.cancel') }}</button>
+          <button class="btn btn-primary" @click="confirmEdit">{{ t('common.confirm') }}</button>
+        </div>
       </div>
     </div>
-  </div>
+  </transition>
   
   <!-- 删除确认对话框 -->
-  <div v-if="showDeleteDialog" class="custom-dialog-overlay" @click.self="showDeleteDialog = false">
-    <div class="custom-dialog" :class="{ 'dark-theme': isDarkMode }">
-      <div class="dialog-header">
-        <h3 class="dialog-title">{{ t('expense.deleteConfirm') }}</h3>
-        <button class="dialog-close-btn" @click="showDeleteDialog = false" aria-label="关闭">
-          ×
-        </button>
-      </div>
-      
-      <div class="dialog-body">
-        <p>{{ t('expense.deleteMessage') }}</p>
-      </div>
-      
-      <div class="dialog-footer">
-        <button class="btn btn-secondary" @click="showDeleteDialog = false">{{ t('common.cancel') }}</button>
-        <button class="btn btn-danger" @click="confirmDelete">{{ t('common.delete') }}</button>
+  <transition name="dialog-fade">
+    <div v-if="showDeleteDialog" class="custom-dialog-overlay" @click.self="showDeleteDialog = false">
+      <div class="custom-dialog" :class="{ 'dark-theme': isDarkMode }">
+        <div class="dialog-header">
+          <h3 class="dialog-title">{{ t('expense.deleteConfirm') }}</h3>
+          <button class="dialog-close-btn" @click="showDeleteDialog = false" aria-label="关闭">
+            ×
+          </button>
+        </div>
+        
+        <div class="dialog-body">
+          <p>{{ t('expense.deleteMessage') }}</p>
+        </div>
+        
+        <div class="dialog-footer">
+          <button class="btn btn-secondary" @click="showDeleteDialog = false">{{ t('common.cancel') }}</button>
+          <button class="btn btn-danger" @click="confirmDelete">{{ t('common.delete') }}</button>
+        </div>
       </div>
     </div>
-  </div>
+  </transition>
 
   <!-- API密钥设置对话框 -->
   <el-dialog v-model="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%">
