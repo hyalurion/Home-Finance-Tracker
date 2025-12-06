@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import i18n from '@/locales/i18n';
-import { ElMessage } from 'element-plus';
 import HomeView from '@/views/HomeView.vue';
 import NotFoundView from '@/views/NotFoundView.vue';
 
@@ -10,10 +9,8 @@ import NotFoundView from '@/views/NotFoundView.vue';
  * @desc 使用Vue Router管理前端路由，包含历史模式配置和路由守卫
  */
 
-import DonationView from '@/views/DonationView.vue';
 import ChartsView from '@/views/ChartsView.vue';
 import MembershipView from '@/views/MembershipView.vue';
-import AndroidView from '@/views/Android.vue';
 
 const router = createRouter({
   history: createWebHistory(), // 启用History模式（去除URL中的#号）
@@ -23,12 +20,6 @@ const router = createRouter({
       name: 'home',
       meta: { title: 'app.title' }, // 路由元信息：对应i18n的键
       component: HomeView
-    },
-    {
-      path: '/donation',
-      name: 'donation',
-      meta: { title: 'donation.title' },
-      component: DonationView
     },
     {
       path: '/charts',
@@ -47,11 +38,6 @@ const router = createRouter({
       name: 'photo',
       meta: { title: 'photo.title' },
       component: () => import('@/../photo.html')
-    },
-    {
-      path: '/android',
-      name: 'android',
-      component: AndroidView
     },
     {
       path: '/:pathMatch(.*)*',

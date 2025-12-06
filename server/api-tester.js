@@ -103,17 +103,6 @@ class APITester {
             
             // 支付端点
             {
-                name: '捐赠支付',
-                method: 'POST',
-                paths: ['/api/payments/donate'],
-                data: {
-                    amount: 10.00,
-                    currency: 'USD',
-                    donor_name: 'Test Donor',
-                    message: 'Test donation'
-                }
-            },
-            {
                 name: '订阅支付',
                 method: 'POST',
                 paths: ['/api/payments/subscribe'],

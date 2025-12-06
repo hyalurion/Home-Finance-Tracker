@@ -296,18 +296,6 @@ router.get('/api', (req, res) => {
       ],
       payments: [
         {
-          endpoint: '/api/payments/donate',
-          method: 'POST',
-          description: {
-            en: 'Donation payment',
-            zh: '捐赠支付'
-          },
-          usage: {
-            en: 'Process a donation payment',
-            zh: '处理捐赠支付'
-          }
-        },
-        {
           endpoint: '/api/payments/subscribe',
           method: 'POST',
           description: {

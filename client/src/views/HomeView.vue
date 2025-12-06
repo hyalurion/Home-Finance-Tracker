@@ -139,10 +139,6 @@
             </div>
           </template>
           <div class="card-content">
-            <el-button type="info" @click="goToDonation" size="default">
-              <el-icon><Money /></el-icon>
-              {{ t('donation.title') }}
-            </el-button>
             <el-button type="primary" @click="handleFeedback" size="default">
               <el-icon><Message /></el-icon>
               {{ t('feedback.title') }}
@@ -204,10 +200,6 @@
         
         <!-- 关于我们组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'about'" class="mobile-button-group">
-          <el-button type="info" @click="goToDonation" size="large" class="mobile-btn">
-            <el-icon><Money /></el-icon>
-            {{ t('donation.title') }}
-          </el-button>
           <el-button type="primary" @click="handleFeedback" size="large" class="mobile-btn">
             <el-icon><Message /></el-icon>
             {{ t('feedback.title') }}

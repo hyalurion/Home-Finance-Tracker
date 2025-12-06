@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3010
 
 // Middlewares
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://192.168.0.197:5173', 'http://192.168.0.197:3200', 'capacitor://localhost'],
+  origin: ['http://localhost:5173', 'http://192.168.0.197:5173', 'http://192.168.0.197:3200'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
