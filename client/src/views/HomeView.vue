@@ -1055,14 +1055,9 @@ const handleImportError = (error) => {
   console.error('Import error:', error);
 };
 
-// 跳转到捐赠页面
-const goToDonation = () => {
-  router.push('/donation');
-};
-
 // 打开安卓应用商店
 const openAndroidAppStore = () => {
-  window.open('https://chronie-app-store.netlify.app/', '_blank');
+  window.open('https://universal-launcher.netlify.app/app-store.html', '_blank');
 };
 const markdownContent = ref('');
 const markdownTitle = ref('');
