@@ -43,6 +43,7 @@ defineEmits(['click'])
   backdrop-filter: blur(10px);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   background: rgba(255, 255, 255, 0.7);
   color: #1a202c;

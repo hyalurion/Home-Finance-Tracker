@@ -216,6 +216,7 @@
       "monthlyLimit": "月度預算",
       "enterLimit": "輸入月度預算",
       "warningThreshold": "預警閾值",
+      "enterThreshold": "輸入預警閾值",
       "thresholdDescription": "達到預算指定百分比時發出提醒",
       "quickSet": "快速設置",
       "preview": "當前狀態",

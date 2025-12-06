@@ -216,6 +216,7 @@
       "monthlyLimit": "Monthly Budget",
       "enterLimit": "Enter monthly budget",
       "warningThreshold": "Warning Threshold",
+      "enterThreshold": "Enter warning threshold",
       "thresholdDescription": "Get notified when you reach this percentage of your budget",
       "quickSet": "Quick Set",
       "preview": "Current Status",

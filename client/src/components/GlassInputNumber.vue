@@ -101,14 +101,14 @@ watch(
 
 // 增加数值
 const increase = () => {
-  if (disabled || internalValue.value >= max) return
+  if (props.disabled || internalValue.value >= props.max) return
   const newValue = clampValue(internalValue.value + props.step)
   updateValue(newValue)
 }
 
 // 减少数值
 const decrease = () => {
-  if (disabled || internalValue.value <= min) return
+  if (props.disabled || internalValue.value <= props.min) return
   const newValue = clampValue(internalValue.value - props.step)
   updateValue(newValue)
 }
@@ -181,7 +181,6 @@ const updateValue = (newValue) => {
 .glass-input-number-wrapper {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.5);
   border-radius: 8px;
   padding: 4px;
   backdrop-filter: blur(10px);
@@ -251,32 +250,34 @@ const updateValue = (newValue) => {
 }
 
 /* Dark theme */
-.glass-input-number-container.dark-theme .glass-input-number-label {
+@media (prefers-color-scheme: dark) {
+.glass-input-number-container .glass-input-number-label {
   color: #cbd5e0;
 }
 
-.glass-input-number-wrapper.dark-theme {
+.glass-input-number-wrapper {
   background: rgba(26, 32, 44, 0.5);
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.glass-input-number.dark-theme {
+.glass-input-number {
   color: #e2e8f0;
 }
 
-.glass-input-number.dark-theme::placeholder {
+.glass-input-number::placeholder {
   color: #718096;
 }
 
-.glass-input-number-btn.dark-theme {
+.glass-input-number-btn {
   background: rgba(45, 55, 72, 0.7);
   color: #cbd5e0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.glass-input-number-btn.dark-theme:hover:not(:disabled) {
+.glass-input-number-btn:hover:not(:disabled) {  
   background: rgba(45, 55, 72, 0.9);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
 }
 </style>

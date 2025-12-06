@@ -216,6 +216,7 @@
       "monthlyLimit": "月度预算",
       "enterLimit": "输入月度预算",
       "warningThreshold": "预警阈值",
+      "enterThreshold": "输入预警阈值",
       "thresholdDescription": "达到预算指定百分比时发出提醒",
       "quickSet": "快速设置",
       "preview": "当前状态",
