@@ -83,30 +83,6 @@
       font-size: 1.1rem;
     }
 
-    /* 主题切换按钮 */
-    .theme-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--card-background);
-      border: 1px solid var(--border-color);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: var(--shadow-light);
-      z-index: 1000;
-      transition: all 0.3s ease;
-    }
-
-    .theme-toggle:hover {
-      transform: scale(1.05);
-      box-shadow: var(--shadow-medium);
-    }
-
     /* 图片网格样式 */
     .image-grid {
       display: grid;
@@ -343,22 +319,7 @@
   </style>
 </head>
 <body>
-  <!-- 主题切换按钮 -->
-  <button class="theme-toggle" id="themeToggle" title="切换主题">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </button>
-
-  <!-- 头部 -->
+   <!-- 头部 -->
   <div class="header">
     <h1>使用指南</h1>
     <p>点击下方卡片查看详细功能说明</p>

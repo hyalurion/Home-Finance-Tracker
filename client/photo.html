@@ -40,19 +40,21 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
   <!-- 导出按钮 -->
-  <button id="exportBtn" class="bg-success text-white px-8 py-4 rounded-lg shadow hover:bg-success/90 transition-all duration-300 text-lg flex items-center justify-center">
-    <i class="fa fa-download mr-2"></i>导出本月数据图片
-  </button>
+<button id="exportBtn" class="relative bg-white/30 dark:bg-black/30 text-green-700 dark:text-green-400 px-8 py-4 rounded-xl shadow-lg backdrop-blur-md border border-white/20 dark:border-black/20 hover:bg-white/40 dark:hover:bg-black/40 transition-all duration-300 text-lg flex items-center justify-center overflow-hidden">
+  <span class="absolute inset-0 bg-gradient-to-br from-white/40 to-white/10 dark:from-black/40 dark:to-black/10 rounded-xl"></span>
+  <i class="fa fa-download mr-2 z-10"></i>
+  <span class="z-10">导出本月数据图片</span>
+</button>
   
   <!-- 导出成功提示 -->
-  <div id="successToast" class="fixed bottom-4 right-4 bg-success text-white p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-y-20 opacity-0 flex items-center z-50">
-    <i class="fa fa-check-circle mr-2 text-xl"></i>
+  <div id="successToast" class="fixed bottom-4 right-4 bg-white/20 dark:bg-black/20 backdrop-blur-lg text-black dark:text-white p-4 rounded-2xl shadow-2xl border border-white/30 dark:border-black/30 transform transition-all duration-300 translate-y-20 opacity-0 flex items-center z-50">
+    <i class="fa fa-check-circle mr-2 text-xl text-green-400"></i>
     <span>图片导出成功</span>
   </div>
   
   <!-- 导出失败提示 -->
-  <div id="errorToast" class="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-y-20 opacity-0 flex items-center z-50">
-    <i class="fa fa-times-circle mr-2 text-xl"></i>
+  <div id="errorToast" class="fixed bottom-4 right-4 bg-white/20 dark:bg-black/20 backdrop-blur-lg text-black dark:text-white p-4 rounded-2xl shadow-2xl border border-white/30 dark:border-black/30 transform transition-all duration-300 translate-y-20 opacity-0 flex items-center z-50">
+    <i class="fa fa-times-circle mr-2 text-xl text-red-400"></i>
     <span>图片导出失败</span>
   </div>
   
