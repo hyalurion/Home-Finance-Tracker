@@ -10,7 +10,7 @@
             v-model="loginForm.username" 
             placeholder="仅限大小写英文字母" 
             showWordLimit
-            maxlength="20"
+            :maxlength="20"
           ></GlassInput>
         </GlassFormItem>
         <GlassFormItem>
@@ -44,8 +44,8 @@
     </div>
     
     <div style="text-align: center;">
-    <p>当前付款方式仅限金流 (𝙲𝚑𝚛𝚢𝚜𝚘𝚛𝚛𝚑𝚘𝚎)，<a href="http://192.168.0.197:3100" target="_blank">点击这里</a>查看您的金流账户。</p>
-    <br>
+      <p>当前付款方式仅限金流 (𝙲𝚑𝚛𝚢𝚜𝚘𝚛𝚛𝚑𝚘𝚎)，<a href="http://192.168.0.197:3100" target="_blank">点击这里</a>查看您的金流账户。</p>
+      <br>
     </div>
 
     <!-- 订阅计划列表 -->
@@ -90,42 +90,10 @@
     </div>
     
     <!-- 订阅历史记录 -->
-    <div class="history-container" v-if="subscriptionHistory.length > 0">
-      <h2>{{ $t('membership.subscriptionHistory') }}</h2>
-      <GlassTable :data="subscriptionHistory" style="width: 100%">
-        <GlassTableColumn label="计划">
-          <template #default="scope">
-            {{ scope.row.SubscriptionPlan?.name || '-' }}
-          </template>
-        </GlassTableColumn>
-        <GlassTableColumn prop="startDate" label="开始日期">
-          <template #default="scope">
-            {{ formatDate(scope.row.startDate) }}
-          </template>
-        </GlassTableColumn>
-        <GlassTableColumn prop="endDate" label="结束日期">
-          <template #default="scope">
-            {{ formatDate(scope.row.endDate) }}
-          </template>
-        </GlassTableColumn>
-        <GlassTableColumn prop="status" label="状态">
-          <template #default="scope">
-            <span 
-              :class="[
-                'glass-tag',
-                {
-                  'success': scope.row.status === 'active',
-                  'warning': scope.row.status === 'expired',
-                  'danger': scope.row.status === 'cancelled'
-                }
-              ]"
-            >
-              {{ scope.row.status === 'cancelled' ? '已取消' : scope.row.status.charAt(0).toUpperCase() + scope.row.status.slice(1) }}
-            </span>
-          </template>
-        </GlassTableColumn>
-      </GlassTable>
-    </div>
+      <div class="history-container">
+        <h2>{{ $t('membership.subscriptionHistory') }}</h2>
+        <GlassTable :data="subscriptionHistory" :columns="subscriptionColumns" style="width: 100%" />
+      </div>
   </div>
 </template>
 
@@ -139,7 +107,6 @@ import GlassFormItem from '@/components/GlassFormItem.vue';
 import GlassInput from '@/components/GlassInput.vue';
 import GlassAlert from '@/components/GlassAlert.vue';
 import GlassTable from '@/components/GlassTable.vue';
-import GlassTableColumn from '@/components/GlassTableColumn.vue';
 
 export default {
   name: 'MembershipView',
@@ -149,8 +116,7 @@ export default {
     GlassFormItem,
     GlassInput,
     GlassAlert,
-    GlassTable,
-    GlassTableColumn
+    GlassTable
   },
   setup() {
     const subscriptionPlans = ref([])
@@ -161,6 +127,12 @@ export default {
     const userInfo = ref(null)
     const currentSubscription = ref(null)
     const subscriptionHistory = ref([])
+    const subscriptionColumns = ref([
+      { label: '计划', prop: 'planName' },
+      { label: '开始日期', prop: 'startDate' },
+      { label: '结束日期', prop: 'endDate' },
+      { label: '状态', prop: 'status' }
+    ])
     const isLoggedIn = ref(false)
     const loginFormRef = ref(null)
     const loginForm = ref({
@@ -285,6 +257,12 @@ export default {
           if (historyResponse.ok) {
             const historyData = await historyResponse.json()
             subscriptionHistory.value = historyData.data || historyData
+            
+            // 转换数据格式，确保与表格列配置匹配
+            subscriptionHistory.value = subscriptionHistory.value.map(item => ({
+              ...item,
+              planName: item.SubscriptionPlan?.name || '未知计划'
+            }))
           }
         } catch (histError) {
           console.error('获取订阅历史失败:', histError)
@@ -471,6 +449,7 @@ export default {
       userInfo,
       currentSubscription,
       subscriptionHistory,
+      subscriptionColumns,
       isLoggedIn,
       loginForm,
       loginFormRef,

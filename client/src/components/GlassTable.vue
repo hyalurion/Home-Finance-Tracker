@@ -3,17 +3,15 @@
     <table :class="['glass-table', { 'dark-theme': darkTheme }]">
       <thead>
         <tr>
-          <th v-for="column in columns" :key="column.key" :style="{ width: column.width }" class="glass-table-th">
+          <th v-for="(column, index) in columns" :key="index" :style="{ width: column.width }" class="glass-table-th">
             {{ column.label }}
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, index) in data" :key="row.id || index" class="glass-table-tr">
-          <td v-for="column in columns" :key="column.key" class="glass-table-td">
-            <slot :name="`default:${column.key}`" :row="row">
-              {{ row[column.prop] }}
-            </slot>
+        <tr v-for="(row, rowIndex) in data" :key="row.id || rowIndex" class="glass-table-tr">
+          <td v-for="(column, colIndex) in columns" :key="colIndex" class="glass-table-td">
+            {{ row[column.prop] }}
           </td>
         </tr>
       </tbody>
@@ -22,10 +20,14 @@
 </template>
 
 <script setup>
-import { computed, ref, provide } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps({
   data: {
+    type: Array,
+    default: () => []
+  },
+  columns: {
     type: Array,
     default: () => []
   },
@@ -36,37 +38,13 @@ const props = defineProps({
 })
 
 const emit = defineEmits([])
-
-// 收集表格列
-const columns = ref([])
-
-// 注册列组件的方法
-const registerColumn = (column) => {
-  columns.value.push(column)
-}
-
-// 取消注册列组件的方法
-const unregisterColumn = (columnKey) => {
-  columns.value = columns.value.filter(column => column.key !== columnKey)
-}
-
-// 提供表格实例给子列组件
-provide('table', {
-  registerColumn,
-  unregisterColumn
-})
-
-// 暴露注册和取消注册方法
-defineExpose({
-  registerColumn,
-  unregisterColumn
-})
 </script>
 
 <style scoped>
 .glass-table-wrapper {
+  overflow-x: auto;
+  white-space: nowrap;
   border-radius: 12px;
-  overflow: hidden;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
@@ -76,7 +54,6 @@ defineExpose({
 .glass-table {
   width: 100%;
   border-collapse: collapse;
-  background: rgba(255, 255, 255, 0.7);
 }
 
 .glass-table-th {
@@ -85,7 +62,6 @@ defineExpose({
   font-weight: 600;
   color: #1a202c;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.9);
 }
 
 .glass-table-tr {
