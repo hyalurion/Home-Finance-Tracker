@@ -4,22 +4,21 @@
     
     <!-- 用户登录/注册表单 -->
     <div class="login-form" v-if="!isLoggedIn">
-      <el-form :model="loginForm" :rules="loginRules" ref="loginFormRef" @submit.prevent="handleLogin">
-        <el-form-item label="金流用户名" :label-width="formLabelWidth" prop="username">
-          <el-input 
+      <GlassForm @submit.prevent="handleLogin">
+        <GlassFormItem label="金流用户名" prop="username" error="">
+          <GlassInput 
             v-model="loginForm.username" 
             placeholder="仅限大小写英文字母" 
-            required
-            show-word-limit
+            showWordLimit
             maxlength="20"
-          ></el-input>
-        </el-form-item>
-        <el-form-item>
+          ></GlassInput>
+        </GlassFormItem>
+        <GlassFormItem>
           <GlassButton type="primary" @click="handleLogin" :disabled="isLoggingIn">
             {{ $t('membership.loginOrRegister') }}
           </GlassButton>
-        </el-form-item>
-      </el-form>
+        </GlassFormItem>
+      </GlassForm>
     </div>
     
     <!-- 用户信息和当前会员状态 -->
@@ -79,46 +78,53 @@
 
     <!-- 金流服务费用提示 -->
     <div class="payment-fee-notice">
-    <el-alert
-      :title="$t('donation.feeNoticeTitle')"
+      <GlassAlert
+        :title="$t('donation.feeNoticeTitle')"
         type="info"
-      :closable="false"
+        :closable="false"
         class="fee-alert"
       >
-    <p class="fee-message">{{ $t('donation.feeNoticeContent') }}</p>
-    </el-alert>
-    <br>
-  </div>
+        <p class="fee-message">{{ $t('donation.feeNoticeContent') }}</p>
+      </GlassAlert>
+      <br>
+    </div>
     
     <!-- 订阅历史记录 -->
     <div class="history-container" v-if="subscriptionHistory.length > 0">
       <h2>{{ $t('membership.subscriptionHistory') }}</h2>
-      <el-table :data="subscriptionHistory" style="width: 100%">
-        <el-table-column label="计划">
+      <GlassTable :data="subscriptionHistory" style="width: 100%">
+        <GlassTableColumn label="计划">
           <template #default="scope">
             {{ scope.row.SubscriptionPlan?.name || '-' }}
           </template>
-        </el-table-column>
-        <el-table-column prop="startDate" label="开始日期">
+        </GlassTableColumn>
+        <GlassTableColumn prop="startDate" label="开始日期">
           <template #default="scope">
             {{ formatDate(scope.row.startDate) }}
           </template>
-        </el-table-column>
-        <el-table-column prop="endDate" label="结束日期">
+        </GlassTableColumn>
+        <GlassTableColumn prop="endDate" label="结束日期">
           <template #default="scope">
             {{ formatDate(scope.row.endDate) }}
           </template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态">
+        </GlassTableColumn>
+        <GlassTableColumn prop="status" label="状态">
           <template #default="scope">
-            <el-tag 
-              :type="scope.row.status === 'active' ? 'success' : scope.row.status === 'expired' ? 'warning' : 'danger'"
+            <span 
+              :class="[
+                'glass-tag',
+                {
+                  'success': scope.row.status === 'active',
+                  'warning': scope.row.status === 'expired',
+                  'danger': scope.row.status === 'cancelled'
+                }
+              ]"
             >
               {{ scope.row.status === 'cancelled' ? '已取消' : scope.row.status.charAt(0).toUpperCase() + scope.row.status.slice(1) }}
-            </el-tag>
+            </span>
           </template>
-        </el-table-column>
-      </el-table>
+        </GlassTableColumn>
+      </GlassTable>
     </div>
   </div>
 </template>
@@ -128,11 +134,23 @@ import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import Header from '@/components/Header.vue';
 import GlassButton from '@/components/GlassButton.vue';
+import GlassForm from '@/components/GlassForm.vue';
+import GlassFormItem from '@/components/GlassFormItem.vue';
+import GlassInput from '@/components/GlassInput.vue';
+import GlassAlert from '@/components/GlassAlert.vue';
+import GlassTable from '@/components/GlassTable.vue';
+import GlassTableColumn from '@/components/GlassTableColumn.vue';
 
 export default {
   name: 'MembershipView',
   components: {
-    GlassButton
+    GlassButton,
+    GlassForm,
+    GlassFormItem,
+    GlassInput,
+    GlassAlert,
+    GlassTable,
+    GlassTableColumn
   },
   setup() {
     const subscriptionPlans = ref([])
@@ -626,6 +644,28 @@ export default {
   margin: 0;
 }
 
+/* 自定义标签样式 */
+.glass-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+}
+
+.glass-tag.success {
+  background-color: rgba(101, 163, 13, 0.7);
+}
+
+.glass-tag.warning {
+  background-color: rgba(209, 132, 4, 0.7);
+}
+
+.glass-tag.danger {
+  background-color: rgba(229, 62, 62, 0.7);
+}
+
 @media (max-width: 768px) {
   .plans-grid {
     grid-template-columns: 1fr;
@@ -664,15 +704,20 @@ export default {
     background-color: #303030;
   }
 
-  /* 暗黑模式下的提示框 */
-  :deep(.fee-alert.el-alert--info) {
-    background-color: rgba(144, 147, 153, 0.1);
-    border-color: rgba(144, 147, 153, 0.2);
+  /* 暗黑模式下的自定义标签 */
+  .glass-tag.success {
+    background-color: rgba(110, 231, 183, 0.3);
+    color: #6ee7b7;
   }
 
-  :deep(.el-input .el-input__count .el-input__count-inner) {
-    background-color: #303030 !important;
-    color: #c0c4cc !important;
+  .glass-tag.warning {
+    background-color: rgba(251, 191, 36, 0.3);
+    color: #fbbf24;
+  }
+
+  .glass-tag.danger {
+    background-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
   }
 }
 </style>

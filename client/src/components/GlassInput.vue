@@ -3,28 +3,41 @@
     <label v-if="label" :class="['glass-input-label', { 'error': error }]">{{ label }}</label>
     <div :class="['glass-input-wrapper', { 'focused': isFocused, 'error': error }]">
       <slot name="prefix"></slot>
-      <input
-        v-if="type !== 'textarea'"
-        :type="type"
-        :placeholder="placeholder"
-        :value="modelValue"
-        :disabled="disabled"
-        @input="$emit('update:modelValue', $event.target.value)"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
-        class="glass-input"
-      >
-      <textarea
-        v-else
-        :placeholder="placeholder"
-        :value="modelValue"
-        :disabled="disabled"
-        :rows="rows"
-        @input="$emit('update:modelValue', $event.target.value)"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
-        class="glass-textarea"
-      ></textarea>
+      <!-- Input type -->
+      <div v-if="type !== 'textarea'" style="flex: 1; position: relative;">
+        <input
+          :type="type"
+          :placeholder="placeholder"
+          :value="modelValue"
+          :disabled="disabled"
+          :maxlength="maxlength > 0 ? maxlength : undefined"
+          @input="$emit('update:modelValue', $event.target.value)"
+          @focus="isFocused = true"
+          @blur="isFocused = false"
+          class="glass-input"
+        >
+        <div v-if="showWordLimit && maxlength > 0" class="glass-input-count">
+          {{ modelValue.length }}/{{ maxlength }}
+        </div>
+      </div>
+      <!-- Textarea type -->
+      <div v-else style="flex: 1; position: relative; width: 100%;">
+        <textarea
+          :placeholder="placeholder"
+          :value="modelValue"
+          :disabled="disabled"
+          :rows="rows"
+          :maxlength="maxlength > 0 ? maxlength : undefined"
+          @input="$emit('update:modelValue', $event.target.value)"
+          @focus="isFocused = true"
+          @blur="isFocused = false"
+          class="glass-textarea"
+          style="width: 100%;"
+        ></textarea>
+        <div v-if="showWordLimit && maxlength > 0" class="glass-input-count">
+          {{ modelValue.length }}/{{ maxlength }}
+        </div>
+      </div>
       <slot name="suffix"></slot>
     </div>
     <div v-if="errorMessage" class="glass-input-error">{{ errorMessage }}</div>
@@ -66,6 +79,14 @@ const props = defineProps({
   rows: {
     type: Number,
     default: 3,
+  },
+  maxlength: {
+    type: Number,
+    default: 0,
+  },
+  showWordLimit: {
+    type: Boolean,
+    default: false,
   },
   darkTheme: {
     type: Boolean,
@@ -132,10 +153,17 @@ const isFocused = ref(false)
   box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
 }
 
-.glass-input,
-.glass-textarea {
-  flex: 1;
+.glass-input {
   padding: 10px 0;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #1a202c;
+  background: transparent;
+}
+
+.glass-textarea {
+  padding: 12px 0;
   border: none;
   outline: none;
   font-size: 14px;
@@ -153,6 +181,14 @@ const isFocused = ref(false)
 .glass-textarea:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.glass-input-count {
+  position: absolute;
+  right: 12px;
+  bottom: 6px;
+  font-size: 11px;
+  color: #a0aec0;
 }
 
 .glass-input-error {
@@ -183,6 +219,10 @@ const isFocused = ref(false)
 
 .glass-input-container.dark-theme .glass-input::placeholder,
 .glass-input-container.dark-theme .glass-textarea::placeholder {
+  color: #718096;
+}
+
+.glass-input-container.dark-theme .glass-input-count {
   color: #718096;
 }
 

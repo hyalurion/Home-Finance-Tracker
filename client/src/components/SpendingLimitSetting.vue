@@ -2,20 +2,23 @@
   <div class="spending-limit-setting">
     <div class="setting-header">
       <h3 class="setting-title">{{ $t('spending.settings.title') }}</h3>
-      <el-switch
+      <GlassSwitch
         v-model="spendingStore.isLimitEnabled"
         @change="handleToggleEnabled"
-        :active-text="$t('spending.settings.enabled')"
-        :inactive-text="$t('spending.settings.disabled')"
+        active-text=""
+        inactive-text=""
         class="enable-switch"
-      />
+      >
+        <template #active-text>{{ $t('spending.settings.enabled') }}</template>
+        <template #inactive-text>{{ $t('spending.settings.disabled') }}</template>
+      </GlassSwitch>
     </div>
 
     <div class="setting-content" v-if="spendingStore.isLimitEnabled">
       <!-- 月度限制设置 -->
       <div class="setting-item">
         <label class="setting-label">{{ $t('spending.settings.monthlyLimit') }}</label>
-        <el-input-number
+        <GlassInputNumber
           v-model="localLimit"
           @change="handleLimitChange"
           :min="0"
@@ -25,11 +28,8 @@
           :placeholder="$t('spending.settings.enterLimit')"
           class="limit-input"
           size="large"
-        >
-          <template #prefix>
-            <span class="currency-symbol">¥</span>
-          </template>
-        </el-input-number>
+          prefix="¥"
+        />
       </div>
 
       <!-- 警告阈值设置 -->
@@ -38,7 +38,7 @@
           {{ $t('spending.settings.warningThreshold') }}
           <span class="threshold-value">({{ Math.round(spendingStore.warningThreshold * 100) }}%)</span>
         </label>
-        <el-slider
+        <GlassSlider
           v-model="thresholdPercentage"
           @change="handleThresholdChange"
           :min="50"
@@ -98,7 +98,13 @@
 
     <!-- 禁用状态说明 -->
     <div class="disabled-notice" v-else>
-      <el-icon class="notice-icon"><InfoFilled /></el-icon>
+      <div class="notice-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </div>
       <span>{{ $t('spending.settings.disabledNotice') }}</span>
     </div>
   </div>
@@ -108,9 +114,12 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useSpendingStore } from '../stores/spending.js';
 import { useI18n } from 'vue-i18n';
-import { InfoFilled } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
+import GlassButton from './GlassButton.vue';
+import GlassSwitch from './GlassSwitch.vue';
+import GlassInputNumber from './GlassInputNumber.vue';
+import GlassSlider from './GlassSlider.vue';
 
 const { t } = useI18n();
 const spendingStore = useSpendingStore();
@@ -211,7 +220,7 @@ onMounted(() => {
 }
 
 .enable-switch {
-  --el-switch-on-color: #67c23a;
+  /* 使用自定义开关的颜色变量 */
 }
 
 .setting-content {
@@ -407,73 +416,8 @@ onMounted(() => {
   }
 
   /* Element Plus 组件深色模式适配 */
-  :deep(.el-switch__core) {
-    background-color: #444;
-  }
-
-  :deep(.el-switch__label) {
-    color: #e5e7eb;
-  }
-
-  :deep(.el-switch__label--left) {
-    color: #e5e7eb;
-  }
-
-  :deep(.el-input-number__decrease),
-  :deep(.el-input-number__increase) {
-    background-color: rgba(50, 50, 50, 0.7);
-    color: #e5e7eb;
-    border-color: #555;
-  }
-
-  :deep(.el-input-number__decrease):hover,
-  :deep(.el-input-number__increase):hover {
-    background-color: rgba(60, 60, 60, 0.7);
-  }
-
-  :deep(.el-input__wrapper) {
-    background-color: rgba(40, 40, 40, 0.5);
-    border-color: #555;
-  }
-
-  :deep(.el-input__inner) {
-    background-color: rgba(40, 40, 40, 0.5);
-    border-color: #555;
-    color: #e5e7eb;
-  }
-
-  /* el-input-number 深色模式适配 */
-  :deep(.el-input-number) {
-    background-color: rgba(40, 40, 40, 0.5);
-    border-color: #555;
-  }
-
-  :deep(.el-input-number--large) {
-    background-color: rgba(40, 40, 40, 0.5);
-    border-color: #555;
-  }
-
-  :deep(.limit-input) {
-    background-color: rgba(40, 40, 40, 0.5);
-    border-color: #555;
-  }
-
-  :deep(.el-slider__runway) {
-    background-color: #555;
-  }
-
-  :deep(.el-slider__bar) {
-    background-color: #4361ee;
-  }
-
-  :deep(.el-slider__button) {
-    background-color: #fff;
-    border-color: #4361ee;
-  }
-
-  :deep(.el-icon) {
-    color: #9ca3af;
-  }
+  /* 禁用Element Plus相关的样式，使用自定义组件的样式 */
+  /* 自定义组件已经有深色主题支持 */
 
   /* 进度条深色模式适配 */
   :deep(.el-progress-bar__outer) {
@@ -485,15 +429,7 @@ onMounted(() => {
     background-color: #4361ee;
   }
 
-  /* 调整输入框和按钮文字颜色，确保区分度 */
-  :deep(.el-input__inner) {
-    color: #e5e7eb;
-  }
-
-  :deep(.el-input-number__decrease),
-  :deep(.el-input-number__increase) {
-    color: #e5e7eb;
-  }
+  /* 自定义组件已经处理了文字颜色 */
 
   /* 月度预算相关元素颜色区分 */
   .spending-amount {

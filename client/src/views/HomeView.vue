@@ -45,7 +45,6 @@
            style="width: 100%;display: flex; justify-content: center; margin-bottom: 20px; white-space: normal; height: auto; line-height: 1.5; padding: 16px;"
          >
            <div style="text-align: center;">
-             <el-icon style="margin-bottom: 4px;"><Iphone /></el-icon>
              <div>在应用商店获取安卓版本客户端</div>
              <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">提升使用体验！</div>
            </div>
@@ -80,12 +79,13 @@
               :on-success="handleImportSuccess"
               :on-error="handleImportError"
               accept=".xlsx, .xls"
+              :dark-theme="isDarkMode"
             >
               <GlassButton type="warning" @click="$event.preventDefault()" :dark-theme="isDarkMode">
                 <template #icon><el-icon><Upload /></el-icon></template>
                 {{ t('import.title') }}
               </GlassButton>
-            </el-upload>
+              </el-upload>
             <GlassButton type="primary" @click="exportMonthData" :dark-theme="isDarkMode">
               <template #icon><el-icon><Download /></el-icon></template>
               导出本月数据
@@ -404,39 +404,41 @@
   </transition>
 
   <!-- API密钥设置对话框 -->
-  <el-dialog v-model="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%">
-    <el-form :model="apiKeyForm" ref="apiKeyFormRef">
-      <el-form-item :label="'API密钥'" prop="apiKey">
-        <el-input
+  <GlassDialog v-model:visible="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%" :dark-theme="isDarkMode">
+    <GlassForm :model="apiKeyForm" ref="apiKeyFormRef">
+      <GlassFormItem :label="'API密钥'" prop="apiKey">
+        <GlassInput
           v-model="apiKeyForm.apiKey"
           placeholder="请输入您的SiliconFlow API密钥"
           type="password"
           show-password
-        ></el-input>
+          :dark-theme="isDarkMode"
+        ></GlassInput>
         <div style="margin-top: 10px; font-size: 12px; color: #606266;">
           获取API密钥: <a href="https://console.siliconflow.cn/api-keys" target="_blank">https://console.siliconflow.cn/api-keys</a>
         </div>
-      </el-form-item>
-    </el-form>
+      </GlassFormItem>
+    </GlassForm>
     <template #footer>
       <GlassButton @click="showApiKeyDialog = false" :dark-theme="isDarkMode">取消</GlassButton>
       <GlassButton type="primary" @click="handleApiKeySave" :dark-theme="isDarkMode">保存</GlassButton>
     </template>
-  </el-dialog>
+  </GlassDialog>
 
   <!-- AI智能记录对话框 -->
-  <el-dialog v-model="showAiAddDialog" title="AI智能记录" width="80%">
-    <el-form :model="aiForm" ref="aiFormRef">
-      <el-form-item :label="'输入文本描述'">
-        <el-input
+  <GlassDialog v-model:visible="showAiAddDialog" title="AI智能记录" width="80%" :dark-theme="isDarkMode">
+    <GlassForm :model="aiForm" ref="aiFormRef">
+      <GlassFormItem :label="'输入文本描述'">
+        <GlassInput
           v-model="aiForm.text"
           type="textarea"
           :rows="4"
           placeholder="请输入消费记录的详细描述，例如：今天上午在超市买了苹果和牛奶，共花费56.8元。"
-        ></el-input>
-      </el-form-item>
-      <el-form-item :label="'或上传图片'">
-        <el-upload
+          :dark-theme="isDarkMode"
+        ></GlassInput>
+      </GlassFormItem>
+      <GlassFormItem :label="'或上传图片'">
+        <GlassUpload
           v-model:file-list="aiForm.image"
           class="avatar-uploader"
           action=""
@@ -444,39 +446,40 @@
           :on-change="handleImageChange"
           :show-file-list="true"
           accept=".jpg,.jpeg,.png,.gif"
+          :dark-theme="isDarkMode"
         >
           <GlassButton size="small" type="primary" :dark-theme="isDarkMode">点击上传</GlassButton>
           <template #tip>
-            <div class="el-upload__tip">
+            <div class="glass-upload__tip">
               请上传包含消费信息的图片（如收据、账单截图等）
             </div>
           </template>
-        </el-upload>
-      </el-form-item>
-    </el-form>
+        </GlassUpload>
+      </GlassFormItem>
+    </GlassForm>
     <template #footer>
       <GlassButton @click="handleAiCancel" :dark-theme="isDarkMode">{{ t('common.cancel') }}</GlassButton>
       <GlassButton type="primary" @click="handleAiGenerate" :disabled="isParsing" :dark-theme="isDarkMode">
         {{ isParsing ? '生成中...' : '生成记录' }}
       </GlassButton>
     </template>
-  </el-dialog>
+  </GlassDialog>
 
   <!-- 多条记录编辑对话框 -->
-  <el-dialog v-model="showMultiRecordsDialog" title="AI生成的多条记录" width="90%">
+  <GlassDialog v-model:visible="showMultiRecordsDialog" title="AI生成的多条记录" width="90%" :dark-theme="isDarkMode">
     <div v-if="multiRecords.length === 0" class="no-records">
       {{ t('expense.noRecords') }}
     </div>
     <div v-else class="multi-records-container">
       <!-- 全选功能 -->
       <div class="select-all-container" style="margin-bottom: 20px;">
-        <el-checkbox v-model="selectAll" @change="handleSelectAllChange">{{ t('common.selectAll') }}</el-checkbox>
+        <GlassCheckbox v-model="selectAll" @change="handleSelectAllChange" :dark-theme="isDarkMode">{{ t('common.selectAll') }}</GlassCheckbox>
       </div>
       
       <!-- 记录列表 -->
       <div v-for="(record, index) in multiRecords" :key="index" class="record-item" style="margin-bottom: 15px; padding: 15px; border: 1px solid #e4e7ed; border-radius: 4px;">
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <el-checkbox v-model="record.selected" @change="handleRecordSelectChange"></el-checkbox>
+          <GlassCheckbox v-model="record.selected" @change="handleRecordSelectChange" :dark-theme="isDarkMode"></GlassCheckbox>
           <span style="margin-left: 10px; font-weight: 500;">{{ t('expense.record') }} {{ index + 1 }}</span>
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 15px;">
@@ -491,7 +494,7 @@
           </div>
           <div style="flex: 1; min-width: 200px;">
             <label style="display: block; margin-bottom: 5px;">{{ t('expense.amount') }}:</label>
-            <el-input v-model="record.amount" :placeholder="0" type="text" style="width: 100%;" />
+            <GlassInput v-model="record.amount" :placeholder="0" type="text" style="width: 100%;" :dark-theme="isDarkMode" />
           </div>
           <div style="flex: 1; min-width: 200px;">
             <label style="display: block; margin-bottom: 5px;">{{ t('expense.date') }}:</label>
@@ -500,7 +503,7 @@
         </div>
         <div style="margin-top: 15px;">
           <label style="display: block; margin-bottom: 5px;">{{ t('expense.remark') }}:</label>
-          <el-input v-model="record.remark" :placeholder="t('expense.enterRemark')" type="textarea" :rows="2" style="width: 100%;"></el-input>
+          <GlassInput v-model="record.remark" :placeholder="t('expense.enterRemark')" type="textarea" :rows="2" style="width: 100%;" :dark-theme="isDarkMode"></GlassInput>
         </div>
       </div>
     </div>
@@ -508,20 +511,21 @@
       <GlassButton @click="handleMultiRecordsCancel" :dark-theme="isDarkMode">{{ t('common.cancel') }}</GlassButton>
       <GlassButton type="primary" @click="handleMultiRecordsSubmit" :dark-theme="isDarkMode">{{ t('common.submit') }} ({{ selectedRecordsCount }}/{{ multiRecords.length }})</GlassButton>
     </template>
-  </el-dialog>
+  </GlassDialog>
 
   <!-- AI消费问答对话框 -->
-  <el-dialog v-model="showAiReportDialog" title="AI消费问答" width="90%" height="80vh">
+  <GlassDialog v-model:visible="showAiReportDialog" title="AI消费问答" width="90%" height="80vh" :dark-theme="isDarkMode">
     <div class="ai-report-container">
       <!-- 问题输入区域 -->
       <div class="report-question-section" style="margin-bottom: 20px;">
-        <el-form label-position="top">
-          <el-form-item label="输入您的问题（可选）">
-            <el-input
+        <GlassForm label-position="top">
+          <GlassFormItem label="输入您的问题（可选）">
+            <GlassInput
               v-model="reportQuestion"
               type="textarea"
               :rows="3"
               placeholder="您可以向AI提问关于您的消费情况，例如：'我本月的主要消费类别是什么？'或'如何减少我的日常开支？'"
+              :dark-theme="isDarkMode"
             />
             <div style="margin-top: 10px; display: flex; gap: 10px;">
               <GlassButton type="primary" @click="handleGenerateReport" :disabled="isGeneratingReport" :dark-theme="isDarkMode">
@@ -529,8 +533,8 @@
               </GlassButton>
               <GlassButton @click="clearReportQuestion" :dark-theme="isDarkMode">清空问题</GlassButton>
             </div>
-          </el-form-item>
-        </el-form>
+          </GlassFormItem>
+        </GlassForm>
       </div>
       
       <!-- 报告内容显示区域 -->
@@ -542,10 +546,7 @@
         </div>
       </div>
     </div>
-    <template #footer>
-      <GlassButton @click="showAiReportDialog = false" :dark-theme="isDarkMode">关闭</GlassButton>
-    </template>
-  </el-dialog>
+  </GlassDialog>
 
     <MarkdownDialog
       v-model:visible="showMarkdownDialog"
@@ -558,8 +559,12 @@
 </template>
 
 <script setup>
-import { ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElIcon, ElMessage, ElUpload } from 'element-plus';
-import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu, PieChart, Message, Star, Iphone } from '@element-plus/icons-vue';
+import GlassDialog from '@/components/GlassDialog.vue';
+import GlassForm from '@/components/GlassForm.vue';
+import GlassFormItem from '@/components/GlassFormItem.vue';
+import GlassUpload from '@/components/GlassUpload.vue';
+import GlassCheckbox from '@/components/GlassCheckbox.vue';
+import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu, PieChart, Message, Star } from '@element-plus/icons-vue';
 import axios from 'axios';
 import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
 import { marked } from 'marked';
@@ -2446,25 +2451,21 @@ body.donation-modal-open {
 }
 
 /* 背景遮罩动画 */
-.custom-dialog-overlay .custom-dialog {
-  transition: transform 0.3s ease;
-}
-
-.dialog-fade-enter-active .custom-dialog {
+.custom-dialog-overlay .custom-dialog0 {
   transform: scale(1);
   transition: transform 0.3s ease 0.1s;
 }
 
-.dialog-fade-leave-active .custom-dialog {
+.dialog-fade-enter-active .custom-dialog {
   transform: scale(0.9);
   transition: transform 0.3s ease;
 }
 
 .dialog-fade-enter-from .custom-dialog {
-  transform: scale(0.9) translateY(-20px);
+  transform: scale(0.9);
 }
 
-.dialog-fade-leave-to .custom-dialog {
+.dialog-fade-leave-active .custom-dialog {
   transform: scale(0.9) translateY(-20px);
 }
 

@@ -1,16 +1,13 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    @close="handleClose"
+  <glass-dialog
+    :visible="dialogVisible"
+    @update:visible="handleClose"
     :title="title"
     :width="width"
-    :modal="true"
-    :close-on-click-modal="true"
-    :center="true"
-    :top="'10vh'"
+    :dark-theme="darkTheme"
   >
     <div class="markdown-content" v-html="renderedMarkdown"></div>
-  </el-dialog>
+  </glass-dialog>
 </template>
 
 <script setup>
@@ -20,6 +17,7 @@ import { marked } from 'marked';
 import hljs from 'highlight.js/lib/core';
 import markdown from 'highlight.js/lib/languages/markdown';
 import 'highlight.js/styles/github.css';
+import GlassDialog from './GlassDialog.vue';
 
 hljs.registerLanguage('markdown', markdown);
 
@@ -39,6 +37,10 @@ const props = defineProps({
   width: {
     type: String,
     default: '80%'
+  },
+  darkTheme: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -57,8 +59,8 @@ watch(dialogVisible, (newVal) => {
   emit('update:visible', newVal);
 });
 
-const handleClose = () => {
-  dialogVisible.value = false;
+const handleClose = (newVal) => {
+  dialogVisible.value = newVal;
 };
 
 const { t } = useI18n();
