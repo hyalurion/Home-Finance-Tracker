@@ -75,8 +75,8 @@ export default {
   props: {
     // 用于触发数据刷新的信号
     refreshTrigger: {
-      type: Boolean,
-      default: false
+      type: Number,
+      default: 0
     }
   },
 
@@ -410,8 +410,8 @@ export default {
     // 当外部触发刷新时重新获取数据
     watch(
       () => props.refreshTrigger,
-      (newValue) => {
-        if (newValue) {
+      (newValue, oldValue) => {
+        if (newValue !== oldValue) {
           console.log('Refresh triggered from parent, reloading data');
           // 重置到第一页以显示最新添加的记录
           currentPage.value = 1;
