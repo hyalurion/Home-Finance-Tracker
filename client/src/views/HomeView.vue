@@ -147,8 +147,9 @@
             :on-success="handleImportSuccess"
             :on-error="handleImportError"
             accept=".xlsx, .xls"
+            :dark-theme="isDarkMode"
           >
-            <GlassButton type="warning" size="large" class="mobile-btn" @click="$event.preventDefault()" :dark-theme="isDarkMode">
+            <GlassButton type="warning" size="large" @click="$event.preventDefault()" :dark-theme="isDarkMode">
               <template #icon><el-icon><Upload /></el-icon></template>
               {{ t('import.title') }}
             </GlassButton>
@@ -2795,50 +2796,16 @@ body.donation-modal-open {
   
   /* 确保所有按钮大小一致 */
   .mobile-btn {
-    width: 100% !important;
-    justify-content: center !important;
-    padding: 14px 20px !important;
-    font-size: 16px !important;
-    line-height: 1.5 !important;
-    white-space: nowrap !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 20px;
+    font-size: 16px;
+    line-height: 1.5;
+    white-space: nowrap;
+    margin: 0;
+    box-sizing: border-box;
     min-height: 48px;
-  }
-  
-  /* 确保el-upload组件内的按钮也保持一致的大小 */
-  .mobile-button-group .upload-excel {
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  
-  .mobile-button-group .upload-excel {
-    width: 100% !important;
-    width: 93vw !important;
-    margin: 0 !important;
-  }
-  
-  /* 移除按钮组中所有可能的额外间距 */
-  .mobile-button-group > * {
-    margin: 0 !important;
-    padding: 0 !important;
-    display: block !important;
-  }
-  
-  /* 确保Element Plus按钮组样式不影响布局 */
-  .mobile-button-group  {
-    width: 100% !important;
-  }
-  
-  /* 确保所有按钮内容居中对齐 */
-  .mobile-button-group .el-icon + span {
-    margin-left: 8px;
-  }
-  
-  /* 修复可能的文本对齐问题 */
-  .mobile-button-group {
-    text-align: center !important;
   }
 }
 
