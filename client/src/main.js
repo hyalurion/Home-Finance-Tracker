@@ -13,7 +13,22 @@ import 'dayjs/locale/en'; // 正确命名导出i18n实例供其他模块使用
 // 使用locales目录下已配置的i18n实例（包含完整语言包）
 import { createPinia } from 'pinia';
 
-import * as ElementPlusIconsVue from '@element-plus/icons-vue';
+// 导入Font Awesome
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+// 导入Solid风格图标
+import {
+  faPlus, faUpload, faDownload, faMicrochip,
+  faFileAlt, faStar, faEnvelope, faQuestionCircle,
+  faChartPie, faSyncAlt, faCog, faChartLine
+} from '@fortawesome/free-solid-svg-icons'
+
+// 将图标添加到库中
+library.add(
+  faPlus, faUpload, faDownload, faMicrochip,
+  faFileAlt, faStar, faEnvelope, faQuestionCircle,
+  faChartPie, faSyncAlt, faCog, faChartLine
+)
 
 import App from './App.vue';
 // 设置Axios离线拦截器
@@ -47,10 +62,9 @@ const app = createApp({
   `
 });
 app.use(pinia); // 安装Pinia实例
-// 注册所有图标
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component);
-}
+
+// 注册Font Awesome组件
+app.component('FontAwesomeIcon', FontAwesomeIcon)
 app.use(router);
 app.use(i18n);
 app.mount('#app');

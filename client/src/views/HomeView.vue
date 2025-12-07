@@ -69,7 +69,7 @@
         <GlassCard :dark-theme="isDarkMode" :title="t('function.primary')">
           <div class="card-content">
             <GlassButton type="primary" @click="showAddDialog = true" :dark-theme="isDarkMode">
-              <template #icon><el-icon><Plus /></el-icon></template>
+              <template #icon><FontAwesomeIcon icon="plus" /></template>
               {{ t('expense.addRecord') }}
             </GlassButton>
             <el-upload
@@ -82,12 +82,12 @@
               :dark-theme="isDarkMode"
             >
               <GlassButton type="warning" @click="$event.preventDefault()" :dark-theme="isDarkMode">
-                <template #icon><el-icon><Upload /></el-icon></template>
+                <template #icon><FontAwesomeIcon icon="upload" /></template>
                 {{ t('import.title') }}
               </GlassButton>
               </el-upload>
             <GlassButton type="primary" @click="exportMonthData" :dark-theme="isDarkMode">
-              <template #icon><el-icon><Download /></el-icon></template>
+              <template #icon><FontAwesomeIcon icon="download" /></template>
               导出本月数据
             </GlassButton>
           </div>
@@ -97,11 +97,11 @@
         <GlassCard :dark-theme="isDarkMode" :title="t('function.aiFeatures')">
           <div class="card-content">
             <GlassButton type="primary" @click="showAiAddDialog = true" :dark-theme="isDarkMode">
-              <template #icon><el-icon><Cpu /></el-icon></template>
+              <template #icon><FontAwesomeIcon icon="microchip" /></template>
               AI智能记录
             </GlassButton>
             <GlassButton type="primary" @click="showAiReportDialog = true" :dark-theme="isDarkMode">
-              <template #icon><el-icon><Document /></el-icon></template>
+              <template #icon><FontAwesomeIcon icon="file-alt" /></template>
               AI消费问答
             </GlassButton>
           </div>
@@ -111,7 +111,7 @@
         <GlassCard :dark-theme="isDarkMode" :title="t('function.other')">
           <div class="card-content">
             <GlassButton type="success" @click="goToMembership" :dark-theme="isDarkMode">
-              <template #icon><el-icon><Star /></el-icon></template>
+              <template #icon><FontAwesomeIcon icon="star" /></template>
               {{ t('membership.title') }}
             </GlassButton>
           </div>
@@ -121,11 +121,11 @@
         <GlassCard :dark-theme="isDarkMode" :title="t('function.support')">
           <div class="card-content">
             <GlassButton type="primary" @click="handleFeedback" :dark-theme="isDarkMode">
-              <template #icon><el-icon><Message /></el-icon></template>
+              <template #icon><FontAwesomeIcon icon="envelope" /></template>
               {{ t('feedback.title') }}
             </GlassButton>
             <GlassButton type="primary" @click="goToHowToUse" :dark-theme="isDarkMode">
-              <template #icon><el-icon><Help /></el-icon></template>
+              <template #icon><FontAwesomeIcon icon="question-circle" /></template>
               {{ t('howToUse.title') }}
             </GlassButton>
           </div>
@@ -137,7 +137,7 @@
         <!-- 主要功能组按钮 -->
         <div v-if="selectedFunctionGroup === 'primary'" class="mobile-button-group">
           <GlassButton type="primary" @click="showAddDialog = true" size="large" class="mobile-btn" :dark-theme="isDarkMode">
-            <template #icon><el-icon><Plus /></el-icon></template>
+            <template #icon><FontAwesomeIcon icon="plus" /></template>
             {{ t('expense.addRecord') }}
           </GlassButton>
           <el-upload
@@ -150,12 +150,12 @@
             :dark-theme="isDarkMode"
           >
             <GlassButton type="warning" size="large" @click="$event.preventDefault()" :dark-theme="isDarkMode">
-              <template #icon><el-icon><Upload /></el-icon></template>
+              <template #icon><FontAwesomeIcon icon="upload" /></template>
               {{ t('import.title') }}
             </GlassButton>
           </el-upload>
           <GlassButton type="primary" @click="exportMonthData" size="large" class="mobile-btn" :dark-theme="isDarkMode">
-            <template #icon><el-icon><Download /></el-icon></template>
+            <template #icon><FontAwesomeIcon icon="download" /></template>
             导出本月数据
           </GlassButton>
         </div>
@@ -163,11 +163,11 @@
         <!-- AI功能组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'ai'" class="mobile-button-group">
           <GlassButton type="primary" @click="showAiAddDialog = true" size="large" class="mobile-btn" :dark-theme="isDarkMode">
-            <template #icon><el-icon><Cpu /></el-icon></template>
+            <template #icon><FontAwesomeIcon icon="microchip" /></template>
             AI智能记录
           </GlassButton>
           <GlassButton type="primary" @click="showAiReportDialog = true" size="large" class="mobile-btn" :dark-theme="isDarkMode">
-            <template #icon><el-icon><Document /></el-icon></template>
+            <template #icon><FontAwesomeIcon icon="file-alt" /></template>
             AI消费问答
           </GlassButton>
         </div>
@@ -175,7 +175,7 @@
         <!-- 其他组件组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'other'" class="mobile-button-group">
           <GlassButton type="success" @click="goToMembership" :dark-theme="isDarkMode" class="mobile-btn">
-            <template #icon><el-icon><Star /></el-icon></template>
+            <template #icon><FontAwesomeIcon icon="star" /></template>
             {{ t('membership.title') }}
           </GlassButton>
         </div>
@@ -183,11 +183,11 @@
         <!-- 关于我们组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'about'" class="mobile-button-group">
           <GlassButton type="primary" @click="handleFeedback" :dark-theme="isDarkMode" class="mobile-btn">
-            <template #icon><el-icon><Message /></el-icon></template>
+            <template #icon><FontAwesomeIcon icon="envelope" /></template>
             {{ t('feedback.title') }}
           </GlassButton>
           <GlassButton type="primary" @click="goToHowToUse" :dark-theme="isDarkMode" class="mobile-btn">
-            <template #icon><el-icon><Help /></el-icon></template>
+            <template #icon><FontAwesomeIcon icon="question-circle" /></template>
             使用方法
           </GlassButton>
         </div>
@@ -200,7 +200,7 @@
     <!-- 图表分析按钮 -->
     <div style="display: flex; justify-content: center; margin-bottom: 20px;">
       <GlassButton type="primary" @click="goToCharts" :dark-theme="isDarkMode">
-        <template #icon><el-icon><PieChart /></el-icon></template>
+        <template #icon><FontAwesomeIcon icon="chart-pie" /></template>
         {{ t('chart.title') }}
       </GlassButton>
     </div>
@@ -223,7 +223,7 @@
   <!-- 悬浮刷新按钮 -->
   <div class="floating-refresh-btn">
     <GlassButton type="primary" @click="refreshPage()" :dark-theme="isDarkMode" circle>
-      <template #icon><el-icon><Refresh /></el-icon></template>
+      <template #icon><FontAwesomeIcon icon="sync-alt" /></template>
     </GlassButton>
   </div>
 
@@ -580,7 +580,7 @@ import GlassForm from '@/components/GlassForm.vue';
 import GlassFormItem from '@/components/GlassFormItem.vue';
 import GlassUpload from '@/components/GlassUpload.vue';
 import GlassCheckbox from '@/components/GlassCheckbox.vue';
-import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu, PieChart, Message, Star } from '@element-plus/icons-vue';
+
 import axios from 'axios';
 import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
 import { marked } from 'marked';

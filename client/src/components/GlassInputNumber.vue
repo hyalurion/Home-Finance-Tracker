@@ -10,22 +10,26 @@
       >
         <slot name="decrease-icon">−</slot>
       </button>
-      <input 
-        ref="inputRef"
-        type="number"
-        :value="modelValue"
-        @input="handleInput"
-        @focus="handleFocus"
-        @blur="handleBlur"
-        @keydown.up="handleKeyUp"
-        @keydown.down="handleKeyDown"
-        :min="min"
-        :max="max"
-        :step="step"
-        :disabled="disabled"
-        :placeholder="placeholder"
-        :class="['glass-input-number', { 'dark-theme': darkTheme }]"
-      />
+      <div class="glass-input-number-content">
+        <div v-if="prefix" class="glass-input-number-prefix">{{ prefix }}</div>
+        <input 
+          ref="inputRef"
+          type="number"
+          :value="modelValue"
+          @input="handleInput"
+          @focus="handleFocus"
+          @blur="handleBlur"
+          @keydown.up="handleKeyUp"
+          @keydown.down="handleKeyDown"
+          :min="min"
+          :max="max"
+          :step="step"
+          :disabled="disabled"
+          :placeholder="placeholder"
+          :class="['glass-input-number', { 'dark-theme': darkTheme }]"
+        />
+        <div v-if="suffix" class="glass-input-number-suffix">{{ suffix }}</div>
+      </div>
       <button 
         class="glass-input-number-btn increase"
         @click="increase"
@@ -78,6 +82,22 @@ const props = defineProps({
   darkTheme: {
     type: Boolean,
     default: false
+  },
+  prefix: {
+    type: String,
+    default: ''
+  },
+  suffix: {
+    type: String,
+    default: ''
+  },
+  precision: {
+    type: Number,
+    default: 0
+  },
+  size: {
+    type: String,
+    default: 'medium'
   }
 })
 
@@ -189,16 +209,31 @@ const updateValue = (newValue) => {
   transition: all 0.3s ease;
 }
 
+.glass-input-number-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
 .glass-input-number {
   flex: 1;
   background: transparent;
   border: none;
   outline: none;
-  padding: 10px 12px;
+  padding: 10px 8px;
   font-size: 16px;
   color: #2d3748;
   text-align: center;
   font-family: inherit;
+}
+
+.glass-input-number-prefix,
+.glass-input-number-suffix {
+  padding: 0 8px;
+  font-size: 16px;
+  color: #4a5568;
+  font-family: inherit;
+  user-select: none;
 }
 
 .glass-input-number::placeholder {
@@ -263,6 +298,11 @@ const updateValue = (newValue) => {
 
 .glass-input-number {
   color: #e2e8f0;
+}
+
+.glass-input-number-prefix,
+.glass-input-number-suffix {
+  color: #cbd5e0;
 }
 
 .glass-input-number::placeholder {

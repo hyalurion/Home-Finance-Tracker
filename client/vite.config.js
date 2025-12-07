@@ -67,10 +67,14 @@ export default defineConfig({
     }),
     vue(),
     AutoImport({
-      resolvers: [ElementPlusResolver()]
+      resolvers: [ElementPlusResolver({
+        exclude: [/^ElIcon/, /^ElMessage/]
+      })]
     }),
     Components({
-      resolvers: [ElementPlusResolver()]
+      resolvers: [ElementPlusResolver({
+        exclude: [/^ElIcon/]
+      })]
     }),
     VitePWA({
       injectRegister: 'autoUpdate',

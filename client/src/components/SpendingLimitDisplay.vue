@@ -8,11 +8,11 @@
       <div class="header-right">
         <GlassButton
           @click="showSettings = !showSettings"
-          :icon="Setting"
           size="small"
           type="text"
           class="settings-btn"
         >
+          <template #icon><FontAwesomeIcon icon="cog" /></template>
           {{ $t('spending.settings.title') }}
         </GlassButton>
       </div>
@@ -87,17 +87,17 @@
   <!-- 启用提示 -->
   <div class="enable-prompt" v-else>
     <div class="prompt-content">
-      <el-icon class="prompt-icon"><TrendCharts /></el-icon>
+<FontAwesomeIcon icon="chart-line" class="prompt-icon" />
       <div class="prompt-text">
         <h4>{{ $t('spending.enablePrompt.title') }}</h4>
         <p>{{ $t('spending.enablePrompt.description') }}</p>
       </div>
-      <GlassButton
+<GlassButton
         @click="enableSpendingLimit"
         type="primary"
-        :icon="Plus"
         class="enable-btn"
       >
+        <template #icon><FontAwesomeIcon icon="plus" /></template>
         {{ $t('spending.enablePrompt.button') }}
       </GlassButton>
     </div>
@@ -108,7 +108,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useSpendingStore } from '../stores/spending.js';
 import { useI18n } from 'vue-i18n';
-import { Setting, TrendCharts, Plus } from '@element-plus/icons-vue';
+
 import { ElMessage } from 'element-plus';
 import SpendingLimitSetting from './SpendingLimitSetting.vue';
 import dayjs from 'dayjs';
