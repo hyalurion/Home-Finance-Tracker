@@ -40,7 +40,6 @@ declare module 'vue' {
     Header: typeof import('./src/components/Header.vue')['default']
     MarkdownDialog: typeof import('./src/components/MarkdownDialog.vue')['default']
     MessageTip: typeof import('./src/components/MessageTip.vue')['default']
-    PredictionDropdown: typeof import('./src/components/PredictionDropdown.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SpendingLimitDisplay: typeof import('./src/components/SpendingLimitDisplay.vue')['default']

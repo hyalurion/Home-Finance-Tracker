@@ -32,7 +32,7 @@
           <tr v-for="(expense, index) in expenses" :key="expense.id" :data-index="index">
             <td>{{ formatDate(expense.date) }}</td>
             <td>
-              <span class="type-tag" :style="{ backgroundColor: getTypeColor(expense.type, isDarkMode) }">
+              <span class="type-tag" :style="{ '--tag-color': getTypeColor(expense.type, isDarkMode) }">
                 {{ expense.type }}
               </span>
             </td>
@@ -64,8 +64,8 @@
           <div class="card-body">
             <div class="type-section">
               <span class="type-label">{{ $t('expense.type') }}:</span>
-              <span class="type-tag" :style="{ backgroundColor: getTypeColor(expense.type, isDarkMode) }">
-                {{ expense.type }}
+              <span class="type-tag" :style="{ '--tag-color': getTypeColor(expense.type, isDarkMode) }">
+                  {{ expense.type }}
               </span>
             </div>
             <div v-if="expense.remark" class="remark-section">
@@ -332,6 +332,8 @@ export default {
   font-size: 12px;
   font-weight: 500;
   color: rgb(0, 0, 0);
+  background-color: var(--tag-color);
+  border: none;
 }
 
 .amount-cell {
@@ -467,9 +469,10 @@ export default {
   }
 
   .type-tag {
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: var(--tag-color);
+    background-color: transparent;
+    border: 1px solid white;
+    box-shadow: none;
   }
 
   .no-data-icon {
