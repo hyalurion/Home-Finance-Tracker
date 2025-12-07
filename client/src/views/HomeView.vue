@@ -414,10 +414,10 @@
           show-password
           :dark-theme="isDarkMode"
         ></GlassInput>
+      </GlassFormItem>
         <div style="margin-top: 10px; font-size: 12px; color: #606266;">
           获取API密钥: <a href="https://console.siliconflow.cn/api-keys" target="_blank">https://console.siliconflow.cn/api-keys</a>
         </div>
-      </GlassFormItem>
     </GlassForm>
     <template #footer>
       <GlassButton @click="showApiKeyDialog = false" :dark-theme="isDarkMode">取消</GlassButton>
@@ -457,9 +457,14 @@
         </GlassUpload>
       </GlassFormItem>
       <div :class="['api-key-prompt', { 'dark-theme': isDarkMode }]">
-        <span>需要设置API密钥才能使用AI功能</span>
-        <GlassButton type="info" @click="showApiKeyDialog = true" :dark-theme="isDarkMode" size="small">
-          设置API密钥
+        <GlassButton 
+          type="info" 
+          @click="showApiKeyDialog = true" 
+          :dark-theme="isDarkMode" 
+          size="small"
+          style="margin: 0 auto; display: block;"
+        >
+          API密钥设置
         </GlassButton>
       </div>
     </GlassForm>
@@ -523,9 +528,14 @@
   <GlassDialog v-model:visible="showAiReportDialog" title="AI消费问答" width="90%" height="80vh" :dark-theme="isDarkMode">
     <div class="ai-report-container">
       <!-- 问题输入区域 -->
-      <div class="report-question-section" style="margin-bottom: 20px;">
+      <div class="report-question-section" style="margin-bottom: 10px;">
         <GlassForm label-position="top">
-          <GlassFormItem label="输入您的问题（可选）">
+          <GlassFormItem label="输入您的问题">
+            <GlassButton 
+              @click="clearReportQuestion" 
+              :dark-theme="isDarkMode"
+              style="position: absolute; top: 15px; right: 15px; width: 30px; height: 30px; padding: 0;"
+            >×</GlassButton>
             <GlassInput
               v-model="reportQuestion"
               type="textarea"
@@ -533,13 +543,12 @@
               placeholder="您可以向AI提问关于您的消费情况，例如：'我本月的主要消费类别是什么？'或'如何减少我的日常开支？'"
               :dark-theme="isDarkMode"
             />
-            <div style="margin-top: 10px; display: flex; gap: 10px;">
+          </GlassFormItem>
+            <div style=" display: flex; justify-content: center; flex-wrap: wrap;">
               <GlassButton type="primary" @click="handleGenerateReport" :disabled="isGeneratingReport" :dark-theme="isDarkMode">
                 {{ isGeneratingReport ? '生成中...' : '生成' }}
               </GlassButton>
-              <GlassButton @click="clearReportQuestion" :dark-theme="isDarkMode">清空问题</GlassButton>
             </div>
-          </GlassFormItem>
         </GlassForm>
       </div>
       
