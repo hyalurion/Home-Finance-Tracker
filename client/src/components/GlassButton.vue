@@ -10,7 +10,6 @@
 </template>
 
 <script setup>
-import { computed, useAttrs } from 'vue'
 
 const props = defineProps({
   type: {
@@ -28,7 +27,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['click'])
-const attrs = useAttrs()
 </script>
 
 <style scoped>

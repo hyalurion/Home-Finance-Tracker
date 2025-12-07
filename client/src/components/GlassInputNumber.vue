@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -103,7 +103,6 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur'])
 
-const inputRef = ref(null)
 const internalValue = ref(props.modelValue)
 
 // 确保值在范围内

@@ -24,7 +24,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 defineOptions({ name: 'AppHeader' });
-const { t } = useI18n();
+useI18n();
 
 // 定义组件接收的 props
 const props = defineProps({ title: String });

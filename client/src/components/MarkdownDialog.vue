@@ -63,7 +63,7 @@ const handleClose = (newVal) => {
   dialogVisible.value = newVal;
 };
 
-const { t } = useI18n();
+useI18n();
 
 // 配置 marked
 // 创建自定义marked渲染器

@@ -45,13 +45,13 @@ const router = createRouter({
       component: NotFoundView
     }
   ],
-  scrollBehavior (to, from, savedPosition) {
+  scrollBehavior (_to, _from, savedPosition) {
     return savedPosition || { top: 0 };
   }
 });
 
 // 全局前置守卫：整合所有路由控制逻辑
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   try {
     const userAgent = navigator.userAgent || 'unknown';
     // 更新页面标题

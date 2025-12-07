@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import axios from 'axios';
 import { setupAxiosInterceptors } from './utils/offlineDataSync.js';
-import { initGlobalErrorMonitoring, tryReportFailedLogs, logUserAction, initConsoleLogging } from './utils/operationLogger.js';
+import { initGlobalErrorMonitoring, tryReportFailedLogs, initConsoleLogging } from './utils/operationLogger.js';
 
 import './styles/common.css'; // 导入公共样式文件
 import './styles/fonts.css'; // 导入自定义字体

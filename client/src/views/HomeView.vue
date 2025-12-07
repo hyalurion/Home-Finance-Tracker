@@ -1319,7 +1319,6 @@ const handleAddRecord = async () => {
 
     // 处理金额（这里只是再次确认，因为已经在validateForm中验证过）
     const amountStr = form.amount.toString().replace(',', '.');
-    const amount = Number(amountStr);
 
     // 添加详细日志来跟踪日期
     console.log('用户选择的原始日期:', form.date);
@@ -1491,17 +1490,7 @@ const loadExpenses = async () => {
   }
 };
 
-// 取消数据加载
-const cancelDataLoad = () => {
-  if (paginationController) {
-    paginationController.abort();
-    console.log('数据加载已取消');
-  }
-};
-
 // 处理AI智能记录生成
-const aiFormRef = ref(null);
-
 const handleImageChange = (file, fileList) => {
   aiForm.image = fileList;
 };

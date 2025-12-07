@@ -9,12 +9,10 @@
 </template>
 
 <script setup>
-import { watchEffect, onMounted, onBeforeUnmount } from 'vue';
+import { watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
 
 const { t } = useI18n();
-const router = useRouter();
 
 watchEffect(() => {
   document.title = t('app.title');

@@ -40,7 +40,6 @@ export async function fetchAllPages(options = {}) {
   }
 
   const allData = [];
-  let currentPage = 1;
   let totalCount = 0;
   let isCompleted = false;
 

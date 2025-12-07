@@ -382,9 +382,6 @@ const debounce = (func, wait) => {
       const chartData = prepareChartData(activeChart.value);
       
       // 检查是否有数据点
-      const hasData = chartData.labels && chartData.labels.length > 0 && 
-                     chartData.datasets && chartData.datasets[0] && 
-                     chartData.datasets[0].data && chartData.datasets[0].data.length > 0;
       let options = {};
       
       // 通用配置，特别是针对移动设备的优化

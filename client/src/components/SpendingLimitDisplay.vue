@@ -148,13 +148,6 @@ const progressColor = computed(() => {
   return '#67c23a';
 });
 
-const remainingClass = computed(() => {
-  const remaining = spendingStore.remainingAmount;
-  if (remaining <= 0) return 'negative-amount';
-  if (remaining < spendingStore.monthlyLimit * 0.2) return 'warning-amount';
-  return 'positive-amount';
-});
-
 const statusAlert = computed(() => {
   const status = spendingStore.getSpendingStatus();
 

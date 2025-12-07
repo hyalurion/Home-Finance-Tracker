@@ -57,7 +57,6 @@
 <script>
 import { ref, computed, onMounted, watch, watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
-import * as math from 'mathjs';
 import ExpenseStats from './ExpenseStats.vue';
 import ExpenseSearch from './ExpenseSearch.vue';
 import ExpenseTable from './ExpenseTable.vue';
@@ -358,9 +357,6 @@ export default {
       if (!searchParams.value) {
         return;
       }
-      
-      // 明确引用所有需要监听的筛选条件
-      const { keyword, type, month, minAmount, maxAmount, sortOption } = searchParams.value;
       
       // 延迟执行，避免频繁请求
       const timer = setTimeout(() => {

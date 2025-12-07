@@ -125,7 +125,7 @@
   </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { formatMonthLabelByLocale } from '@/utils/dateFormatter';
 import CustomSelect from './CustomSelect.vue';

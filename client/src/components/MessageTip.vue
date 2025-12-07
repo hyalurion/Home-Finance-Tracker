@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import { watch, onMounted, onUnmounted, ref, computed } from 'vue';
+import { watch, onUnmounted, computed } from 'vue';
 
 
 // 使用 defineProps 声明组件接收的属性

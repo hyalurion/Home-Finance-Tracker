@@ -111,14 +111,6 @@ const loadExpenses = async () => {
   }
 };
 
-// 取消数据加载
-const cancelDataLoad = () => {
-  if (paginationController) {
-    paginationController.abort();
-    console.log('ChartsView: 数据加载已取消');
-  }
-};
-
 // 返回主页
 const goBack = () => {
   router.push('/');

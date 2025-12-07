@@ -70,16 +70,6 @@ const handleChange = (e) => {
   emit('update:modelValue', checked)
   emit('change', checked)
 }
-
-// 处理焦点事件
-const handleFocus = () => {
-  emit('focus')
-}
-
-// 处理失焦事件
-const handleBlur = () => {
-  emit('blur')
-}
 </script>
 
 <style scoped>
