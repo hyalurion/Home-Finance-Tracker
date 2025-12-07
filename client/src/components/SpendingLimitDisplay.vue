@@ -35,11 +35,11 @@
         </span>
       </div>
 
-      <el-progress
+      <CustomProgress
         :percentage="Math.min(spendingStore.spendingPercentage, 100)"
         :color="progressColor"
         :stroke-width="12"
-        :show-text="false"
+        :dark-theme="darkTheme"
         class="spending-progress"
       />
     </div>
@@ -114,6 +114,7 @@ import { useI18n } from 'vue-i18n';
 import SpendingLimitSetting from './SpendingLimitSetting.vue';
 import MessageTip from './MessageTip.vue';
 import GlassAlert from './GlassAlert.vue';
+import CustomProgress from './CustomProgress.vue';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -469,13 +470,9 @@ onMounted(() => {
     color: #d1d5db;
   }
 
-  /* Element Plus 组件样式调整 */
-  :deep(.el-progress-bar__outer) {
+  /* Custom Progress styles */
+  :deep(.progress-bar-outer) {
     background-color: rgba(75, 85, 99, 0.3);
-  }
-
-  :deep(.el-progress-bar__inner) {
-    background-color: #4361ee;
   }
 
   :deep(.el-alert) {

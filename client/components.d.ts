@@ -8,10 +8,10 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    CustomProgress: typeof import('./src/components/CustomProgress.vue')['default']
     CustomSelect: typeof import('./src/components/CustomSelect.vue')['default']
     CustomUpload: typeof import('./src/components/CustomUpload.vue')['default']
     ElCollapseTransition: typeof import('element-plus/es')['ElCollapseTransition']
-    ElProgress: typeof import('element-plus/es')['ElProgress']
     ExpenseCharts: typeof import('./src/components/ExpenseCharts.vue')['default']
     ExpenseList: typeof import('./src/components/ExpenseList.vue')['default']
     ExpensePagination: typeof import('./src/components/ExpensePagination.vue')['default']
