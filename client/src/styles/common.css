@@ -179,13 +179,6 @@
   overflow: hidden;
 }
 
-/* 元素Plus主题设置 */
-:root {
-  --el-color-primary: #4CAF50;
-  --primary-hover-color: #2E7D32;
-  --el-border-radius-base: 8px;
-}
-
 /* 深色模式通用适配 */
 @media (prefers-color-scheme: dark) {
   .card {

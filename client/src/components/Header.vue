@@ -89,7 +89,7 @@ onUnmounted(() => {
   background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(250,250,250,0.9) 100%); /* 渐变背景 */
   backdrop-filter: blur(10px); /* 毛玻璃效果 */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* 底部阴影 */
-  border-bottom: 1px solid var(--el-border-color-light, #e4e7ed); /* 底部边框 */
+  border-bottom: 1px solid var(#e4e7ed); /* 底部边框 */
   position: sticky; /* 粘性定位，使其在滚动时保持在顶部 */
   top: 0; /* 距离顶部0 */
   z-index: 100; /* 确保在其他内容之上 */
@@ -105,12 +105,12 @@ onUnmounted(() => {
 /* 标题样式 */
 .header h1 {
   font-size: 1.8rem; /* 标题字体大小 */
-  color: var(--el-text-color-primary, #303133); /* 标题文本颜色 */
+  color: var(#303133); /* 标题文本颜色 */
   margin: 0; /* 移除默认外边距 */
   flex-grow: 1; /* 允许标题占据可用空间 */
   text-align: left; /* 文本左对齐 */
   font-weight: 600; /* 字体粗细 */
-  background: linear-gradient(90deg, var(--el-color-primary, #409eff), #7928ca); /* 文本渐变背景 */
+  background: linear-gradient(90deg, #409eff, #7928ca); /* 文本渐变背景 */
   -webkit-background-clip: text; /* 背景裁剪到文本 */
   background-clip: text;
   -webkit-text-fill-color: transparent; /* 文本填充透明，显示背景渐变 */
@@ -130,10 +130,10 @@ onUnmounted(() => {
 /* 语言按钮样式 */
 .language-btn {
   padding: 8px 16px; /* 内边距 */
-  border: 1px solid var(--el-border-color, #dcdfe6); /* 边框 */
-  border-radius: var(--el-border-radius-base, 6px); /* 圆角 */
-  background-color: var(--el-bg-color, #ffffff); /* 背景色 */
-  color: var(--el-text-color-regular, #606266); /* 文本颜色 */
+  border: 1px solid #dcdfe6; /* 边框 */
+  border-radius: 6px; /* 圆角 */
+  background-color: #ffffff; /* 背景色 */
+  color: #606266; /* 文本颜色 */
   font-size: 14px; /* 字体大小 */
   font-weight: 500; /* 字体粗细 */
   cursor: pointer; /* 鼠标悬停时显示手型光标 */
@@ -166,7 +166,7 @@ onUnmounted(() => {
   }
 
   /* 移动端下拉菜单宽度调整 */
-  .header :deep(.el-dropdown-menu) {
+  .header {
     min-width: 200px !important;
     max-width: 90vw !important;
   }
