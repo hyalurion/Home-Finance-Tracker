@@ -1860,27 +1860,6 @@ const refreshPage = () => {
   animation: rainbowText 3s linear infinite;
 }
 
-.welcome-text::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, 
-    rgba(255, 0, 0, 0.2), 
-    rgba(255, 127, 0, 0.2), 
-    rgba(255, 255, 0, 0.2), 
-    rgba(0, 255, 0, 0.2), 
-    rgba(0, 0, 255, 0.2), 
-    rgba(75, 0, 130, 0.2), 
-    rgba(148, 0, 211, 0.2));
-  background-size: 400% 400%;
-  border-radius: 15px;
-  z-index: -2;
-  animation: gradientShift 8s ease infinite;
-}
-
 .sparkle {
   position: absolute;
   width: 4px;
@@ -2044,14 +2023,8 @@ const refreshPage = () => {
   align-items: center;
   margin: 1.5rem 0;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.9);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.datetime-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .date-part {
@@ -2072,10 +2045,6 @@ const refreshPage = () => {
 
 /* 深色模式适配 */
 @media (prefers-color-scheme: dark) {
-  .datetime-container {
-    background: rgba(0, 0, 0, 0.3);
-  }
-  
   .date-part {
     color: #e5e7eb;
   }
