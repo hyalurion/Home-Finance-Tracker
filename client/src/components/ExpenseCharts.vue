@@ -32,18 +32,13 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
-import { ElSelect, ElOption } from 'element-plus';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import Chart from 'chart.js/auto';
 import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'ExpenseCharts',
-  components: {
-    ElSelect,
-    ElOption
-  },
   props: {
     expenses: {
       type: Array,
