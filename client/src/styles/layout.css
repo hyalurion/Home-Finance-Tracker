@@ -86,27 +86,6 @@
   }
 }
 
-/* 卡片样式优化 */
-.card-grid {
-  transition: all 0.3s ease;
-  height: 100%;
-}
-
-.card-grid :hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* 功能组按钮样式优化 */
-.card-content {
-  transition: all 0.2s ease;
-  min-width: 120px;
-}
-
-.card-content:hover {
-  transform: translateY(-1px);
-}
-
 /* 大屏幕按钮样式优化 */
 @media (min-width: 1200px) {
   .card-content {
