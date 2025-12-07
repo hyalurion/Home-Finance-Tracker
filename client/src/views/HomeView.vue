@@ -197,7 +197,7 @@
     </div>
 
     <!-- 月度消费限制显示 -->
-    <SpendingLimitDisplay :expenses="Expenses" />
+    <SpendingLimitDisplay :expenses="Expenses" :dark-theme="isDarkMode" />
     
     <!-- 图表分析按钮 -->
     <div style="display: flex; justify-content: center; margin-bottom: 20px;">
@@ -512,7 +512,7 @@
           </div>
           <div style="flex: 1; min-width: 200px;">
             <label style="display: block; margin-bottom: 5px;">{{ t('expense.date') }}:</label>
-            <input type="date" v-model="record.date" :placeholder="t('expense.selectDate')" class="el-input__inner" style="width: 100%;">
+            <input type="date" v-model="record.date" :placeholder="t('expense.selectDate')" class="input__inner" style="width: 100%;">
           </div>
         </div>
         <div style="margin-top: 15px;">
@@ -571,8 +571,6 @@
       :title="markdownTitle"
       :content="markdownContent"
     />
-  
-
 
 </template>
 
@@ -584,13 +582,12 @@ import GlassUpload from '@/components/GlassUpload.vue';
 import GlassCheckbox from '@/components/GlassCheckbox.vue';
 
 import axios from 'axios';
-import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, reactive } from 'vue';
 import { marked } from 'marked';
 
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import CustomSelect from '@/components/CustomSelect.vue';
-import Papa from 'papaparse';
 
 import { useExpenseData } from '@/composables/useExpenseData';
 import { useExcelExport } from '@/composables/useExcelExport';
@@ -600,7 +597,6 @@ import { ExpenseAPI } from '@/api/expenses';
 import MessageTip from '@/components/MessageTip.vue';
 import Header from '@/components/Header.vue';
 import ExpenseList from '@/components/ExpenseList.vue';
-import ExpenseCharts from '@/components/ExpenseCharts.vue';
 import ExportButton from '@/components/ExportButton.vue';
 import MarkdownDialog from '@/components/MarkdownDialog.vue';
 import SpendingLimitDisplay from '@/components/SpendingLimitDisplay.vue';
@@ -739,7 +735,7 @@ const showLargeExpenseWarning = (callback = null) => {
   });
   
   // 确保即使在对话框后面也能看到警告
-  const dialogs = document.querySelectorAll('.el-dialog__wrapper');
+  const dialogs = document.querySelectorAll('.dialog__wrapper');
   dialogs.forEach(dialog => {
     dialog.style.zIndex = '99998'; // 让对话框在警告后面
   });

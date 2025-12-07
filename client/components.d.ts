@@ -11,7 +11,6 @@ declare module 'vue' {
     CustomProgress: typeof import('./src/components/CustomProgress.vue')['default']
     CustomSelect: typeof import('./src/components/CustomSelect.vue')['default']
     CustomUpload: typeof import('./src/components/CustomUpload.vue')['default']
-    ElCollapseTransition: typeof import('element-plus/es')['ElCollapseTransition']
     ExpenseCharts: typeof import('./src/components/ExpenseCharts.vue')['default']
     ExpenseList: typeof import('./src/components/ExpenseList.vue')['default']
     ExpensePagination: typeof import('./src/components/ExpensePagination.vue')['default']

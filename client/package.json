@@ -8,7 +8,6 @@
     "lint": "eslint . --ext .js,.vue"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.3.1",
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
     "@fortawesome/free-brands-svg-icons": "^7.1.0",
     "@fortawesome/free-regular-svg-icons": "^7.1.0",
@@ -21,9 +20,7 @@
     "lunar-javascript": "^1.7.3",
     "mermaid": "^11.10.1",
     "papaparse": "^5.5.3",
-    "qrcode-vue": "^1.2.0",
     "vue": "^3.5.17",
-    "vue-qrcode": "^2.2.2",
     "vue-router": "^4.2.5",
     "xlsx": "file:xlsx-latest.tgz"
   },
@@ -33,7 +30,6 @@
     "@vitejs/plugin-vue": "^6.0.0",
     "axios": "^1.12.0",
     "chart.js": "^4.5.0",
-    "element-plus": "^2.11.1",
     "glob": "^11.1.0",
     "globals": "^16.3.0",
     "lru-cache": "^11.1.0",

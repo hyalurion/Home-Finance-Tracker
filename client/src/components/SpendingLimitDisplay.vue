@@ -78,12 +78,16 @@
       </div>
     </div>
 
-    <!-- 设置面板 -->
-    <el-collapse-transition>
-      <div v-show="showSettings" class="settings-panel">
-        <SpendingLimitSetting />
+    <!-- 设置面板弹窗 -->
+    <transition name="dialog-fade">
+      <div v-if="showSettings" class="custom-dialog-overlay" @click.self="showSettings = false">
+        <div class="custom-dialog settings-panel-dialog" :class="{ 'dark-theme': darkTheme }">
+          <div class="dialog-body">
+            <SpendingLimitSetting />
+          </div>
+        </div>
       </div>
-    </el-collapse-transition>
+    </transition>
   </div>
 
   <!-- 启用提示 -->
@@ -228,6 +232,10 @@ const props = defineProps({
   expenses: {
     type: Array,
     default: () => []
+  },
+  darkTheme: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -473,16 +481,6 @@ onMounted(() => {
   /* Custom Progress styles */
   :deep(.progress-bar-outer) {
     background-color: rgba(75, 85, 99, 0.3);
-  }
-
-  :deep(.el-alert) {
-    background-color: rgba(30, 30, 30, 0.5);
-    border-color: #4b5563;
-    color: #e5e7eb;
-  }
-
-  :deep(.el-alert__title) {
-    color: #f9fafb;
   }
 
     /* 月度预算相关元素颜色区分 */

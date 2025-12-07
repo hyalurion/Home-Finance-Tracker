@@ -505,11 +505,6 @@ export default {
   background-color: #202020;
 }
 
-:deep(.el-form-item__content){
-   margin: 5px;
-   justify-content: center;
-}
-
 .user-info-card {
   margin: 50px auto;
   width: 300px;
@@ -608,13 +603,13 @@ export default {
 }
 
 /* 费用提示框 */
-:deep(.fee-alert.el-alert--info) {
+:deep(.fee-alert) {
   background-color: #f0f9ff;
   border-color: #d9ecff;
   border-radius: 6px !important;
 }
 
-:deep(.fee-alert .el-alert__title) {
+:deep(.fee-alerte) {
   color: var(--info-color) !important;
   font-size: 14px !important;
   font-weight: 600 !important;
@@ -677,14 +672,6 @@ export default {
 
   .price-tag {
     color: #409eff;
-  }
-  
-  .el-form-item__label {
-    color: #c0c4cc;
-  }
-  
-  .el-input__wrapper {
-    background-color: #303030;
   }
 
   /* 暗黑模式下的自定义标签 */

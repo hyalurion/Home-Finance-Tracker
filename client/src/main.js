@@ -5,7 +5,6 @@ import { initGlobalErrorMonitoring, tryReportFailedLogs, logUserAction, initCons
 
 import './styles/common.css'; // 导入公共样式文件
 import './styles/fonts.css'; // 导入自定义字体
-import 'element-plus/dist/index.css'; // 导入Element Plus基础样式
 
 import router from './router';
 import i18n from './locales/i18n.js';

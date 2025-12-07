@@ -7,7 +7,6 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import path from 'path';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -23,18 +22,17 @@ export default defineConfig({
   build: {
     target: 'esnext', // 提升目标环境版本以支持现代CSS特性（如嵌套语法）
     rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['vue', 'vue-router', 'pinia'],
-          element: ['element-plus'],
-          utils: ['axios', 'dayjs'],
-          // 拆分大型依赖包
-          excel: ['xlsx'],
-          csv: ['papaparse'],
-          markdown: ['marked'],
-          highlight: ['highlight.js']
+        output: {
+          manualChunks: {
+            vendor: ['vue', 'vue-router', 'pinia'],
+            utils: ['axios', 'dayjs'],
+            // 拆分大型依赖包
+            excel: ['xlsx'],
+            csv: ['papaparse'],
+            markdown: ['marked'],
+            highlight: ['highlight.js']
+          }
         }
-      }
     },
     terserOptions: {
       compress: {
@@ -67,14 +65,13 @@ export default defineConfig({
     }),
     vue(),
     AutoImport({
-      resolvers: [ElementPlusResolver({
-        exclude: [/^ElIcon/, /^ElMessage/]
-      })]
+      // 基本配置，确保插件能正常工作
+      imports: ['vue'], // 自动导入Vue的ref、reactive等
+      dts: 'auto-imports.d.ts'
     }),
     Components({
-      resolvers: [ElementPlusResolver({
-        exclude: [/^ElIcon/]
-      })]
+      // 基本配置，确保插件能正常工作
+      dts: 'components.d.ts'
     }),
     VitePWA({
       injectRegister: 'autoUpdate',
