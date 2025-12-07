@@ -124,7 +124,7 @@ const handleClose = () => {
 .glass-alert.success .glass-alert-icon {
   color: #22c55e;
 }
-.glass-alert.success .glass-alert-message >>> strong {
+.glass-alert.success .glass-alert-message :deep(strong) {
   color: #22c55e;
 }
 
@@ -135,7 +135,7 @@ const handleClose = () => {
 .glass-alert.warning .glass-alert-icon {
   color: #eab308;
 }
-.glass-alert.warning .glass-alert-message >>> strong {
+.glass-alert.warning .glass-alert-message :deep(strong) {
   color: #eab308;
 }
 
@@ -146,7 +146,7 @@ const handleClose = () => {
 .glass-alert.error .glass-alert-icon {
   color: #ef4444;
 }
-.glass-alert.error .glass-alert-message >>> strong {
+.glass-alert.error .glass-alert-message :deep(strong) {
   color: #ef4444;
 }
 
@@ -157,7 +157,7 @@ const handleClose = () => {
 .glass-alert.info .glass-alert-icon {
   color: #3b82f6;
 }
-.glass-alert.info .glass-alert-message >>> strong {
+.glass-alert.info .glass-alert-message :deep(strong) {
   color: #3b82f6;
 }
 
@@ -183,19 +183,19 @@ const handleClose = () => {
 }
 
 /* Type variants for dark theme */
-.glass-alert.success .glass-alert-message >>> strong {
+.glass-alert.success .glass-alert-message :deep(strong) {
   color: #22c55e;
 }
 
-.glass-alert.warning .glass-alert-message >>> strong {
+.glass-alert.warning .glass-alert-message :deep(strong) {
   color: #eab308;
 }
 
-.glass-alert.error .glass-alert-message >>> strong {
+.glass-alert.error .glass-alert-message :deep(strong) {
   color: #ef4444;
 }
 
-.glass-alert.info .glass-alert-message >>> strong {
+.glass-alert.info .glass-alert-message :deep(strong) {
   color: #3b82f6;
 }
 }

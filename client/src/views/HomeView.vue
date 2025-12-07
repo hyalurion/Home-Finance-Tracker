@@ -595,16 +595,16 @@ import { useExcelExport } from '@/composables/useExcelExport';
 import { fetchAllPages, createCancellationController } from '@/utils/pagination';
 import { ExpenseAPI } from '@/api/expenses';
 
-const MessageTip = defineAsyncComponent(() => import('@/components/MessageTip.vue'));
-const Header = defineAsyncComponent(() => import('@/components/Header.vue'));
-const ExpenseList = defineAsyncComponent(() => import('@/components/ExpenseList.vue'));
-const ExpenseCharts = defineAsyncComponent(() => import('@/components/ExpenseCharts.vue'));
-const ExportButton = defineAsyncComponent(() => import('@/components/ExportButton.vue'));
-const MarkdownDialog = defineAsyncComponent(() => import('@/components/MarkdownDialog.vue'));
-const SpendingLimitDisplay = defineAsyncComponent(() => import('@/components/SpendingLimitDisplay.vue'));
-const GlassCard = defineAsyncComponent(() => import('@/components/GlassCard.vue'));
-const GlassButton = defineAsyncComponent(() => import('@/components/GlassButton.vue'));
-const GlassInput = defineAsyncComponent(() => import('@/components/GlassInput.vue'));
+import MessageTip from '@/components/MessageTip.vue';
+import Header from '@/components/Header.vue';
+import ExpenseList from '@/components/ExpenseList.vue';
+import ExpenseCharts from '@/components/ExpenseCharts.vue';
+import ExportButton from '@/components/ExportButton.vue';
+import MarkdownDialog from '@/components/MarkdownDialog.vue';
+import SpendingLimitDisplay from '@/components/SpendingLimitDisplay.vue';
+import GlassCard from '@/components/GlassCard.vue';
+import GlassButton from '@/components/GlassButton.vue';
+import GlassInput from '@/components/GlassInput.vue';
 
 
 const { t, locale } = useI18n();
