@@ -128,13 +128,12 @@ const afterLeave = () => {
 /* 进入动画 */
 .glass-dialog-enter-active,
 .glass-dialog-leave-active {
-  transition: opacity var(--animation-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all var(--animation-duration, 350ms) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-dialog-enter-active .glass-dialog,
 .glass-dialog-leave-active .glass-dialog {
-  transition: transform var(--animation-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1),
-              opacity var(--animation-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all var(--animation-duration, 350ms) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-dialog-enter-from,
@@ -142,10 +141,14 @@ const afterLeave = () => {
   opacity: 0;
 }
 
-.glass-dialog-enter-from .glass-dialog,
+.glass-dialog-enter-from .glass-dialog {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px); /* 减小缩放差异和位移距离，降低冲击感 */
+}
+
 .glass-dialog-leave-to .glass-dialog {
   opacity: 0;
-  transform: scale(0.95) translateY(-10px);
+  transform: scale(0.97) translateY(10px); /* 优化退出动画，降低冲击感 */
 }
 
 .glass-dialog-enter-to,
@@ -163,33 +166,34 @@ const afterLeave = () => {
 .glass-dialog-enter-active .glass-dialog-header,
 .glass-dialog-enter-active .glass-dialog-body,
 .glass-dialog-enter-active .glass-dialog-footer {
-  animation: slideUpFadeIn calc(var(--animation-duration, 300ms) * 0.8) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUpFadeIn calc(var(--animation-duration, 350ms) * 0.8) cubic-bezier(0.4, 0, 0.2, 1) forwards;
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(10px); /* 减小内容位移，降低冲击感 */
 }
 
 .glass-dialog-leave-active .glass-dialog-header,
 .glass-dialog-leave-active .glass-dialog-body,
 .glass-dialog-leave-active .glass-dialog-footer {
-  animation: slideDownFadeOut calc(var(--animation-duration, 300ms) * 0.8) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideDownFadeOut calc(var(--animation-duration, 350ms) * 0.8) cubic-bezier(0.4, 0, 0.2, 1) forwards;
   opacity: 1;
   transform: translateY(0);
 }
 
+/* 调整内容动画延迟，使过渡更自然 */
 .glass-dialog-enter-active .glass-dialog-header {
-  animation-delay: calc(var(--animation-duration, 300ms) * 0.1);
-}
-
-.glass-dialog-enter-active .glass-dialog-body {
   animation-delay: calc(var(--animation-duration, 300ms) * 0.2);
 }
 
-.glass-dialog-enter-active .glass-dialog-footer {
+.glass-dialog-enter-active .glass-dialog-body {
   animation-delay: calc(var(--animation-duration, 300ms) * 0.3);
 }
 
+.glass-dialog-enter-active .glass-dialog-footer {
+  animation-delay: calc(var(--animation-duration, 300ms) * 0.4);
+}
+
 .glass-dialog-leave-active .glass-dialog-header {
-  animation-delay: calc(var(--animation-duration, 300ms) * 0.3);
+  animation-delay: calc(var(--animation-duration, 300ms) * 0.1);
 }
 
 .glass-dialog-leave-active .glass-dialog-body {
@@ -197,7 +201,7 @@ const afterLeave = () => {
 }
 
 .glass-dialog-leave-active .glass-dialog-footer {
-  animation-delay: calc(var(--animation-duration, 300ms) * 0.1);
+  animation-delay: calc(var(--animation-duration, 300ms) * 0.3);
 }
 
 @keyframes slideUpFadeIn {

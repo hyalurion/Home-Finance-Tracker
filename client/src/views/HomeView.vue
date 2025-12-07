@@ -2484,7 +2484,7 @@ body.donation-modal-open {
 /* 对话框动画 */
 .dialog-fade-enter-active,
 .dialog-fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .dialog-fade-enter-from,
@@ -2499,16 +2499,16 @@ body.donation-modal-open {
 }
 
 .dialog-fade-enter-active .custom-dialog {
-  transform: scale(0.9);
-  transition: transform 0.3s ease;
+  transform: scale(1);
+  transition: all 0.3s ease;
 }
 
 .dialog-fade-enter-from .custom-dialog {
-  transform: scale(0.9);
+  transform: scale(0.7); /* 减小初始缩放比例，使动画更明显 */
 }
 
 .dialog-fade-leave-active .custom-dialog {
-  transform: scale(0.9) translateY(-20px);
+  transform: scale(0.7) translateY(-20px);
 }
 
 .dialog-header {
