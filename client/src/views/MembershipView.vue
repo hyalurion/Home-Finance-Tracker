@@ -1,5 +1,7 @@
 <template>
   <div class="membership-container">
+    <MessageTip v-model:message="successMessage" type="success" />
+    <MessageTip v-model:message="errorMessage" type="error" />
     <Header :title="$t('membership.title')" />
     
     <!-- 用户登录/注册表单 -->
@@ -99,7 +101,6 @@
 
 <script>
 import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
 import Header from '@/components/Header.vue';
 import GlassButton from '@/components/GlassButton.vue';
 import GlassForm from '@/components/GlassForm.vue';
@@ -107,6 +108,7 @@ import GlassFormItem from '@/components/GlassFormItem.vue';
 import GlassInput from '@/components/GlassInput.vue';
 import GlassAlert from '@/components/GlassAlert.vue';
 import GlassTable from '@/components/GlassTable.vue';
+import MessageTip from '@/components/MessageTip.vue';
 
 export default {
   name: 'MembershipView',
@@ -116,7 +118,8 @@ export default {
     GlassFormItem,
     GlassInput,
     GlassAlert,
-    GlassTable
+    GlassTable,
+    MessageTip
   },
   setup() {
     const subscriptionPlans = ref([])
@@ -127,6 +130,8 @@ export default {
     const userInfo = ref(null)
     const currentSubscription = ref(null)
     const subscriptionHistory = ref([])
+    const successMessage = ref('')
+    const errorMessage = ref('')
     const subscriptionColumns = ref([
       { label: '计划', prop: 'planName' },
       { label: '开始日期', prop: 'startDate' },
@@ -186,7 +191,7 @@ export default {
           throw new Error('获取订阅计划失败')
         }
       } catch (error) {
-        ElMessage.error('获取订阅计划失败')
+        errorMessage.value = '获取订阅计划失败'
         console.error('获取订阅计划失败:', error)
       }
     }
@@ -269,7 +274,7 @@ export default {
         }
       } catch (error) {
         console.error('获取用户信息失败:', error)
-        ElMessage.error('获取用户信息失败，请稍后重试')
+        errorMessage.value = '获取用户信息失败，请稍后重试'
       }
     }
     
@@ -281,14 +286,14 @@ export default {
     // 处理登录/注册
     const handleLogin = async () => {
       if (!loginForm.value.username.trim()) {
-        ElMessage.warning('请输入用户名')
+        errorMessage.value = '请输入用户名'
         return
       }
       
       // 验证用户名格式，只允许大小写英文字母
       const usernamePattern = /^[A-Za-z]+$/
       if (!usernamePattern.test(loginForm.value.username)) {
-        ElMessage.warning('用户名只能包含大小写英文字母')
+        errorMessage.value = '用户名只能包含大小写英文字母'
         return
       }
       
@@ -302,10 +307,10 @@ export default {
         // 尝试创建或获取用户
         await fetchUserInfo()
         
-        ElMessage.success('登录成功')
+        successMessage.value = '登录成功'
       } catch (error) {
         console.error('登录失败:', error)
-        ElMessage.error('登录失败，请稍后重试')
+        errorMessage.value = '登录失败，请稍后重试'
       } finally {
         isLoggingIn.value = false
       }
@@ -318,13 +323,13 @@ export default {
       userInfo.value = null
       currentSubscription.value = null
       subscriptionHistory.value = []
-      ElMessage.success('已登出')
+      successMessage.value = '已登出'
     }
     
     // 订阅处理
     const subscribe = async (plan) => {
       if (!isLoggedIn.value) {
-        ElMessage.warning('请先登录')
+        errorMessage.value = '请先登录'
         return
       }
       
@@ -360,17 +365,17 @@ export default {
           
           const createData = await createSubscriptionResponse.json();
           if (createSubscriptionResponse.ok && (createData.success || !createData.error)) {
-            ElMessage.success('订阅成功！')
+            successMessage.value = '订阅成功！'
             // 刷新用户信息和订阅状态
             await fetchUserInfo()
           } else {
-            ElMessage.error('创建订阅记录失败')
+            errorMessage.value = '创建订阅记录失败'
           }
         } else {
-          ElMessage.error(paymentData.error || '支付处理失败')
+          errorMessage.value = paymentData.error || '支付处理失败'
         }
       } catch (error) {
-        ElMessage.error('订阅过程中发生错误')
+        errorMessage.value = '订阅过程中发生错误'
         console.error('订阅失败:', error)
       } finally {
         isProcessing.value = false
@@ -396,7 +401,7 @@ export default {
     // 取消订阅
     const cancelSubscription = async () => {
       if (!isLoggedIn.value) {
-        ElMessage.warning('请先登录')
+        errorMessage.value = '请先登录'
         return
       }
       
@@ -415,13 +420,13 @@ export default {
         const responseData = await response.json()
         
         if (response.ok && (responseData.success || !responseData.error)) {
-          ElMessage.success('订阅已取消')
+          successMessage.value = '订阅已取消'
           await fetchUserInfo()
         } else {
-          ElMessage.error(responseData.error || '取消订阅失败')
+          errorMessage.value = responseData.error || '取消订阅失败'
         }
       } catch (error) {
-        ElMessage.error('取消订阅过程中发生错误')
+        errorMessage.value = '取消订阅过程中发生错误'
         console.error('取消订阅失败:', error)
       } finally {
         isCancelling.value = false

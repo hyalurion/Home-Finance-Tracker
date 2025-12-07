@@ -955,14 +955,14 @@ const validateEditForm = () => {
       console.log('Updating expense:', expenseData);
       await ExpenseAPI.updateExpense(editingExpense.id, expenseData);
     
-    ElMessage.success(t('expense.updateSuccess'));
+    successMessage.value = t('expense.updateSuccess');
     showEditDialog.value = false;
     
     // 刷新消费记录列表
     refreshTrigger.value++;
   } catch (error) {
     console.error('Update expense failed:', error);
-    ElMessage.error(t('expense.updateFailed'));
+    errorMessage.value = t('expense.updateFailed');
   }
 };
 
@@ -972,14 +972,14 @@ const confirmDelete = async () => {
     console.log('Deleting expense:', editingExpenseId.value);
     await ExpenseAPI.deleteExpense(editingExpenseId.value);
     
-    ElMessage.success(t('expense.deleteSuccess'));
+    successMessage.value = t('expense.deleteSuccess');
     showDeleteDialog.value = false;
     
     // 刷新消费记录列表
     refreshTrigger.value++;
   } catch (error) {
     console.error('Delete expense failed:', error);
-    ElMessage.error(t('expense.deleteFailed'));
+    errorMessage.value = t('expense.deleteFailed');
   }
 };
 
@@ -1060,11 +1060,11 @@ onBeforeUnmount(() => {
 
 // 导入处理
 const handleImportSuccess = () => {
-  ElMessage.success(t('import.success'));
+  successMessage.value = t('import.success');
 };
 
 const handleImportError = (error) => {
-  ElMessage.error(t('import.failed'));
+  errorMessage.value = t('import.failed');
   console.error('Import error:', error);
 };
 
@@ -1356,7 +1356,7 @@ const handleAddRecord = async () => {
     await fetchData(true);
     // 触发ExpenseList组件刷新
     refreshTrigger.value++;
-    ElMessage.success(t('expense.addSuccess'));
+    successMessage.value = t('expense.addSuccess');
     
     // 记录添加成功
     logUserAction('record_add_success', { 
@@ -1391,7 +1391,7 @@ const handleAddRecord = async () => {
     } else {
       errorMsg = t('expense.unknownError', { error: error.message || '未知错误' });
     }
-    ElMessage.error(errorMsg);
+    errorMessage.value = errorMsg;
     
     // 记录添加失败
     logUserAction('record_add_failed', { 
@@ -1549,7 +1549,7 @@ const handleMultiRecordsSubmit = async () => {
     console.log('Multi records submit started:', { recordCount: selectedRecords.length });
     
     if (selectedRecords.length === 0) {
-      ElMessage.warning('请至少选择一条记录');
+      errorMessage.value = t('expense.selectAtLeastOne');
       return;
     }
     
@@ -1599,7 +1599,7 @@ const handleMultiRecordsSubmit = async () => {
     // 刷新数据
     await fetchData(true);
     
-    ElMessage.success(`${validRecords.length}条记录添加成功`);
+    successMessage.value = `${validRecords.length}条记录添加成功`;
     console.log('Multi records submit successful:', { totalRecords: validRecords.length });
     
     // 重置数据
@@ -1608,7 +1608,7 @@ const handleMultiRecordsSubmit = async () => {
   } catch (error) {
     console.error('批量添加记录失败:', error);
     console.error('批量添加错误详情:', { message: error.message, stack: error.stack });
-    ElMessage.error(`添加记录失败: ${error.message}`);
+    errorMessage.value = `添加记录失败: ${error.message}`;
   }
 };
 
@@ -1623,7 +1623,7 @@ const handleAiGenerate = async () => {
     // 检查是否有输入
     if (!aiForm.text && (!aiForm.image || aiForm.image.length === 0)) {
       console.log('AI generation skipped: No input text or image provided');
-      ElMessage.error('请输入文本描述或上传图片');
+      errorMessage.value = '请输入文本描述或上传图片';
       return;
     }
     
@@ -1656,7 +1656,7 @@ const handleAiGenerate = async () => {
         // 关闭AI对话框，打开普通编辑对话框
         showAiAddDialog.value = false;
         showAddDialog.value = true;
-        ElMessage.success('AI已成功生成记录，请检查并确认');
+        successMessage.value = 'AI已成功生成记录，请检查并确认';
       } else {
         // 多条记录，显示多条记录对话框
         console.log('Multiple records generated:', parsedDataList.map(r => ({ type: r.type, amount: r.amount })));
@@ -1667,13 +1667,13 @@ const handleAiGenerate = async () => {
         }));
         showAiAddDialog.value = false;
         showMultiRecordsDialog.value = true;
-        ElMessage.success(`AI已成功生成${parsedDataList.length}条记录，请检查并确认`);
+        successMessage.value = `AI已成功生成${parsedDataList.length}条记录，请检查并确认`;
       }
     }
   } catch (error) {
     console.error('AI生成记录失败:', error);
     console.error('AI generation error details:', { message: error.message, stack: error.stack });
-    ElMessage.error('AI生成记录失败，请重试');
+    errorMessage.value = 'AI生成记录失败，请重试';
   } finally {
     isParsing.value = false;
     // 重置AI表单
@@ -1694,7 +1694,7 @@ const handleGenerateReport = async () => {
     // 检查是否有消费数据
     if (!Expenses || Expenses.length === 0) {
       console.log('Report generation skipped: No expense data available');
-      ElMessage.error('没有足够的消费数据来生成报告');
+      errorMessage.value = '没有足够的消费数据来生成报告';
       return;
     }
     
@@ -1712,11 +1712,11 @@ const handleGenerateReport = async () => {
     reportContent.value = content;
     console.log('AI report generation successful:', { contentLength: content.length });
     
-    ElMessage.success('AI已成功生成消费报告');
+    successMessage.value = 'AI已成功生成消费报告';
   } catch (error) {
     console.error('AI生成报告失败:', error);
     console.error('AI report generation error details:', { message: error.message, stack: error.stack });
-    ElMessage.error('AI生成报告失败，请重试');
+    errorMessage.value = 'AI生成报告失败，请重试';
   } finally {
     isGeneratingReport.value = false;
   }
@@ -1734,11 +1734,11 @@ const handleApiKeySave = () => {
     localStorage.setItem('siliconflow_api_key', apiKeyForm.apiKey);
     setApiKey(apiKeyForm.apiKey);
     showApiKeyDialog.value = false;
-    ElMessage.success('API密钥已保存');
+    successMessage.value = 'API密钥已保存';
     console.log('API key saved successfully');
   } else {
     console.log('API key save failed: Empty key provided');
-    ElMessage.error('请输入有效的API密钥');
+    errorMessage.value = '请输入有效的API密钥';
   }
 };
 
@@ -1746,7 +1746,7 @@ const handleApiKeySave = () => {
 const checkApiKey = () => {
   const savedApiKey = localStorage.getItem('siliconflow_api_key');
   if (!savedApiKey) {
-    ElMessage.warning('请先设置SiliconFlow API密钥');
+    errorMessage.value = '请先设置SiliconFlow API密钥';
     showApiKeyDialog.value = true;
     return false;
   }
@@ -1761,7 +1761,7 @@ const handleFeedback = () => {
     window.open(feedbackUrl, '_blank');
   } catch (error) {
     console.error('打开反馈链接失败:', error);
-    ElMessage.error('打开反馈链接失败，请重试');
+    errorMessage.value = '打开反馈链接失败，请重试';
   }
 };
 

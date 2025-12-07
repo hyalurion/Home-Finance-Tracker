@@ -11,7 +11,6 @@ declare module 'vue' {
     CustomSelect: typeof import('./src/components/CustomSelect.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElCollapseTransition: typeof import('element-plus/es')['ElCollapseTransition']
-    ElIcon: typeof import('element-plus/es')['ElIcon']
     ElProgress: typeof import('element-plus/es')['ElProgress']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     ExpenseCharts: typeof import('./src/components/ExpenseCharts.vue')['default']

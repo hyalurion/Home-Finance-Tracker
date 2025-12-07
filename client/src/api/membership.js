@@ -1,6 +1,4 @@
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
-import offlineSync from '@/utils/offlineDataSync'
 import { setupAxiosInterceptors } from '@/utils/offlineDataSync'
 
 // 创建axios实例
@@ -22,7 +20,6 @@ export const getMembershipPlans = async () => {
     return response.data
   } catch (error) {
     console.error('获取会员订阅计划失败:', error)
-    ElMessage.error('获取订阅计划失败')
     throw error
   }
 }

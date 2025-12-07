@@ -1,5 +1,7 @@
 <template>
   <div class="spending-limit-display" v-if="spendingStore.isLimitEnabled">
+    <MessageTip v-model:message="successMessage" type="success" />
+    <MessageTip v-model:message="errorMessage" type="error" />
     <div class="display-header">
       <div class="header-left">
         <h4 class="display-title">{{ $t('spending.monthlyProgress') }}</h4>
@@ -109,8 +111,8 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useSpendingStore } from '../stores/spending.js';
 import { useI18n } from 'vue-i18n';
 
-import { ElMessage } from 'element-plus';
 import SpendingLimitSetting from './SpendingLimitSetting.vue';
+import MessageTip from './MessageTip.vue';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -118,6 +120,8 @@ const spendingStore = useSpendingStore();
 
 // 本地状态
 const showSettings = ref(false);
+const successMessage = ref('');
+const errorMessage = ref('');
 
 // 计算属性
 const currentMonthName = computed(() => {
@@ -214,7 +218,7 @@ const formatAmount = (amount) => {
 const enableSpendingLimit = () => {
   spendingStore.toggleLimitEnabled(true);
   showSettings.value = true;
-  ElMessage.success(t('spending.enablePrompt.enabled'));
+  successMessage.value = t('spending.enablePrompt.enabled');
 };
 
 // 监听消费数据变化

@@ -1,5 +1,7 @@
 <template>
   <div class="spending-limit-setting">
+    <MessageTip v-model:message="successMessage" type="success" />
+    <MessageTip v-model:message="errorMessage" type="error" />
     <div class="setting-header">
       <h3 class="setting-title">{{ $t('spending.settings.title') }}</h3>
       <GlassSwitch
@@ -68,9 +70,9 @@
 import { ref, watch, onMounted } from 'vue';
 import { useSpendingStore } from '../stores/spending.js';
 import { useI18n } from 'vue-i18n';
-import { ElMessage } from 'element-plus';
 import GlassSwitch from './GlassSwitch.vue';
 import GlassInputNumber from './GlassInputNumber.vue';
+import MessageTip from './MessageTip.vue';
 
 const { t } = useI18n();
 const spendingStore = useSpendingStore();
@@ -78,13 +80,15 @@ const spendingStore = useSpendingStore();
 // 本地状态
 const localLimit = ref(0);
 const thresholdPercentage = ref(80);
+const successMessage = ref('');
+const errorMessage = ref('');
 
 // 方法
 const handleToggleEnabled = (enabled) => {
   spendingStore.toggleLimitEnabled(enabled);
   if (enabled && spendingStore.monthlyLimit <= 0) {
     // 如果启用但没有设置限制，提示用户设置
-    ElMessage.info(t('spending.settings.pleaseSetLimit'));
+    errorMessage.value = t('spending.settings.pleaseSetLimit');
   }
 };
 
