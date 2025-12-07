@@ -29,7 +29,6 @@ watchEffect(() => {
   z-index: 1 !important;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
-  color: var(--text-primary) !important;
   transition: background-color var(--transition-time), color var(--transition-time) !important;
   position: relative !important;
   background: var(--bg-primary) !important;
@@ -87,20 +86,17 @@ button {
 /* 深色模式支持 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --text-primary: #e0e0e0 !important;
     --bg-primary: #121212 !important;
     --border-light: #333 !important;
   }
 
   html, body {
     background: var(--bg-primary) !important;
-    color: var(--text-primary) !important;
     transition: background-color var(--transition-time) ease, color var(--transition-time) ease !important;
   }
   
   .app-container {
     background: #1e1e1e !important;
-    color: var(--text-primary) !important;
   }
 
   header {
@@ -110,7 +106,6 @@ button {
   /* ===== 深色模式日期选择器优化 ===== */
   input[type="date"] {
     background-color: #1e1e1e !important;
-    color: var(--text-primary) !important;
     border: 1px solid #333 !important;
     border-radius: var(--border-radius) !important;
     padding: 8px 12px !important;
@@ -131,10 +126,6 @@ button {
     cursor: pointer !important;
     width: 20px !important;
     height: 20px !important;
-  }
-
-  input[type="date"]::-webkit-datetime-edit {
-    color: var(--text-primary) !important;
   }
 
   input[type="date"]::-webkit-datetime-edit-fields-wrapper {

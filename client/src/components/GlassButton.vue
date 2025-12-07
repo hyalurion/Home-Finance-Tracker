@@ -82,13 +82,7 @@ defineEmits(['click'])
 
 /* Color variants */
 .glass-button.primary {
-  color: white;
   border-color: rgba(59, 130, 246, 0.3);
-}
-
-.glass-button.primary:hover {
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
 }
 
 .glass-button.success {

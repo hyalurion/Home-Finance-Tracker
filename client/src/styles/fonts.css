@@ -47,7 +47,6 @@
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
   line-height: var(--line-height-base);
-  color: var(--text-primary);
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -57,7 +56,6 @@
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   line-height: var(--line-height-sm);
-  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
@@ -164,27 +162,4 @@ code, pre {
 
 .line-height-lg {
   line-height: var(--line-height-lg);
-}
-
-/* 深色模式适配 */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text-primary: #fff;
-  }
-  
-  * {
-    color: var(--text-primary) !important;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    color: var(--dark-text-primary);
-  }
-  
-  a {
-    color: var(--dark-primary-color);
-  }
-  
-  a:hover {
-    color: var(--dark-primary-hover-color);
-  }
 }

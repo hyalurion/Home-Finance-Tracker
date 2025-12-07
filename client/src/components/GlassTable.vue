@@ -60,7 +60,6 @@ const emit = defineEmits([])
   padding: 16px;
   text-align: left;
   font-weight: 600;
-  color: #1a202c;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -75,7 +74,6 @@ const emit = defineEmits([])
 
 .glass-table-td {
   padding: 16px;
-  color: #4a5568;
   font-size: 14px;
 }
 

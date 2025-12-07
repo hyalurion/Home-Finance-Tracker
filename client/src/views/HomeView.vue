@@ -416,7 +416,7 @@
           :dark-theme="isDarkMode"
         ></GlassInput>
       </GlassFormItem>
-        <div style="margin-top: 10px; font-size: 12px; color: #606266;">
+        <div style="margin-top: 10px; font-size: 12px;">
           获取API密钥: <a href="https://console.siliconflow.cn/api-keys" target="_blank">https://console.siliconflow.cn/api-keys</a>
         </div>
     </GlassForm>
