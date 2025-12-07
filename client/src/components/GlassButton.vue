@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="['glass-button', { 'dark-theme': darkTheme, 'primary': type === 'primary', 'success': type === 'success', 'warning': type === 'warning' }]"
+    :class="['glass-button', { 'dark-theme': darkTheme, 'primary': type === 'primary', 'success': type === 'success', 'warning': type === 'warning' }, $attrs.class]"
     :disabled="disabled"
     @click="$emit('click', $event)"
   >
@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, useAttrs } from 'vue'
 
 const props = defineProps({
   type: {
@@ -27,7 +27,8 @@ const props = defineProps({
   },
 })
 
-defineEmits(['click'])
+const emit = defineEmits(['click'])
+const attrs = useAttrs()
 </script>
 
 <style scoped>

@@ -9,9 +9,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     CustomSelect: typeof import('./src/components/CustomSelect.vue')['default']
+    CustomUpload: typeof import('./src/components/CustomUpload.vue')['default']
     ElCollapseTransition: typeof import('element-plus/es')['ElCollapseTransition']
     ElProgress: typeof import('element-plus/es')['ElProgress']
-    ElUpload: typeof import('element-plus/es')['ElUpload']
     ExpenseCharts: typeof import('./src/components/ExpenseCharts.vue')['default']
     ExpenseList: typeof import('./src/components/ExpenseList.vue')['default']
     ExpensePagination: typeof import('./src/components/ExpensePagination.vue')['default']

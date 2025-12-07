@@ -72,20 +72,21 @@
               <template #icon><FontAwesomeIcon icon="plus" /></template>
               {{ t('expense.addRecord') }}
             </GlassButton>
-            <el-upload
+            <CustomUpload
               class="upload-excel"
               action="/api/import/excel"
               :show-file-list="false"
-              :on-success="handleImportSuccess"
-              :on-error="handleImportError"
+              @success="handleImportSuccess"
+              @error="handleImportError"
               accept=".xlsx, .xls"
-              :dark-theme="isDarkMode"
             >
-              <GlassButton type="warning" @click="$event.preventDefault()" :dark-theme="isDarkMode">
-                <template #icon><FontAwesomeIcon icon="upload" /></template>
-                {{ t('import.title') }}
-              </GlassButton>
-              </el-upload>
+              <template #default="{ triggerUpload }">
+                <GlassButton type="warning" @click="triggerUpload" :dark-theme="isDarkMode">
+                  <template #icon><FontAwesomeIcon icon="upload" /></template>
+                  {{ t('import.title') }}
+                </GlassButton>
+              </template>
+            </CustomUpload>
             <GlassButton type="primary" @click="exportMonthData" :dark-theme="isDarkMode">
               <template #icon><FontAwesomeIcon icon="download" /></template>
               导出本月数据
@@ -140,20 +141,21 @@
             <template #icon><FontAwesomeIcon icon="plus" /></template>
             {{ t('expense.addRecord') }}
           </GlassButton>
-          <el-upload
+          <CustomUpload
             class="upload-excel"
             action="/api/import/excel"
             :show-file-list="false"
-            :on-success="handleImportSuccess"
-            :on-error="handleImportError"
+            @success="handleImportSuccess"
+            @error="handleImportError"
             accept=".xlsx, .xls"
-            :dark-theme="isDarkMode"
           >
-            <GlassButton type="warning" size="large" @click="$event.preventDefault()" :dark-theme="isDarkMode">
-              <template #icon><FontAwesomeIcon icon="upload" /></template>
-              {{ t('import.title') }}
-            </GlassButton>
-          </el-upload>
+            <template #default="{ triggerUpload }">
+              <GlassButton type="warning" size="large" @click="triggerUpload" class="mobile-btn" :dark-theme="isDarkMode">
+                <template #icon><FontAwesomeIcon icon="upload" /></template>
+                {{ t('import.title') }}
+              </GlassButton>
+            </template>
+          </CustomUpload>
           <GlassButton type="primary" @click="exportMonthData" size="large" class="mobile-btn" :dark-theme="isDarkMode">
             <template #icon><FontAwesomeIcon icon="download" /></template>
             导出本月数据
@@ -605,6 +607,7 @@ import SpendingLimitDisplay from '@/components/SpendingLimitDisplay.vue';
 import GlassCard from '@/components/GlassCard.vue';
 import GlassButton from '@/components/GlassButton.vue';
 import GlassInput from '@/components/GlassInput.vue';
+import CustomUpload from '@/components/CustomUpload.vue';
 
 
 const { t, locale } = useI18n();

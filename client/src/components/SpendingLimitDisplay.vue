@@ -516,11 +516,6 @@ onMounted(() => {
     padding: 16px;
   }
 
-  .display-header {
-    flex-direction: column;
-    gap: 12px;
-  }
-
   .details-section {
     grid-template-columns: 1fr;
     gap: 4px;

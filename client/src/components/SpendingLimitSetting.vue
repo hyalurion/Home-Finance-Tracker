@@ -147,7 +147,6 @@ onMounted(() => {
 .setting-content {
   display: flex;
   flex-direction: row;
-  gap: 32px;
   align-items: flex-start;
   flex-wrap: wrap;
 }
@@ -198,12 +197,6 @@ onMounted(() => {
 @media (max-width: 768px) {
   .spending-limit-setting {
     padding: 16px;
-  }
-
-  .setting-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
   }
 }
 

@@ -249,7 +249,7 @@ const handleChange = (event) => {
 /* 滑块 */
 .glass-switch-slider {
   position: absolute;
-  top: 3px;
+  top: 5px;
   left: 3px;
   width: calc(var(--slider-size) - 6px);
   height: calc(var(--slider-size) - 6px);
