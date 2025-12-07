@@ -46,14 +46,14 @@
 
     <!-- 状态提示 -->
     <div class="status-section">
-      <el-alert
-        :title="statusAlert.title"
-        :description="statusAlert.description"
+      <GlassAlert
         :type="statusAlert.type"
-        :show-icon="true"
         :closable="false"
         class="status-alert"
-      />
+      >
+        <strong>{{ statusAlert.title }}</strong><br>
+        {{ statusAlert.description }}
+      </GlassAlert>
     </div>
 
     <!-- 详细信息 -->
@@ -113,6 +113,7 @@ import { useI18n } from 'vue-i18n';
 
 import SpendingLimitSetting from './SpendingLimitSetting.vue';
 import MessageTip from './MessageTip.vue';
+import GlassAlert from './GlassAlert.vue';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();

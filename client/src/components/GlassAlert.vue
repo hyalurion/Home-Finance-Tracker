@@ -124,12 +124,18 @@ const handleClose = () => {
 .glass-alert.success .glass-alert-icon {
   color: #22c55e;
 }
+.glass-alert.success .glass-alert-message >>> strong {
+  color: #22c55e;
+}
 
 .glass-alert.warning {
   border-left: 4px solid #eab308;
 }
 
 .glass-alert.warning .glass-alert-icon {
+  color: #eab308;
+}
+.glass-alert.warning .glass-alert-message >>> strong {
   color: #eab308;
 }
 
@@ -140,12 +146,18 @@ const handleClose = () => {
 .glass-alert.error .glass-alert-icon {
   color: #ef4444;
 }
+.glass-alert.error .glass-alert-message >>> strong {
+  color: #ef4444;
+}
 
 .glass-alert.info {
   border-left: 4px solid #3b82f6;
 }
 
 .glass-alert.info .glass-alert-icon {
+  color: #3b82f6;
+}
+.glass-alert.info .glass-alert-message >>> strong {
   color: #3b82f6;
 }
 
@@ -157,7 +169,7 @@ const handleClose = () => {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.glass-alert .glass-alert-message {
+.glass-alert-message {
   color: #cbd5e0;
 }
 
@@ -168,6 +180,23 @@ const handleClose = () => {
 .glass-alert .glass-alert-close:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #e2e8f0;
+}
+
+/* Type variants for dark theme */
+.glass-alert.success .glass-alert-message >>> strong {
+  color: #22c55e;
+}
+
+.glass-alert.warning .glass-alert-message >>> strong {
+  color: #eab308;
+}
+
+.glass-alert.error .glass-alert-message >>> strong {
+  color: #ef4444;
+}
+
+.glass-alert.info .glass-alert-message >>> strong {
+  color: #3b82f6;
 }
 }
 </style>

@@ -115,8 +115,8 @@
 
 ### 7.1 组件替换优先级
 
-1. **高优先级**：ElMessage, ElIcon - 使用频率高，影响范围广
-2. **中优先级**：ElUpload, ElProgress, ElAlert - 功能相对独立
+1. **高优先级**：ElMessage, ElIcon - 使用频率高，影响范围广 //已完成
+2. **中优先级**：ElUpload, ElProgress, ElAlert - 功能相对独立 // ElAlert已替换为GlassAlert
 3. **低优先级**：ElCollapseTransition - 仅在一个组件中使用
 
 ### 7.2 替换策略
