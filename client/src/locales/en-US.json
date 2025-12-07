@@ -211,6 +211,7 @@
     "recommendedDaily": "Recommended Daily",
     "settings": {
       "title": "Budget Settings",
+      "on": "Enable Budget",
       "enabled": "Enabled",
       "disabled": "Disabled",
       "monthlyLimit": "Monthly Budget",

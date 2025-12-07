@@ -9,7 +9,7 @@
       </div>
       <div class="header-right">
         <GlassButton
-          @click="showSettings = !showSettings"
+          @click="showSettings = true"
           size="small"
           type="text"
           class="settings-btn"
@@ -78,16 +78,7 @@
       </div>
     </div>
 
-    <!-- 设置面板弹窗 -->
-    <transition name="dialog-fade">
-      <div v-if="showSettings" class="custom-dialog-overlay" @click.self="showSettings = false">
-        <div class="custom-dialog settings-panel-dialog" :class="{ 'dark-theme': darkTheme }">
-          <div class="dialog-body">
-            <SpendingLimitSetting />
-          </div>
-        </div>
-      </div>
-    </transition>
+    
   </div>
 
   <!-- 启用提示 -->
@@ -99,7 +90,7 @@
         <p>{{ $t('spending.enablePrompt.description') }}</p>
       </div>
 <GlassButton
-        @click="enableSpendingLimit"
+        @click="handleEnableSpendingLimit"
         type="primary"
         class="enable-btn"
       >
@@ -108,6 +99,9 @@
       </GlassButton>
     </div>
   </div>
+
+  <!-- 独立的预算设置弹窗 -->
+  <SpendingLimitSetting v-model="showSettings" :dark-theme="darkTheme" />
 </template>
 
 <script setup>
@@ -115,8 +109,9 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useSpendingStore } from '../stores/spending.js';
 import { useI18n } from 'vue-i18n';
 
-import SpendingLimitSetting from './SpendingLimitSetting.vue';
+
 import MessageTip from './MessageTip.vue';
+import SpendingLimitSetting from './SpendingLimitSetting.vue';
 import GlassAlert from './GlassAlert.vue';
 import CustomProgress from './CustomProgress.vue';
 import dayjs from 'dayjs';
@@ -125,9 +120,10 @@ const { t } = useI18n();
 const spendingStore = useSpendingStore();
 
 // 本地状态
-const showSettings = ref(false);
 const successMessage = ref('');
 const errorMessage = ref('');
+// 控制独立弹窗的显示/隐藏
+const showSettings = ref(false);
 
 // 计算属性
 const currentMonthName = computed(() => {
@@ -215,6 +211,11 @@ const formatAmount = (amount) => {
 };
 
 const enableSpendingLimit = () => {
+  spendingStore.toggleLimitEnabled(true);
+  successMessage.value = t('spending.enablePrompt.enabled');
+};
+
+const handleEnableSpendingLimit = () => {
   spendingStore.toggleLimitEnabled(true);
   showSettings.value = true;
   successMessage.value = t('spending.enablePrompt.enabled');

@@ -211,6 +211,7 @@
     "recommendedDaily": "建议日均",
     "settings": {
       "title": "预算设置",
+      "on": "启用预算",
       "enabled": "已启用",
       "disabled": "已停用",
       "monthlyLimit": "月度预算",
