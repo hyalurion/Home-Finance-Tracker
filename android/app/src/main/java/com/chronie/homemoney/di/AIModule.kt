@@ -78,8 +78,8 @@ abstract class AIModule {
                     chain.proceed(request)
                 }
                 .addInterceptor(loggingInterceptor)
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(600, TimeUnit.SECONDS)
+                .readTimeout(600, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .build()
         }
