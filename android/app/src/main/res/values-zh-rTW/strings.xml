@@ -6,10 +6,18 @@
     <string name="custom_url_scheme">com.chronie.homemoney</string>
     
     <!-- Settings -->
-    <string name="settings">設置</string>
-    <string name="language_settings">語言設置</string>
+    <string name="settings">設定</string>
+    <string name="language_settings">語言設定</string>
     <string name="select_language">選擇語言</string>
     <string name="developer_tools">開發者工具</string>
+    <string name="theme_settings">主題設定</string>
+    <string name="dynamic_color">動態顏色</string>
+    <string name="dynamic_color_description">使用壁紙顏色（Android 12+）</string>
+    <string name="manual_color_selection">手動顏色選擇</string>
+    <string name="primary_color">主色調</string>
+    <string name="dynamic_color_enabled">已啟用動態顏色</string>
+    <string name="dynamic_color_disabled">已禁用動態顏色</string>
+    <string name="primary_color_updated">主色調已更新</string>
     
     <!-- Common -->
     <string name="back">返回</string>

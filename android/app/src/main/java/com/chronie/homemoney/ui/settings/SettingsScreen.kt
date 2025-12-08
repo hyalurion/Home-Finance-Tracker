@@ -3,15 +3,24 @@ package com.chronie.homemoney.ui.settings
 import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.Language
+import com.chronie.homemoney.ui.theme.LocalThemeSettings
+import com.chronie.homemoney.ui.theme.ThemeSettings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -130,6 +139,74 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             DataImportExportSection(viewModel = viewModel, context = context)
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // 主题颜色设置部分
+            Divider()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = context.getString(R.string.theme_settings),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            // 动态颜色开关
+            val useDynamicColor by viewModel.useDynamicColor.collectAsState()
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = context.getString(R.string.dynamic_color),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = context.getString(R.string.dynamic_color_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    // 获取当前主题设置
+                    val themeSettings = LocalThemeSettings.current
+                    
+                    Switch(
+                        checked = useDynamicColor,
+                        onCheckedChange = { enabled ->
+                            // 同时更新本地状态和ViewModel
+                            themeSettings.value = ThemeSettings(
+                                useDynamicColor = enabled,
+                                primaryColor = themeSettings.value.primaryColor
+                            )
+                            viewModel.toggleDynamicColor(enabled)
+                        }
+                    )
+                }
+            }
+            
+            // 手动颜色选择器（仅当动态颜色关闭时显示）
+            if (!useDynamicColor) {
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text(
+                    text = context.getString(R.string.manual_color_selection),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                ColorPickerSection(viewModel = viewModel, context = context)
+            }
             
             Spacer(modifier = Modifier.height(32.dp))
             
@@ -1187,6 +1264,85 @@ fun AccountSection(
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun ColorPickerSection(viewModel: SettingsViewModel, context: Context) {
+    val primaryColor by viewModel.primaryColor.collectAsState()
+    
+    val colorOptions = listOf(
+        0xFF6750A4.toInt(), // 紫色
+        0xFF5C6BC0.toInt(), // 蓝色
+        0xFF42A5F5.toInt(), // 浅蓝色
+        0xFF26A69A.toInt(), // 青色
+        0xFF66BB6A.toInt(), // 绿色
+        0xFF9CCC65.toInt(), // 浅绿色
+        0xFFFFA726.toInt(), // 橙色
+        0xFFEF5350.toInt(), // 红色
+        0xFFAB47BC.toInt(), // 粉色
+        0xFF8D6E63.toInt(), // 棕色
+        0xFF757575.toInt()  // 灰色
+    )
+    
+    Column {
+        Text(
+            text = context.getString(R.string.primary_color),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 获取当前主题设置
+            val themeSettings = LocalThemeSettings.current
+            
+            colorOptions.forEach { color ->
+                Box(
+                    modifier = Modifier
+                        .clickable {
+                            // 同时更新本地状态和ViewModel
+                            themeSettings.value = ThemeSettings(
+                                useDynamicColor = themeSettings.value.useDynamicColor,
+                                primaryColor = color
+                            )
+                            viewModel.setPrimaryColor(color)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    // 选中边框
+                    if (color == primaryColor) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.size(46.dp)
+                        ) {}
+                    }
+                    
+                    // 颜色圆
+                    Surface(
+                        shape = CircleShape,
+                        color = Color(color),
+                        modifier = Modifier.size(40.dp)
+                    ) {}
+                    
+                    // 选中标记
+                    if (color == primaryColor) {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = "选中",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

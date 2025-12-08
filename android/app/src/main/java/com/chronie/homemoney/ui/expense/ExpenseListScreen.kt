@@ -269,6 +269,8 @@ fun ExpenseListScreen(
         // 浮动按钮
         FloatingActionButton(
             onClick = onNavigateToAddExpense,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)

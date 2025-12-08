@@ -35,6 +35,14 @@ class SettingsViewModel @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
+    // 动态颜色开关状态
+    private val _useDynamicColor = MutableStateFlow(true)
+    val useDynamicColor: StateFlow<Boolean> = _useDynamicColor.asStateFlow()
+
+    // 手动选择的主色调
+    private val _primaryColor = MutableStateFlow(0xFF6750A4.toInt()) // 默认紫色
+    val primaryColor: StateFlow<Int> = _primaryColor.asStateFlow()
+
     val currentLanguage: StateFlow<Language> = languageManager.currentLanguage
     
     val isDeveloperMode: Flow<Boolean> = developerMode.isDeveloperModeEnabled
@@ -81,6 +89,7 @@ class SettingsViewModel @Inject constructor(
         loadAIApiKey()
         loadCurrentUser()
         loadMembershipStatus()
+        loadDynamicColorSettings()
     }
     
     private fun loadCurrentUser() {
@@ -204,6 +213,35 @@ class SettingsViewModel @Inject constructor(
             
             // 加载待同步项数量
             _pendingSyncCount.value = syncManager.getPendingSyncCount()
+        }
+    }
+
+    // 加载动态颜色设置
+    private fun loadDynamicColorSettings() {
+        viewModelScope.launch {
+            val prefs = context.getSharedPreferences("theme_settings", android.content.Context.MODE_PRIVATE)
+            _useDynamicColor.value = prefs.getBoolean("use_dynamic_color", true)
+            _primaryColor.value = prefs.getInt("primary_color", 0xFF6750A4.toInt())
+        }
+    }
+
+    // 切换动态颜色开关
+    fun toggleDynamicColor(enabled: Boolean) {
+        viewModelScope.launch {
+            val prefs = context.getSharedPreferences("theme_settings", android.content.Context.MODE_PRIVATE)
+            prefs.edit().putBoolean("use_dynamic_color", enabled).apply()
+            _useDynamicColor.value = enabled
+            _syncMessage.value = context.getString(if (enabled) R.string.dynamic_color_enabled else R.string.dynamic_color_disabled)
+        }
+    }
+
+    // 设置手动颜色
+    fun setPrimaryColor(color: Int) {
+        viewModelScope.launch {
+            val prefs = context.getSharedPreferences("theme_settings", android.content.Context.MODE_PRIVATE)
+            prefs.edit().putInt("primary_color", color).apply()
+            _primaryColor.value = color
+            _syncMessage.value = context.getString(R.string.primary_color_updated)
         }
     }
     
