@@ -159,6 +159,7 @@
     <string name="add_expense_validation_amount_required">Enter amount</string>
     <string name="add_expense_validation_amount_invalid">Amount must be greater than 0</string>
     <string name="add_expense_validation_date_required">Select date</string>
+    <string name="edit_expense_title">Edit Expense</string>
 
     <!-- AI Expense Recognition -->
     <string name="ai_expense_title">Smart Scan</string>

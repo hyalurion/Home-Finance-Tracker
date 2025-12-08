@@ -160,6 +160,7 @@
     <string name="add_expense_validation_amount_required">请输入金额</string>
     <string name="add_expense_validation_amount_invalid">金额必须大于0</string>
     <string name="add_expense_validation_date_required">请选择日期</string>
+    <string name="edit_expense_title">编辑支出</string>
     
     <!-- AI 智能识别 -->
     <string name="ai_expense_title">AI智能记账</string>

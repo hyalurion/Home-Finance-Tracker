@@ -20,9 +20,11 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.chronie.homemoney.core.common.LanguageManager
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
@@ -293,7 +295,16 @@ fun HomeMoneyApp(
             )
         }
         
-        composable("add_expense") { backStackEntry ->
+        composable(
+            "add_expense?expenseId={expenseId}",
+            arguments = listOf(
+                navArgument("expenseId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
             val expenseId = backStackEntry.arguments?.getString("expenseId")
             AddExpenseScreen(
                 context = context,

@@ -159,6 +159,7 @@
     <string name="add_expense_validation_amount_required">請輸入金額</string>
     <string name="add_expense_validation_amount_invalid">金額必須大於0</string>
     <string name="add_expense_validation_date_required">請選擇日期</string>
+    <string name="edit_expense_title">編輯支出</string>
     
     <!-- AI 智慧識別 -->
     <string name="ai_expense_title">AI智能記帳</string>

@@ -44,7 +44,7 @@ fun AddExpenseScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     
     // 会员验证和编辑模式初始化
-    LaunchedEffect(Unit) {
+    LaunchedEffect(expenseId) {
         val isLoggedIn = viewModel.checkLoginStatusUseCase()
         val isMember = viewModel.checkMembershipUseCase()
         
@@ -66,7 +66,14 @@ fun AddExpenseScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(context.getString(R.string.add_expense_title)) }, // 使用统一标题
+                title = { 
+                    Text(
+                        if (expenseId != null) 
+                            context.getString(R.string.edit_expense_title) 
+                        else 
+                            context.getString(R.string.add_expense_title) 
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = context.getString(R.string.back))
@@ -79,7 +86,7 @@ fun AddExpenseScreen(
                                 onSuccess = {
                                     onNavigateBack()
                                 },
-                                onError = { error ->
+                                onError = {
                                     // 错误会通过 snackbar 显示
                                 }
                             )
