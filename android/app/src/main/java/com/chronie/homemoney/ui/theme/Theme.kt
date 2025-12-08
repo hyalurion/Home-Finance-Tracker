@@ -65,13 +65,22 @@ fun createColorScheme(
             dynamicLightColorScheme(context)
         }
         
-        // 如果用户选择了自定义颜色（不是默认的紫色），则替换primary系列颜色
+        // 如果用户选择了自定义颜色（不是默认的紫色），则替换primary系列颜色和次要颜色
         if (primaryColor != 0xFF6750A4.toInt()) {
+            // 根据用户选择的primaryColor生成surfaceVariant等次要颜色
+            val surfaceVariantAlpha = if (darkTheme) 0.15f else 0.08f
+            val surfaceVariant = userPrimaryColor.copy(alpha = surfaceVariantAlpha)
+            val onSurfaceVariant = if (darkTheme) userPrimaryColor.copy(alpha = 0.8f) else userPrimaryColor.copy(alpha = 0.7f)
+            val outline = userPrimaryColor.copy(alpha = if (darkTheme) 0.3f else 0.2f)
+            
             return systemColorScheme.copy(
                 primary = userPrimaryColor,
                 onPrimary = if (darkTheme) Color.White else Color.Black,
                 primaryContainer = userPrimaryColor.copy(alpha = if (darkTheme) 0.2f else 0.1f),
-                onPrimaryContainer = userPrimaryColor
+                onPrimaryContainer = userPrimaryColor,
+                surfaceVariant = surfaceVariant,
+                onSurfaceVariant = onSurfaceVariant,
+                outline = outline
             )
         }
         
@@ -110,6 +119,11 @@ fun createColorScheme(
             val surface = Color(0xFF1C1B1F)
             val onSurface = Color(0xFFE6E1E5)
             
+            // 基于用户选择的primaryColor生成次要颜色
+            val surfaceVariant = userPrimaryColor.copy(alpha = 0.15f)
+            val onSurfaceVariant = userPrimaryColor.copy(alpha = 0.8f)
+            val outline = userPrimaryColor.copy(alpha = 0.3f)
+            
             darkColorScheme(
                 primary = userPrimaryColor,
                 onPrimary = onPrimary,
@@ -131,10 +145,10 @@ fun createColorScheme(
                 onBackground = onBackground,
                 surface = surface,
                 onSurface = onSurface,
-                // 添加缺失的Material 3颜色属性
-                surfaceVariant = Color(0xFF49454F),
-                onSurfaceVariant = Color(0xFFCAC4D0),
-                outline = Color(0xFF938F99)
+                // 使用基于用户primaryColor生成的次要颜色
+                surfaceVariant = surfaceVariant,
+                onSurfaceVariant = onSurfaceVariant,
+                outline = outline
             )
         } else {
             // 浅色模式：根据用户选择的primaryColor动态生成所有颜色
@@ -168,6 +182,11 @@ fun createColorScheme(
             val surface = Color(0xFFFDFBFF)
             val onSurface = Color(0xFF1C1B1F)
             
+            // 基于用户选择的primaryColor生成次要颜色
+            val surfaceVariant = userPrimaryColor.copy(alpha = 0.08f)
+            val onSurfaceVariant = userPrimaryColor.copy(alpha = 0.7f)
+            val outline = userPrimaryColor.copy(alpha = 0.2f)
+            
             lightColorScheme(
                 primary = userPrimaryColor,
                 onPrimary = onPrimary,
@@ -189,10 +208,10 @@ fun createColorScheme(
                 onBackground = onBackground,
                 surface = surface,
                 onSurface = onSurface,
-                // 添加缺失的Material 3颜色属性
-                surfaceVariant = Color(0xFFE7E0EC),
-                onSurfaceVariant = Color(0xFF49454F),
-                outline = Color(0xFF79747E)
+                // 使用基于用户primaryColor生成的次要颜色
+                surfaceVariant = surfaceVariant,
+                onSurfaceVariant = onSurfaceVariant,
+                outline = outline
             )
         }
     }
