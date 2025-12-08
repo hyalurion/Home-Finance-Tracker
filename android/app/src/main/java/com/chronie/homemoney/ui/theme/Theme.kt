@@ -58,33 +58,12 @@ fun createColorScheme(
     
     if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         // 使用系统生成的完整动态颜色方案
-        // 如果用户选择了非默认的primary颜色，则使用用户选择的颜色
-        val systemColorScheme = if (darkTheme) {
+        // 当启用动态颜色时，应该完全使用系统生成的颜色方案
+        return if (darkTheme) {
             dynamicDarkColorScheme(context)
         } else {
             dynamicLightColorScheme(context)
         }
-        
-        // 如果用户选择了自定义颜色（不是默认的紫色），则替换primary系列颜色和次要颜色
-        if (primaryColor != 0xFF6750A4.toInt()) {
-            // 根据用户选择的primaryColor生成surfaceVariant等次要颜色
-            val surfaceVariantAlpha = if (darkTheme) 0.15f else 0.08f
-            val surfaceVariant = userPrimaryColor.copy(alpha = surfaceVariantAlpha)
-            val onSurfaceVariant = if (darkTheme) userPrimaryColor.copy(alpha = 0.8f) else userPrimaryColor.copy(alpha = 0.7f)
-            val outline = userPrimaryColor.copy(alpha = if (darkTheme) 0.3f else 0.2f)
-            
-            return systemColorScheme.copy(
-                primary = userPrimaryColor,
-                onPrimary = if (darkTheme) Color.White else Color.Black,
-                primaryContainer = userPrimaryColor.copy(alpha = if (darkTheme) 0.2f else 0.1f),
-                onPrimaryContainer = userPrimaryColor,
-                surfaceVariant = surfaceVariant,
-                onSurfaceVariant = onSurfaceVariant,
-                outline = outline
-            )
-        }
-        
-        return systemColorScheme
     } else {
         // 使用静态颜色方案，根据用户选择的primaryColor动态生成所有相关颜色
         return if (darkTheme) {

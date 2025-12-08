@@ -1272,17 +1272,148 @@ private fun ColorPickerSection(viewModel: SettingsViewModel, context: Context) {
     val primaryColor by viewModel.primaryColor.collectAsState()
     
     val colorOptions = listOf(
-        0xFF6750A4.toInt(), // 紫色
-        0xFF5C6BC0.toInt(), // 蓝色
-        0xFF42A5F5.toInt(), // 浅蓝色
-        0xFF26A69A.toInt(), // 青色
-        0xFF66BB6A.toInt(), // 绿色
-        0xFF9CCC65.toInt(), // 浅绿色
-        0xFFFFA726.toInt(), // 橙色
-        0xFFEF5350.toInt(), // 红色
-        0xFFAB47BC.toInt(), // 粉色
-        0xFF8D6E63.toInt(), // 棕色
-        0xFF757575.toInt()  // 灰色
+        // 主要色系 - 每个色系从浅到深排序
+// 默认颜色
+0xFF6750A4.toInt(), // 深紫色
+
+// 红色系 (6个)
+0xFFEF9A9A.toInt(), // 浅红色
+0xFFE57373.toInt(), // 亮红色
+0xFFEF5350.toInt(), // 纯红色
+0xFFF44336.toInt(), // 标准红
+0xFFE53935.toInt(), // 深红色
+0xFFD32F2F.toInt(), // 暗红色
+
+// 橙色系 (6个)
+0xFFFFCC80.toInt(), // 浅橙色
+0xFFFFB74D.toInt(), // 亮橙色
+0xFFFFA726.toInt(), // 纯橙色
+0xFFFF9800.toInt(), // 标准橙
+0xFFFB8C00.toInt(), // 深橙色
+0xFFF57C00.toInt(), // 暗橙色
+
+// 黄色系 (6个)
+0xFFFFF176.toInt(), // 浅黄色
+0xFFFFEE58.toInt(), // 亮黄色
+0xFFFFEB3B.toInt(), // 纯黄色
+0xFFFFD54F.toInt(), // 琥珀黄
+0xFFFFCA28.toInt(), // 金色
+0xFFFFC107.toInt(), // 标准黄
+
+// 黄绿色系 (5个)
+0xFFE6EE9C.toInt(), // 浅黄绿
+0xFFDCE775.toInt(), // 亮黄绿
+0xFFCDDC39.toInt(), // 纯黄绿
+0xFF9CCC65.toInt(), // 标准黄绿
+0xFF8BC34A.toInt(), // 深黄绿
+
+// 绿色系 (7个)
+0xFFC8E6C9.toInt(), // 浅绿色
+0xFFA5D6A7.toInt(), // 亮绿色
+0xFF81C784.toInt(), // 纯绿色
+0xFF66BB6A.toInt(), // 标准绿
+0xFF4CAF50.toInt(), // 深绿色
+0xFF43A047.toInt(), // 暗绿色
+0xFF388E3C.toInt(), // 森林绿
+
+// 青色/蓝绿色系 (6个)
+0xFFB2EBF2.toInt(), // 浅青色
+0xFF80DEEA.toInt(), // 亮青色
+0xFF4DD0E1.toInt(), // 纯青色
+0xFF26C6DA.toInt(), // 标准青
+0xFF00ACC1.toInt(), // 深青色
+0xFF0097A7.toInt(), // 暗青色
+
+// 蓝色系 (7个)
+0xFFB3E5FC.toInt(), // 浅蓝色
+0xFF81D4FA.toInt(), // 亮蓝色
+0xFF4FC3F7.toInt(), // 纯蓝色
+0xFF29B6F6.toInt(), // 天蓝色
+0xFF42A5F5.toInt(), // 标准蓝
+0xFF2196F3.toInt(), // 深蓝色
+0xFF1565C0.toInt(), // 暗蓝色
+
+// 靛蓝色系 (6个)
+0xFFC5CAE9.toInt(), // 浅靛蓝
+0xFF9FA8DA.toInt(), // 亮靛蓝
+0xFF7986CB.toInt(), // 纯靛蓝
+0xFF5C6BC0.toInt(), // 标准靛蓝
+0xFF3F51B5.toInt(), // 深靛蓝
+0xFF283593.toInt(), // 暗靛蓝
+
+// 紫色系 (6个)
+0xFFE1BEE7.toInt(), // 浅紫色
+0xFFCE93D8.toInt(), // 亮紫色
+0xFFBA68C8.toInt(), // 纯紫色
+0xFFAB47BC.toInt(), // 标准紫
+0xFF9C27B0.toInt(), // 深紫色
+0xFF8E24AA.toInt(), // 暗紫色
+
+// 紫红色系 (5个)
+0xFFF48FB1.toInt(), // 浅紫红
+0xFFF06292.toInt(), // 亮紫红
+0xFFEC407A.toInt(), // 纯紫红
+0xFFE91E63.toInt(), // 标准紫红
+0xFFD81B60.toInt(), // 深紫红
+
+// 粉色系 (5个)
+0xFFF8BBD0.toInt(), // 浅粉色
+0xFFF48FB1.toInt(), // 亮粉色
+0xFFF06292.toInt(), // 纯粉色
+0xFFEC407A.toInt(), // 标准粉
+0xFFE91E63.toInt(), // 深粉色
+
+// 棕色系 (6个)
+0xFFD7CCC8.toInt(), // 浅棕色
+0xFFBCAAA4.toInt(), // 亮棕色
+0xFFA1887F.toInt(), // 纯棕色
+0xFF8D6E63.toInt(), // 标准棕
+0xFF795548.toInt(), // 深棕色
+0xFF6D4C41.toInt(), // 暗棕色
+
+// 灰色系 (8个)
+0xFFFAFAFA.toInt(), // 极浅灰
+0xFFF5F5F5.toInt(), // 浅灰色
+0xFFEEEEEE.toInt(), // 亮灰色
+0xFFE0E0E0.toInt(), // 标准浅灰
+0xFFBDBDBD.toInt(), // 中灰色
+0xFF9E9E9E.toInt(), // 灰色
+0xFF757575.toInt(), // 深灰色
+0xFF616161.toInt(), // 暗灰色
+
+// 特殊/鲜艳色系 (可选补充)
+
+// 珊瑚色系
+0xFFFF8A80.toInt(), // 浅珊瑚
+0xFFFF5252.toInt(), // 珊瑚红
+0xFFFF1744.toInt(), // 亮珊瑚
+
+// 薄荷色系
+0xFFA7FFEB.toInt(), // 浅薄荷
+0xFF64FFDA.toInt(), // 薄荷绿
+0xFF1DE9B6.toInt(), // 深薄荷
+
+// 薰衣草色系
+0xFFD1C4E9.toInt(), // 浅薰衣草
+0xFFB39DDB.toInt(), // 薰衣草紫
+0xFF9575CD.toInt(), // 深薰衣草
+
+// 土色系
+0xFFD7CCC8.toInt(), // 沙色
+0xFFBCAAA4.toInt(), // 陶土色
+0xFF8D6E63.toInt(), // 黏土色
+
+// 宝石色系
+0xFF4DB6AC.toInt(), // 绿松石
+0xFF26A69A.toInt(), // 蓝宝石
+0xFF00897B.toInt(), // 孔雀石
+
+// 霓虹色系 (鲜艳)
+0xFF69F0AE.toInt(), // 霓虹绿
+0xFF18FFFF.toInt(), // 霓虹青
+0xFF536DFE.toInt(), // 霓虹蓝
+0xFFFF4081.toInt(), // 霓虹粉
+0xFFFF9100.toInt(), // 霓虹橙
     )
     
     Column {
@@ -1306,12 +1437,15 @@ private fun ColorPickerSection(viewModel: SettingsViewModel, context: Context) {
                 Box(
                     modifier = Modifier
                         .clickable {
+                            // 选择自定义颜色时自动关闭动态颜色
+                            val shouldUseDynamicColor = false
                             // 同时更新本地状态和ViewModel
                             themeSettings.value = ThemeSettings(
-                                useDynamicColor = themeSettings.value.useDynamicColor,
+                                useDynamicColor = shouldUseDynamicColor,
                                 primaryColor = color
                             )
                             viewModel.setPrimaryColor(color)
+                            viewModel.toggleDynamicColor(shouldUseDynamicColor)
                         },
                     contentAlignment = Alignment.Center
                 ) {
