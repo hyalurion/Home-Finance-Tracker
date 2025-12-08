@@ -481,55 +481,67 @@ fun SwipeableExpenseItem(
     }
     
     Box(modifier = modifier.fillMaxWidth()) {
-        // 背景操作按钮 - 长方形提示按钮
+        // 背景操作按钮 - 只有在滑动时显示
         Row(
             modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // 左侧编辑按钮提示 - 长方形
-            Button(
-                onClick = {
-                    onEdit()
-                    resetSwipe()
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(80.dp) // 长方形高度
-                    .align(Alignment.CenterVertically),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                ),
-                enabled = swipeOffset.value < -swipeThreshold.value / 3
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Edit,
-                    contentDescription = "Edit",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(24.dp)
-                )
+            // 左侧编辑按钮背景 - 只在向右滑动时显示
+            if (swipeOffset.value > 0) {
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        IconButton(
+                            onClick = {
+                                onEdit()
+                                resetSwipe()
+                            },
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .align(Alignment.CenterStart)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Edit",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                }
             }
             
-            // 右侧删除按钮提示 - 长方形
-            Button(
-                onClick = {
-                    onDelete()
-                    resetSwipe()
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(80.dp) // 长方形高度
-                    .align(Alignment.CenterVertically),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                ),
-                enabled = swipeOffset.value > swipeThreshold.value / 3
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete",
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(24.dp)
-                )
+            // 右侧删除按钮背景 - 只在向左滑动时显示
+            if (swipeOffset.value < 0) {
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    color = MaterialTheme.colorScheme.errorContainer
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        IconButton(
+                            onClick = {
+                                onDelete()
+                                resetSwipe()
+                            },
+                            modifier = Modifier
+                                .padding(end = 16.dp)
+                                .align(Alignment.CenterEnd)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = "Delete",
+                                tint = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                }
             }
         }
         
