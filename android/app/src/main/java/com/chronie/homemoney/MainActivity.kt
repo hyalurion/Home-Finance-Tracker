@@ -33,6 +33,7 @@ import com.chronie.homemoney.ui.expense.AddExpenseScreen
 import com.chronie.homemoney.ui.expense.AIExpenseScreen
 import com.chronie.homemoney.ui.main.MainScreen
 import com.chronie.homemoney.ui.settings.SettingsScreen
+import com.chronie.homemoney.ui.splash.SplashScreen
 import com.chronie.homemoney.ui.test.DatabaseTestScreen
 import com.chronie.homemoney.ui.theme.HomeMoneyTheme
 import com.chronie.homemoney.ui.welcome.WelcomeScreen
@@ -184,8 +185,19 @@ fun HomeMoneyApp(
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = "splash" // 首先显示开屏屏幕
     ) {
+        composable("splash") {
+            SplashScreen(
+                onSplashComplete = {
+                    // 开屏完成后导航到正确的初始目的地
+                    navController.navigate(startDestination) {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                }
+            )
+        }
+        
         composable("welcome") {
             WelcomeScreen(
                 context = context,
