@@ -41,5 +41,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SpendingLimitDisplay: typeof import('./src/components/SpendingLimitDisplay.vue')['default']
     SpendingLimitSetting: typeof import('./src/components/SpendingLimitSetting.vue')['default']
+    SplashScreen: typeof import('./src/components/SplashScreen.vue')['default']
   }
 }

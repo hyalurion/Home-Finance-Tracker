@@ -1,6 +1,9 @@
 <template>
     <Suspense>
-      <router-view />
+      <div class="app-root">
+        <SplashScreen />
+        <router-view />
+      </div>
       <template #fallback>
         <div class="loading">{{ t('app.loading') }}</div>
       </template>
@@ -11,6 +14,7 @@
 <script setup>
 import { watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
+import SplashScreen from './components/SplashScreen.vue';
 
 const { t } = useI18n();
 
