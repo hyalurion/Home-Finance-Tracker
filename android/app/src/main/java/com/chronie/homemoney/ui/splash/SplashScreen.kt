@@ -76,8 +76,9 @@ fun SplashScreen(
                 modifier = Modifier.padding(24.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.dongzhi),
-                    contentDescription = "冬至",
+                    // 开屏图片，先在res/drawable目录下放一张图片，再修改此处的引用，之后应该修改从远程加载和缓存
+                    painter = painterResource(id = R.drawable.shengdan),
+                    contentDescription = "开屏图片",
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(600.dp),
@@ -87,7 +88,7 @@ fun SplashScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 
                 Text(
-                    text = "$countdown 秒",
+                    text = "$countdown",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground

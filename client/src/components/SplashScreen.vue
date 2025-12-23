@@ -2,8 +2,7 @@
   <div class="splash-screen" v-if="showSplash">
     <div class="splash-content">
       <img 
-        src="/assets/dongzhi.jpg" 
-        alt="冬至" 
+        src="/assets/shengdan.jpg" 
         class="splash-image"
       />
       <button 
