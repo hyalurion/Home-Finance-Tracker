@@ -22,6 +22,11 @@ export default defineConfig({
   build: {
     target: 'esnext', // 提升目标环境版本以支持现代CSS特性（如嵌套语法）
     rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          photo: path.resolve(__dirname, 'photo.html'),
+          newFeature: path.resolve(__dirname, 'new-feature.html')
+        },
         output: {
           manualChunks: {
             vendor: ['vue', 'vue-router', 'pinia'],
@@ -117,3 +122,4 @@ export default defineConfig({
     }
   }
 });
+

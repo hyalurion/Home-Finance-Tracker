@@ -9,18 +9,36 @@
       </template>
     </Suspense>
 
+    <!-- 开发计划入口按钮 -->
+    <div class="dev-plan-controls" v-if="showDevControls">
+      <button class="dev-plan-button" @click="openDevPlan">
+        开发计划
+      </button>
+      <button class="hide-controls-button" @click="showDevControls = false">
+        <
+      </button>
+    </div>
+    <button class="show-controls-button" v-else @click="showDevControls = true">
+      >
+    </button>
+
 </template>
 
 <script setup>
-import { watchEffect } from 'vue';
+import { watchEffect, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SplashScreen from './components/SplashScreen.vue';
 
 const { t } = useI18n();
+const showDevControls = ref(true);
 
 watchEffect(() => {
   document.title = t('app.title');
 });
+
+const openDevPlan = () => {
+  window.open('/new-feature.html', '_blank');
+};
 </script>
 
 <style>
@@ -85,6 +103,59 @@ button {
   transition: all var(--transition-time) ease !important;
 }
 
+/* 开发计划控制按钮样式 */
+.dev-plan-controls {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.dev-plan-button,
+.hide-controls-button,
+.show-controls-button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dev-plan-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.dev-plan-button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+}
+
+.hide-controls-button,
+.show-controls-button {
+  background-color: #666;
+  color: white;
+}
+
+.hide-controls-button:hover,
+.show-controls-button:hover {
+  background-color: #555;
+  transform: translateY(-2px);
+}
+
+.show-controls-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
 /* 深色模式支持 */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -103,6 +174,25 @@ button {
 
   header {
     border-bottom: 1px solid var(--border-light) !important;
+  }
+
+  /* 开发计划按钮深色模式样式 */
+  .dev-plan-button {
+    background-color: #388e3c;
+  }
+
+  .dev-plan-button:hover {
+    background-color: #2e7d32;
+  }
+
+  .hide-controls-button,
+  .show-controls-button {
+    background-color: #444;
+  }
+
+  .hide-controls-button:hover,
+  .show-controls-button:hover {
+    background-color: #333;
   }
 
   /* ===== 深色模式日期选择器优化 ===== */

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新功能开发计划</title>
+  <style>
+    .plan-page {
+      max-width: 720px;
+      margin: 2rem auto;
+      padding: 3rem 4rem;
+      background: linear-gradient(145deg, #fdf6e3 0%, #f5f0e1 100%);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.15);
+      font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
+      color: #3e3e3e;
+      line-height: 1.8;
+      transition: background .3s, color .3s;
+    }
+    
+    .plan-page h1 {
+      margin: 0 0 1rem;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+    
+    .plan-page h2 {
+      margin: 0 0 2rem;
+      font-size: 1.25rem;
+      font-weight: normal;
+    }
+    
+    .plan-page ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    .plan-page ul li {
+      margin-bottom: 1rem;
+    }
+    
+    .plan-page ul ul {
+      list-style: none;
+      padding-left: 1.5rem;
+      margin-top: .5rem;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      html {
+        background: #121212;
+      }
+
+      .plan-page {
+        background: linear-gradient(145deg, #2e2e30 0%, #1e1e20 100%);
+        color: #e0e0e0;
+        box-shadow: 0 8px 24px rgba(0,0,0,.45);
+      }
+      .plan-page h1,
+      .plan-page h2 {
+        color: #ffd54f;
+      }
+      .plan-page ul li::before {
+        color: #ffd54f;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Book-like page layout, dark-mode ready -->
+  <section class="plan-page">
+    <h1>新功能开发计划</h1>
+    <h2>2026年1月 · 上旬</h2>
+
+    <ul>
+      <li>
+        <strong>Android 客户端</strong>
+        <ul>
+          <li>新增近场不同设备之间的消费记录相互同步功能（通过局域网、蓝牙、NFC）</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+</body>
+</html>
