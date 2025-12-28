@@ -448,6 +448,7 @@
           :auto-upload="false"
           :on-change="handleImageChange"
           :show-file-list="true"
+          :multiple="true"
           accept=".jpg,.jpeg,.png,.gif"
           :dark-theme="isDarkMode"
         >

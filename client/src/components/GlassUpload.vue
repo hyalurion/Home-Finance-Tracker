@@ -22,6 +22,7 @@
         ref="fileInput" 
         type="file" 
         :multiple="multiple" 
+        :accept="accept" 
         class="glass-upload-input" 
         @change="handleFileChange"
       >
@@ -50,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   multiple: {
@@ -60,13 +61,34 @@ const props = defineProps({
   darkTheme: {
     type: Boolean,
     default: false
+  },
+  fileList: {
+    type: Array,
+    default: () => []
+  },
+  action: {
+    type: String,
+    default: ''
+  },
+  autoUpload: {
+    type: Boolean,
+    default: false
+  },
+  accept: {
+    type: String,
+    default: ''
   }
 })
 
-const emit = defineEmits(['file-change', 'file-remove'])
+const emit = defineEmits(['file-change', 'file-remove', 'update:file-list', 'change'])
 
 const fileInput = ref(null)
 const files = ref([])
+
+// 同步fileList prop到files ref
+watch(() => props.fileList, (newFileList) => {
+  files.value = newFileList
+}, { deep: true })
 
 // 触发文件选择
 const triggerFileInput = () => {
@@ -77,15 +99,21 @@ const triggerFileInput = () => {
 const handleFileChange = (event) => {
   const selectedFiles = Array.from(event.target.files)
   if (selectedFiles.length > 0) {
-    selectedFiles.forEach(file => {
-      files.value.push({
-        uid: Date.now() + Math.random().toString(36).substr(2, 9),
-        name: file.name,
-        size: file.size,
-        raw: file
-      })
-    })
+    const newFiles = selectedFiles.map(file => ({
+      uid: Date.now() + Math.random().toString(36).substr(2, 9),
+      name: file.name,
+      size: file.size,
+      raw: file
+    }))
+    
+    // 如果是多选模式，添加到现有列表
+    // 如果是单选模式，替换现有列表
+    files.value = props.multiple ? [...files.value, ...newFiles] : newFiles
+    
     emit('file-change', files.value)
+    emit('update:file-list', files.value)
+    emit('change', files.value)
+    
     // 清空input以便再次选择相同文件
     event.target.value = ''
   }
@@ -96,15 +124,20 @@ const handleDrop = (event) => {
   event.preventDefault()
   const droppedFiles = Array.from(event.dataTransfer.files)
   if (droppedFiles.length > 0) {
-    droppedFiles.forEach(file => {
-      files.value.push({
-        uid: Date.now() + Math.random().toString(36).substr(2, 9),
-        name: file.name,
-        size: file.size,
-        raw: file
-      })
-    })
+    const newFiles = droppedFiles.map(file => ({
+      uid: Date.now() + Math.random().toString(36).substr(2, 9),
+      name: file.name,
+      size: file.size,
+      raw: file
+    }))
+    
+    // 如果是多选模式，添加到现有列表
+    // 如果是单选模式，替换现有列表
+    files.value = props.multiple ? [...files.value, ...newFiles] : newFiles
+    
     emit('file-change', files.value)
+    emit('update:file-list', files.value)
+    emit('change', files.value)
   }
 }
 
@@ -112,6 +145,7 @@ const handleDrop = (event) => {
 const removeFile = (index) => {
   files.value.splice(index, 1)
   emit('file-change', files.value)
+  emit('update:file-list', files.value)
   emit('file-remove', index)
 }
 
