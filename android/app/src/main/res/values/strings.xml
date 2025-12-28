@@ -186,6 +186,9 @@
     <string name="ai_expense_remark">Notes</string>
     <string name="ai_expense_click_to_add">Tap to add photos</string>
     <string name="ai_expense_records_count">Results (%d)</string>
+    <string name="ai_expense_select_image_source">Select Image Source</string>
+    <string name="ai_expense_take_photo">Take Photo</string>
+    <string name="ai_expense_choose_from_gallery">Choose from Gallery</string>
     
     <!-- AI Settings -->
     <string name="settings_ai_title">AI Settings</string>

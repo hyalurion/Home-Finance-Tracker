@@ -185,7 +185,10 @@
     <string name="ai_expense_amount">金額</string>
     <string name="ai_expense_remark">備註</string>
     <string name="ai_expense_click_to_add">點按添加圖片</string>
-    <string name="ai_expense_records_count">識別結果 (%d條)</string>
+    <string name="ai_expense_records_count">辨識結果 (%d筆)</string>    
+    <string name="ai_expense_select_image_source">選擇圖片來源</string>
+    <string name="ai_expense_take_photo">拍照</string>
+    <string name="ai_expense_choose_from_gallery">從相簿選擇</string>
     
     <!-- AI 設置 -->
     <string name="settings_ai_title">AI設置</string>

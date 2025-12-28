@@ -1,8 +1,14 @@
 package com.chronie.homemoney.ui.expense
 
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Environment
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,8 +29,11 @@ import coil.compose.AsyncImage
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.model.ExpenseType
+import java.io.File
+import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 /**
  * AI 智能记录界面
@@ -42,9 +51,89 @@ fun AIExpenseScreen(
     // 图片选择器
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris ->
-        viewModel.addImages(uris)
+    ) {
+        viewModel.addImages(it)
     }
+
+    // 相机拍摄临时文件URI
+    var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // 相机拍摄启动器
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) {
+        if (it) {
+            // 拍摄成功，将图片添加到选择列表
+            cameraImageUri?.let { uri ->
+                viewModel.addImages(listOf(uri))
+            }
+        }
+    }
+
+    // 创建临时文件用于相机拍摄
+    fun createImageFile(context: Context): Uri? {
+        val TAG = "AIExpenseScreen"
+        return try {
+            val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
+            val imageFileName = "JPEG_${timeStamp}_"
+            val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            
+            Log.d(TAG, "Storage dir: $storageDir")
+            
+            // 确保存储目录存在
+            if (storageDir?.exists() != true) {
+                Log.d(TAG, "Creating storage dir: ${storageDir?.mkdirs()}")
+            }
+            
+            // 创建文件
+            val image = File(storageDir, "$imageFileName.jpg")
+            
+            Log.d(TAG, "Image file path: ${image.absolutePath}")
+            
+            // 如果文件已存在，删除它
+            if (image.exists()) {
+                Log.d(TAG, "Deleting existing file: ${image.delete()}")
+            }
+            
+            // 确保文件被正确创建
+            if (image.createNewFile()) {
+                Log.d(TAG, "File created successfully")
+                // 使用FileProvider创建URI，避免FileUriExposedException
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    image
+                )
+                Log.d(TAG, "Created URI: $uri")
+                uri
+            } else {
+                Log.e(TAG, "Failed to create file")
+                null
+            }
+        } catch (ex: IOException) {
+            Log.e(TAG, "IOException in createImageFile: ${ex.message}", ex)
+            null
+        } catch (ex: Exception) {
+            Log.e(TAG, "Exception in createImageFile: ${ex.message}", ex)
+            null
+        }
+    }
+
+    // 相机权限请求启动器
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            // 权限授予，启动相机
+            cameraImageUri = createImageFile(context)
+            cameraImageUri?.let { uri ->
+                cameraLauncher.launch(uri)
+            }
+        }
+    }
+
+    // 控制图片来源选择对话框的显示
+    var showImageSourceDialog by remember { mutableStateOf(false) }
     
     Scaffold(
         topBar = {
@@ -68,7 +157,7 @@ fun AIExpenseScreen(
             ImageSelectionSection(
                 context = context,
                 selectedImages = uiState.selectedImages,
-                onAddImages = { imagePickerLauncher.launch("image/*") },
+                onAddImages = { showImageSourceDialog = true },
                 onRemoveImage = viewModel::removeImage
             )
             
@@ -130,6 +219,105 @@ fun AIExpenseScreen(
             }
         }
     }
+
+    // 图片来源选择对话框
+    if (showImageSourceDialog) {
+        ImageSourceSelectionDialog(
+            context = context,
+            onDismiss = { showImageSourceDialog = false },
+            onCameraSelected = {
+                // 检查相机权限
+                val hasCameraPermission = ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+                
+                if (hasCameraPermission) {
+                    // 已有权限，直接启动相机
+                    cameraImageUri = createImageFile(context)
+                    cameraImageUri?.let {
+                        cameraLauncher.launch(it)
+                    }
+                } else {
+                    // 请求相机权限
+                    permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                }
+                showImageSourceDialog = false
+            },
+            onGallerySelected = {
+                // 启动相册选择器
+                imagePickerLauncher.launch("image/*")
+                showImageSourceDialog = false
+            }
+        )
+    }
+}
+
+/**
+ * 图片来源选择对话框
+ */
+@Composable
+private fun ImageSourceSelectionDialog(
+    context: Context,
+    onDismiss: () -> Unit,
+    onCameraSelected: () -> Unit,
+    onGallerySelected: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = context.getString(R.string.ai_expense_select_image_source)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // 相机选项
+                OutlinedButton(
+                    onClick = onCameraSelected,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.CameraAlt,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = context.getString(R.string.ai_expense_take_photo))
+                    }
+                }
+
+                // 相册选项
+                OutlinedButton(
+                    onClick = onGallerySelected,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.PhotoLibrary,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = context.getString(R.string.ai_expense_choose_from_gallery))
+                    }
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = context.getString(R.string.cancel))
+            }
+        },
+        confirmButton = {}
+    )
 }
 
 /**

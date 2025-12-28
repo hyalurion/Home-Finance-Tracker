@@ -187,6 +187,9 @@
     <string name="ai_expense_remark">备注</string>
     <string name="ai_expense_click_to_add">点击添加图片</string>
     <string name="ai_expense_records_count">识别结果 (%d条)</string>
+    <string name="ai_expense_select_image_source">选择图片来源</string>
+    <string name="ai_expense_take_photo">拍照</string>
+    <string name="ai_expense_choose_from_gallery">从相册选择</string>
     
     <!-- AI 设置 -->
     <string name="settings_ai_title">AI设置</string>
