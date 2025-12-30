@@ -370,10 +370,21 @@ const getExpensesByDate = async (req, res) => {
       ]
     }
 
+    // 构建排序规则
+    // 根据排序类型确定排序方式
+    let orderClause = []
+    if (sort === 'amountAsc' || sort === 'amountDesc') {
+      // 按金额排序
+      orderClause = [['amount', sort === 'amountDesc' ? 'DESC' : 'ASC'], ['date', 'DESC']]
+    } else {
+      // 按日期排序（默认）
+      orderClause = [['date', sort === 'dateDesc' ? 'DESC' : 'ASC']]
+    }
+
     // 获取所有符合筛选条件的消费记录
     const allExpenses = await Expense.findAll({
       where,
-      order: [['date', sort === 'dateDesc' ? 'DESC' : 'ASC']],
+      order: orderClause,
       raw: true
     })
 
@@ -399,12 +410,22 @@ const getExpensesByDate = async (req, res) => {
       }
     })
 
-    // 按日期排序
-    dateGroups.sort((a, b) => {
-      const dateA = new Date(a.date)
-      const dateB = new Date(b.date)
-      return sort === 'dateDesc' ? dateB - dateA : dateA - dateB
-    })
+    // 根据排序类型对日期组进行排序
+    if (sort === 'amountAsc' || sort === 'amountDesc') {
+      // 按金额排序时，日期组按组内第一条记录的金额排序
+      dateGroups.sort((a, b) => {
+        const amountA = a.expenses[0].amount
+        const amountB = b.expenses[0].amount
+        return sort === 'amountDesc' ? amountB - amountA : amountA - amountB
+      })
+    } else {
+      // 按日期排序
+      dateGroups.sort((a, b) => {
+        const dateA = new Date(a.date)
+        const dateB = new Date(b.date)
+        return sort === 'dateDesc' ? dateB - dateA : dateA - dateB
+      })
+    }
 
     // 计算总记录数（用于分页）
     const totalRecords = allExpenses.length
