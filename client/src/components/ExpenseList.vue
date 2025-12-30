@@ -36,7 +36,7 @@
 
         <!-- 表格组件 - 直接使用后端处理的数据 -->
         <ExpenseTable
-          :expenses="paginatedExpenses"
+          :groupedExpenses="groupedExpenses"
           @sort="sortBy"
           @edit="handleEdit"
           @delete="handleDelete"
@@ -134,10 +134,19 @@ export default {
     
     // 移除前端筛选逻辑，直接使用后端返回的数据
     const filteredExpenses = computed(() => {
-      return expenses.value || [];
+      // 检查groupedExpenses是否有数据
+      const dateGroups = Object.keys(groupedExpenses.value);
+      if (dateGroups.length === 0) {
+        return [];
+      }
+      // 返回所有日期组的支出项
+      return dateGroups.flatMap(date => groupedExpenses.value[date]);
     });
 
-    // 获取分页数据
+    // 按日期分组支出数据（使用后端返回的分组数据）
+    const groupedExpenses = ref({});
+    
+    // 获取分页数据（使用按日期分组的API）
     const fetchPaginatedData = async () => {
       try {
         // 添加空值检查，确保searchParams.value存在
@@ -145,7 +154,7 @@ export default {
           return;
         }
         
-        console.log('Fetching paginated expenses:', {
+        console.log('Fetching paginated expenses by date:', {
           page: currentPage.value,
           pageSize: pageSize.value,
           searchParams: { ...searchParams.value }
@@ -171,12 +180,24 @@ export default {
         }
         if (searchParams.value.sortOption) params.append('sort', searchParams.value.sortOption);
         
-        const response = await ExpenseAPI.getExpenses(currentPage.value, pageSize.value, params);
+        // 调用按日期分组的API
+        const response = await ExpenseAPI.getExpensesByDate(currentPage.value, pageSize.value, params);
         
         // 适配后端返回的分页格式
         if (response && response.data && response.data.data && Array.isArray(response.data.data)) {
-          expenses.value = response.data.data;
-          totalItems.value = response.data.total || 0;
+          // 后端返回的数据格式：[{ date: '2024-01-01', count: 5, totalAmount: 100, expenses: [...] }]
+          // 后端使用智能分页算法，确保同一个日期组的记录不会被拆分到不同页上
+          // 每页的记录数会尽量接近10条，但可能会稍微超过以保持日期组的完整性
+          const dateGroups = response.data.data;
+          
+          // 将后端返回的分组数据转换为前端需要的格式
+          const groups = {};
+          dateGroups.forEach(group => {
+            groups[group.date] = group.expenses;
+          });
+          
+          groupedExpenses.value = groups;
+          totalItems.value = response.data.total || 0; // 这里total是支出记录的总数
           
           // 更新类型和月份数据
           if (response.data.meta) {
@@ -186,29 +207,23 @@ export default {
               // 对月份进行排序，从新到旧
               availableMonths.value = response.data.meta.availableMonths.sort((a, b) => b.localeCompare(a));
             }
-          } else {
-            // 从当前页数据中提取类型和月份信息
-            const types = [...new Set(expenses.value.map(e => e.type))];
-            const months = [...new Set(expenses.value.map(e => {
-              const date = new Date(e.date || e.time);
-              return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            }))];
-            
-            uniqueTypes.value = types.filter(type => type && type.trim() !== '');
-            // 只有当提取到有效月份时，才替换默认数据
-            const filteredMonths = months.filter(month => month && month.trim() !== '');
-            if (filteredMonths.length > 0) {
-              // 对月份进行排序，从新到旧
-              availableMonths.value = filteredMonths.sort((a, b) => b.localeCompare(a));
-            }
           }
         } else if (Array.isArray(response)) {
           // 兼容旧格式
-          expenses.value = response;
-          totalItems.value = response.length;
+          const expenseList = response;
+          const groups = {};
+          expenseList.forEach(expense => {
+            const date = expense.date;
+            if (!groups[date]) {
+              groups[date] = [];
+            }
+            groups[date].push(expense);
+          });
+          groupedExpenses.value = groups;
+          totalItems.value = Object.keys(groups).length;
         }
         console.log('Expenses data fetched successfully:', {
-          recordCount: expenses.value.length,
+          dateGroupCount: Object.keys(groupedExpenses.value).length,
           totalItems: totalItems.value,
           page: currentPage.value
         });
@@ -441,6 +456,7 @@ export default {
       uniqueTypes,
       availableMonths,
       filteredExpenses,
+      groupedExpenses,
       paginatedExpenses,
       totalPages,
       visiblePages,
@@ -548,3 +564,10 @@ export default {
   }
 }
 </style>
+
+
+
+
+
+
+

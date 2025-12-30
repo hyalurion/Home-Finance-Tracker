@@ -331,8 +331,165 @@ const getStatistics = async (req, res) => {
   }
 }
 
+// 获取按日期分组的消费记录（用于每日统计）
+const getExpensesByDate = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, keyword, type, month, minAmount, maxAmount, sort = 'dateDesc' } = req.query
+    const pageNum = parseInt(page, 10)
+    const pageSize = parseInt(limit, 10)
+
+    // 构建查询条件
+    const where = {}
+    if (type) where.type = type
+    if (month) {
+      try {
+        const [year, monthNum] = month.split('-').map(Number)
+        const startDateStr = `${year}-${String(monthNum).padStart(2, '0')}-01`
+        const endDateStr = `${year}-${String(monthNum).padStart(2, '0')}-${new Date(year, monthNum, 0).getDate()}`
+        where.date = {
+          [Op.between]: [startDateStr, endDateStr]
+        }
+      } catch (error) {
+        console.warn('无效的月份格式:', month)
+      }
+    }
+    // 金额范围筛选
+    const validMinAmount = parseFloat(minAmount)
+    const validMaxAmount = parseFloat(maxAmount)
+    if (!isNaN(validMinAmount)) {
+      where.amount = { ...where.amount, [Op.gte]: validMinAmount }
+    }
+    if (!isNaN(validMaxAmount)) {
+      where.amount = { ...where.amount, [Op.lte]: validMaxAmount }
+    }
+    // 关键词搜索
+    if (keyword) {
+      where[Op.or] = [
+        { type: { [Op.like]: `%${keyword}%` } },
+        { remark: { [Op.like]: `%${keyword}%` } }
+      ]
+    }
+
+    // 获取所有符合筛选条件的消费记录
+    const allExpenses = await Expense.findAll({
+      where,
+      order: [['date', sort === 'dateDesc' ? 'DESC' : 'ASC']],
+      raw: true
+    })
+
+    // 按日期分组
+    const groupedData = {}
+    allExpenses.forEach(expense => {
+      const date = expense.date
+      if (!groupedData[date]) {
+        groupedData[date] = []
+      }
+      groupedData[date].push(expense)
+    })
+
+    // 为每个日期组添加统计信息
+    const dateGroups = Object.keys(groupedData).map(date => {
+      const expenses = groupedData[date]
+      const totalAmount = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0)
+      return {
+        date: date,
+        count: expenses.length,
+        totalAmount: totalAmount,
+        expenses: expenses
+      }
+    })
+
+    // 按日期排序
+    dateGroups.sort((a, b) => {
+      const dateA = new Date(a.date)
+      const dateB = new Date(b.date)
+      return sort === 'dateDesc' ? dateB - dateA : dateA - dateB
+    })
+
+    // 计算总记录数（用于分页）
+    const totalRecords = allExpenses.length
+
+    // 按日期组进行分页，确保同一个日期组的记录不会被拆分到不同页
+    const pages = []
+    let currentPageData = []
+    let currentRecordCount = 0
+
+    dateGroups.forEach(group => {
+      const groupRecordCount = group.count
+      
+      // 如果当前页为空，或者添加这个组不会超过太多记录限制，则添加到当前页
+      if (currentRecordCount === 0 || currentRecordCount + groupRecordCount <= pageSize * 1.5) {
+        currentPageData.push(group)
+        currentRecordCount += groupRecordCount
+      } else {
+        // 否则，开始新的一页
+        pages.push(currentPageData)
+        currentPageData = [group]
+        currentRecordCount = groupRecordCount
+      }
+    })
+
+    // 添加最后一页
+    if (currentPageData.length > 0) {
+      pages.push(currentPageData)
+    }
+
+    // 获取请求的页码数据
+    const requestedPageData = pages[pageNum - 1] || []
+
+    // 获取唯一类型和可用月份信息
+    const meta = {
+      uniqueTypes: [],
+      availableMonths: []
+    }
+    
+    try {
+      const typesResult = await Expense.findAll({
+        attributes: [['type', 'type']],
+        group: ['type'],
+        where: {},
+        raw: true
+      })
+      
+      meta.uniqueTypes = typesResult
+        .map(item => item.type)
+        .filter(type => type && type.trim() !== '')
+        .sort()
+      
+      const monthsResult = await Expense.findAll({
+        attributes: [
+          [
+            sequelize.fn('strftime', '%Y-%m', sequelize.col('date')),
+            'month'
+          ]
+        ],
+        group: ['month'],
+        where: {},
+        order: [[sequelize.literal('month'), 'DESC']],
+        raw: true
+      })
+      
+      meta.availableMonths = monthsResult.map(item => item.month)
+    } catch (metaError) {
+      console.warn('获取元数据时出错，但不影响主要功能:', metaError)
+    }
+
+    res.json({
+      data: requestedPageData,
+      total: totalRecords,
+      page: pageNum,
+      limit: pageSize,
+      meta
+    })
+  } catch (err) {
+    console.error('获取按日期分组的消费记录失败:', err)
+    res.status(500).json({ error: '读取数据失败' })
+  }
+}
+
 module.exports = {
   getExpenses,
+  getExpensesByDate,
   addExpense,
   deleteExpense,
   updateExpense,

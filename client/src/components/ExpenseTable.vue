@@ -29,26 +29,41 @@
           </tr>
         </thead>
         <transition-group name="row-fade" tag="tbody">
-          <tr v-for="(expense, index) in expenses" :key="expense.id" :data-index="index">
-            <td>{{ formatDate(expense.date) }}</td>
-            <td>
-              <span class="type-tag" :style="{ '--tag-color': getTypeColor(expense.type, isDarkMode) }">
-                {{ expense.type }}
-              </span>
-            </td>
-            <td class="amount-cell">¥{{ expense.amount.toFixed(2) }}</td>
-            <td>{{ expense.remark || '-' }}</td>
-            <td>
-              <div class="action-buttons">
-                <button class="edit-btn" @click="handleEdit(expense)">
-                  {{ $t('common.edit') }}
-                </button>
-                <button class="delete-btn" @click="handleDelete(expense.id)">
-                  {{ $t('common.delete') }}
-                </button>
-              </div>
-            </td>
-          </tr>
+          <template v-for="(expenses, date) in groupedExpenses" :key="date">
+            <!-- 日期标题行 -->
+            <tr class="date-header-row">
+              <td colspan="5">
+                <div class="date-header">
+                  <div class="date-info">
+                    <span class="date-text">{{ date }}</span>
+                    <span class="count-text">{{ $t('expense.stats.rowCount') }}: {{ expenses.length }}</span>
+                  </div>
+                  <div class="total-amount">-¥{{ calculateDailyTotal(expenses).toFixed(2) }}</div>
+                </div>
+              </td>
+            </tr>
+            <!-- 该日期下的支出项 -->
+            <tr v-for="(expense, index) in expenses" :key="expense.id" :data-index="index">
+              <td>{{ formatDate(expense.date) }}</td>
+              <td>
+                <span class="type-tag" :style="{ '--tag-color': getTypeColor(expense.type, isDarkMode) }">
+                  {{ expense.type }}
+                </span>
+              </td>
+              <td class="amount-cell">¥{{ expense.amount.toFixed(2) }}</td>
+              <td>{{ expense.remark || '-' }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="edit-btn" @click="handleEdit(expense)">
+                    {{ $t('common.edit') }}
+                  </button>
+                  <button class="delete-btn" @click="handleDelete(expense.id)">
+                    {{ $t('common.delete') }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </template>
         </transition-group>
       </table>
     </div>
@@ -56,37 +71,48 @@
     <!-- 小屏幕卡片视图 -->
     <div class="card-view">
       <transition-group name="row-fade" tag="div">
-        <div v-for="(expense, index) in expenses" :key="expense.id" class="expense-card" :data-index="index">
-          <div class="card-header">
-            <div class="date">{{ formatDate(expense.date) }}</div>
-            <div class="amount">¥{{ expense.amount.toFixed(2) }}</div>
+        <template v-for="(expenses, date) in groupedExpenses" :key="date">
+          <!-- 日期标题卡片 -->
+          <div class="date-header-card">
+            <div class="date-info">
+              <span class="date-text">{{ date }}</span>
+              <span class="count-text">{{ $t('expense.stats.rowCount') }}: {{ expenses.length }}</span>
+            </div>
+            <div class="total-amount">-¥{{ calculateDailyTotal(expenses).toFixed(2) }}</div>
           </div>
-          <div class="card-body">
-            <div class="type-section">
-              <span class="type-label">{{ $t('expense.type') }}:</span>
-              <span class="type-tag" :style="{ '--tag-color': getTypeColor(expense.type, isDarkMode) }">
-                  {{ expense.type }}
-              </span>
+          <!-- 该日期下的支出卡片 -->
+          <div v-for="(expense, index) in expenses" :key="expense.id" class="expense-card" :data-index="index">
+            <div class="card-header">
+              <div class="date">{{ formatDate(expense.date) }}</div>
+              <div class="amount">¥{{ expense.amount.toFixed(2) }}</div>
             </div>
-            <div v-if="expense.remark" class="remark-section">
-              <span class="remark-label">{{ $t('expense.remark') }}:</span>
-              <span class="remark-text">{{ expense.remark }}</span>
-            </div>
-            <div class="card-actions">
-              <GlassButton type="primary" class="card-edit-btn" @click="handleEdit(expense)">
-                {{ $t('common.edit') }}
-              </GlassButton>
-              <GlassButton type="danger" class="card-delete-btn" @click="handleDelete(expense.id)">
-                {{ $t('common.delete') }}
-              </GlassButton>
+            <div class="card-body">
+              <div class="type-section">
+                <span class="type-label">{{ $t('expense.type') }}:</span>
+                <span class="type-tag" :style="{ '--tag-color': getTypeColor(expense.type, isDarkMode) }">
+                    {{ expense.type }}
+                </span>
+              </div>
+              <div v-if="expense.remark" class="remark-section">
+                <span class="remark-label">{{ $t('expense.remark') }}:</span>
+                <span class="remark-text">{{ expense.remark }}</span>
+              </div>
+              <div class="card-actions">
+                <GlassButton type="primary" class="card-edit-btn" @click="handleEdit(expense)">
+                  {{ $t('common.edit') }}
+                </GlassButton>
+                <GlassButton type="danger" class="card-delete-btn" @click="handleDelete(expense.id)">
+                  {{ $t('common.delete') }}
+                </GlassButton>
+              </div>
             </div>
           </div>
-        </div>
+        </template>
       </transition-group>
     </div>
 
     <!-- 空数据状态 -->
-    <div v-if="expenses.length === 0" class="no-data">
+    <div v-if="Object.keys(groupedExpenses).length === 0" class="no-data">
       <div class="no-data-icon"></div>
       <h3>{{ $t('expense.noDataTitle') }}</h3>
       <p>{{ $t('expense.noDataMessage') }}</p>
@@ -100,9 +126,9 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 export default {
   props: {
-    expenses: {
-      type: Array,
-      default: () => []
+    groupedExpenses: {
+      type: Object,
+      default: () => ({})
     },
     // 使sortField和sortOrder成为可选属性
     sortField: {
@@ -145,7 +171,12 @@ export default {
       // 直接返回YYYY-MM-DD格式的日期字符串，不再需要转换
       return dateString || '';
     };
-    
+
+    // 计算每日总金额
+    const calculateDailyTotal = (expenses) => {
+      return expenses.reduce((total, expense) => total + parseFloat(expense.amount || 0), 0);
+    };
+
     // 处理编辑事件
     const handleEdit = (expense) => {
       console.log('Edit expense clicked:', expense);
@@ -159,13 +190,15 @@ export default {
     };
 
     // 监听数据变化
-    watch(() => props.expenses, (newVal) => {
-      console.log('Expense data updated:', { recordCount: newVal?.length || 0 });
+    watch(() => props.groupedExpenses, (newVal) => {
+      const totalExpenses = Object.values(newVal || {}).reduce((sum, expenses) => sum + expenses.length, 0);
+      console.log('Expense data updated:', { recordCount: totalExpenses });
     }, { deep: true });
 
     return {
       getTypeColor,
       formatDate,
+      calculateDailyTotal,
       isDarkMode,
       handleEdit,
       handleDelete
@@ -209,9 +242,84 @@ export default {
   background-color: rgba(67, 97, 238, 0.03);
 }
 
+/* 日期标题行样式 */
+.date-header-row {
+  background-color: #f8f9fa;
+}
+
+.date-header-row td {
+  padding: 8px 15px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.date-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.date-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.count-text {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.total-amount {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e63946;
+}
+
 /* 卡片视图样式 */
 .card-view {
   display: none;
+}
+
+/* 日期标题卡片样式 */
+.date-header-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.date-header-card .date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-header-card .date-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.date-header-card .count-text {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.date-header-card .total-amount {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e63946;
 }
 
 .expense-card {
@@ -521,5 +629,51 @@ export default {
   .card-delete-btn:hover {
     opacity: 0.9;
   }
+
+  /* 深色模式下的日期标题样式 */
+  .date-header-row {
+    background-color: #2a2a2a;
+  }
+
+  .date-header-row td {
+    border-bottom: 2px solid #444;
+  }
+
+  .date-text {
+    color: #e0e0e0;
+  }
+
+  .count-text {
+    color: #aaa;
+  }
+
+  .total-amount {
+    color: #f87171;
+  }
+
+  .date-header-card {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .date-header-card .date-text {
+    color: #e0e0e0;
+  }
+
+  .date-header-card .count-text {
+    color: #aaa;
+  }
+
+  .date-header-card .total-amount {
+    color: #f87171;
+  }
 }
 </style>
+
+
+
+
+
+
+

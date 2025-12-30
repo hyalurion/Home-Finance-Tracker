@@ -141,5 +141,50 @@ export const ExpenseAPI = {
       console.error(`删除消费记录失败 ID: ${id}:`, error);
       throw error;
     }
+  },
+
+  // 获取按日期分组的消费记录（用于每日统计）
+  async getExpensesByDate (page = 1, limit = 10, searchParams = {}) {
+    console.log('[Expense API] 尝试获取按日期分组的消费数据');
+    try {
+      // 构建查询参数
+      let params;
+      
+      // 处理URLSearchParams对象或普通对象
+      if (searchParams instanceof URLSearchParams) {
+        params = {};
+        // 添加基础分页参数
+        params.page = page;
+        params.limit = limit;
+        
+        // 从URLSearchParams中提取所有参数
+        searchParams.forEach((value, key) => {
+          params[key] = value;
+        });
+      } else {
+        // 普通对象的情况
+        params = {
+          page,
+          limit,
+          ...searchParams
+        };
+      }
+      
+      console.log('[Expense API] 请求参数:', params);
+      const response = await axios.get(`${API_BASE}/expenses/by-date`, {
+        params
+      });
+      
+      // 返回完整的响应对象，包括数据、总数、页码等信息
+      return response;
+    } catch (error) {
+      if (error.code === 'ERR_NETWORK') {
+        console.error('获取按日期分组的消费数据失败：网络连接异常，请检查服务器或网络状态。', error);
+      } else {
+        console.error('获取按日期分组的消费数据失败:', error);
+      }
+      console.error('[Expense API] 获取按日期分组的消费数据失败详情:', error.response || error.message || error);
+      throw error;
+    }
   }
 };
