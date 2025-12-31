@@ -9,6 +9,7 @@
     <string name="settings">設定</string>
     <string name="language_settings">語言設定</string>
     <string name="select_language">選擇語言</string>
+    <string name="api_key_set">已設定：%s…</string>
     <string name="developer_tools">開發者工具</string>
     <string name="theme_settings">主題設定</string>
     <string name="dynamic_color">動態顏色</string>
@@ -56,6 +57,16 @@
     <string name="sync_status">同步狀態</string>
     <string name="sync_status_idle">空閒</string>
     <string name="sync_status_syncing">同步中…</string>
+    <string name="sync_select_method">選擇同步方式</string>
+    <string name="sync_cloud">從云端同步</string>
+    <string name="sync_other_devices">從其他設備同步</string>
+    <string name="sync_lan">局域网</string>
+    <string name="sync_bluetooth">藍牙</string>
+    <string name="sync_nfc">NFC</string>
+    <string name="device_sync_title">%s設備同步</string>
+    <string name="device_sync_searching">正在搜索%s設備…</string>
+    <string name="device_sync_searching_devices">正在搜索設備…</string>
+    <string name="device_sync_found_devices">找到%d個設備：</string>
     
     <!-- Delete Confirmation Dialog -->
     <string name="delete_confirm_title">刪除確認</string>

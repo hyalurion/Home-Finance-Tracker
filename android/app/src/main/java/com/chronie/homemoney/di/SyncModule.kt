@@ -1,9 +1,13 @@
 package com.chronie.homemoney.di
 
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
+import android.net.wifi.WifiManager
+import android.nfc.NfcAdapter
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
 import com.chronie.homemoney.data.remote.api.ExpenseApi
+import com.chronie.homemoney.data.sync.DeviceSyncManagerFactory
 import com.chronie.homemoney.data.sync.SyncManagerImpl
 import com.chronie.homemoney.data.sync.SyncScheduler
 import com.chronie.homemoney.core.network.NetworkMonitor
@@ -31,15 +35,59 @@ object SyncModule {
         expenseDao: ExpenseDao,
         syncQueueDao: SyncQueueDao,
         expenseApi: ExpenseApi,
-        gson: Gson
+        gson: Gson,
+        deviceSyncManagerFactory: DeviceSyncManagerFactory
     ): SyncManager {
         return SyncManagerImpl(
             context = context,
             expenseDao = expenseDao,
             syncQueueDao = syncQueueDao,
             expenseApi = expenseApi,
-            gson = gson
+            gson = gson,
+            deviceSyncManagerFactory = deviceSyncManagerFactory
         )
+    }
+    
+    @Provides
+    @Singleton
+    fun provideDeviceSyncManagerFactory(
+        @ApplicationContext context: Context,
+        expenseDao: ExpenseDao,
+        gson: Gson,
+        wifiManager: WifiManager,
+        bluetoothAdapter: BluetoothAdapter?,
+        nfcAdapter: NfcAdapter?
+    ): DeviceSyncManagerFactory {
+        return DeviceSyncManagerFactory(
+            context = context,
+            expenseDao = expenseDao,
+            gson = gson,
+            wifiManager = wifiManager,
+            bluetoothAdapter = bluetoothAdapter,
+            nfcAdapter = nfcAdapter
+        )
+    }
+    
+    @Provides
+    @Singleton
+    fun provideWifiManager(
+        @ApplicationContext context: Context
+    ): WifiManager {
+        return context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+    }
+    
+    @Provides
+    @Singleton
+    fun provideBluetoothAdapter(): BluetoothAdapter? {
+        return BluetoothAdapter.getDefaultAdapter()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideNfcAdapter(
+        @ApplicationContext context: Context
+    ): NfcAdapter? {
+        return NfcAdapter.getDefaultAdapter(context)
     }
     
     @Provides

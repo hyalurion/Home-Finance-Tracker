@@ -1,7 +1,10 @@
 package com.chronie.homemoney.data.sync
 
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.wifi.WifiManager
+import android.nfc.NfcAdapter
 import android.util.Log
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
@@ -10,6 +13,7 @@ import com.chronie.homemoney.data.mapper.ExpenseMapper
 import com.chronie.homemoney.data.remote.api.ExpenseApi
 import com.chronie.homemoney.data.remote.dto.ExpenseDto
 import com.chronie.homemoney.domain.model.*
+import com.chronie.homemoney.domain.sync.DeviceSyncManager
 import com.chronie.homemoney.domain.sync.SyncManager
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -29,7 +33,8 @@ class SyncManagerImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
     private val syncQueueDao: SyncQueueDao,
     private val expenseApi: ExpenseApi,
-    private val gson: Gson
+    private val gson: Gson,
+    private val deviceSyncManagerFactory: DeviceSyncManagerFactory
 ) : SyncManager {
     
     private val prefs: SharedPreferences = context.getSharedPreferences(
@@ -398,5 +403,11 @@ class SyncManagerImpl @Inject constructor(
             Log.w(TAG, "Failed to parse timestamp: $timestamp", e)
             0L
         }
+    }
+    
+    override fun getDeviceSyncManager(): com.chronie.homemoney.domain.sync.DeviceSyncManager {
+        // 默认返回LAN同步管理器
+        return deviceSyncManagerFactory.createDeviceSyncManager("LAN")
+            ?: throw IllegalStateException("No device sync manager available for LAN connection")
     }
 }

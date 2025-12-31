@@ -355,6 +355,7 @@ fun SettingsScreen(
     }
 }
 
+
 @Composable
 fun LanguageItem(
     language: Language,
@@ -440,7 +441,7 @@ fun AISettingsSection(
                         if (apiKey.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "已设置: ${apiKey.take(8)}...",
+                                text = context.getString(R.string.api_key_set, apiKey.take(8)),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -902,6 +903,90 @@ fun DataImportExportSection(
 }
 
 @Composable
+fun DeviceSyncDialog(
+    context: Context,
+    connectionType: String,
+    onDismiss: () -> Unit,
+    onDeviceSelected: (com.chronie.homemoney.domain.sync.DeviceInfo) -> Unit
+) {
+    val viewModel: SettingsViewModel = hiltViewModel()
+    val syncMessage by viewModel.syncMessage.collectAsState()
+    var discoveredDevices by remember { mutableStateOf<List<com.chronie.homemoney.domain.sync.DeviceInfo>>(emptyList()) }
+    val coroutineScope = rememberCoroutineScope()
+    val isActive = remember { mutableStateOf(true) }
+    
+    // 开始搜索设备 (持续收集Flow直到弹窗关闭)
+    LaunchedEffect(connectionType) {
+        isActive.value = true
+        discoveredDevices = emptyList()
+        viewModel.searchDevices().collect {
+            if (isActive.value) {
+                if (!discoveredDevices.any { existing -> existing.deviceId == it.deviceId }) {
+                    discoveredDevices = discoveredDevices + it
+                }
+            }
+        }
+    }
+    
+    // 关闭搜索
+    DisposableEffect(Unit) {
+        onDispose {
+            isActive.value = false
+        }
+    }
+    
+    AlertDialog(
+        onDismissRequest = {
+            isActive.value = false
+            onDismiss()
+        },
+        title = { Text(context.getString(R.string.device_sync_title, connectionType)) },
+        text = {
+            Column {
+                Text(
+                    text = syncMessage ?: context.getString(R.string.device_sync_searching, connectionType),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                if (discoveredDevices.isEmpty()) {
+                    Text(context.getString(R.string.device_sync_searching_devices), style = MaterialTheme.typography.bodySmall)
+                } else {
+                    Text(context.getString(R.string.device_sync_found_devices, discoveredDevices.size), style = MaterialTheme.typography.bodySmall)
+                    discoveredDevices.forEachIndexed { index, device ->
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                                .clickable {
+                                    isActive.value = false
+                                    onDeviceSelected(device)
+                                    onDismiss()
+                                },
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.medium
+                        ) {
+                            Text(
+                                text = "${index + 1}. ${device.deviceName} (${device.address})",
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                isActive.value = false
+                onDismiss()
+            }) {
+                Text(context.getString(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
 fun SyncSection(
     viewModel: SettingsViewModel,
     context: Context
@@ -910,6 +995,13 @@ fun SyncSection(
     val lastSyncTime by viewModel.lastSyncTime.collectAsState()
     val pendingSyncCount by viewModel.pendingSyncCount.collectAsState()
     val syncMessage by viewModel.syncMessage.collectAsState()
+    
+    // 同步方式选择对话框
+    var showSyncMethodDialog by remember { mutableStateOf(false) }
+    // 设备同步对话框
+    var showDeviceSyncDialog by remember { mutableStateOf(false) }
+    // 当前选择的连接类型
+    var selectedConnectionType by remember { mutableStateOf("") }
     
     // 显示同步消息
     syncMessage?.let { message ->
@@ -1023,7 +1115,7 @@ fun SyncSection(
                 
                 // 手动同步按钮
                 Button(
-                    onClick = { viewModel.manualSync() },
+                    onClick = { showSyncMethodDialog = true },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = syncStatus != com.chronie.homemoney.domain.model.SyncStatus.SYNCING
                 ) {
@@ -1045,6 +1137,122 @@ fun SyncSection(
                 }
             }
         }
+    }
+    
+    // 同步方式选择对话框
+    if (showSyncMethodDialog) {
+        AlertDialog(
+            onDismissRequest = { showSyncMethodDialog = false },
+            title = { Text(context.getString(R.string.sync_select_method)) },
+            text = {
+                Column {
+                    // 从云端同步选项
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                            .clickable {
+                                showSyncMethodDialog = false
+                                viewModel.manualSync()
+                            },
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(
+                            text = context.getString(R.string.sync_cloud),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                    
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    
+                    Text(
+                        text = context.getString(R.string.sync_other_devices),
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    // 局域网同步选项
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                            .clickable {
+                                showSyncMethodDialog = false
+                                selectedConnectionType = "LAN"
+                                showDeviceSyncDialog = true
+                            },
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(
+                            text = context.getString(R.string.sync_lan),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                    
+                    // 蓝牙同步选项
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                            .clickable {
+                                showSyncMethodDialog = false
+                                selectedConnectionType = "BLUETOOTH"
+                                showDeviceSyncDialog = true
+                            },
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(
+                            text = context.getString(R.string.sync_bluetooth),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                    
+                    // NFC同步选项
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showSyncMethodDialog = false
+                                selectedConnectionType = "NFC"
+                                showDeviceSyncDialog = true
+                            },
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(
+                            text = context.getString(R.string.sync_nfc),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { showSyncMethodDialog = false }
+                ) {
+                    Text(context.getString(R.string.cancel))
+                }
+            }
+        )
+    }
+    
+    // 设备同步对话框
+    if (showDeviceSyncDialog) {
+        DeviceSyncDialog(
+            context = context,
+            connectionType = selectedConnectionType,
+            onDismiss = { showDeviceSyncDialog = false },
+            onDeviceSelected = { deviceInfo ->
+                viewModel.deviceSync(selectedConnectionType, deviceInfo)
+            }
+        )
     }
 }
 
