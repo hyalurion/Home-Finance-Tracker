@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.onCompletion
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -91,12 +92,26 @@ class BluetoothDeviceSyncManager(
         // 开始扫描
         bluetoothAdapter.startDiscovery()
         
-        // 将StateFlow<List<DeviceInfo>>转换为Flow<DeviceInfo>
+        // 创建Flow，确保在取消时清理资源
         return _devices.asStateFlow().flatMapLatest { devices ->
             if (devices.isEmpty()) {
                 emptyFlow()
             } else {
                 flowOf(*devices.toTypedArray())
+            }
+        }.onCompletion { 
+            // 在Flow取消时清理资源
+            Log.d(TAG, "Bluetooth device search completed/cancelled, cleaning up")
+            if (bluetoothAdapter.isDiscovering) {
+                bluetoothAdapter.cancelDiscovery()
+            }
+            if (discoveryReceiver != null) {
+                try {
+                    context.unregisterReceiver(discoveryReceiver)
+                    discoveryReceiver = null
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error unregistering broadcast receiver", e)
+                }
             }
         }
     }
