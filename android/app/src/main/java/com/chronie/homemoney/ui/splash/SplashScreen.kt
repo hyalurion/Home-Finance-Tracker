@@ -84,7 +84,7 @@ fun SplashScreen(
         ) {
             // 背景图片
             Image(
-                painter = painterResource(id = R.drawable.shengdan),
+                painter = painterResource(id = R.drawable.newyear),
                 contentDescription = "开屏图片",
                 modifier = Modifier
                     .fillMaxSize(),
