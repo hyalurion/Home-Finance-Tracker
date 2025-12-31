@@ -45,12 +45,24 @@ object DatabaseMigrations {
     }
     
     /**
+     * 从版本3到版本4的迁移
+     * 为server_id字段添加唯一索引
+     */
+    val MIGRATION_3_4 = object : Migration(3, 4) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // 为expenses表的server_id字段添加唯一索引
+            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_expenses_server_id` ON `expenses` (`server_id`) WHERE `server_id` IS NOT NULL")
+        }
+    }
+    
+    /**
      * 获取所有迁移策略
      */
     fun getAllMigrations(): Array<Migration> {
         return arrayOf(
             MIGRATION_1_2,
-            MIGRATION_2_3
+            MIGRATION_2_3,
+            MIGRATION_3_4
         )
     }
 }

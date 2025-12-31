@@ -14,7 +14,8 @@ import androidx.room.PrimaryKey
     indices = [
         Index(value = ["date"]),
         Index(value = ["type"]),
-        Index(value = ["is_synced"])
+        Index(value = ["is_synced"]),
+        Index(value = ["server_id"], unique = true)
     ]
 )
 data class ExpenseEntity(

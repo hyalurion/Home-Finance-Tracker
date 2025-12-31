@@ -248,42 +248,29 @@ class SyncManagerImpl @Inject constructor(
                 Log.d(TAG, "Processing ${serverExpenses.size} expenses from page $currentPage")
                 
                 for (serverExpense in serverExpenses) {
-                try {
-                    val serverId = serverExpense.id?.toString() ?: continue
-                    serverIds.add(serverId)
-                    
-                    // 查找本地是否存在该记录
-                    val localExpense = expenseDao.getExpenseByServerId(serverId)
-                    
-                    if (localExpense == null) {
-                        // 新记录，直接插入
-                        val expense = ExpenseMapper.toDomain(serverExpense)
-                        val entity = ExpenseMapper.toEntity(expense).copy(
+                    try {
+                        val serverId = serverExpense.id?.toString() ?: continue
+                        serverIds.add(serverId)
+                        
+                        // 查找本地是否存在该记录
+                        val localExpense = expenseDao.getExpenseByServerId(serverId)
+                        val serverExpenseEntity = ExpenseMapper.toEntity(ExpenseMapper.toDomain(serverExpense)).copy(
                             serverId = serverId,
                             isSynced = true
                         )
-                        expenseDao.insertExpense(entity)
-                        newItems++
-                        Log.d(TAG, "Downloaded new expense: $serverId")
-                    } else {
-                        // 简化冲突解决逻辑，基于是否已同步和日期字段
-                        if (localExpense.isSynced) {
-                            // 本地已同步，直接更新
-                            val expense = ExpenseMapper.toDomain(serverExpense)
-                            val entity = ExpenseMapper.toEntity(expense).copy(
-                                id = localExpense.id,
-                                serverId = serverId,
-                                isSynced = true
-                            )
-                            expenseDao.updateExpense(entity)
+                        
+                        if (localExpense == null) {
+                            // 新记录，直接插入
+                            expenseDao.insertExpense(serverExpenseEntity)
+                            newItems++
+                            Log.d(TAG, "Downloaded new expense: $serverId")
+                        } else {
+                            // 已存在记录，使用replace策略更新
+                            val entityToUpdate = serverExpenseEntity.copy(id = localExpense.id)
+                            expenseDao.insertExpense(entityToUpdate) // 使用INSERT REPLACE策略
                             updatedItems++
                             Log.d(TAG, "Updated expense: $serverId")
-                        } else {
-                            // 本地未同步，添加到同步队列
-                            addToSyncQueue("expense", localExpense.id, "UPDATE", localExpense)
-                            Log.d(TAG, "Added local expense to sync queue: $serverId")
                         }
-                    }
                     } catch (e: Exception) {
                         Log.e(TAG, "Failed to process server expense", e)
                     }
@@ -295,18 +282,28 @@ class SyncManagerImpl @Inject constructor(
                 currentPage++
             }
             
-            // 清理本地存在但服务器上不存在的已同步记录
+            // 清理本地存在但服务器上不存在的记录
             try {
                 val allLocalExpenses = expenseDao.getAllExpenses().first()
                 for (localExpense in allLocalExpenses) {
-                    // 只删除已同步且有 serverId 的记录
-                    if (localExpense.isSynced && 
-                        localExpense.serverId != null && 
-                        !serverIds.contains(localExpense.serverId)) {
-                        
-                        Log.d(TAG, "Deleting local expense not found on server: ${localExpense.serverId}")
-                        expenseDao.deleteExpenseById(localExpense.id)
-                        deletedItems++
+                    val serverId = localExpense.serverId
+                    
+                    if (serverId != null) {
+                        if (!serverIds.contains(serverId)) {
+                            // 有serverId但不在服务器上，删除
+                            Log.d(TAG, "Deleting local expense not found on server: $serverId")
+                            expenseDao.deleteExpenseById(localExpense.id)
+                            deletedItems++
+                        }
+                    } else {
+                        // 没有serverId的情况
+                        if (localExpense.isSynced) {
+                            // 已同步但没有serverId，可能是重复记录，删除
+                            Log.d(TAG, "Deleting synced expense without serverId: ${localExpense.id}")
+                            expenseDao.deleteExpenseById(localExpense.id)
+                            deletedItems++
+                        }
+                        // 未同步且没有serverId的记录保留（本地新创建的记录）
                     }
                 }
             } catch (e: Exception) {
