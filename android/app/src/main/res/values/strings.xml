@@ -45,7 +45,7 @@
     <string name="clear_data">Clear Data</string>
     <string name="database_statistics">Database Stats</string>
     <string name="record_count">Records: %d</string>
-    <string name="total_amount">Total</string>
+    <string name="total_amount">Total: ¥%.2f</string>
     <string name="expense_records">Expenses</string>
     <string name="no_data">No data</string>
     <string name="synced">Synced</string>

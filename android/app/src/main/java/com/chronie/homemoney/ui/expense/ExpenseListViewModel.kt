@@ -36,12 +36,41 @@ class ExpenseListViewModel @Inject constructor(
     }
     
     /**
-     * 将支出列表按日期分组
+     * 将支出列表按日期分组，先进行全局排序再分组
      */
-    private fun groupExpensesByDate(expenses: List<Expense>): Map<String, List<Expense>> {
-        return expenses.groupBy { expense ->
-            expense.date // 直接使用date字段
-        }.toSortedMap(compareByDescending { it })
+    private fun groupExpensesByDate(expenses: List<Expense>, sortBy: SortOption): Map<String, List<Expense>> {
+        // 先对所有支出进行全局排序
+        val globallySortedExpenses = when (sortBy) {
+            SortOption.DATE_ASC -> expenses.sortedBy { it.date }
+            SortOption.DATE_DESC -> expenses.sortedByDescending { it.date }
+            SortOption.AMOUNT_ASC -> expenses.sortedBy { it.amount }
+            SortOption.AMOUNT_DESC -> expenses.sortedByDescending { it.amount }
+        }
+        
+        // 使用LinkedHashMap按排序后的顺序分组
+        val grouped = LinkedHashMap<String, MutableList<Expense>>()
+        
+        for (expense in globallySortedExpenses) {
+            val date = expense.date
+            grouped.computeIfAbsent(date) { mutableListOf() }.add(expense)
+        }
+        
+        // 对每个日期组内的支出再次排序（确保组内顺序正确）
+        val sortedGroups = grouped.mapValues { (_, dateExpenses) ->
+            when (sortBy) {
+                SortOption.DATE_ASC -> dateExpenses.sortedBy { it.date }
+                SortOption.DATE_DESC -> dateExpenses.sortedByDescending { it.date }
+                SortOption.AMOUNT_ASC -> dateExpenses.sortedBy { it.amount }
+                SortOption.AMOUNT_DESC -> dateExpenses.sortedByDescending { it.amount }
+            }
+        }
+        
+        // 如果是按日期排序，则按日期降序排列分组
+        return if (sortBy == SortOption.DATE_ASC || sortBy == SortOption.DATE_DESC) {
+            sortedGroups.toSortedMap(compareByDescending { it })
+        } else {
+            sortedGroups
+        }
     }
     
     fun loadExpenses(refresh: Boolean = false) {
@@ -66,7 +95,7 @@ class ExpenseListViewModel @Inject constructor(
                         currentState.expenses + expenses
                     }
                     
-                    val grouped = groupExpensesByDate(newExpenses)
+                    val grouped = groupExpensesByDate(newExpenses, filters.sortBy)
                     
                     _uiState.update {
                         it.copy(
@@ -107,7 +136,7 @@ class ExpenseListViewModel @Inject constructor(
                 result.fold(
                     onSuccess = { expenses ->
                         val newExpenses = currentState.expenses + expenses
-                        val grouped = groupExpensesByDate(newExpenses)
+                        val grouped = groupExpensesByDate(newExpenses, currentState.filters.sortBy)
                         
                         _uiState.update {
                             it.copy(
@@ -225,7 +254,7 @@ class ExpenseListViewModel @Inject constructor(
                 onSuccess = {
                     // 从当前列表中移除删除的支出
                     val updatedExpenses = _uiState.value.expenses.filter { it.id != expense.id }
-                    val grouped = groupExpensesByDate(updatedExpenses)
+                    val grouped = groupExpensesByDate(updatedExpenses, _uiState.value.filters.sortBy)
                     
                     _uiState.update {
                         it.copy(

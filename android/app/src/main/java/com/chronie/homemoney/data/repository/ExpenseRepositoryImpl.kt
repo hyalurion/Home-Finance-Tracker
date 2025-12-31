@@ -82,6 +82,14 @@ class ExpenseRepositoryImpl @Inject constructor(
                         expenses = expenses.filter { LocalDate.parse(it.date) <= filters.endDate }
                     }
                     
+                    // 重新应用排序（确保日期筛选后保持正确排序）
+                    expenses = when (filters.sortBy) {
+                        SortOption.DATE_ASC -> expenses.sortedBy { it.date }
+                        SortOption.DATE_DESC -> expenses.sortedByDescending { it.date }
+                        SortOption.AMOUNT_ASC -> expenses.sortedBy { it.amount }
+                        SortOption.AMOUNT_DESC -> expenses.sortedByDescending { it.amount }
+                    }
+                    
                     // 保存到本地数据库（仅第一页时清空旧数据）
                     if (page == 1) {
                         // 可选：清空旧数据

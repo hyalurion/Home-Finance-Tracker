@@ -45,7 +45,7 @@
     <string name="clear_data">清空数据</string>
     <string name="database_statistics">数据库统计</string>
     <string name="record_count">记录数: %d</string>
-    <string name="total_amount">总金额</string>
+    <string name="total_amount">总金额: ¥%.2f</string>
     <string name="expense_records">支出记录</string>
     <string name="no_data">暂无数据</string>
     <string name="synced">已同步</string>
