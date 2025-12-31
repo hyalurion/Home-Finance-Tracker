@@ -36,7 +36,7 @@ class DeviceSyncManagerFactory(
                 }
             }
             "NFC" -> {
-                if (nfcAdapter != null && context is android.app.Activity) {
+                if (nfcAdapter != null) {
                     NfcDeviceSyncManager(expenseDao, gson, context, nfcAdapter)
                 } else {
                     null

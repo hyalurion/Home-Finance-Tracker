@@ -30,7 +30,7 @@ import java.util.*
 class NfcDeviceSyncManager(
     expenseDao: ExpenseDao,
     gson: Gson,
-    private val activity: android.app.Activity,
+    private val context: Context,
     private val nfcAdapter: NfcAdapter?
 ) : BaseDeviceSyncManager(expenseDao, gson) {
     
@@ -50,14 +50,6 @@ class NfcDeviceSyncManager(
             return
         }
         
-        // 创建PendingIntent，当NFC标签被检测到时将触发此Intent
-        pendingIntent = PendingIntent.getActivity(
-            activity,
-            0,
-            Intent(activity, activity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
-            PendingIntent.FLAG_IMMUTABLE
-        )
-        
         // 创建IntentFilter，用于接收NFC标签的Intent
         val ndef = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
         try {
@@ -72,6 +64,16 @@ class NfcDeviceSyncManager(
             arrayOf(Ndef::class.java.name),
             arrayOf(NdefFormatable::class.java.name)
         )
+        
+        // 仅当context是Activity时才创建PendingIntent
+        if (context is android.app.Activity) {
+            pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                Intent(context, context::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        }
     }
     
     override fun searchDevices(): Flow<DeviceInfo> = flow {
@@ -114,9 +116,9 @@ class NfcDeviceSyncManager(
     override suspend fun disconnect(): Boolean {
         Log.d(TAG, "Disconnecting from NFC device")
         
-        // 调用disableForegroundDispatch关闭NFC前台调度
-        if (nfcAdapter != null) {
-            nfcAdapter.disableForegroundDispatch(activity)
+        // 调用disableForegroundDispatch关闭NFC前台调度（仅当context是Activity时）
+        if (nfcAdapter != null && context is android.app.Activity) {
+            nfcAdapter.disableForegroundDispatch(context)
         }
         
         isConnected = false
