@@ -44,6 +44,21 @@ class BluetoothDeviceSyncManager(
     private var inputStream: InputStream? = null
     private var discoveryReceiver: BluetoothDiscoveryReceiver? = null
     
+    /**
+     * 检查是否有必要的权限
+     */
+    private fun hasRequiredPermissions(): Boolean {
+        val locationPermission = android.Manifest.permission.ACCESS_FINE_LOCATION
+        val bluetoothScanPermission = android.Manifest.permission.BLUETOOTH_SCAN
+        val bluetoothConnectPermission = android.Manifest.permission.BLUETOOTH_CONNECT
+        
+        val hasLocationPermission = context.checkSelfPermission(locationPermission) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        val hasScanPermission = context.checkSelfPermission(bluetoothScanPermission) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        val hasConnectPermission = context.checkSelfPermission(bluetoothConnectPermission) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        
+        return hasLocationPermission && hasScanPermission && hasConnectPermission
+    }
+    
     override fun searchDevices(): Flow<DeviceInfo> {
         Log.d(TAG, "Searching for Bluetooth devices")
         
@@ -52,6 +67,12 @@ class BluetoothDeviceSyncManager(
         // 检查蓝牙是否可用
         if (!bluetoothAdapter.isEnabled) {
             Log.e(TAG, "Bluetooth is not enabled")
+            return emptyFlow()
+        }
+        
+        // 检查权限
+        if (!hasRequiredPermissions()) {
+            Log.e(TAG, "Missing required permissions for Bluetooth scanning")
             return emptyFlow()
         }
         

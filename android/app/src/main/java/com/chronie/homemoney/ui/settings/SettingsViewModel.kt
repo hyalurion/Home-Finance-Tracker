@@ -185,8 +185,8 @@ class SettingsViewModel @Inject constructor(
         _syncMessage.value = null
     }
     
-    fun searchDevices(): Flow<com.chronie.homemoney.domain.sync.DeviceInfo> {
-        return syncManager.getDeviceSyncManager().searchDevices()
+    fun searchDevices(connectionType: String): Flow<com.chronie.homemoney.domain.sync.DeviceInfo> {
+        return syncManager.getDeviceSyncManager(connectionType).searchDevices()
     }
     
     fun deviceSync(connectionType: String, deviceInfo: com.chronie.homemoney.domain.sync.DeviceInfo) {
@@ -195,33 +195,33 @@ class SettingsViewModel @Inject constructor(
                 _syncMessage.value = null
                 
                 // 根据连接类型创建设备同步管理器
-                val deviceSyncManager = syncManager.getDeviceSyncManager()
+                val deviceSyncManager = syncManager.getDeviceSyncManager(connectionType)
                 
                 // 尝试连接设备
-                _syncMessage.value = "正在连接设备: ${deviceInfo.deviceName}..."
+                _syncMessage.value = context.getString(R.string.device_sync_connecting, deviceInfo.deviceName)
                 val connected = deviceSyncManager.connect(deviceInfo)
                 
                 if (!connected) {
-                    _syncMessage.value = "连接设备失败"
+                    _syncMessage.value = context.getString(R.string.device_sync_connect_failed)
                     return@launch
                 }
                 
                 // 执行同步
-                _syncMessage.value = "正在与设备同步数据..."
+                _syncMessage.value = context.getString(R.string.device_sync_synchronizing)
                 val syncResult = deviceSyncManager.syncWithDevice(deviceInfo)
                 
                 if (syncResult.success) {
-                    _syncMessage.value = "与设备同步成功"
+                    _syncMessage.value = context.getString(R.string.device_sync_success)
                     loadSyncInfo()
                 } else {
-                    _syncMessage.value = "与设备同步失败: ${syncResult.error}"
+                    _syncMessage.value = context.getString(R.string.device_sync_failed, syncResult.error)
                 }
                 
                 // 断开连接
                 deviceSyncManager.disconnect()
                 
             } catch (e: Exception) {
-                _syncMessage.value = "设备同步失败: ${e.message}"
+                _syncMessage.value = context.getString(R.string.device_sync_failed, e.message)
             }
         }
     }

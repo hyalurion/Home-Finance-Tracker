@@ -67,12 +67,6 @@
     <string name="device_sync_searching">正在搜索%s設備…</string>
     <string name="device_sync_searching_devices">正在搜索設備…</string>
     <string name="device_sync_found_devices">找到%d個設備：</string>
-    
-    <!-- Delete Confirmation Dialog -->
-    <string name="delete_confirm_title">刪除確認</string>
-    <string name="delete_confirm_message">確定要刪除這條支出記錄嗎？</string>
-    <string name="delete_second_confirm_title">再次確認</string>
-    <string name="delete_second_confirm_message">此操作不可撤銷，確定要繼續刪除嗎？</string>
     <string name="sync_status_success">成功</string>
     <string name="sync_status_failed">失敗</string>
     <string name="sync_status_conflict">衝突</string>
@@ -87,6 +81,17 @@
     <string name="clear_failed">清空失敗: %s</string>
     <string name="load_success">資料載入成功</string>
     <string name="load_failed">載入數據失敗: %s</string>
+    <string name="device_sync_connecting">正在連接到%s…</string>
+    <string name="device_sync_connect_failed">連接失敗</string>
+    <string name="device_sync_synchronizing">正在同步數據…</string>
+    <string name="device_sync_success">同步完成</string>
+    <string name="device_sync_failed">同步失敗: %s</string>
+    
+    <!-- Delete Confirmation Dialog -->
+    <string name="delete_confirm_title">刪除確認</string>
+    <string name="delete_confirm_message">確定要刪除這條支出記錄嗎？</string>
+    <string name="delete_second_confirm_title">再次確認</string>
+    <string name="delete_second_confirm_message">此操作不可撤銷，確定要繼續刪除嗎？</string>
     
     <!-- 支出類型 -->
     <string name="expense_type_daily_goods">日常用品</string>

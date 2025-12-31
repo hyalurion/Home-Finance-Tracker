@@ -63,12 +63,6 @@
     <string name="sync_lan">LAN Sync</string>
     <string name="sync_bluetooth">Bluetooth Sync</string>
     <string name="sync_nfc">NFC Sync</string>
-    
-    <!-- Delete Confirmation Dialog -->
-    <string name="delete_confirm_title">Delete Confirmation</string>
-    <string name="delete_confirm_message">Are you sure you want to delete this expense record?</string>
-    <string name="delete_second_confirm_title">Confirm Deletion</string>
-    <string name="delete_second_confirm_message">This action cannot be undone. Are you sure you want to delete?</string>
     <string name="sync_status_success">Success</string>
     <string name="sync_status_failed">Failed</string>
     <string name="sync_status_conflict">Conflict</string>
@@ -87,6 +81,18 @@
     <string name="device_sync_searching">Searching for %s devices...</string>
     <string name="device_sync_searching_devices">Searching for devices...</string>
     <string name="device_sync_found_devices">Found %d devices:</string>
+    <string name="device_sync_connecting">Connecting to %s...</string>
+    <string name="device_sync_connect_failed">Connection failed</string>
+    <string name="device_sync_synchronizing">Synchronizing...</string>
+    <string name="device_sync_success">Synchronization completed successfully</string>
+    <string name="device_sync_failed">Synchronization failed: %s</string>
+    
+    <!-- Delete Confirmation Dialog -->
+    <string name="delete_confirm_title">Delete Confirmation</string>
+    <string name="delete_confirm_message">Are you sure you want to delete this expense record?</string>
+    <string name="delete_second_confirm_title">Confirm Deletion</string>
+    <string name="delete_second_confirm_message">This action cannot be undone. Are you sure you want to delete?</string>
+    
     
     <!-- Expense Types -->
     <string name="expense_type_daily_goods">Daily Goods</string>

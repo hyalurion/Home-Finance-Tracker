@@ -919,7 +919,7 @@ fun DeviceSyncDialog(
     LaunchedEffect(connectionType) {
         isActive.value = true
         discoveredDevices = emptyList()
-        viewModel.searchDevices().collect {
+        viewModel.searchDevices(connectionType).collect {
             if (isActive.value) {
                 if (!discoveredDevices.any { existing -> existing.deviceId == it.deviceId }) {
                     discoveredDevices = discoveredDevices + it

@@ -54,5 +54,5 @@ interface SyncManager {
     /**
      * 获取设备同步管理器
      */
-    fun getDeviceSyncManager(): DeviceSyncManager
+    fun getDeviceSyncManager(connectionType: String): DeviceSyncManager
 }

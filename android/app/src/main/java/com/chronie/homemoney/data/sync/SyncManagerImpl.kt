@@ -405,9 +405,8 @@ class SyncManagerImpl @Inject constructor(
         }
     }
     
-    override fun getDeviceSyncManager(): com.chronie.homemoney.domain.sync.DeviceSyncManager {
-        // 默认返回LAN同步管理器
-        return deviceSyncManagerFactory.createDeviceSyncManager("LAN")
-            ?: throw IllegalStateException("No device sync manager available for LAN connection")
+    override fun getDeviceSyncManager(connectionType: String): com.chronie.homemoney.domain.sync.DeviceSyncManager {
+        return deviceSyncManagerFactory.createDeviceSyncManager(connectionType)
+            ?: throw IllegalStateException("No device sync manager available for $connectionType connection")
     }
 }
