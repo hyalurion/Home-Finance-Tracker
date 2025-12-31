@@ -2,7 +2,7 @@
   <div class="splash-screen" v-if="showSplash">
     <div class="splash-content">
       <img 
-        src="/assets/shengdan.jpg" 
+        src="/assets/newyear.jpg" 
         class="splash-image"
       />
       <div class="splash-overlay">
