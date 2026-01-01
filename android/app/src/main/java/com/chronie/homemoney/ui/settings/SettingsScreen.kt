@@ -263,7 +263,7 @@ fun SettingsScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
-                // 数据库测试按钮
+                // 本地数据库入口按钮
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()

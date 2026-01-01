@@ -38,15 +38,16 @@
     <!-- Developer Options -->
     <string name="developer_options">開發者選項</string>
     <string name="developer_mode">開發者模式</string>
-    <string name="developer_mode_description">啟用後可訪問資料庫測試等開發功能</string>
+    <string name="developer_mode_description">啟用後可訪問本地資料庫等開發功能</string>
     
     <!-- Database Test -->
-    <string name="database_test">資料庫測試</string>
-    <string name="add_test_data">添加測試資料</string>
-    <string name="clear_data">清空數據</string>
-    <string name="database_statistics">資料庫統計</string>
+    <string name="database_test">本地資料庫</string>
+    <string name="add_test_data">添加一条本地測試資料</string>
+    <string name="clear_data">清空本地數據</string>
+    <string name="database_statistics">本地資料庫統計</string>
     <string name="record_count">記錄數: %d</string>
-    <string name="total_amount">總金額: ¥%.2f</string>
+    <string name="total_amount">總金額</string>
+    <string name="total_amount_database">總金額: ¥%.2f</string>
     <string name="expense_records">支出記錄</string>
     <string name="no_data">暫無數據</string>
     <string name="synced">已同步</string>

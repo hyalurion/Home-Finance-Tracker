@@ -14,8 +14,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * 数据库测试界面
- * 用于验证数据库基本操作
+ * 本地数据库界面
+ * 用于验证数据库
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +32,7 @@ fun DatabaseTestScreen(
                 title = { Text(context.getString(R.string.database_test)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Text("←")
+                        Text("<")
                     }
                 }
             )
@@ -81,7 +81,7 @@ fun DatabaseTestScreen(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(context.getString(R.string.record_count, uiState.expenseCount))
-                    Text(context.getString(R.string.total_amount, uiState.totalAmount))
+                    Text(context.getString(R.string.total_amount_database, uiState.totalAmount))
                 }
             }
             

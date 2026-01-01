@@ -14,7 +14,7 @@ import java.util.*
 import javax.inject.Inject
 
 /**
- * 数据库测试 ViewModel
+ * 本地数据库 ViewModel
  */
 @HiltViewModel
 class DatabaseTestViewModel @Inject constructor(
@@ -75,7 +75,7 @@ class DatabaseTestViewModel @Inject constructor(
     }
     
     /**
-     * 添加测试支出记录
+     * 添加一条本地测试支出记录
      */
     fun addTestExpense() {
         viewModelScope.launch {
@@ -134,7 +134,7 @@ class DatabaseTestViewModel @Inject constructor(
 }
 
 /**
- * 数据库测试 UI 状态
+ * 本地数据库 UI 状态
  */
 data class DatabaseTestUiState(
     val expenses: List<ExpenseItemUiModel> = emptyList(),
