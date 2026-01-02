@@ -1,6 +1,6 @@
 <template>
   <div 
-    :class="['glassmorphism-component', type, { 'dark-theme': darkTheme }]"
+    :class="['glassmorphism-component', type]"
     :style="componentStyle"
   >
     <slot></slot>
@@ -14,10 +14,6 @@ const props = defineProps({
   type: {
     type: String,
     default: 'base', // base, button, input, card, dialog
-  },
-  darkTheme: {
-    type: Boolean,
-    default: false,
   },
   width: {
     type: String,
@@ -116,36 +112,38 @@ const componentStyle = computed(() => {
 }
 
 /* Dark theme */
-.glassmorphism-component.dark-theme {
+@media (prefers-color-scheme: dark) {
+.glassmorphism-component {
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
-.glassmorphism-component.dark-theme::before {
+.glassmorphism-component::before {
   background: rgba(0, 0, 0, 0.1);
 }
 
-.glassmorphism-component.dark-theme.base,
-.glassmorphism-component.dark-theme.card,
-.glassmorphism-component.dark-theme.dialog {
+.glassmorphism-component.base,
+.glassmorphism-component.card,
+.glassmorphism-component.dialog {
   background: rgba(26, 32, 44, 0.7);
 }
 
-.glassmorphism-component.dark-theme.button {
+.glassmorphism-component.button {
   background: rgba(26, 32, 44, 0.8);
 }
 
-.glassmorphism-component.dark-theme.button:hover {
+.glassmorphism-component.button:hover {
   background: rgba(26, 32, 44, 0.9);
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
 }
 
-.glassmorphism-component.dark-theme.input {
+.glassmorphism-component.input {
   background: rgba(26, 32, 44, 0.8);
 }
 
-.glassmorphism-component.dark-theme.input:focus-within {
+.glassmorphism-component.input:focus-within {
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+}
 }
 </style>

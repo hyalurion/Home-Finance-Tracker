@@ -1,5 +1,5 @@
 <template>
-  <div :class="['glass-form-item', { 'dark-theme': darkTheme }]">
+  <div :class="['glass-form-item']">
     <label v-if="label" :class="['glass-form-item-label', { 'required': required }]">
       {{ label }}
     </label>
@@ -30,10 +30,6 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  darkTheme: {
-    type: Boolean,
-    default: false
-  }
 })
 </script>
 
@@ -71,11 +67,13 @@ const props = defineProps({
 }
 
 /* Dark theme */
-.glass-form-item.dark-theme .glass-form-item-label {
+@media (prefers-color-scheme: dark) {
+.glass-form-item {
   color: #e2e8f0;
 }
 
-.glass-form-item.dark-theme .glass-form-item-error {
+.glass-form-item .glass-form-item-error {
   color: #fc8181;
+}
 }
 </style>

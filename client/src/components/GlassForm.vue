@@ -1,6 +1,6 @@
 <template>
   <form
-    :class="['glass-form', { 'dark-theme': darkTheme }]"
+    :class="['glass-form']"
     @submit.prevent="handleSubmit"
   >
     <slot></slot>
@@ -13,10 +13,6 @@ const props = defineProps({
     type: Object,
     default: () => ({})
   },
-  darkTheme: {
-    type: Boolean,
-    default: false
-  }
 })
 
 const emit = defineEmits(['submit'])
@@ -37,9 +33,11 @@ const handleSubmit = () => {
 }
 
 /* Dark theme */
-.glass-form.dark-theme {
+@media (prefers-color-scheme: dark) {
+.glass-form {
   background: rgba(26, 32, 44, 0.5);
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
 }
 </style>

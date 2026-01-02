@@ -73,10 +73,6 @@ const props = defineProps({
     type: Number,
     default: 3000
   },
-  darkTheme: {
-    type: Boolean,
-    default: false
-  }
 })
 
 const emit = defineEmits(['close'])
@@ -264,7 +260,8 @@ onUnmounted(() => {
 }
 
 /* Dark theme */
-.glass-message.dark-theme {
+@media (prefers-color-scheme: dark) {
+.glass-message {
   background: rgba(30, 41, 59, 0.85);
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow: 
@@ -273,21 +270,21 @@ onUnmounted(() => {
     0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-.glass-message.dark-theme .glass-message-text {
+.glass-message .glass-message-text {
   color: #e2e8f0;
 }
 
-.glass-message.dark-theme .glass-message-close {
+.glass-message .glass-message-close {
   color: #94a3b8;
 }
 
-.glass-message.dark-theme .glass-message-close:hover {
+.glass-message .glass-message-close:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #f1f5f9;
 }
 
 /* Dark theme type variants */
-.glass-message.dark-theme.success {
+.glass-message.success {
   border-left: 4px solid rgba(34, 197, 94, 0.7);
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -295,7 +292,7 @@ onUnmounted(() => {
     0 0 0 1px rgba(34, 197, 94, 0.15);
 }
 
-.glass-message.dark-theme.warning {
+.glass-message.warning {
   border-left: 4px solid rgba(234, 179, 8, 0.7);
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -303,7 +300,7 @@ onUnmounted(() => {
     0 0 0 1px rgba(234, 179, 8, 0.15);
 }
 
-.glass-message.dark-theme.error {
+.glass-message.error {
   border-left: 4px solid rgba(239, 68, 68, 0.7);
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -311,12 +308,13 @@ onUnmounted(() => {
     0 0 0 1px rgba(239, 68, 68, 0.15);
 }
 
-.glass-message.dark-theme.info {
+.glass-message.info {
   border-left: 4px solid rgba(59, 130, 246, 0.7);
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 8px 32px rgba(59, 130, 246, 0.12),
     0 0 0 1px rgba(59, 130, 246, 0.15);
+}
 }
 
 /* Transition */

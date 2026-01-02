@@ -1,5 +1,5 @@
 <template>
-  <div :class="['glass-alert', alertType, { 'dark-theme': darkTheme }]">
+  <div :class="['glass-alert', alertType]">
     <div class="glass-alert-content">
       <div class="glass-alert-icon">
         <slot name="icon">
@@ -47,10 +47,6 @@ const props = defineProps({
     validator: (value) => ['success', 'warning', 'error', 'info'].includes(value)
   },
   closable: {
-    type: Boolean,
-    default: false
-  },
-  darkTheme: {
     type: Boolean,
     default: false
   }

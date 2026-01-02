@@ -138,7 +138,6 @@ onUnmounted(() => {
   }
 
   /* 深色模式成功消息样式 */
-  .message-tip.dark-theme.success,
   .message-tip.success {
     color: #34d399;
     border-left: 4px solid rgba(34, 197, 94, 0.7);
@@ -149,7 +148,6 @@ onUnmounted(() => {
   }
 
   /* 深色模式错误消息样式 */
-  .message-tip.dark-theme.error,
   .message-tip.error {
     color: #fca5a5;
     border-left: 4px solid rgba(239, 68, 68, 0.7);

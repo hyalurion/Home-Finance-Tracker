@@ -4,7 +4,6 @@
     @update:visible="handleClose"
     :title="title"
     :width="width"
-    :dark-theme="darkTheme"
   >
     <div class="markdown-content" v-html="renderedMarkdown"></div>
   </glass-dialog>
@@ -38,10 +37,6 @@ const props = defineProps({
     type: String,
     default: '80%'
   },
-  darkTheme: {
-    type: Boolean,
-    default: false
-  }
 });
 
 const emit = defineEmits(['update:visible']);

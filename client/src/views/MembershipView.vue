@@ -4,6 +4,16 @@
     <MessageTip v-model:message="errorMessage" type="error" />
     <Header :title="$t('membership.title')" />
     
+    <div class="back-button-container">
+      <GlassButton 
+        type="default" 
+        @click="goToHome"
+        class="back-button"
+      >
+        <
+      </GlassButton>
+    </div>
+
     <!-- 用户登录/注册表单 -->
     <div class="login-form" v-if="!isLoggedIn">
       <GlassForm @submit.prevent="handleLogin">
@@ -101,6 +111,7 @@
 
 <script>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Header from '@/components/Header.vue';
 import GlassButton from '@/components/GlassButton.vue';
 import GlassForm from '@/components/GlassForm.vue';
@@ -123,6 +134,7 @@ export default {
     MessageTip
   },
   setup() {
+    const router = useRouter()
     const subscriptionPlans = ref([])
     const selectedPlanId = ref(null)
     const isProcessing = ref(false)
@@ -145,6 +157,11 @@ export default {
       username: ''
     })
     const formLabelWidth = '100px'
+    
+    // 返回主页
+    const goToHome = () => {
+      router.push('/')
+    }
     
     // 登录表单验证规则
     const loginRules = {
@@ -452,7 +469,8 @@ export default {
       handleLogin,
       logout,
       successMessage,
-      errorMessage
+      errorMessage,
+      goToHome
     }
   }
 }

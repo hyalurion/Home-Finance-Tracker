@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-progress" :class="{ 'dark-theme': darkTheme }">
+  <div class="custom-progress">
     <div class="progress-bar-outer">
       <div 
         class="progress-bar-inner" 
@@ -27,10 +27,6 @@ const props = defineProps({
   strokeWidth: {
     type: Number,
     default: 12
-  },
-  darkTheme: {
-    type: Boolean,
-    default: false
   }
 })
 </script>
@@ -58,7 +54,9 @@ const props = defineProps({
 }
 
 /* Dark theme styles */
-.custom-progress.dark-theme .progress-bar-outer {
+@media (prefers-color-scheme: dark) {
+.custom-progress .progress-bar-outer {
   background-color: rgba(75, 85, 99, 0.5);
+}
 }
 </style>

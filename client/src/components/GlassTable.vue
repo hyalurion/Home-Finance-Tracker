@@ -1,6 +1,6 @@
 <template>
-  <div :class="['glass-table-wrapper', { 'dark-theme': darkTheme }]">
-    <table :class="['glass-table', { 'dark-theme': darkTheme }]">
+  <div :class="['glass-table-wrapper']">
+    <table :class="['glass-table']">
       <thead>
         <tr>
           <th v-for="(column, index) in columns" :key="index" :style="{ width: column.width }" class="glass-table-th">
@@ -30,10 +30,6 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  darkTheme: {
-    type: Boolean,
-    default: false
-  }
 })
 
 const emit = defineEmits([])
@@ -77,30 +73,32 @@ const emit = defineEmits([])
 }
 
 /* Dark theme */
-.glass-table-wrapper.dark-theme {
+@media (prefers-color-scheme: dark) {
+.glass-table-wrapper {
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
-.glass-table.dark-theme {
+.glass-table {
   background: rgba(26, 32, 44, 0.7);
 }
 
-.glass-table.dark-theme .glass-table-th {
+.glass-table .glass-table-th {
   color: #e2e8f0;
   border-bottom-color: rgba(255, 255, 255, 0.1);
   background: rgba(26, 32, 44, 0.9);
 }
 
-.glass-table.dark-theme .glass-table-tr {
+.glass-table .glass-table-tr {
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 
-.glass-table.dark-theme .glass-table-tr:hover {
+.glass-table .glass-table-tr:hover {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.glass-table.dark-theme .glass-table-td {
+.glass-table .glass-table-td {
   color: #cbd5e0;
+}
 }
 </style>

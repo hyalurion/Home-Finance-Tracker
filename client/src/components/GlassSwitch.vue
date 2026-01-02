@@ -1,6 +1,6 @@
 <template>
   <div 
-    :class="['glass-switch-container', { 'dark-theme': darkTheme }]"
+    :class="['glass-switch-container']"
     :style="containerStyle"
   >
     <label 
@@ -9,7 +9,6 @@
         { 
           'active': modelValue, 
           'disabled': disabled, 
-          'dark-theme': darkTheme,
           'loading': loading
         }
       ]"
@@ -73,10 +72,6 @@ const props = defineProps({
   inactiveColor: {
     type: String,
     default: 'linear-gradient(135deg, rgba(156, 163, 175, 0.3), rgba(107, 114, 128, 0.2))'
-  },
-  darkTheme: {
-    type: Boolean,
-    default: false
   },
   glassIntensity: {
     type: Number,
@@ -402,7 +397,8 @@ const handleChange = (event) => {
 }
 
 /* 暗黑主题 */
-.glass-switch-container.dark-theme .glass-switch-track {
+@media (prefers-color-scheme: dark) {
+.glass-switch-container .glass-switch-track {
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 
     inset 0 1px 1px rgba(255, 255, 255, 0.1),
@@ -411,7 +407,7 @@ const handleChange = (event) => {
     0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.glass-switch-container.dark-theme .glass-switch.active .glass-switch-track {
+.glass-switch-container .glass-switch.active .glass-switch-track {  
   box-shadow: 
     inset 0 1px 2px rgba(255, 255, 255, 0.2),
     inset 0 -1px 1px rgba(0, 0, 0, 0.4),
@@ -419,7 +415,7 @@ const handleChange = (event) => {
     0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.glass-switch-container.dark-theme .glass-switch-slider {
+.glass-switch-container .glass-switch-slider {
   background: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0.9),
@@ -432,8 +428,9 @@ const handleChange = (event) => {
     inset 0 -1px 1px rgba(0, 0, 0, 0.1);
 }
 
-.glass-switch-container.dark-theme .glass-switch-label {
+.glass-switch-container .glass-switch-label {
   color: #cbd5e0;
+}
 }
 
 /* 隐藏原生输入框 */

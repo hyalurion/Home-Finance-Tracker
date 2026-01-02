@@ -1,5 +1,5 @@
 <template>
-  <div :class="['glass-upload-wrapper', { 'dark-theme': darkTheme }]">
+  <div :class="['glass-upload-wrapper']">
     <div 
       class="glass-upload-dropzone"
       @click="triggerFileInput"
@@ -55,10 +55,6 @@ import { ref, watch } from 'vue'
 
 const props = defineProps({
   multiple: {
-    type: Boolean,
-    default: false
-  },
-  darkTheme: {
     type: Boolean,
     default: false
   },
@@ -255,45 +251,47 @@ const formatFileSize = (size) => {
 }
 
 /* Dark theme */
-.glass-upload-wrapper.dark-theme .glass-upload-dropzone {
+@media (prefers-color-scheme: dark) {
+.glass-upload-wrapper .glass-upload-dropzone {
   background: rgba(26, 32, 44, 0.6);
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.glass-upload-wrapper.dark-theme .glass-upload-dropzone:hover {
+.glass-upload-wrapper .glass-upload-dropzone:hover {
   border-color: rgba(59, 130, 246, 0.5);
   background: rgba(26, 32, 44, 0.8);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-.glass-upload-wrapper.dark-theme .glass-upload-icon {
+.glass-upload-wrapper .glass-upload-icon {
   color: #cbd5e0;
 }
 
-.glass-upload-wrapper.dark-theme .glass-upload-text {
+.glass-upload-wrapper .glass-upload-text {
   color: #a0aec0;
 }
 
-.glass-upload-wrapper.dark-theme .glass-upload-file-item {
+.glass-upload-wrapper .glass-upload-file-item {
   background: rgba(26, 32, 44, 0.8);
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.glass-upload-wrapper.dark-theme .glass-upload-file-name {
+.glass-upload-wrapper .glass-upload-file-name {
   color: #e2e8f0;
 }
 
-.glass-upload-wrapper.dark-theme .glass-upload-file-size {
+.glass-upload-wrapper .glass-upload-file-size {
   color: #a0aec0;
 }
 
-.glass-upload-wrapper.dark-theme .glass-upload-file-remove {
+.glass-upload-wrapper .glass-upload-file-remove {
   color: #fc8181;
 }
 
-.glass-upload-wrapper.dark-theme .glass-upload-file-remove:hover {
+.glass-upload-wrapper .glass-upload-file-remove:hover {
   background: rgba(252, 129, 129, 0.1);
+}
 }
 </style>

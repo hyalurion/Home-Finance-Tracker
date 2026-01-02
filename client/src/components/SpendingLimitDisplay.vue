@@ -39,7 +39,6 @@
         :percentage="Math.min(spendingStore.spendingPercentage, 100)"
         :color="progressColor"
         :stroke-width="12"
-        :dark-theme="darkTheme"
         class="spending-progress"
       />
     </div>
@@ -101,7 +100,7 @@
   </div>
 
   <!-- 独立的预算设置弹窗 -->
-  <SpendingLimitSetting v-model="showSettings" :dark-theme="darkTheme" />
+  <SpendingLimitSetting v-model="showSettings" />
 </template>
 
 <script setup>
@@ -227,10 +226,6 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  darkTheme: {
-    type: Boolean,
-    default: false
-  }
 });
 
 watch(() => props.expenses, (newExpenses) => {

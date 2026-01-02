@@ -3,7 +3,7 @@
   <transition name="dialog-overlay">
     <div v-if="modelValue" class="custom-dialog-overlay" @click.self="closeDialog">
       <transition name="dialog-content">
-        <div v-if="modelValue" class="custom-dialog settings-panel-dialog" :class="{ 'dark-theme': darkTheme }">
+        <div v-if="modelValue" class="custom-dialog settings-panel-dialog">
           <div class="dialog-header">
             <h3 class="dialog-title">{{ $t('spending.settings.title') }}</h3>
             <button class="dialog-close-btn" @click="closeDialog" aria-label="关闭">
@@ -101,10 +101,6 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  darkTheme: {
-    type: Boolean,
-    default: false
-  }
 });
 
 // Emits

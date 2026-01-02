@@ -28,7 +28,8 @@
   --bg-card: transparent; /* 卡片背景色 */
 }
 
-.dark-mode {
+@media (prefers-color-scheme: dark) {
+  :root {
   /* 深色模式变量定义 */
   --primary-color: #66BB6A;
   --primary-gradient: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
@@ -45,4 +46,5 @@
   --bg-primary: #121212;
   --bg-secondary: #1E1E1E;
   --bg-card: rgba(30, 30, 30, 0.7);
+}
 }

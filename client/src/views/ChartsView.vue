@@ -9,15 +9,16 @@
     <!-- 页面标题 -->
     <Header :title="t('chart.title')" />
 
-    <!-- 消费图表分析 -->
-    <ExpenseCharts :expenses="Expenses" />
-
     <!-- 返回主页按钮 -->
     <div class="back-button-container">
       <GlassButton type="primary" @click="goBack" size="default">
-       < {{ t('common.back') }}
+       <
       </GlassButton>
     </div>
+
+    <!-- 消费图表分析 -->
+    <ExpenseCharts :expenses="Expenses" />
+
   </div>
 </template>
 
@@ -152,10 +153,5 @@ onMounted(async () => {
   background-color: #ffebee;
   color: #d32f2f;
   border: 1px solid #ffcdd2;
-}
-
-.back-button-container {
-  margin-top: 30px;
-  text-align: center;
 }
 </style>

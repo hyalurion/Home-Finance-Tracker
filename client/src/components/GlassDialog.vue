@@ -1,7 +1,7 @@
 <template>
   <transition name="glass-dialog" @after-enter="afterEnter" @after-leave="afterLeave">
     <div v-if="visible" class="glass-dialog-overlay" @click.self="handleClose">
-      <div :class="['glass-dialog', { 'dark-theme': darkTheme }]" :style="dialogStyle">
+      <div :class="['glass-dialog']" :style="dialogStyle">
         <div class="glass-dialog-header">
           <h3 class="glass-dialog-title">{{ title }}</h3>
           <button class="glass-dialog-close" @click="handleClose">
@@ -37,10 +37,6 @@ const props = defineProps({
   width: {
     type: String,
     default: '50%'
-  },
-  darkTheme: {
-    type: Boolean,
-    default: false
   },
   animationDuration: {
     type: Number,
@@ -273,31 +269,41 @@ const afterLeave = () => {
 }
 
 /* Dark theme */
-.glass-dialog.dark-theme {
+@media (prefers-color-scheme: dark) {
+.glass-dialog {
   background: rgba(26, 32, 44, 0.9);
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
-.glass-dialog.dark-theme .glass-dialog-header {
+.glass-dialog .glass-dialog-header {
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 
-.glass-dialog.dark-theme .glass-dialog-title {
+.glass-dialog .glass-dialog-title {
   color: #e2e8f0;
 }
 
-.glass-dialog.dark-theme .glass-dialog-close {
+.glass-dialog .glass-dialog-close {
   color: #a0aec0;
 }
 
-.glass-dialog.dark-theme .glass-dialog-close:hover {
+.glass-dialog .glass-dialog-close:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #e2e8f0;
 }
 
-.glass-dialog.dark-theme .glass-dialog-footer {
+.glass-dialog .glass-dialog-footer {
   border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.glass-dialog .glass-dialog-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.glass-dialog .glass-dialog-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
 }
 
 /* 响应式设计 */
@@ -322,13 +328,5 @@ const afterLeave = () => {
 .glass-dialog-body::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
-}
-
-.glass-dialog.dark-theme .glass-dialog-body::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.glass-dialog.dark-theme .glass-dialog-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
 }
 </style>

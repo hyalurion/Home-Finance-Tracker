@@ -1,5 +1,5 @@
 <template>
-  <div :class="['glass-card', { 'dark-theme': darkTheme }]">
+  <div :class="['glass-card']">
     <div v-if="title" class="glass-card-title">
       <slot name="title">{{ title }}</slot>
     </div>
@@ -17,10 +17,6 @@ const props = defineProps({
   title: {
     type: String,
     default: '',
-  },
-  darkTheme: {
-    type: Boolean,
-    default: false,
   },
 })
 </script>
@@ -77,26 +73,28 @@ const props = defineProps({
 }
 
 /* Dark theme */
-.glass-card.dark-theme {
+@media (prefers-color-scheme: dark) {
+.glass-card {
   background: rgba(26, 32, 44, 0.7);
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
-.glass-card.dark-theme::before {
+.glass-card::before {
   background: rgba(0, 0, 0, 0.1);
 }
 
-.glass-card.dark-theme .glass-card-title {
+.glass-card .glass-card-title {
   color: #e2e8f0;
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 
-.glass-card.dark-theme .glass-card-content {
+.glass-card .glass-card-content {
   color: #cbd5e0;
 }
 
-.glass-card.dark-theme .glass-card-footer {
+.glass-card .glass-card-footer {
   border-top-color: rgba(255, 255, 255, 0.1);
+}
 }
 </style>

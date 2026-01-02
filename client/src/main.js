@@ -71,21 +71,3 @@ console.log('[App Initialization] Application mounted successfully');
 
 // 记录应用启动日志
 // 移除应用启动日志记录，避免增加日志量
-
-// 深色模式适配
-const applyDarkMode = (isDark) => {
-  if (isDark) {
-    document.documentElement.classList.add('dark-mode');
-  } else {
-    document.documentElement.classList.remove('dark-mode');
-  }
-};
-
-// 检测系统主题偏好
-const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-applyDarkMode(mediaQuery.matches);
-
-// 监听主题变化
-mediaQuery.addEventListener('change', (e) => {
-  applyDarkMode(e.matches);
-});

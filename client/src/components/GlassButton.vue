@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="['glass-button', { 'dark-theme': darkTheme, 'primary': type === 'primary', 'success': type === 'success', 'warning': type === 'warning' }, $attrs.class]"
+    :class="['glass-button', { 'primary': type === 'primary', 'success': type === 'success', 'warning': type === 'warning' }, $attrs.class]"
     :disabled="disabled"
     @click="$emit('click', $event)"
   >
@@ -17,10 +17,6 @@ const props = defineProps({
     default: 'default', // default, primary, success, warning
   },
   disabled: {
-    type: Boolean,
-    default: false,
-  },
-  darkTheme: {
     type: Boolean,
     default: false,
   },

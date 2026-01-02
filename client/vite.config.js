@@ -25,7 +25,6 @@ export default defineConfig({
         input: {
           main: path.resolve(__dirname, 'index.html'),
           photo: path.resolve(__dirname, 'photo.html'),
-          newFeature: path.resolve(__dirname, 'new-feature.html')
         },
         output: {
           manualChunks: {

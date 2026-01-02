@@ -1,12 +1,11 @@
 <template>
-  <div :class="['glass-input-number-container', { 'dark-theme': darkTheme }]">
+  <div :class="['glass-input-number-container']">
     <div v-if="label" class="glass-input-number-label">{{ label }}</div>
-    <div :class="['glass-input-number-wrapper', { 'disabled': disabled, 'dark-theme': darkTheme }]">
+    <div :class="['glass-input-number-wrapper', { 'disabled': disabled }]">
       <button 
         class="glass-input-number-btn decrease"
         @click="decrease"
         :disabled="disabled || modelValue <= min"
-        :class="{ 'dark-theme': darkTheme }"
       >
         <slot name="decrease-icon">−</slot>
       </button>
@@ -26,7 +25,7 @@
           :step="step"
           :disabled="disabled"
           :placeholder="placeholder"
-          :class="['glass-input-number', { 'dark-theme': darkTheme }]"
+          :class="['glass-input-number']"
         />
         <div v-if="suffix" class="glass-input-number-suffix">{{ suffix }}</div>
       </div>
@@ -34,7 +33,6 @@
         class="glass-input-number-btn increase"
         @click="increase"
         :disabled="disabled || modelValue >= max"
-        :class="{ 'dark-theme': darkTheme }"
       >
         <slot name="increase-icon">+</slot>
       </button>
@@ -78,10 +76,6 @@ const props = defineProps({
   error: {
     type: String,
     default: ''
-  },
-  darkTheme: {
-    type: Boolean,
-    default: false
   },
   prefix: {
     type: String,

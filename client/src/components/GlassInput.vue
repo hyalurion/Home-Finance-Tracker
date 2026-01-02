@@ -1,5 +1,5 @@
 <template>
-  <div :class="['glass-input-container', { 'dark-theme': darkTheme }]">
+  <div :class="['glass-input-container']">
     <label v-if="label" :class="['glass-input-label', { 'error': error }]">{{ label }}</label>
     <div :class="['glass-input-wrapper', { 'focused': isFocused, 'error': error }]">
       <slot name="prefix"></slot>
@@ -85,10 +85,6 @@ const props = defineProps({
     default: 0,
   },
   showWordLimit: {
-    type: Boolean,
-    default: false,
-  },
-  darkTheme: {
     type: Boolean,
     default: false,
   },

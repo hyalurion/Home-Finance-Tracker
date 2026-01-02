@@ -5,10 +5,10 @@
       <h2 class="donation-modal-title">请开通会员<br>Please Activate Membership</h2>
       <p class="donation-modal-message">为了继续使用完整功能，请开通会员订阅。开通会员后您可以无限制使用所有功能。<br>To continue using all features, please activate a membership subscription. With an active membership, you can enjoy unlimited access to all functionalities.</p>
       <div class="donation-modal-footer">
-        <GlassButton type="primary" @click="proceedToMembership" :dark-theme="isDarkMode">
+        <GlassButton type="primary" @click="proceedToMembership">
           开通会员<br>Activate Membership
         </GlassButton>
-        <GlassButton type="primary" @click="exportMonthData" :dark-theme="isDarkMode">
+        <GlassButton type="primary" @click="exportMonthData">
           或者免费导出本月数据图片<br>Or avail yourself of the complimentary exportation for the current month's data schematic
         </GlassButton>
       </div>
@@ -41,7 +41,6 @@
            size="large" 
            class="android-download-btn"
            @click="openAndroidAppStore"
-           :dark-theme="isDarkMode"
            style="width: 100%;display: flex; justify-content: center; margin-bottom: 20px; white-space: normal; height: auto; line-height: 1.5; padding: 16px;"
          >
            <div style="text-align: center;">
@@ -66,9 +65,9 @@
       <!-- 桌面端网格布局 -->
       <div class="card-grid">
         <!-- 主要功能组 -->
-        <GlassCard :dark-theme="isDarkMode" :title="t('function.primary')">
+        <GlassCard :title="t('function.primary')">
           <div class="card-content">
-            <GlassButton type="primary" @click="showAddDialog = true" :dark-theme="isDarkMode">
+            <GlassButton type="primary" @click="showAddDialog = true">
               <template #icon><FontAwesomeIcon icon="plus" /></template>
               {{ t('expense.addRecord') }}
             </GlassButton>
@@ -81,13 +80,13 @@
               accept=".xlsx, .xls"
             >
               <template #default="{ triggerUpload }">
-                <GlassButton type="warning" @click="triggerUpload" :dark-theme="isDarkMode">
+                <GlassButton type="warning" @click="triggerUpload">
                   <template #icon><FontAwesomeIcon icon="upload" /></template>
                   {{ t('import.title') }}
                 </GlassButton>
               </template>
             </CustomUpload>
-            <GlassButton type="primary" @click="exportMonthData" :dark-theme="isDarkMode">
+            <GlassButton type="primary" @click="exportMonthData">
               <template #icon><FontAwesomeIcon icon="download" /></template>
               导出本月数据
             </GlassButton>
@@ -95,13 +94,13 @@
         </GlassCard>
         
         <!-- AI功能组 -->
-        <GlassCard :dark-theme="isDarkMode" :title="t('function.aiFeatures')">
+        <GlassCard :title="t('function.aiFeatures')">
           <div class="card-content">
-            <GlassButton type="primary" @click="showAiAddDialog = true" :dark-theme="isDarkMode">
+            <GlassButton type="primary" @click="showAiAddDialog = true">
               <template #icon><FontAwesomeIcon icon="microchip" /></template>
               AI智能记录
             </GlassButton>
-            <GlassButton type="primary" @click="showAiReportDialog = true" :dark-theme="isDarkMode">
+            <GlassButton type="primary" @click="showAiReportDialog = true">
               <template #icon><FontAwesomeIcon icon="file-alt" /></template>
               AI消费问答
             </GlassButton>
@@ -109,9 +108,9 @@
         </GlassCard>
         
         <!-- 其他组件组 -->
-        <GlassCard :dark-theme="isDarkMode" :title="t('function.other')">
+        <GlassCard :title="t('function.other')">
           <div class="card-content">
-            <GlassButton type="success" @click="goToMembership" :dark-theme="isDarkMode">
+            <GlassButton type="success" @click="goToMembership">
               <template #icon><FontAwesomeIcon icon="star" /></template>
               {{ t('membership.title') }}
             </GlassButton>
@@ -119,13 +118,13 @@
         </GlassCard>
 
         <!-- 支持与帮助组 -->
-        <GlassCard :dark-theme="isDarkMode" :title="t('function.support')">
+        <GlassCard :title="t('function.support')">
           <div class="card-content">
-            <GlassButton type="primary" @click="handleFeedback" :dark-theme="isDarkMode">
+            <GlassButton type="primary" @click="handleFeedback">
               <template #icon><FontAwesomeIcon icon="envelope" /></template>
               {{ t('feedback.title') }}
             </GlassButton>
-            <GlassButton type="primary" @click="goToHowToUse" :dark-theme="isDarkMode">
+            <GlassButton type="primary" @click="goToHowToUse">
               <template #icon><FontAwesomeIcon icon="question-circle" /></template>
               {{ t('howToUse.title') }}
             </GlassButton>
@@ -137,7 +136,7 @@
       <div class="mobile-buttons">
         <!-- 主要功能组按钮 -->
         <div v-if="selectedFunctionGroup === 'primary'" class="mobile-button-group">
-          <GlassButton type="primary" @click="showAddDialog = true" size="large" class="mobile-btn" :dark-theme="isDarkMode">
+          <GlassButton type="primary" @click="showAddDialog = true" size="large" class="mobile-btn" >
             <template #icon><FontAwesomeIcon icon="plus" /></template>
             {{ t('expense.addRecord') }}
           </GlassButton>
@@ -150,13 +149,13 @@
             accept=".xlsx, .xls"
           >
             <template #default="{ triggerUpload }">
-              <GlassButton type="warning" size="large" @click="triggerUpload" class="mobile-btn" :dark-theme="isDarkMode">
+              <GlassButton type="warning" size="large" @click="triggerUpload" class="mobile-btn">
                 <template #icon><FontAwesomeIcon icon="upload" /></template>
                 {{ t('import.title') }}
               </GlassButton>
             </template>
           </CustomUpload>
-          <GlassButton type="primary" @click="exportMonthData" size="large" class="mobile-btn" :dark-theme="isDarkMode">
+          <GlassButton type="primary" @click="exportMonthData" size="large" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="download" /></template>
             导出本月数据
           </GlassButton>
@@ -164,11 +163,11 @@
         
         <!-- AI功能组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'ai'" class="mobile-button-group">
-          <GlassButton type="primary" @click="showAiAddDialog = true" size="large" class="mobile-btn" :dark-theme="isDarkMode">
+          <GlassButton type="primary" @click="showAiAddDialog = true" size="large" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="microchip" /></template>
             AI智能记录
           </GlassButton>
-          <GlassButton type="primary" @click="showAiReportDialog = true" size="large" class="mobile-btn" :dark-theme="isDarkMode">
+          <GlassButton type="primary" @click="showAiReportDialog = true" size="large" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="file-alt" /></template>
             AI消费问答
           </GlassButton>
@@ -176,7 +175,7 @@
         
         <!-- 其他组件组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'other'" class="mobile-button-group">
-          <GlassButton type="success" @click="goToMembership" :dark-theme="isDarkMode" class="mobile-btn">
+          <GlassButton type="success" @click="goToMembership" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="star" /></template>
             {{ t('membership.title') }}
           </GlassButton>
@@ -184,11 +183,11 @@
         
         <!-- 关于我们组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'about'" class="mobile-button-group">
-          <GlassButton type="primary" @click="handleFeedback" :dark-theme="isDarkMode" class="mobile-btn">
+          <GlassButton type="primary" @click="handleFeedback" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="envelope" /></template>
             {{ t('feedback.title') }}
           </GlassButton>
-          <GlassButton type="primary" @click="goToHowToUse" :dark-theme="isDarkMode" class="mobile-btn">
+          <GlassButton type="primary" @click="goToHowToUse" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="question-circle" /></template>
             使用方法
           </GlassButton>
@@ -197,11 +196,11 @@
     </div>
 
     <!-- 月度消费限制显示 -->
-    <SpendingLimitDisplay :expenses="Expenses" :dark-theme="isDarkMode" />
+    <SpendingLimitDisplay :expenses="Expenses" />
     
     <!-- 图表分析按钮 -->
     <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-      <GlassButton type="primary" @click="goToCharts" :dark-theme="isDarkMode">
+      <GlassButton type="primary" @click="goToCharts" >
         <template #icon><FontAwesomeIcon icon="chart-pie" /></template>
         {{ t('chart.title') }}
       </GlassButton>
@@ -224,7 +223,7 @@
 
   <!-- 悬浮刷新按钮 -->
   <div class="floating-refresh-btn">
-    <GlassButton type="primary" @click="refreshPage()" :dark-theme="isDarkMode" circle>
+    <GlassButton type="primary" @click="refreshPage()" circle>
       <template #icon><FontAwesomeIcon icon="sync-alt" /></template>
     </GlassButton>
   </div>
@@ -232,7 +231,7 @@
   <!-- 自定义添加记录弹窗 -->
   <transition name="dialog-fade">
     <div v-if="showAddDialog" class="custom-dialog-overlay" @click.self="closeAddDialog">
-      <div class="custom-dialog" :class="{ 'dark-theme': isDarkMode }">
+      <div class="custom-dialog">
         <div class="dialog-header">
           <h3 class="dialog-title">{{ t('expense.addDialogTitle') }}</h3>
           <button class="dialog-close-btn" @click="closeAddDialog" aria-label="关闭">
@@ -309,7 +308,7 @@
   <!-- 编辑消费记录对话框 -->
   <transition name="dialog-fade">
     <div v-if="showEditDialog" class="custom-dialog-overlay" @click.self="showEditDialog = false">
-      <div class="custom-dialog" :class="{ 'dark-theme': isDarkMode }">
+      <div class="custom-dialog">
         <div class="dialog-header">
           <h3 class="dialog-title">{{ t('expense.edit') }}</h3>
           <button class="dialog-close-btn" @click="showEditDialog = false" aria-label="关闭">
@@ -386,7 +385,7 @@
   <!-- 删除确认对话框 -->
   <transition name="dialog-fade">
     <div v-if="showDeleteDialog" class="custom-dialog-overlay" @click.self="showDeleteDialog = false">
-      <div class="custom-dialog" :class="{ 'dark-theme': isDarkMode }">
+      <div class="custom-dialog">
         <div class="dialog-header">
           <h3 class="dialog-title">{{ t('expense.deleteConfirm') }}</h3>
           <button class="dialog-close-btn" @click="showDeleteDialog = false" aria-label="关闭">
@@ -407,7 +406,7 @@
   </transition>
 
   <!-- API密钥设置对话框 -->
-  <GlassDialog v-model:visible="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%" :dark-theme="isDarkMode" :z-index="9999">
+  <GlassDialog v-model:visible="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%" :z-index="9999">
     <GlassForm :model="apiKeyForm" ref="apiKeyFormRef">
       <GlassFormItem :label="'API密钥'" prop="apiKey">
         <GlassInput
@@ -415,7 +414,6 @@
           placeholder="请输入您的SiliconFlow API密钥"
           type="password"
           show-password
-          :dark-theme="isDarkMode"
         ></GlassInput>
       </GlassFormItem>
         <div style="margin-top: 10px; font-size: 12px;">
@@ -423,13 +421,13 @@
         </div>
     </GlassForm>
     <template #footer>
-      <GlassButton @click="showApiKeyDialog = false" :dark-theme="isDarkMode">取消</GlassButton>
-      <GlassButton type="primary" @click="handleApiKeySave" :dark-theme="isDarkMode">保存</GlassButton>
+      <GlassButton @click="showApiKeyDialog = false">取消</GlassButton>
+      <GlassButton type="primary" @click="handleApiKeySave">保存</GlassButton>
     </template>
   </GlassDialog>
 
   <!-- AI智能记录对话框 -->
-  <GlassDialog v-model:visible="showAiAddDialog" title="AI智能记录" width="80%" :dark-theme="isDarkMode">
+  <GlassDialog v-model:visible="showAiAddDialog" title="AI智能记录" width="80%">
     <GlassForm :model="aiForm" ref="aiFormRef">
       <GlassFormItem :label="'输入文本描述'">
         <GlassInput
@@ -437,7 +435,6 @@
           type="textarea"
           :rows="4"
           placeholder="请输入消费记录的详细描述，例如：今天上午在超市买了苹果和牛奶，共花费56.8元。"
-          :dark-theme="isDarkMode"
         ></GlassInput>
       </GlassFormItem>
       <GlassFormItem :label="'或上传图片'">
@@ -450,9 +447,8 @@
           :show-file-list="true"
           :multiple="true"
           accept=".jpg,.jpeg,.png,.gif"
-          :dark-theme="isDarkMode"
         >
-          <GlassButton size="small" type="primary" :dark-theme="isDarkMode">点击上传</GlassButton>
+          <GlassButton size="small" type="primary">点击上传</GlassButton>
           <template #tip>
             <div class="glass-upload__tip">
               请上传包含消费信息的图片（如收据、账单截图等）
@@ -460,11 +456,10 @@
           </template>
         </GlassUpload>
       </GlassFormItem>
-      <div :class="['api-key-prompt', { 'dark-theme': isDarkMode }]">
+      <div :class="['api-key-prompt']">
         <GlassButton 
           type="info" 
           @click="showApiKeyDialog = true" 
-          :dark-theme="isDarkMode" 
           size="small"
           style="margin: 0 auto; display: block;"
         >
@@ -473,28 +468,28 @@
       </div>
     </GlassForm>
     <template #footer>
-      <GlassButton @click="handleAiCancel" :dark-theme="isDarkMode">{{ t('common.cancel') }}</GlassButton>
-      <GlassButton type="primary" @click="handleAiGenerate" :disabled="isParsing" :dark-theme="isDarkMode">
+      <GlassButton @click="handleAiCancel">{{ t('common.cancel') }}</GlassButton>
+      <GlassButton type="primary" @click="handleAiGenerate" :disabled="isParsing">
         {{ isParsing ? '生成中...' : '生成记录' }}
       </GlassButton>
     </template>
   </GlassDialog>
 
   <!-- 多条记录编辑对话框 -->
-  <GlassDialog v-model:visible="showMultiRecordsDialog" title="AI生成的多条记录" width="90%" :dark-theme="isDarkMode">
+  <GlassDialog v-model:visible="showMultiRecordsDialog" title="AI生成的多条记录" width="90%">
     <div v-if="multiRecords.length === 0" class="no-records">
       {{ t('expense.noRecords') }}
     </div>
     <div v-else class="multi-records-container">
       <!-- 全选功能 -->
       <div class="select-all-container" style="margin-bottom: 20px;">
-        <GlassCheckbox v-model="selectAll" @change="handleSelectAllChange" :dark-theme="isDarkMode">{{ t('common.selectAll') }}</GlassCheckbox>
+        <GlassCheckbox v-model="selectAll" @change="handleSelectAllChange">{{ t('common.selectAll') }}</GlassCheckbox>
       </div>
       
       <!-- 记录列表 -->
       <div v-for="(record, index) in multiRecords" :key="index" class="record-item" style="margin-bottom: 15px; padding: 15px; border: 1px solid #e4e7ed; border-radius: 4px;">
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <GlassCheckbox v-model="record.selected" @change="handleRecordSelectChange" :dark-theme="isDarkMode"></GlassCheckbox>
+          <GlassCheckbox v-model="record.selected" @change="handleRecordSelectChange"></GlassCheckbox>
           <span style="margin-left: 10px; font-weight: 500;">{{ t('expense.record') }} {{ index + 1 }}</span>
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 15px;">
@@ -509,7 +504,7 @@
           </div>
           <div style="flex: 1; min-width: 200px;">
             <label style="display: block; margin-bottom: 5px;">{{ t('expense.amount') }}:</label>
-            <GlassInput v-model="record.amount" :placeholder="0" type="text" style="width: 100%;" :dark-theme="isDarkMode" />
+            <GlassInput v-model="record.amount" :placeholder="0" type="text" style="width: 100%;" />
           </div>
           <div style="flex: 1; min-width: 200px;">
             <label style="display: block; margin-bottom: 5px;">{{ t('expense.date') }}:</label>
@@ -518,18 +513,18 @@
         </div>
         <div style="margin-top: 15px;">
           <label style="display: block; margin-bottom: 5px;">{{ t('expense.remark') }}:</label>
-          <GlassInput v-model="record.remark" :placeholder="t('expense.enterRemark')" type="textarea" :rows="2" style="width: 100%;" :dark-theme="isDarkMode"></GlassInput>
+          <GlassInput v-model="record.remark" :placeholder="t('expense.enterRemark')" type="textarea" :rows="2" style="width: 100%;"></GlassInput>
         </div>
       </div>
     </div>
     <template #footer>
-      <GlassButton @click="handleMultiRecordsCancel" :dark-theme="isDarkMode">{{ t('common.cancel') }}</GlassButton>
-      <GlassButton type="primary" @click="handleMultiRecordsSubmit" :dark-theme="isDarkMode">{{ t('common.submit') }} ({{ selectedRecordsCount }}/{{ multiRecords.length }})</GlassButton>
+      <GlassButton @click="handleMultiRecordsCancel">{{ t('common.cancel') }}</GlassButton>
+      <GlassButton type="primary" @click="handleMultiRecordsSubmit">{{ t('common.submit') }} ({{ selectedRecordsCount }}/{{ multiRecords.length }})</GlassButton>
     </template>
   </GlassDialog>
 
   <!-- AI消费问答对话框 -->
-  <GlassDialog v-model:visible="showAiReportDialog" title="AI消费问答" width="90%" height="80vh" :dark-theme="isDarkMode">
+  <GlassDialog v-model:visible="showAiReportDialog" title="AI消费问答" width="90%" height="80vh">
     <div class="ai-report-container">
       <!-- 问题输入区域 -->
       <div class="report-question-section" style="margin-bottom: 10px;">
@@ -537,7 +532,6 @@
           <GlassFormItem label="输入您的问题">
             <GlassButton 
               @click="clearReportQuestion" 
-              :dark-theme="isDarkMode"
               style="position: absolute; top: 15px; right: 15px; width: 30px; height: 30px; padding: 0;"
             >×</GlassButton>
             <GlassInput
@@ -545,11 +539,10 @@
               type="textarea"
               :rows="3"
               placeholder="您可以向AI提问关于您的消费情况，例如：'我本月的主要消费类别是什么？'或'如何减少我的日常开支？'"
-              :dark-theme="isDarkMode"
             />
           </GlassFormItem>
             <div style=" display: flex; justify-content: center; flex-wrap: wrap;">
-              <GlassButton type="primary" @click="handleGenerateReport" :disabled="isGeneratingReport" :dark-theme="isDarkMode">
+              <GlassButton type="primary" @click="handleGenerateReport" :disabled="isGeneratingReport">
                 {{ isGeneratingReport ? '生成中...' : '生成' }}
               </GlassButton>
             </div>
@@ -1246,16 +1239,6 @@ const formErrors = reactive({
   amount: '',
   date: ''
 });
-
-// 检测深色模式
-const isDarkMode = ref(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-// 监听深色模式变化
-if (window.matchMedia) {
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    isDarkMode.value = e.matches;
-  });
-}
 
 // 关闭添加对话框
 const closeAddDialog = () => {
@@ -2434,9 +2417,11 @@ body.donation-modal-open {
   transition: all 0.3s ease;
 }
 
-.custom-dialog.dark-theme {
+@media (prefers-color-scheme: dark) {
+.custom-dialog {
   background: #2d3748;
   color: #e2e8f0;
+}
 }
 
 /* 对话框动画 */
@@ -2477,8 +2462,10 @@ body.donation-modal-open {
   border-bottom: 1px solid #e2e8f0;
 }
 
-.custom-dialog.dark-theme .dialog-header {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .dialog-header {
   border-bottom-color: #4a5568;
+}
 }
 
 .dialog-title {
@@ -2488,8 +2475,10 @@ body.donation-modal-open {
   color: #1a202c;
 }
 
-.custom-dialog.dark-theme .dialog-title {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .dialog-title {
   color: #f7fafc;
+}
 }
 
 .dialog-close-btn {
@@ -2513,9 +2502,11 @@ body.donation-modal-open {
   color: #4a5568;
 }
 
-.custom-dialog.dark-theme .dialog-close-btn:hover {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .dialog-close-btn:hover {
   background-color: #4a5568;
   color: #e2e8f0;
+}
 }
 
 .dialog-body {
@@ -2542,8 +2533,10 @@ body.donation-modal-open {
   color: #2d3748;
 }
 
-.custom-dialog.dark-theme .form-label {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .form-label {
   color: #e2e8f0;
+}
 }
 
 .form-label.error {
@@ -2561,12 +2554,14 @@ body.donation-modal-open {
   color: #1a202c;
 }
 
-.custom-dialog.dark-theme .form-select,
-.custom-dialog.dark-theme .form-input,
-.custom-dialog.dark-theme .form-textarea {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .form-select,
+.custom-dialog .form-input,
+.custom-dialog .form-textarea {
   background-color: #4a5568;
   border-color: #718096;
   color: #e2e8f0;
+}
 }
 
 .form-select:hover,
@@ -2575,10 +2570,12 @@ body.donation-modal-open {
   border-color: #cbd5e0;
 }
 
-.custom-dialog.dark-theme .form-select:hover,
-.custom-dialog.dark-theme .form-input:hover,
-.custom-dialog.dark-theme .form-textarea:hover {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .form-select:hover,
+.custom-dialog .form-input:hover,
+.custom-dialog .form-textarea:hover {
   border-color: #a0aec0;
+}
 }
 
 .form-select:focus,
@@ -2589,10 +2586,12 @@ body.donation-modal-open {
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
 }
 
-.custom-dialog.dark-theme .form-select:focus,
-.custom-dialog.dark-theme .form-input:focus,
-.custom-dialog.dark-theme .form-textarea:focus {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .form-select:focus,
+.custom-dialog .form-input:focus,
+.custom-dialog .form-textarea:focus {
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
 }
 
 .form-select.error,
@@ -2605,9 +2604,11 @@ body.donation-modal-open {
   box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
 }
 
-.custom-dialog.dark-theme .form-select.error:focus,
-.custom-dialog.dark-theme .form-input.error:focus {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .form-select.error:focus,
+.custom-dialog .form-input.error:focus {
   box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.2);
+}
 }
 
 .form-textarea {
@@ -2628,8 +2629,10 @@ body.donation-modal-open {
   border-top: 1px solid #e2e8f0;
 }
 
-.custom-dialog.dark-theme .dialog-footer {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .dialog-footer {
   border-top-color: #4a5568;
+}
 }
 
 .btn {
@@ -2652,13 +2655,15 @@ body.donation-modal-open {
   background-color: #edf2f7;
 }
 
-.custom-dialog.dark-theme .btn-secondary {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .btn-secondary {
   background-color: #4a5568;
   color: #e2e8f0;
 }
 
-.custom-dialog.dark-theme .btn-secondary:hover {
+.custom-dialog .btn-secondary:hover {
   background-color: #718096;
+}
 }
 
 .btn-primary {
@@ -2670,12 +2675,14 @@ body.donation-modal-open {
   background-color: #3182ce;
 }
 
-.custom-dialog.dark-theme .btn-primary {
+@media (prefers-color-scheme: dark) {
+.custom-dialog .btn-primary {
   background-color: #3182ce;
 }
 
-.custom-dialog.dark-theme .btn-primary:hover {
+.custom-dialog .btn-primary:hover {
   background-color: #2c5282;
+}
 }
 
 /* 功能组样式 */

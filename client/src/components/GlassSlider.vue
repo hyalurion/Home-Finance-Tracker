@@ -1,8 +1,8 @@
 <template>
-  <div :class="['glass-slider-container', { 'dark-theme': darkTheme }]">
+  <div :class="['glass-slider-container']">
     <div v-if="label" class="glass-slider-label">{{ label }}</div>
     <div 
-      :class="['glass-slider', { 'disabled': disabled, 'dark-theme': darkTheme }]"
+      :class="['glass-slider', { 'disabled': disabled }]"
       :style="sliderStyle"
       @mousedown="handleMouseDown"
       @touchstart="handleTouchStart"
@@ -68,10 +68,6 @@ const props = defineProps({
     type: String,
     default: '#3b82f6'
   },
-  darkTheme: {
-    type: Boolean,
-    default: false
-  }
 })
 
 const emit = defineEmits(['update:modelValue', 'change'])
@@ -225,21 +221,23 @@ onUnmounted(() => {
 }
 
 /* Dark theme */
-.glass-slider-container.dark-theme .glass-slider-label {
+@media (prefers-color-scheme: dark) {
+.glass-slider-container .glass-slider-label {
   color: #cbd5e0;
 }
 
-.glass-slider-container.dark-theme .glass-slider {
+.glass-slider-container .glass-slider {
   background: rgba(26, 32, 44, 0.5);
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.glass-slider-container.dark-theme .glass-slider-thumb {
+.glass-slider-container .glass-slider-thumb {
   border-color: rgba(26, 32, 44, 0.8);
 }
 
-.glass-slider-container.dark-theme .glass-slider-value {
+.glass-slider-container .glass-slider-value {
   color: #cbd5e0;
+}
 }
 </style>

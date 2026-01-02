@@ -1,6 +1,6 @@
 <template>
-  <div :class="['glass-checkbox-container', { 'dark-theme': darkTheme }]">
-    <label :class="['glass-checkbox-wrapper', { 'disabled': disabled, 'dark-theme': darkTheme }]">
+  <div :class="['glass-checkbox-container']">
+    <label :class="['glass-checkbox-wrapper', { 'disabled': disabled }]">
       <input 
         ref="checkboxRef"
         type="checkbox"
@@ -10,7 +10,7 @@
         class="glass-checkbox-input"
       />
       <div 
-        :class="['glass-checkbox-box', { 'checked': modelValue, 'disabled': disabled, 'dark-theme': darkTheme }]"
+        :class="['glass-checkbox-box', { 'checked': modelValue, 'disabled': disabled }]"
       >
         <slot name="check-icon">
           <svg v-if="modelValue" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -155,38 +155,40 @@ const handleChange = (e) => {
 }
 
 /* Dark theme */
-.glass-checkbox-container.dark-theme .glass-checkbox-label {
+@media (prefers-color-scheme: dark) {
+.glass-checkbox-container .glass-checkbox-label {
   color: #cbd5e0;
 }
 
-.glass-checkbox-container.dark-theme .glass-checkbox-box {
+.glass-checkbox-container .glass-checkbox-box {
   background: rgba(26, 32, 44, 0.5);
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   color: #60a5fa;
 }
 
-.glass-checkbox-container.dark-theme .glass-checkbox-box:hover:not(.disabled) {
+.glass-checkbox-container .glass-checkbox-box:hover:not(.disabled) {
   background: rgba(45, 55, 72, 0.7);
   border-color: rgba(255, 255, 255, 0.25);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.glass-checkbox-container.dark-theme .glass-checkbox-box.checked {
+.glass-checkbox-container .glass-checkbox-box.checked {
   background: rgba(96, 165, 250, 0.3);
   border-color: #60a5fa;
 }
 
-.glass-checkbox-container.dark-theme .glass-checkbox-box.checked:hover:not(.disabled) {
+.glass-checkbox-container .glass-checkbox-box.checked:hover:not(.disabled) {
   background: rgba(96, 165, 250, 0.4);
 }
 
-.glass-checkbox-container.dark-theme .glass-checkbox-box.disabled {
+.glass-checkbox-container .glass-checkbox-box.disabled {
   background: rgba(26, 32, 44, 0.3);
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-.glass-checkbox-container.dark-theme .glass-checkbox-wrapper.disabled .glass-checkbox-label {
+.glass-checkbox-container .glass-checkbox-wrapper.disabled .glass-checkbox-label {
   color: #718096;
+}
 }
 </style>

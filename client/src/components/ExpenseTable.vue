@@ -142,31 +142,6 @@ export default {
   },
 
   setup (props, { emit }) {
-    const isDarkMode = ref(false);
-    
-    // 检测当前系统主题
-    const checkDarkMode = () => {
-      const newMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (newMode !== isDarkMode.value) {
-        console.log('Dark mode changed:', { from: isDarkMode.value, to: newMode });
-        isDarkMode.value = newMode;
-      }
-    };
-    
-    // 初始化检测
-    checkDarkMode();
-    
-    // 监听主题变化
-    onMounted(() => {
-      console.log('ExpenseTable component mounted:', { initialDarkMode: isDarkMode.value });
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', checkDarkMode);
-    });
-    
-    // 清理监听器
-    onUnmounted(() => {
-      window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', checkDarkMode);
-    });
-
     const formatDate = (dateString) => {
       // 直接返回YYYY-MM-DD格式的日期字符串，不再需要转换
       return dateString || '';
@@ -199,7 +174,6 @@ export default {
       getTypeColor,
       formatDate,
       calculateDailyTotal,
-      isDarkMode,
       handleEdit,
       handleDelete
     };
