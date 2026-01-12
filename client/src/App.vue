@@ -1,7 +1,6 @@
 <template>
     <Suspense>
       <div class="app-root">
-        <SplashScreen />
         <router-view />
       </div>
       <template #fallback>
@@ -14,7 +13,6 @@
 <script setup>
 import { watchEffect, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import SplashScreen from './components/SplashScreen.vue';
 
 const { t } = useI18n();
 
