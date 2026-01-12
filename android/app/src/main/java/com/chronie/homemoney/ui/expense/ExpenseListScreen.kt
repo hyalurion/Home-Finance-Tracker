@@ -7,6 +7,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -233,7 +238,7 @@ fun ExpenseListScreen(
                                 items = expenses,
                                 key = { expense -> "expense_${expense.id}" }
                             ) { expense ->
-                                SwipeableExpenseItem(
+                                LongPressExpenseItem(
                                     expense = expense,
                                     context = context,
                                     onEdit = { onNavigateToEditExpense(expense.id) },
@@ -406,61 +411,25 @@ fun StatisticItem(
 }
 
 /**
- * 可滑动的支出列表项
+ * 长按触发的支出列表项
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SwipeableExpenseItem(
+fun LongPressExpenseItem(
     expense: Expense,
     context: android.content.Context,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 滑动偏移量
-    val swipeOffset = remember { mutableStateOf(0f) }
-    // 动画偏移量
-    val animatedOffset by animateDpAsState(
-        targetValue = swipeOffset.value.dp,
-        label = "Swipe offset"
-    )
-    // 滑动阈值 - 增大值使滑动更容易被检测
-    val swipeThreshold = 100.dp
-    
-    // 检查是否正在执行操作 - 提前定义，确保在handleSwipeEnd中可用
-    val isPerformingAction = remember { mutableStateOf(false) }
+    // 底部托盘菜单显示状态
+    val showBottomSheetMenu = remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState()
     
     // 弹窗状态 - 第一次确认
     val showFirstConfirmDialog = remember { mutableStateOf(false) }
     // 弹窗状态 - 第二次确认
     val showSecondConfirmDialog = remember { mutableStateOf(false) }
-    
-    // 重置滑动状态
-    fun resetSwipe() {
-        swipeOffset.value = 0f
-    }
-    
-    // 处理滑动结束 - 符合MD3规范，直接触发操作
-    fun handleSwipeEnd() {
-        when {
-            // 调整阈值比较，使操作更容易触发
-            swipeOffset.value > swipeThreshold.value / 3 -> {
-                // 从左向右滑动超过阈值，直接触发编辑操作
-                onEdit()
-                isPerformingAction.value = true
-                resetSwipe()
-            }
-            swipeOffset.value < -swipeThreshold.value / 3 -> {
-                // 从右向左滑动超过阈值，显示第一次确认弹窗
-                isPerformingAction.value = true
-                resetSwipe()
-                showFirstConfirmDialog.value = true
-            }
-            else -> {
-                // 未超过阈值，重置
-                resetSwipe()
-            }
-        }
-    }
     
     // 处理第一次确认
     fun handleFirstConfirm() {
@@ -471,6 +440,7 @@ fun SwipeableExpenseItem(
     // 处理第二次确认
     fun handleSecondConfirm() {
         showSecondConfirmDialog.value = false
+        showBottomSheetMenu.value = false
         onDelete()
     }
     
@@ -480,100 +450,129 @@ fun SwipeableExpenseItem(
         showSecondConfirmDialog.value = false
     }
     
+    // 显示删除确认
+    fun showDeleteConfirm() {
+        showBottomSheetMenu.value = false
+        showFirstConfirmDialog.value = true
+    }
+    
+    // 使用传递的context来获取本地化字符串
+    val typeDisplayName = ExpenseTypeLocalizer.getLocalizedName(context, expense.type)
+    
     Box(modifier = modifier.fillMaxWidth()) {
-        // 背景操作按钮 - 只有在滑动时显示
-        Row(
-            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // 左侧编辑按钮背景 - 只在向右滑动时显示
-            if (swipeOffset.value > 0) {
-                Surface(
+        // 支出列表项 - 添加长按检测
+        ExpenseListItem(
+            expense = expense,
+            context = context,
+            modifier = Modifier
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            showBottomSheetMenu.value = true
+                        }
+                    )
+                }
+        )
+        
+        // 底部托盘菜单 - 使用ModalBottomSheet
+        if (showBottomSheetMenu.value) {
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheetMenu.value = false },
+                sheetState = bottomSheetState,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                containerColor = MaterialTheme.colorScheme.surface,
+                dragHandle = { BottomSheetDefaults.DragHandle() }
+            ) {
+                Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    color = MaterialTheme.colorScheme.primaryContainer
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        IconButton(
+                    // 选中记录的详细信息
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = typeDisplayName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        if (!expense.remark.isNullOrBlank()) {
+                            Text(
+                                text = expense.remark,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = expense.date,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = String.format(Locale.getDefault(), "-¥%.2f", expense.amount),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                    
+                    // 操作按钮
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // 编辑按钮
+                        Button(
                             onClick = {
+                                showBottomSheetMenu.value = false
                                 onEdit()
-                                resetSwipe()
                             },
-                            modifier = Modifier
-                                .padding(start = 16.dp)
-                                .align(Alignment.CenterStart)
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Edit,
                                 contentDescription = "Edit",
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(20.dp)
                             )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = context.getString(R.string.edit))
                         }
-                    }
-                }
-            }
-            
-            // 右侧删除按钮背景 - 只在向左滑动时显示
-            if (swipeOffset.value < 0) {
-                Surface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    color = MaterialTheme.colorScheme.errorContainer
-                ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        IconButton(
+                        
+                        // 删除按钮
+                        Button(
                             onClick = {
-                                onDelete()
-                                resetSwipe()
+                                showDeleteConfirm()
                             },
-                            modifier = Modifier
-                                .padding(end = 16.dp)
-                                .align(Alignment.CenterEnd)
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                            )
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Delete,
                                 contentDescription = "Delete",
-                                tint = MaterialTheme.colorScheme.onErrorContainer,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(20.dp)
                             )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = context.getString(R.string.delete))
                         }
                     }
                 }
             }
         }
-        
-        // 可滑动的主要内容
-        ExpenseListItem(
-            expense = expense,
-            context = context,
-            modifier = Modifier
-                .offset(x = animatedOffset)
-                .pointerInput(Unit) {
-                    detectHorizontalDragGestures(
-                        onHorizontalDrag = { change, dragAmount ->
-                            if (isPerformingAction.value) return@detectHorizontalDragGestures
-                            
-                            // 更新偏移量，但限制在阈值范围内
-                            val newOffset = swipeOffset.value + dragAmount
-                            swipeOffset.value = when {
-                                newOffset > swipeThreshold.value -> swipeThreshold.value
-                                newOffset < -swipeThreshold.value -> -swipeThreshold.value
-                                else -> newOffset
-                            }
-                            change.consume()
-                        },
-                        onDragEnd = {
-                            if (!isPerformingAction.value) {
-                                handleSwipeEnd()
-                            }
-                            isPerformingAction.value = false
-                        }
-                    )
-                }
-        )
         
         // 第一次确认弹窗
         if (showFirstConfirmDialog.value) {
