@@ -1,6 +1,7 @@
 package com.chronie.homemoney.ui.settings
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -1027,14 +1028,9 @@ fun SyncSection(
     // 显示同步消息
     syncMessage?.let { message ->
         LaunchedEffect(message) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             kotlinx.coroutines.delay(3000)
             viewModel.clearSyncMessage()
-        }
-        
-        Snackbar(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(text = message)
         }
     }
     
