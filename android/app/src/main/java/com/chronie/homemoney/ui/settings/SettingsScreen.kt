@@ -351,8 +351,29 @@ fun SettingsScreen(
             }
             
             Spacer(modifier = Modifier.height(16.dp))
+            
+            // 应用版本信息
+            AppVersionInfo(context = context)
         }
     }
+}
+
+
+@Composable
+fun AppVersionInfo(context: Context) {
+    val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+    val versionName = packageInfo.versionName
+    val versionCode = packageInfo.versionCode
+    
+    Text(
+        text = "Version $versionName ($versionCode)",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, bottom = 8.dp)
+            .wrapContentWidth(Alignment.CenterHorizontally)
+    )
 }
 
 
