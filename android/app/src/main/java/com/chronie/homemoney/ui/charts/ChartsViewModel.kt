@@ -58,6 +58,14 @@ class ChartsViewModel @Inject constructor(
         loadStatistics()
     }
     
+    fun setCustomStartDate(startDate: LocalDate) {
+        _customStartDate.value = startDate
+    }
+    
+    fun setCustomEndDate(endDate: LocalDate) {
+        _customEndDate.value = endDate
+    }
+    
     fun refresh() {
         loadStatistics()
     }
@@ -137,6 +145,12 @@ class ChartsViewModel @Inject constructor(
                 val startOfMonth = today.with(TemporalAdjusters.firstDayOfMonth())
                 val endOfMonth = today.with(TemporalAdjusters.lastDayOfMonth())
                 Pair(startOfMonth, endOfMonth)
+            }
+            TimeRange.LAST_MONTH -> {
+                val lastMonth = today.minusMonths(1)
+                val startOfLastMonth = lastMonth.with(TemporalAdjusters.firstDayOfMonth())
+                val endOfLastMonth = lastMonth.with(TemporalAdjusters.lastDayOfMonth())
+                Pair(startOfLastMonth, endOfLastMonth)
             }
             TimeRange.THIS_QUARTER -> {
                 val currentMonth = today.monthValue

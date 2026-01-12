@@ -257,6 +257,7 @@
     <string name="select_time_range">選擇時間範圍</string>
     <string name="this_week">本周</string>
     <string name="this_month">本月</string>
+    <string name="last_month">上月</string>
     <string name="this_quarter">本季度</string>
     <string name="this_year">今年</string>
     <string name="custom_range">自訂</string>

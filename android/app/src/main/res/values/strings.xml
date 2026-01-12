@@ -258,6 +258,7 @@
     <string name="select_time_range">Time Period</string>
     <string name="this_week">This Week</string>
     <string name="this_month">This Month</string>
+    <string name="last_month">Last Month</string>
     <string name="this_quarter">This Quarter</string>
     <string name="this_year">This Year</string>
     <string name="custom_range">Custom</string>
