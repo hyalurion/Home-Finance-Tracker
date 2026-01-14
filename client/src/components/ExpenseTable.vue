@@ -51,7 +51,7 @@
                 </span>
               </td>
               <td class="amount-cell">¥{{ expense.amount.toFixed(2) }}</td>
-              <td>{{ expense.remark || '-' }}</td>
+              <td class="remark-cell">{{ expense.remark || '-' }}</td>
               <td>
                 <div class="action-buttons">
                   <button class="edit-btn" @click="handleEdit(expense)">
@@ -360,6 +360,15 @@ export default {
     color: #333;
     flex: 1;
     word-break: break-word;
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+
+  .remark-cell {
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    min-height: 40px;
   }
 
   .card-actions {
@@ -547,6 +556,10 @@ export default {
   }
 
   .amount-cell {
+    color: #e0e0e0;
+  }
+
+  .remark-cell {
     color: #e0e0e0;
   }
 
