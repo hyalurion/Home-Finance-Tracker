@@ -15,7 +15,7 @@
 
       <div class="header-actions">
       <!-- 头像显示 -->
-      <div v-if="avatarUrl" class="user-avatar-container" @click="goToMembership">
+      <div class="user-avatar-container" @click="goToMembership">
         <img :src="avatarUrl" alt="User Avatar" class="user-avatar" />
       </div>
       </div>
@@ -78,8 +78,12 @@ const getCurrentUserAvatar = () => {
   return localStorage.getItem('avatar-' + username) || '';
 };
 
-// 计算属性获取头像URL
-const avatarUrl = computed(() => getCurrentUserAvatar());
+// 计算属性获取头像URL，没有头像时返回默认空白头像
+const avatarUrl = computed(() => {
+  const avatar = getCurrentUserAvatar();
+  // 如果没有头像，返回一个默认的空白头像SVG
+  return avatar || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="%23e0e0e0"/><circle cx="20" cy="15" r="5" fill="%23999999"/><path d="M10 30C10 28.3431 11.3431 27 13 27H27C28.6569 27 30 28.3431 30 30V32C30 33.6569 28.6569 35 27 35H13C11.3431 35 10 33.6569 10 32V30Z" fill="%23999999"/></svg>';
+});
 
 // 从后端获取用户信息和头像
 const fetchUserInfo = async () => {
