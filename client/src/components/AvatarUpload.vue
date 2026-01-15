@@ -171,6 +171,12 @@ const initCanvas = () => {
   canvas.value.addEventListener('mousemove', handleMouseMove)
   canvas.value.addEventListener('mouseup', handleMouseUp)
   canvas.value.addEventListener('mouseleave', handleMouseUp)
+  
+  // 添加触控事件处理
+  canvas.value.addEventListener('touchstart', handleTouchStart)
+  canvas.value.addEventListener('touchmove', handleTouchMove)
+  canvas.value.addEventListener('touchend', handleTouchEnd)
+  canvas.value.addEventListener('touchcancel', handleTouchCancel)
 }
 
 // 绘制图像
@@ -265,6 +271,53 @@ const handleMouseUp = () => {
   isDragging.value = false
 }
 
+// 触控事件处理
+const handleTouchStart = (e) => {
+  e.preventDefault() // 防止页面滚动
+  if (e.touches.length > 0) {
+    isDragging.value = true
+    const touch = e.touches[0]
+    const rect = canvas.value.getBoundingClientRect()
+    lastMousePos.value = {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top
+    }
+  }
+}
+
+const handleTouchMove = (e) => {
+  e.preventDefault() // 防止页面滚动
+  if (!isDragging.value || e.touches.length === 0) return
+
+  const touch = e.touches[0]
+  const rect = canvas.value.getBoundingClientRect()
+  const currentX = touch.clientX - rect.left
+  const currentY = touch.clientY - rect.top
+
+  const deltaX = currentX - lastMousePos.value.x
+  const deltaY = currentY - lastMousePos.value.y
+
+  imagePosition.value = {
+    x: imagePosition.value.x + deltaX,
+    y: imagePosition.value.y + deltaY
+  }
+
+  lastMousePos.value = {
+    x: currentX,
+    y: currentY
+  }
+
+  drawImage()
+}
+
+const handleTouchEnd = () => {
+  isDragging.value = false
+}
+
+const handleTouchCancel = () => {
+  isDragging.value = false
+}
+
 // 关闭裁剪窗口
 const closeCropper = () => {
   showCropper.value = false
@@ -278,6 +331,12 @@ const closeCropper = () => {
     canvas.value.removeEventListener('mousemove', handleMouseMove)
     canvas.value.removeEventListener('mouseup', handleMouseUp)
     canvas.value.removeEventListener('mouseleave', handleMouseUp)
+    
+    // 移除触控事件监听
+    canvas.value.removeEventListener('touchstart', handleTouchStart)
+    canvas.value.removeEventListener('touchmove', handleTouchMove)
+    canvas.value.removeEventListener('touchend', handleTouchEnd)
+    canvas.value.removeEventListener('touchcancel', handleTouchCancel)
   }
 }
 
@@ -496,6 +555,7 @@ watch(
   cursor: move;
   background: rgba(255, 255, 255, 0.9);
   display: block;
+  touch-action: none; /* 禁用浏览器默认的触摸行为 */
 }
 
 .zoom-slider {
