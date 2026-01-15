@@ -36,23 +36,27 @@
     <!-- 用户信息和当前会员状态 -->
     <div class="user-info-card" v-if="isLoggedIn && userInfo">
       <h2>{{ $t('membership.userInfo') }}</h2>
-      <AvatarUpload
-        v-model="avatarUrl"
-        @avatar-uploaded="handleAvatarUploaded"
-        :max-size="10"
-        :size="100"
-        :username="userInfo?.username"
-      />
-      <p>{{ userInfo.username }}</p>
-      <p v-if="currentSubscription">
-        {{ $t('membership.currentPlan') }}: {{ currentSubscription.SubscriptionPlan?.name }}
-      </p>
-      <p v-if="currentSubscription">
-        {{ $t('membership.expiresOn') }}: {{ formatDate(currentSubscription.endDate) }}
-      </p>
-      <p v-if="!currentSubscription">
-        {{ $t('membership.noActiveSubscription') }}
-      </p>
+      <div class="user-info-content">
+        <AvatarUpload
+          v-model="avatarUrl"
+          @avatar-uploaded="handleAvatarUploaded"
+          :max-size="10"
+          :size="100"
+          :username="userInfo?.username"
+        />
+        <div class="user-details">
+          <p>{{ userInfo.username }}</p>
+          <p v-if="currentSubscription">
+            {{ currentSubscription.SubscriptionPlan?.name }}
+          </p>
+          <p v-if="currentSubscription">
+            {{ $t('membership.expiresOn') }}: {{ formatDate(currentSubscription.endDate) }}
+          </p>
+          <p v-if="!currentSubscription">
+            {{ $t('membership.noActiveSubscription') }}
+          </p>
+        </div>
+      </div>
       <GlassButton 
         type="warning" 
         @click="logout"
