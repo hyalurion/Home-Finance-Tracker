@@ -46,7 +46,7 @@
             <tr v-for="(expense, index) in expenses" :key="expense.id" :data-index="index">
               <td>{{ formatDate(expense.date) }}</td>
               <td>
-                <span class="type-tag" :style="{ '--tag-color': getTypeColor(expense.type, isDarkMode) }">
+                <span class="type-tag" :style="{ '--tag-color': getTypeColor(expense.type) }">
                   {{ expense.type }}
                 </span>
               </td>
@@ -89,7 +89,7 @@
             <div class="card-body">
               <div class="type-section">
                 <span class="type-label">{{ $t('expense.type') }}:</span>
-                <span class="type-tag" :style="{ '--tag-color': getTypeColor(expense.type, isDarkMode) }">
+                <span class="type-tag" :style="{ '--tag-color': getTypeColor(expense.type) }">
                     {{ expense.type }}
                 </span>
               </div>

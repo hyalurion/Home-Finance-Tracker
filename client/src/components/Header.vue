@@ -57,15 +57,48 @@ const languages = [
   { code: 'zh-TW', label: '繁體中文', shortLabel: '繁' }
 ];
 
+// 从本地存储获取用户名
+const getUsername = () => {
+  return localStorage.getItem('username') || '';
+};
+
 // 从本地存储获取当前用户头像
 const getCurrentUserAvatar = () => {
-  const username = localStorage.getItem('username');
+  const username = getUsername();
   if (!username) return '';
   return localStorage.getItem('avatar-' + username) || '';
 };
 
 // 计算属性获取头像URL
 const avatarUrl = computed(() => getCurrentUserAvatar());
+
+// 从后端获取用户信息和头像
+const fetchUserInfo = async () => {
+  const username = getUsername();
+  if (!username) return;
+  
+  try {
+    // 从后端获取用户信息
+    const userResponse = await fetch('/api/members/members/' + encodeURIComponent(username), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (userResponse.ok) {
+      const userData = await userResponse.json();
+      const user = userData.data || userData;
+      
+      // 如果后端返回了头像，更新本地存储
+      if (user && user.avatar) {
+        localStorage.setItem('avatar-' + username, user.avatar);
+      }
+    }
+  } catch (error) {
+    console.error('获取用户信息失败:', error);
+  }
+};
 
 // 监听滚动事件，添加滚动效果
 const headerRef = ref(null);
@@ -86,9 +119,11 @@ const handleScroll = () => {
 };
 
 // 生命周期钩子
-onMounted(() => {
+onMounted(async () => {
   console.log('Header component mounted:', { initialLanguage: currentLang.value });
   window.addEventListener('scroll', handleScroll);
+  // 从后端获取最新的用户信息和头像
+  await fetchUserInfo();
 });
 
 onUnmounted(() => {

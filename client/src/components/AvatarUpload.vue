@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, watch, computed, nextTick } from 'vue'
+import { ref, watch, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { updateUserAvatar } from '@/api/membership'
 
