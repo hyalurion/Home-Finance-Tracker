@@ -787,7 +787,6 @@ const selectedFunctionGroup = ref('primary');
 const functionGroups = computed(() => [
   { label: t('function.primary'), value: 'primary' },
   { label: t('function.aiFeatures'), value: 'ai' },
-  { label: t('function.other'), value: 'other' },
   { label: t('function.aboutus'), value: 'about' }
 ]);
 const aiForm = reactive({
