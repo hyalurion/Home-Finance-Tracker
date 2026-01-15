@@ -77,9 +77,23 @@ class PreferencesManager @Inject constructor(
         }
     }
 
+    // 头像相关功能
+    fun saveAvatar(avatar: String) {
+        prefs.edit().putString(KEY_AVATAR, avatar).apply()
+    }
+
+    fun getAvatar(): String? {
+        return prefs.getString(KEY_AVATAR, null)
+    }
+
+    fun clearAvatar() {
+        prefs.edit().remove(KEY_AVATAR).apply()
+    }
+
     companion object {
         private const val PREFS_NAME = "home_money_prefs"
         private const val KEY_USERNAME = "username"
+        private const val KEY_AVATAR = "avatar"
         private const val KEY_MEMBERSHIP_ACTIVE = "membership_active"
         private const val KEY_MEMBERSHIP_PLAN = "membership_plan"
         private const val KEY_MEMBERSHIP_END_DATE = "membership_end_date"

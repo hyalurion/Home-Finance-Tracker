@@ -7,6 +7,7 @@ import com.chronie.homemoney.domain.model.SubscriptionStatus
 interface MemberRepository {
     suspend fun getOrCreateMember(username: String): Result<Member>
     suspend fun getMemberInfo(username: String): Result<Member>
+    suspend fun updateAvatar(username: String, avatar: String): Result<Member>
     suspend fun getCurrentSubscription(username: String): Result<SubscriptionStatus>
     suspend fun getSubscriptionPlans(): Result<List<SubscriptionPlan>>
     suspend fun subscribePayment(username: String, planId: String): Result<String>

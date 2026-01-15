@@ -9,6 +9,7 @@ import com.chronie.homemoney.data.remote.dto.UserSubscriptionDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface MemberApi {
@@ -19,6 +20,9 @@ interface MemberApi {
 
     @GET("api/members/members/{username}")
     suspend fun getMemberInfo(@Path("username") username: String): ApiResponse<MemberDto>
+    
+    @PUT("api/members/members/{username}/avatar")
+    suspend fun updateAvatar(@Path("username") username: String, @Body request: AvatarUpdateRequest): ApiResponse<MemberDto>
     
     @GET("api/members/members/{username}/current-subscription")
     suspend fun getCurrentSubscription(@Path("username") username: String): ApiResponse<UserSubscriptionDto>
@@ -50,4 +54,8 @@ data class CreateSubscriptionRequest(
     val planId: String,
     val paymentId: String,
     val autoRenew: Boolean = false
+)
+
+data class AvatarUpdateRequest(
+    val avatar: String
 )

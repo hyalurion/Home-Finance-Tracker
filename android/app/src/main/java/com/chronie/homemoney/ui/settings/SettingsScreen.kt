@@ -1,14 +1,26 @@
 package com.chronie.homemoney.ui.settings
 
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+import android.net.Uri
+import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,8 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.Language
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
@@ -1293,6 +1309,147 @@ fun AccountSection(
         }
     }
     
+    // 头像相关状态
+    var showImagePicker by remember { mutableStateOf(false) }
+    val avatar by viewModel.avatar.collectAsState()
+    val avatarLoading by viewModel.avatarLoading.collectAsState()
+    // 保存解码后的Bitmap，用于AsyncImage加载失败时的后备显示
+    var decodedBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+    
+    // 创建临时文件用于保存裁剪结果
+    val createTempFile = fun(): Uri {
+        val file = java.io.File(context.cacheDir, "cropped_avatar_${System.currentTimeMillis()}.png")
+        return android.net.Uri.fromFile(file)
+    }
+    
+    // 裁剪图片结果
+    val cropLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            // 从临时文件读取裁剪后的图片
+            val outputUri = result.data?.extras?.get("outputUri") as? Uri
+            outputUri?.let {
+                try {
+                    // 将裁剪后的图片转换为Bitmap
+                    val bitmap = context.contentResolver.openInputStream(it)?.use {inputStream ->
+                        android.graphics.BitmapFactory.decodeStream(inputStream)
+                    }
+                    
+                    bitmap?.let { bmp ->
+                        // 将Bitmap转换为Base64
+                        val byteArrayOutputStream = java.io.ByteArrayOutputStream()
+                        bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+                        val byteArray = byteArrayOutputStream.toByteArray()
+                        val base64String = android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT)
+                        val imageDataUrl = "data:image/png;base64,$base64String"
+                        
+                        // 更新头像
+                        viewModel.updateAvatar(imageDataUrl)
+                        
+                        // 删除临时文件
+                        val file = java.io.File(it.path ?: "")
+                        if (file.exists()) {
+                            file.delete()
+                        }
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("SettingsScreen", "Failed to process cropped image", e)
+                    Toast.makeText(context, "处理裁剪图片失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+    
+    // 图片选择器 - 使用GetContent以调用相册而不是文件管理器
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            try {
+                // 检查设备是否支持裁剪意图 - 先不设置具体数据
+                val cropIntent = Intent("com.android.camera.action.CROP")
+                cropIntent.type = "image/*" // 只设置类型，不设置具体URI
+                val activities = context.packageManager.queryIntentActivities(cropIntent, 0)
+                
+                if (activities.isEmpty()) {
+                    // 设备不支持裁剪功能，直接使用原图
+                    android.util.Log.w("SettingsScreen", "Device does not support crop function, using original image")
+                    Toast.makeText(context, "设备不支持裁剪功能，将使用原图", Toast.LENGTH_SHORT).show()
+                    
+                    // 直接处理原图
+                    val bitmap = context.contentResolver.openInputStream(uri)?.use {inputStream ->
+                        android.graphics.BitmapFactory.decodeStream(inputStream)
+                    }
+                    
+                    bitmap?.let { bmp ->
+                        // 将Bitmap转换为Base64
+                        val byteArrayOutputStream = java.io.ByteArrayOutputStream()
+                        bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+                        val byteArray = byteArrayOutputStream.toByteArray()
+                        val base64String = android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT)
+                        val imageDataUrl = "data:image/png;base64,$base64String"
+                        
+                        // 更新头像
+                        viewModel.updateAvatar(imageDataUrl)
+                    }
+                    return@let
+                }
+                
+                // 设备支持裁剪功能，继续执行裁剪
+                android.util.Log.d("SettingsScreen", "Device supports crop function, proceeding with crop")
+                
+                // 创建临时文件用于保存裁剪结果
+                val outputUri = createTempFile()
+                
+                // 设置裁剪意图的参数
+                cropIntent.putExtra("crop", "true")
+                cropIntent.putExtra("aspectX", 1)
+                cropIntent.putExtra("aspectY", 1)
+                cropIntent.putExtra("outputX", 256)
+                cropIntent.putExtra("outputY", 256)
+                cropIntent.putExtra("scale", true)
+                cropIntent.putExtra("noFaceDetection", true)
+                cropIntent.putExtra("outputFormat", android.graphics.Bitmap.CompressFormat.PNG.toString())
+                cropIntent.putExtra("outputUri", outputUri) // 使用临时文件保存结果
+                cropIntent.putExtra("return-data", false) // 不返回数据，通过临时文件获取
+                
+                // 确保裁剪应用可以访问图片
+                cropIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                cropIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                
+                // 使用Intent.createChooser来确保用户可以选择专门的裁剪应用
+                val chooserIntent = Intent.createChooser(cropIntent, "选择裁剪应用")
+                
+                // 为选择器中的所有应用授予URI权限
+                val resInfoList: List<ResolveInfo> = context.packageManager.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
+                for (resolveInfo in resInfoList) {
+                    val packageName = resolveInfo.activityInfo.packageName
+                    context.grantUriPermission(
+                        packageName,
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                    context.grantUriPermission(
+                        packageName,
+                        outputUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                }
+                
+                // 保存outputUri到intent中，以便在onActivityResult中使用
+                chooserIntent.putExtra("outputUri", outputUri)
+                
+                // 启动裁剪Intent选择器
+                cropLauncher.launch(chooserIntent)
+            } catch (e: Exception) {
+                // 处理异常
+                Toast.makeText(context, "启动裁剪功能失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                android.util.Log.e("SettingsScreen", "Failed to start crop activity", e)
+            }
+        }
+    }
+    
     Column {
         Text(
             text = context.getString(R.string.auth_account_info),
@@ -1308,8 +1465,140 @@ fun AccountSection(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // 头像显示区域
+                Box(modifier = Modifier.padding(bottom = 16.dp)) {
+                    // 圆形头像
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clickable {
+                                // 打开图片选择器
+                                imagePickerLauncher.launch("image/*")
+                            }
+                    ) {
+                        if (avatarLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(120.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 3.dp
+                            )
+                        } else if (avatar != null) {
+                            // 日志记录头像数据的前50个字符，以检查格式
+                            android.util.Log.d("SettingsScreen", "Avatar data: ${avatar?.take(50)}...")
+                            
+                            // 验证Base64格式是否正确
+                            val isBase64Format = avatar?.startsWith("data:image/") == true
+                            android.util.Log.d("SettingsScreen", "Is Base64 format: $isBase64Format")
+                            
+                            // 先尝试直接解码Base64作为后备
+                            if (isBase64Format && decodedBitmap == null) {
+                                try {
+                                    val base64Data = avatar?.substringAfter(",")
+                                    base64Data?.let {data ->
+                                        val byteArray = android.util.Base64.decode(data, android.util.Base64.DEFAULT)
+                                        val bitmap = android.graphics.BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+                                        bitmap?.let {bmp ->
+                                            android.util.Log.d("SettingsScreen", "Successfully pre-decoded Base64 to Bitmap")
+                                            decodedBitmap = bmp
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    android.util.Log.e("SettingsScreen", "Failed to pre-decode Base64 to Bitmap", e)
+                                }
+                            }
+                            
+                            // 如果已经有解码的Bitmap，直接显示
+                            if (decodedBitmap != null) {
+                                android.util.Log.d("SettingsScreen", "Displaying decoded Bitmap directly")
+                                Image(
+                                    bitmap = decodedBitmap!!.asImageBitmap(),
+                                    contentDescription = "User Avatar",
+                                    modifier = Modifier
+                                        .size(120.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                // 否则使用AsyncImage
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(avatar)
+                                        .crossfade(true)
+                                        .build(),
+                                    contentDescription = "User Avatar",
+                                    modifier = Modifier
+                                        .size(120.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop,
+                                    onLoading = {
+                                        android.util.Log.d("SettingsScreen", "Loading avatar image...")
+                                    },
+                                    onSuccess = {
+                                        android.util.Log.d("SettingsScreen", "Avatar image loaded successfully")
+                                    },
+                                    onError = {
+                                        android.util.Log.e("SettingsScreen", "Failed to load avatar image: ${it.result}")
+                                        // 尝试将Base64数据直接转换为Bitmap显示
+                                        try {
+                                            val base64Data = avatar?.substringAfter(",")
+                                            base64Data?.let {data ->
+                                                val byteArray = android.util.Base64.decode(data, android.util.Base64.DEFAULT)
+                                                val bitmap = android.graphics.BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+                                                bitmap?.let {bmp ->
+                                                    android.util.Log.d("SettingsScreen", "Successfully decoded Base64 to Bitmap on error")
+                                                    decodedBitmap = bmp
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            android.util.Log.e("SettingsScreen", "Failed to decode Base64 to Bitmap on error", e)
+                                        }
+                                    }
+                                )
+                            }
+                        } else {
+                            Surface(
+                                modifier = Modifier.size(120.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = CircleShape
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CameraAlt,
+                                    contentDescription = "Add Avatar",
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+                        
+                        // 上传按钮
+                        Surface(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .align(Alignment.BottomEnd)
+                                .clickable {
+                                    imagePickerLauncher.launch("image/*")
+                                },
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CameraAlt,
+                                    contentDescription = "Change Avatar",
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+                    }
+                }
+                
                 // 当前用户
                 Row(
                     modifier = Modifier.fillMaxWidth(),

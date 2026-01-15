@@ -32,6 +32,8 @@ class SettingsViewModel @Inject constructor(
     val checkMembershipUseCase: com.chronie.homemoney.domain.usecase.CheckMembershipUseCase,
     private val logoutUseCase: com.chronie.homemoney.domain.usecase.LogoutUseCase,
     private val getMembershipStatusUseCase: com.chronie.homemoney.domain.usecase.GetMembershipStatusUseCase,
+    private val memberRepository: com.chronie.homemoney.domain.repository.MemberRepository,
+    private val preferencesManager: com.chronie.homemoney.data.local.PreferencesManager,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
@@ -84,17 +86,88 @@ class SettingsViewModel @Inject constructor(
     private val _membershipLoading = MutableStateFlow(false)
     val membershipLoading: StateFlow<Boolean> = _membershipLoading.asStateFlow()
 
+    // 头像状态
+    private val _avatar = MutableStateFlow<String?>(null)
+    val avatar: StateFlow<String?> = _avatar.asStateFlow()
+
+    private val _avatarLoading = MutableStateFlow(false)
+    val avatarLoading: StateFlow<Boolean> = _avatarLoading.asStateFlow()
+
     init {
         loadSyncInfo()
         loadAIApiKey()
         loadCurrentUser()
         loadMembershipStatus()
         loadDynamicColorSettings()
+        loadAvatar()
     }
     
     private fun loadCurrentUser() {
         viewModelScope.launch {
             _currentUsername.value = checkLoginStatusUseCase.getUsername()
+        }
+    }
+
+    private fun loadAvatar() {
+        viewModelScope.launch {
+            // 首先从本地加载头像
+            val localAvatar = preferencesManager.getAvatar()
+            _avatar.value = localAvatar
+            
+            // 然后尝试从后端获取最新头像
+            fetchAvatarFromBackend()
+        }
+    }
+
+    private suspend fun fetchAvatarFromBackend() {
+        val username = checkLoginStatusUseCase.getUsername()
+        if (username.isNullOrEmpty()) return
+
+        _avatarLoading.value = true
+        try {
+            // 使用memberRepository获取会员信息，包括头像
+            val result = memberRepository.getMemberInfo(username)
+            if (result.isSuccess) {
+                val member = result.getOrNull()
+                if (member != null && member.avatar != null) {
+                    // 日志记录头像数据的前50个字符，以检查格式
+                    android.util.Log.d("SettingsViewModel", "Fetched avatar data: ${member.avatar?.take(50)}...")
+                    _avatar.value = member.avatar
+                    preferencesManager.saveAvatar(member.avatar)
+                }
+            } else {
+                android.util.Log.e("SettingsViewModel", "Failed to fetch avatar from backend: ${result.exceptionOrNull()?.message}")
+            }
+        } catch (e: Exception) {
+            // 网络请求失败，使用本地头像
+            android.util.Log.e("SettingsViewModel", "Failed to fetch avatar from backend", e)
+        } finally {
+            _avatarLoading.value = false
+        }
+    }
+
+    fun updateAvatar(avatarData: String) {
+        viewModelScope.launch {
+            _avatarLoading.value = true
+            try {
+                // 更新本地头像
+                _avatar.value = avatarData
+                preferencesManager.saveAvatar(avatarData)
+                
+                // 更新后端头像
+                val username = checkLoginStatusUseCase.getUsername()
+                if (!username.isNullOrEmpty()) {
+                    val result = memberRepository.updateAvatar(username, avatarData)
+                    if (!result.isSuccess) {
+                        throw Exception("Failed to update avatar on backend: ${result.exceptionOrNull()?.message}")
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("SettingsViewModel", "Failed to update avatar", e)
+                // 可以添加错误处理逻辑，比如显示错误消息
+            } finally {
+                _avatarLoading.value = false
+            }
         }
     }
     
@@ -144,6 +217,8 @@ class SettingsViewModel @Inject constructor(
             logoutUseCase()
             _currentUsername.value = null
             _membershipStatus.value = null
+            _avatar.value = null
+            preferencesManager.clearAvatar()
             _logoutEvent.emit(Unit)
         }
     }

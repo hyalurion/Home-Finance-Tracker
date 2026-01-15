@@ -5,5 +5,6 @@ data class Member(
     val username: String,
     val isActive: Boolean,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val avatar: String? = null
 )

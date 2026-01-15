@@ -12,7 +12,9 @@ data class MemberDto(
     @SerializedName("createdAt")
     val createdAt: String,
     @SerializedName("updatedAt")
-    val updatedAt: String
+    val updatedAt: String,
+    @SerializedName("avatar")
+    val avatar: String? = null
 )
 
 data class MemberRequest(
