@@ -44,7 +44,6 @@ const props = defineProps({
 .glass-form-item-label {
   font-size: 14px;
   font-weight: 500;
-  color: #1a202c;
 }
 
 .glass-form-item-label.required::after {

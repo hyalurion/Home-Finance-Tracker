@@ -281,6 +281,31 @@
     "statusExpired": "已过期",
     "statusCanceled": "已取消",
     "loginOrRegister": "登录/注册",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "goldStreamUsername": "金流用户名",
+    "usernamePlaceholder": "仅限大小写英文字母",
+    "paymentMethod": "当前付款方式仅限金流 (𝙲𝚑𝚛𝚢𝚜𝚘𝚛𝚛𝚑𝚘𝚎)，<a href=\"http://192.168.0.197:3100\" target=\"_blank\">点击这里</a>查看您的金流账户。",
+    "unknownPlan": "未知计划",
+    "error": {
+      "requiredUsername": "请输入用户名",
+      "usernameFormat": "用户名只能包含大小写英文字母",
+      "usernameLength": "用户名长度应在1-20个字符之间",
+      "loginFailed": "登录失败，请稍后重试",
+      "subscriptionRecordFailed": "创建订阅记录失败",
+      "paymentFailed": "支付处理失败",
+      "subscribeError": "订阅过程中发生错误",
+      "cancelSubscriptionError": "取消订阅过程中发生错误",
+      "loginFirst": "请先登录",
+      "cancelSubscriptionFailed": "取消订阅失败",
+      "fetchSubscriptionFailed": "获取订阅计划失败",
+      "createUserFailed": "无法创建用户",
+      "fetchUserInfoFailed": "获取用户信息失败，请稍后重试"
+    },
+    "success": {
+      "login": "登录成功",
+      "logout": "已登出",
+      "subscribe": "订阅成功！",
+      "cancelSubscription": "订阅已取消"
+    }
   }
 }

@@ -281,6 +281,31 @@
     "statusExpired": "Expired",
     "statusCanceled": "Canceled",
     "loginOrRegister": "Login / Register",
-    "logout": "Logout"
+    "logout": "Logout",
+    "goldStreamUsername": "Chrysoorrhoe Username",
+    "usernamePlaceholder": "Only uppercase and lowercase letters",
+    "paymentMethod": "Currently only supports Chrysoorrhoe payment. <a href=\"http://192.168.0.197:3100\" target=\"_blank\">Click here</a> to view your Chrysoorrhoe account.",
+    "unknownPlan": "Unknown Plan",
+    "error": {
+      "requiredUsername": "Please enter username",
+      "usernameFormat": "Username can only contain uppercase and lowercase letters",
+      "usernameLength": "Username length should be between 1-20 characters",
+      "loginFailed": "Login failed, please try again later",
+      "subscriptionRecordFailed": "Failed to create subscription record",
+      "paymentFailed": "Payment processing failed",
+      "subscribeError": "Error occurred during subscription process",
+      "cancelSubscriptionError": "Error occurred during subscription cancellation",
+      "loginFirst": "Please login first",
+      "cancelSubscriptionFailed": "Failed to cancel subscription",
+      "fetchSubscriptionFailed": "Failed to fetch subscription plans",
+      "createUserFailed": "Failed to create user",
+      "fetchUserInfoFailed": "Failed to fetch user information, please try again later"
+    },
+    "success": {
+      "login": "Login successful",
+      "logout": "Logged out",
+      "subscribe": "Subscription successful!",
+      "cancelSubscription": "Subscription canceled"
+    }
   }
 }

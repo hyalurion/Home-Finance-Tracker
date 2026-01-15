@@ -17,10 +17,10 @@
     <!-- 用户登录/注册表单 -->
     <div class="login-form" v-if="!isLoggedIn">
       <GlassForm @submit.prevent="handleLogin">
-        <GlassFormItem label="金流用户名" prop="username" error="">
+        <GlassFormItem :label="$t('membership.goldStreamUsername')" prop="username" error="">
           <GlassInput 
             v-model="loginForm.username" 
-            placeholder="仅限大小写英文字母" 
+            :placeholder="$t('membership.usernamePlaceholder')" 
             showWordLimit
             :maxlength="20"
           ></GlassInput>
@@ -56,7 +56,7 @@
     </div>
     
     <div style="text-align: center;">
-      <p>当前付款方式仅限金流 (𝙲𝚑𝚛𝚢𝚜𝚘𝚛𝚛𝚑𝚘𝚎)，<a href="http://192.168.0.197:3100" target="_blank">点击这里</a>查看您的金流账户。</p>
+      <p v-html="$t('membership.paymentMethod')"></p>
       <br>
     </div>
 
@@ -112,6 +112,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Header from '@/components/Header.vue';
 import GlassButton from '@/components/GlassButton.vue';
 import GlassForm from '@/components/GlassForm.vue';
@@ -135,6 +136,7 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const { t } = useI18n()
     const subscriptionPlans = ref([])
     const selectedPlanId = ref(null)
     const isProcessing = ref(false)
@@ -146,10 +148,10 @@ export default {
     const successMessage = ref('')
     const errorMessage = ref('')
     const subscriptionColumns = ref([
-      { label: '计划', prop: 'planName' },
-      { label: '开始日期', prop: 'startDate' },
-      { label: '结束日期', prop: 'endDate' },
-      { label: '状态', prop: 'status' }
+      { label: t('membership.plan'), prop: 'planName' },
+      { label: t('membership.startDate'), prop: 'startDate' },
+      { label: t('membership.endDate'), prop: 'endDate' },
+      { label: t('membership.status'), prop: 'status' }
     ])
     const isLoggedIn = ref(false)
     const loginFormRef = ref(null)
@@ -166,9 +168,9 @@ export default {
     // 登录表单验证规则
     const loginRules = {
       username: [
-        { required: true, message: '请输入用户名', trigger: 'blur' },
-        { pattern: /^[A-Za-z]+$/, message: '用户名只能包含大小写英文字母', trigger: 'blur' },
-        { min: 1, max: 20, message: '用户名长度应在1-20个字符之间', trigger: 'blur' }
+        { required: true, message: t('membership.error.requiredUsername'), trigger: 'blur' },
+        { pattern: /^[A-Za-z]+$/, message: t('membership.error.usernameFormat'), trigger: 'blur' },
+        { min: 1, max: 20, message: t('membership.error.usernameLength'), trigger: 'blur' }
       ]
     }
     
@@ -206,11 +208,11 @@ export default {
           const data = await response.json()
           subscriptionPlans.value = data.data || data
         } else {
-          throw new Error('获取订阅计划失败')
+          throw new Error(t('membership.error.fetchSubscriptionFailed'))
         }
       } catch (error) {
-        errorMessage.value = '获取订阅计划失败'
-        console.error('获取订阅计划失败:', error)
+        errorMessage.value = t('membership.error.fetchSubscriptionFailed')
+        console.error(t('membership.error.fetchSubscriptionFailed') + ':', error)
       }
     }
     
@@ -247,7 +249,7 @@ export default {
             const userData = await createUserResponse.json()
             userInfo.value = userData.data || userData
           } else {
-            throw new Error('无法创建用户')
+            throw new Error(t('membership.error.createUserFailed'))
           }
         }
         
@@ -284,15 +286,15 @@ export default {
             // 转换数据格式，确保与表格列配置匹配
             subscriptionHistory.value = subscriptionHistory.value.map(item => ({
               ...item,
-              planName: item.SubscriptionPlan?.name || '未知计划'
+              planName: item.SubscriptionPlan?.name || t('membership.unknownPlan')
             }))
           }
         } catch (histError) {
           console.error('获取订阅历史失败:', histError)
         }
       } catch (error) {
-        console.error('获取用户信息失败:', error)
-        errorMessage.value = '获取用户信息失败，请稍后重试'
+        console.error(t('membership.error.fetchUserInfoFailed') + ':', error)
+        errorMessage.value = t('membership.error.fetchUserInfoFailed')
       }
     }
     
@@ -304,14 +306,14 @@ export default {
     // 处理登录/注册
     const handleLogin = async () => {
       if (!loginForm.value.username.trim()) {
-        errorMessage.value = '请输入用户名'
+        errorMessage.value = t('membership.error.requiredUsername')
         return
       }
       
       // 验证用户名格式，只允许大小写英文字母
       const usernamePattern = /^[A-Za-z]+$/
       if (!usernamePattern.test(loginForm.value.username)) {
-        errorMessage.value = '用户名只能包含大小写英文字母'
+        errorMessage.value = t('membership.error.usernameFormat')
         return
       }
       
@@ -325,10 +327,10 @@ export default {
         // 尝试创建或获取用户
         await fetchUserInfo()
         
-        successMessage.value = '登录成功'
+        successMessage.value = t('membership.success.login')
       } catch (error) {
         console.error('登录失败:', error)
-        errorMessage.value = '登录失败，请稍后重试'
+        errorMessage.value = t('membership.error.loginFailed')
       } finally {
         isLoggingIn.value = false
       }
@@ -341,13 +343,13 @@ export default {
       userInfo.value = null
       currentSubscription.value = null
       subscriptionHistory.value = []
-      successMessage.value = '已登出'
+      successMessage.value = t('membership.success.logout')
     }
     
     // 订阅处理
     const subscribe = async (plan) => {
       if (!isLoggedIn.value) {
-        errorMessage.value = '请先登录'
+        errorMessage.value = t('membership.error.loginFirst')
         return
       }
       
@@ -383,17 +385,17 @@ export default {
           
           const createData = await createSubscriptionResponse.json();
           if (createSubscriptionResponse.ok && (createData.success || !createData.error)) {
-            successMessage.value = '订阅成功！'
+            successMessage.value = t('membership.success.subscribe')
             // 刷新用户信息和订阅状态
             await fetchUserInfo()
           } else {
-            errorMessage.value = '创建订阅记录失败'
+            errorMessage.value = t('membership.error.subscriptionRecordFailed')
           }
         } else {
-          errorMessage.value = paymentData.error || '支付处理失败'
+          errorMessage.value = paymentData.error || t('membership.error.paymentFailed')
         }
       } catch (error) {
-        errorMessage.value = '订阅过程中发生错误'
+        errorMessage.value = t('membership.error.subscribeError')
         console.error('订阅失败:', error)
       } finally {
         isProcessing.value = false
@@ -403,7 +405,7 @@ export default {
     // 取消订阅
     const cancelSubscription = async () => {
       if (!isLoggedIn.value) {
-        errorMessage.value = '请先登录'
+        errorMessage.value = t('membership.error.loginFirst')
         return
       }
       
@@ -422,13 +424,13 @@ export default {
         const responseData = await response.json()
         
         if (response.ok && (responseData.success || !responseData.error)) {
-          successMessage.value = '订阅已取消'
+          successMessage.value = t('membership.success.cancelSubscription')
           await fetchUserInfo()
         } else {
-          errorMessage.value = responseData.error || '取消订阅失败'
+          errorMessage.value = responseData.error || t('membership.error.cancelSubscriptionFailed')
         }
       } catch (error) {
-        errorMessage.value = '取消订阅过程中发生错误'
+        errorMessage.value = t('membership.error.cancelSubscriptionError')
         console.error('取消订阅失败:', error)
       } finally {
         isCancelling.value = false
