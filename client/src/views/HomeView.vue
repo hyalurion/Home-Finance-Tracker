@@ -106,16 +106,6 @@
             </GlassButton>
           </div>
         </GlassCard>
-        
-        <!-- 其他组件组 -->
-        <GlassCard :title="t('function.other')">
-          <div class="card-content">
-            <GlassButton type="success" @click="goToMembership">
-              <template #icon><FontAwesomeIcon icon="star" /></template>
-              {{ t('membership.title') }}
-            </GlassButton>
-          </div>
-        </GlassCard>
 
         <!-- 支持与帮助组 -->
         <GlassCard :title="t('function.support')">
@@ -170,14 +160,6 @@
           <GlassButton type="primary" @click="showAiReportDialog = true" size="large" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="file-alt" /></template>
             AI消费问答
-          </GlassButton>
-        </div>
-        
-        <!-- 其他组件组按钮 -->
-        <div v-else-if="selectedFunctionGroup === 'other'" class="mobile-button-group">
-          <GlassButton type="success" @click="goToMembership" class="mobile-btn">
-            <template #icon><FontAwesomeIcon icon="star" /></template>
-            {{ t('membership.title') }}
           </GlassButton>
         </div>
         

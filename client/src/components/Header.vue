@@ -15,7 +15,7 @@
 
       <div class="header-actions">
       <!-- 头像显示 -->
-      <div v-if="avatarUrl" class="user-avatar-container">
+      <div v-if="avatarUrl" class="user-avatar-container" @click="goToMembership">
         <img :src="avatarUrl" alt="User Avatar" class="user-avatar" />
       </div>
       </div>
@@ -29,12 +29,21 @@
 import { useLanguageSwitch } from '@/composables/useLanguageSwitch';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 defineOptions({ name: 'AppHeader' });
 useI18n();
 
 // 定义组件接收的 props
 const props = defineProps({ title: String });
+
+// 初始化路由
+const router = useRouter();
+
+// 点击头像导航到会员页面
+const goToMembership = () => {
+  router.push('/membership');
+};
 
 // 调用 useLanguageSwitch 获取语言切换函数和当前语言
 const { switchLanguage: originalSwitchLanguage, currentLang } = useLanguageSwitch();
