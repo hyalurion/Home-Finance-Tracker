@@ -9,6 +9,7 @@ router.post('/members', memberController.getOrCreateMember)
 router.get('/members/:username', memberController.getMemberInfo)
 router.put('/members/:id/status', memberController.updateMemberStatus)
 router.get('/members/:username/subscriptions', memberController.getMemberSubscriptions)
+router.put('/members/:username/avatar', memberController.updateAvatar)
 
 // 订阅计划相关路由
 router.get('/subscription-plans', subscriptionController.getSubscriptionPlans)

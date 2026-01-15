@@ -258,6 +258,17 @@
     "other": "其他",
     "aboutus": "关于我们"
   },
+  "avatar": {
+    "cropTitle": "裁剪头像",
+    "cancel": "取消",
+    "confirm": "确认",
+    "placeholder": "点击上传头像",
+    "error": {
+      "sizeLimit": "头像大小不能超过{maxSize}MB",
+      "invalidType": "请选择有效的图片文件",
+      "uploadFailed": "头像上传失败，请稍后重试"
+    }
+  },
   "membership": {
     "title": "会员订阅",
     "userInfo": "账户信息",
@@ -305,7 +316,8 @@
       "login": "登录成功",
       "logout": "已登出",
       "subscribe": "订阅成功！",
-      "cancelSubscription": "订阅已取消"
+      "cancelSubscription": "订阅已取消",
+      "avatarUploaded": "头像上传成功"
     }
   }
 }

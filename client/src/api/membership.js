@@ -125,6 +125,22 @@ export const checkMemberStatus = async (username) => {
   }
 }
 
+/**
+ * 更新用户头像
+ * @param {string} username - 用户名
+ * @param {string} avatar - 头像数据（Base64格式）
+ * @returns {Promise<Object>} 更新结果
+ */
+export const updateUserAvatar = async (username, avatar) => {
+  try {
+    const response = await apiClient.put(`/members/${username}/avatar`, { avatar })
+    return response.data
+  } catch (error) {
+    console.error('更新头像失败:', error)
+    throw error
+  }
+}
+
 export default {
   getMembershipPlans,
   getOrCreateUser,
@@ -132,5 +148,6 @@ export default {
   getUserSubscriptionHistory,
   subscribeToPlan,
   cancelUserSubscription,
-  checkMemberStatus
+  checkMemberStatus,
+  updateUserAvatar
 }

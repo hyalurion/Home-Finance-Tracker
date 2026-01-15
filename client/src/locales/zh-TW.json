@@ -258,6 +258,17 @@
     "other": "其他",
     "aboutus": "關於我們"
   },
+  "avatar": {
+    "cropTitle": "裁剪頭像",
+    "cancel": "取消",
+    "confirm": "確認",
+    "placeholder": "點擊上傳頭像",
+    "error": {
+      "sizeLimit": "頭像大小不能超過{maxSize}MB",
+      "invalidType": "請選擇有效的圖片文件",
+      "uploadFailed": "頭像上傳失敗，請稍後重試"
+    }
+  },
   "membership": {
     "title": "會員訂閱",
     "userInfo": "帳戶信息",
@@ -305,7 +316,8 @@
       "login": "登錄成功",
       "logout": "已登出",
       "subscribe": "訂閱成功！",
-      "cancelSubscription": "訂閱已取消"
+      "cancelSubscription": "訂閱已取消",
+      "avatarUploaded": "頭像上傳成功"
     }
   }
 }

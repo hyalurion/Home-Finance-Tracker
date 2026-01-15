@@ -258,6 +258,17 @@
     "other": "Other",
     "aboutus": "About Us"
   },
+  "avatar": {
+    "cropTitle": "Crop Avatar",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "placeholder": "Click to upload avatar",
+    "error": {
+      "sizeLimit": "Avatar size cannot exceed {maxSize}MB",
+      "invalidType": "Please select a valid image file",
+      "uploadFailed": "Avatar upload failed, please try again later"
+    }
+  },
   "membership": {
     "title": "Membership",
     "userInfo": "Account Info",
@@ -305,7 +316,8 @@
       "login": "Login successful",
       "logout": "Logged out",
       "subscribe": "Subscription successful!",
-      "cancelSubscription": "Subscription canceled"
+      "cancelSubscription": "Subscription canceled",
+      "avatarUploaded": "Avatar uploaded successfully"
     }
   }
 }

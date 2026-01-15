@@ -36,7 +36,14 @@
     <!-- 用户信息和当前会员状态 -->
     <div class="user-info-card" v-if="isLoggedIn && userInfo">
       <h2>{{ $t('membership.userInfo') }}</h2>
-      <p>{{ $t('membership.username') }}: {{ userInfo.username }}</p>
+      <AvatarUpload
+        v-model="avatarUrl"
+        @avatar-uploaded="handleAvatarUploaded"
+        :max-size="10"
+        :size="100"
+        :username="userInfo?.username"
+      />
+      <p>{{ userInfo.username }}</p>
       <p v-if="currentSubscription">
         {{ $t('membership.currentPlan') }}: {{ currentSubscription.SubscriptionPlan?.name }}
       </p>
@@ -121,6 +128,7 @@ import GlassInput from '@/components/GlassInput.vue';
 import GlassAlert from '@/components/GlassAlert.vue';
 import GlassTable from '@/components/GlassTable.vue';
 import MessageTip from '@/components/MessageTip.vue';
+import AvatarUpload from '@/components/AvatarUpload.vue';
 import '../styles/membership.css';
 
 export default {
@@ -132,7 +140,8 @@ export default {
     GlassInput,
     GlassAlert,
     GlassTable,
-    MessageTip
+    MessageTip,
+    AvatarUpload
   },
   setup() {
     const router = useRouter()
@@ -147,6 +156,7 @@ export default {
     const subscriptionHistory = ref([])
     const successMessage = ref('')
     const errorMessage = ref('')
+    const avatarUrl = ref('')
     const subscriptionColumns = ref([
       { label: t('membership.plan'), prop: 'planName' },
       { label: t('membership.startDate'), prop: 'startDate' },
@@ -178,12 +188,34 @@ export default {
     const getUsername = () => {
       return localStorage.getItem('username') || ''
     }
+
+    // 从本地存储获取头像
+    const getAvatar = () => {
+      return localStorage.getItem('avatar-' + getUsername()) || ''
+    }
+
+    // 保存头像到本地存储
+    const saveAvatar = (avatarDataUrl) => {
+      localStorage.setItem('avatar-' + getUsername(), avatarDataUrl)
+      avatarUrl.value = avatarDataUrl
+    }
+
+    // 处理头像上传完成
+    const handleAvatarUploaded = (avatarDataUrl) => {
+      saveAvatar(avatarDataUrl)
+      successMessage.value = t('membership.success.avatarUploaded')
+    }
     
     // 检查是否已登录
     const checkLoginStatus = () => {
       const username = getUsername()
       isLoggedIn.value = !!username
       loginForm.value.username = username
+      if (isLoggedIn.value) {
+        avatarUrl.value = getAvatar()
+      } else {
+        avatarUrl.value = ''
+      }
     }
     
     // 格式化日期
@@ -235,6 +267,11 @@ export default {
         if (userResponse.ok) {
           const userData = await userResponse.json()
           userInfo.value = userData.data || userData
+          
+          // 更新头像数据
+          if (userInfo.value && userInfo.value.avatar) {
+            avatarUrl.value = userInfo.value.avatar
+          }
         } else {
           // 如果用户不存在，尝试创建用户
           const createUserResponse = await fetch('/api/members/members', {
@@ -472,7 +509,9 @@ export default {
       logout,
       successMessage,
       errorMessage,
-      goToHome
+      goToHome,
+      avatarUrl,
+      handleAvatarUploaded
     }
   }
 }

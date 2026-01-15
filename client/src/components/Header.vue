@@ -2,16 +2,23 @@
   <div ref="headerRef" :class="['header']">
     <h1>{{ title }}</h1>
 
-    <div class="language-buttons">
-      <GlassButton
-        v-for="lang in languages"
-        :key="lang.code"
-        @click="switchLanguage(lang.code)"
-        :class="['language-btn', { 'active': currentLang.value === lang.code }]"
-        :aria-label="`切换到${lang.label}`"
-      >
-        {{ lang.shortLabel }}
-      </GlassButton>
+      <div class="language-buttons">
+        <GlassButton
+          v-for="lang in languages"
+          :key="lang.code"
+          @click="switchLanguage(lang.code)"
+          :class="['language-btn', { 'active': currentLang.value === lang.code }]"
+          :aria-label="`切换到${lang.label}`"
+        >
+          {{ lang.shortLabel }}
+        </GlassButton>
+
+      <div class="header-actions">
+      <!-- 头像显示 -->
+      <div v-if="avatarUrl" class="user-avatar-container">
+        <img :src="avatarUrl" alt="User Avatar" class="user-avatar" />
+      </div>
+      </div>
     </div>
 
   </div>
@@ -20,7 +27,7 @@
 <script setup>
 // 恢复导入你原有的 useLanguageSwitch composable
 import { useLanguageSwitch } from '@/composables/useLanguageSwitch';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 defineOptions({ name: 'AppHeader' });
@@ -49,6 +56,16 @@ const languages = [
   { code: 'zh-CN', label: '简体中文', shortLabel: '简' },
   { code: 'zh-TW', label: '繁體中文', shortLabel: '繁' }
 ];
+
+// 从本地存储获取当前用户头像
+const getCurrentUserAvatar = () => {
+  const username = localStorage.getItem('username');
+  if (!username) return '';
+  return localStorage.getItem('avatar-' + username) || '';
+};
+
+// 计算属性获取头像URL
+const avatarUrl = computed(() => getCurrentUserAvatar());
 
 // 监听滚动事件，添加滚动效果
 const headerRef = ref(null);
@@ -120,11 +137,37 @@ onUnmounted(() => {
   z-index: 1;
 }
 
+/* 头部操作区域 */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* 用户头像容器 */
+.user-avatar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 用户头像样式 */
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.1);
+}
+
 /* 语言按钮容器 */
 .language-buttons {
   display: flex; /* 使用 Flexbox 布局 */
   gap: 0.5rem; /* 按钮之间的间距 */
-  margin-left: 1rem; /* 左侧外边距 */
 }
 
 /* 语言按钮样式 */
