@@ -153,18 +153,27 @@ class SettingsViewModel @Inject constructor(
                 // 更新本地头像
                 _avatar.value = avatarData
                 preferencesManager.saveAvatar(avatarData)
+                android.util.Log.d("SettingsViewModel", "Avatar saved locally")
                 
                 // 更新后端头像
                 val username = checkLoginStatusUseCase.getUsername()
-                if (!username.isNullOrEmpty()) {
+                if (username.isNullOrEmpty()) {
+                    android.util.Log.w("SettingsViewModel", "Username is null or empty, cannot update avatar on backend")
+                } else {
+                    android.util.Log.d("SettingsViewModel", "Updating avatar on backend for user: $username")
                     val result = memberRepository.updateAvatar(username, avatarData)
-                    if (!result.isSuccess) {
-                        throw Exception("Failed to update avatar on backend: ${result.exceptionOrNull()?.message}")
+                    if (result.isSuccess) {
+                        android.util.Log.d("SettingsViewModel", "Avatar updated successfully on backend")
+                    } else {
+                        val errorMessage = result.exceptionOrNull()?.message ?: "Unknown error"
+                        android.util.Log.e("SettingsViewModel", "Failed to update avatar on backend: $errorMessage")
+                        throw Exception("更新头像失败: $errorMessage")
                     }
                 }
             } catch (e: Exception) {
                 android.util.Log.e("SettingsViewModel", "Failed to update avatar", e)
-                // 可以添加错误处理逻辑，比如显示错误消息
+                // 添加错误处理逻辑，显示错误消息
+                _syncMessage.value = context.getString(R.string.update_avatar_failed) + ": ${e.message}"
             } finally {
                 _avatarLoading.value = false
             }

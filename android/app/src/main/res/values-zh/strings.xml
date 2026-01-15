@@ -8,6 +8,7 @@
     <!-- Settings -->
     <string name="settings">设置</string>
     <string name="language_settings">语言设置</string>
+    <string name="update_avatar_failed">更新头像失败</string>
     <string name="select_language">选择语言</string>
     <string name="api_key_set">已设置：%s…</string>
     <string name="developer_tools">开发者工具</string>

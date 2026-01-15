@@ -9,6 +9,8 @@ import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import com.yalantis.ucrop.UCrop
+import com.yalantis.ucrop.UCropActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -1322,13 +1324,34 @@ fun AccountSection(
         return android.net.Uri.fromFile(file)
     }
     
+    // uCrop配置选项
+    fun getUCropOptions(): UCrop.Options {
+        val options = UCrop.Options()
+        
+        // 设置圆形裁剪
+        options.setCircleDimmedLayer(true)
+        
+        // 设置裁剪界面颜色
+        options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
+        options.setStatusBarColor(android.graphics.Color.parseColor("#6750A4"))
+        options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
+        
+        // 隐藏底部控件
+        options.setHideBottomControls(false)
+        
+        // 设置最大缩放倍数
+        options.setMaxScaleMultiplier(10F)
+        
+        return options
+    }
+    
     // 裁剪图片结果
     val cropLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
-            // 从临时文件读取裁剪后的图片
-            val outputUri = result.data?.extras?.get("outputUri") as? Uri
+            // 从uCrop获取裁剪后的图片URI
+            val outputUri = UCrop.getOutput(result.data ?: Intent())
             outputUri?.let {
                 try {
                     // 将裁剪后的图片转换为Bitmap
@@ -1367,85 +1390,21 @@ fun AccountSection(
     ) { uri: Uri? ->
         uri?.let {
             try {
-                // 检查设备是否支持裁剪意图 - 先不设置具体数据
-                val cropIntent = Intent("com.android.camera.action.CROP")
-                cropIntent.type = "image/*" // 只设置类型，不设置具体URI
-                val activities = context.packageManager.queryIntentActivities(cropIntent, 0)
-                
-                if (activities.isEmpty()) {
-                    // 设备不支持裁剪功能，直接使用原图
-                    android.util.Log.w("SettingsScreen", "Device does not support crop function, using original image")
-                    Toast.makeText(context, "设备不支持裁剪功能，将使用原图", Toast.LENGTH_SHORT).show()
-                    
-                    // 直接处理原图
-                    val bitmap = context.contentResolver.openInputStream(uri)?.use {inputStream ->
-                        android.graphics.BitmapFactory.decodeStream(inputStream)
-                    }
-                    
-                    bitmap?.let { bmp ->
-                        // 将Bitmap转换为Base64
-                        val byteArrayOutputStream = java.io.ByteArrayOutputStream()
-                        bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
-                        val byteArray = byteArrayOutputStream.toByteArray()
-                        val base64String = android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT)
-                        val imageDataUrl = "data:image/png;base64,$base64String"
-                        
-                        // 更新头像
-                        viewModel.updateAvatar(imageDataUrl)
-                    }
-                    return@let
-                }
-                
-                // 设备支持裁剪功能，继续执行裁剪
-                android.util.Log.d("SettingsScreen", "Device supports crop function, proceeding with crop")
-                
                 // 创建临时文件用于保存裁剪结果
                 val outputUri = createTempFile()
                 
-                // 设置裁剪意图的参数
-                cropIntent.putExtra("crop", "true")
-                cropIntent.putExtra("aspectX", 1)
-                cropIntent.putExtra("aspectY", 1)
-                cropIntent.putExtra("outputX", 256)
-                cropIntent.putExtra("outputY", 256)
-                cropIntent.putExtra("scale", true)
-                cropIntent.putExtra("noFaceDetection", true)
-                cropIntent.putExtra("outputFormat", android.graphics.Bitmap.CompressFormat.PNG.toString())
-                cropIntent.putExtra("outputUri", outputUri) // 使用临时文件保存结果
-                cropIntent.putExtra("return-data", false) // 不返回数据，通过临时文件获取
+                // 配置uCrop
+                val uCrop = UCrop.of(uri, outputUri)
+                    .withAspectRatio(1F, 1F) // 1:1比例
+                    .withMaxResultSize(256, 256) // 最大256x256
+                    .withOptions(getUCropOptions()) // 自定义选项
                 
-                // 确保裁剪应用可以访问图片
-                cropIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                cropIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                
-                // 使用Intent.createChooser来确保用户可以选择专门的裁剪应用
-                val chooserIntent = Intent.createChooser(cropIntent, "选择裁剪应用")
-                
-                // 为选择器中的所有应用授予URI权限
-                val resInfoList: List<ResolveInfo> = context.packageManager.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
-                for (resolveInfo in resInfoList) {
-                    val packageName = resolveInfo.activityInfo.packageName
-                    context.grantUriPermission(
-                        packageName,
-                        uri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    )
-                    context.grantUriPermission(
-                        packageName,
-                        outputUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    )
-                }
-                
-                // 保存outputUri到intent中，以便在onActivityResult中使用
-                chooserIntent.putExtra("outputUri", outputUri)
-                
-                // 启动裁剪Intent选择器
-                cropLauncher.launch(chooserIntent)
+                // 启动uCrop裁剪界面
+                cropLauncher.launch(uCrop.getIntent(context))
             } catch (e: Exception) {
                 // 处理异常
-                Toast.makeText(context, "启动裁剪功能失败: ${e.message}", Toast.LENGTH_SHORT).show()
-                android.util.Log.e("SettingsScreen", "Failed to start crop activity", e)
+                Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
+                android.util.Log.e("SettingsScreen", "Failed to crop", e)
             }
         }
     }
