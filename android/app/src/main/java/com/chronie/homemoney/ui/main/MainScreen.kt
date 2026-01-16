@@ -5,7 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.filled.InsertChart
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -97,44 +103,11 @@ fun MainScreen(
                 }
             },
             bottomBar = {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                ) {
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                        label = { Text(context.getString(R.string.expense_list_title)) },
-                        selected = selectedTab == 0,
-                        onClick = { selectedTab = 0 },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                            selectedTextColor = MaterialTheme.colorScheme.onPrimary,
-                            indicatorColor = MaterialTheme.colorScheme.primary
-                        )
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.InsertChart, contentDescription = null) },
-                        label = { Text(context.getString(R.string.charts_title)) },
-                        selected = selectedTab == 1,
-                        onClick = { selectedTab = 1 },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                            selectedTextColor = MaterialTheme.colorScheme.onPrimary,
-                            indicatorColor = MaterialTheme.colorScheme.primary
-                        )
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                        label = { Text(context.getString(R.string.settings)) },
-                        selected = selectedTab == 2,
-                        onClick = { selectedTab = 2 },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                            selectedTextColor = MaterialTheme.colorScheme.onPrimary,
-                            indicatorColor = MaterialTheme.colorScheme.primary
-                        )
-                    )
-                }
+                BottomNavigationBar(
+                    context = context,
+                    selectedTab = selectedTab,
+                    onTabChange = { selectedTab = it }
+                )
             }
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
