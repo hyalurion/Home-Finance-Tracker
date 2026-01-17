@@ -68,84 +68,68 @@ fun ExpenseListScreen(
     }
     
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+        // 顶部工具栏 - 固定在页面顶部，不随内容滚动
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 3.dp
         ) {
-            // 顶部工具栏
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = context.getString(R.string.expense_list_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.weight(1f).padding(start = 8.dp)
+                Text(
+                    text = context.getString(R.string.expense_list_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f).padding(start = 8.dp)
+                )
+                
+                IconButton(onClick = { viewModel.refresh() }) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = context.getString(R.string.common_refresh)
                     )
-                    
-                    IconButton(onClick = { viewModel.refresh() }) {
+                }
+                
+                Box {
+                    IconButton(onClick = { showMoreMenu = true }) {
                         Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = context.getString(R.string.common_refresh)
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = context.getString(R.string.common_more_functions)
                         )
                     }
                     
-                    Box {
-                        IconButton(onClick = { showMoreMenu = true }) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = context.getString(R.string.common_more_functions)
-                            )
-                        }
-                        
-                        DropdownMenu(
-                            expanded = showMoreMenu,
-                            onDismissRequest = { showMoreMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(context.getString(R.string.common_filter)) },
-                                onClick = {
-                                    showMoreMenu = false
-                                    showFilterDialog = true
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(context.getString(R.string.expense_list_clear_filters)) },
-                                onClick = {
-                                    showMoreMenu = false
-                                    viewModel.resetFilters()
-                                }
-                            )
-                        }
+                    DropdownMenu(
+                        expanded = showMoreMenu,
+                        onDismissRequest = { showMoreMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(context.getString(R.string.common_filter)) },
+                            onClick = {
+                                showMoreMenu = false
+                                showFilterDialog = true
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(context.getString(R.string.expense_list_clear_filters)) },
+                            onClick = {
+                                showMoreMenu = false
+                                viewModel.resetFilters()
+                            }
+                        )
                     }
                 }
             }
+        }
+        
+        // 内容区域 - 放在工具栏下方，可以滚动
+        Column(modifier = Modifier.fillMaxSize()) {
+            // 给工具栏留出空间
+            Spacer(modifier = Modifier.height(64.dp)) // 工具栏的大致高度
             
-            // 预算管理卡片 - 显示在标题栏下方
-            BudgetCard(
-                context = context,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-            
-            // 统计信息卡片
-            ExpenseStatisticsCard(
-                statistics = uiState.statistics,
-                context = context,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
-            
-            // 支出列表
             when {
                 uiState.isLoading && uiState.expenses.isEmpty() -> {
                     Box(
@@ -199,8 +183,8 @@ fun ExpenseListScreen(
                     val listState = rememberLazyListState()
                     val groupedExpenses = uiState.groupedExpenses
                     
-                    // 计算总项数（日期标题 + 支出项）
-                    val totalItems = groupedExpenses.size + uiState.expenses.size
+                    // 计算总项数（日期标题 + 支出项 + 头部项）
+                    val totalItems = groupedExpenses.size + uiState.expenses.size + 2 // 2个头部项：预算卡片、统计卡片
                     
                     // 检测是否滚动到底部
                     LaunchedEffect(listState) {
@@ -219,9 +203,31 @@ fun ExpenseListScreen(
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
+                        contentPadding = PaddingValues(bottom = 80.dp), // 为浮动按钮留出空间
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        // 预算管理卡片
+                        item(key = "budget_card") {
+                            BudgetCard(
+                                context = context,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                        }
+                        
+                        // 统计信息卡片
+                        item(key = "stats_card") {
+                            ExpenseStatisticsCard(
+                                statistics = uiState.statistics,
+                                context = context,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
+                        
+                        // 支出列表项
                         groupedExpenses.forEach { (date, expenses) ->
                             // 日期标题
                             item(key = "header_$date") {
@@ -229,7 +235,8 @@ fun ExpenseListScreen(
                                     date = date,
                                     count = expenses.size,
                                     totalAmount = expenses.sumOf { it.amount },
-                                    context = context
+                                    context = context,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
                                 )
                             }
                             
@@ -242,14 +249,15 @@ fun ExpenseListScreen(
                                     expense = expense,
                                     context = context,
                                     onEdit = { onNavigateToEditExpense(expense.id) },
-                                    onDelete = { viewModel.deleteExpense(expense) }
+                                    onDelete = { viewModel.deleteExpense(expense) },
+                                    modifier = Modifier.padding(horizontal = 16.dp)
                                 )
                             }
                         }
                         
                         // 加载更多指示器
                         if (uiState.hasMore) {
-                            item {
+                            item(key = "load_more") {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
