@@ -101,4 +101,4 @@ app/src/main/assets/capacitor.plugins.json
 app/src/main/res/xml/config.xml
 
 # Gradle wrapper
-gradle-8.11.1-all.zip
+gradle-*.zip

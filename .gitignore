@@ -12,17 +12,9 @@ startup_logs/
 expenses_initial.csv
 .github/workflows/error.txt
 server/database.sqlite
-server/data/json-files/notifications.json
 server/uploads
 server\database.sqlite
-server\.env
-client/src/assets/markdown/expense-report.en-US.md
-client/src/assets/markdown/expense-report.zh-CN.md
 server/.env
 server/data/expenses.db
-client/src/assets/markdown/expense-report.ja-JP.md
-client/src/assets/markdown/expense-report.zh-TW.md
 server/data/donation_records.json
 node_modules
-server-go/server.exe
-server/api-test-report-*.json
