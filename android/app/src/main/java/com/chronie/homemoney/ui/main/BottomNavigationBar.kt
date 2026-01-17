@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.InsertChart
@@ -23,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 
 // 定义导航项数据类
@@ -41,9 +43,9 @@ fun BottomNavigationBar(
 ) {
     // 获取当前主题模式
     val isDarkTheme = isSystemInDarkTheme()
-    
-    // 导航栏背景色：浅色模式为白色，深色模式为黑色
-    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
+
+    // 导航栏背景色：透明，因为背景已经存在
+    val backgroundColor = Color.Transparent
     
     // 未选中项颜色：浅色模式为黑色，深色模式为白色
     val unselectedColor = if (isDarkTheme) Color.White else Color.Black
@@ -70,15 +72,20 @@ fun BottomNavigationBar(
         )
     )
     
-    // 自定义IOS风格导航栏
-    Row(
+    // 自定义IOS风格导航栏，使用透明背景容器包裹以覆盖Scaffold默认背景
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(75.dp) // 放大1.25倍
-            .background(backgroundColor), // 移除顶部padding
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
+            .background(Color.Transparent)
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(65.dp)
+                .background(backgroundColor),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
         navigationItems.forEach { item ->
             val isSelected = selectedTab == item.index
             
@@ -120,5 +127,6 @@ fun BottomNavigationBar(
                 )
             }
         }
+    }
     }
 }
