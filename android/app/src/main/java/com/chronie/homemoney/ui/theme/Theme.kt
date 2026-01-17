@@ -244,18 +244,20 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun HomeMoneyTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
+    
+    // 实时获取系统主题模式，确保能响应系统主题变化
+    val darkTheme = isSystemInDarkTheme()
     
     // 创建可观察的主题设置
     val themeSettings = remember {
         mutableStateOf(loadThemeSettings(context))
     }
     
-    // 当主题设置变化时，自动重新计算颜色方案
-    val colorScheme = remember(themeSettings.value) {
+    // 当主题设置或系统主题模式变化时，自动重新计算颜色方案
+    val colorScheme = remember(themeSettings.value, darkTheme) {
         createColorScheme(
             context = context,
             darkTheme = darkTheme,
