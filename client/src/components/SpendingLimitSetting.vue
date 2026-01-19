@@ -1,8 +1,7 @@
 <template>
   <!-- 独立弹窗容器 -->
-  <transition name="dialog-overlay">
+  <transition name="dialog-fade">
     <div v-if="modelValue" class="custom-dialog-overlay" @click.self="closeDialog">
-      <transition name="dialog-content">
         <div v-if="modelValue" class="custom-dialog settings-panel-dialog">
           <div class="dialog-header">
             <h3 class="dialog-title">{{ $t('spending.settings.title') }}</h3>
@@ -79,7 +78,6 @@
             </div>
           </div>
         </div>
-      </transition>
     </div>
   </transition>
 </template>
@@ -177,7 +175,6 @@ onMounted(() => {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  animation: dialog-fade-in 0.3s ease-out;
 }
 
 .dialog-header {
@@ -287,58 +284,7 @@ onMounted(() => {
   font-size: 16px;
 }
 
-/* 动画效果 */
-@keyframes dialog-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 
-@keyframes dialog-fade-out {
-  from {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.98);
-  }
-}
-
-/* 遮罩层过渡 */
-.dialog-overlay-enter-active,
-.dialog-overlay-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.dialog-overlay-enter-from,
-.dialog-overlay-leave-to {
-  opacity: 0;
-}
-
-/* 弹窗内容过渡 */
-.dialog-content-enter-active {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dialog-content-leave-active {
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dialog-content-enter-from {
-  opacity: 0;
-  transform: translateY(-20px) scale(0.95);
-}
-
-.dialog-content-leave-to {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.98);
-}
 
 /* 对话框关闭按钮动画 */
 .dialog-close-btn:hover {
@@ -420,4 +366,137 @@ onMounted(() => {
     color: #f87171;
   }
 }
+
+
+/* 自定义对话框样式 */
+.custom-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.custom-dialog {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+.custom-dialog {
+  background: #2d3748;
+  color: #e2e8f0;
+}
+}
+
+/* 对话框动画 */
+.dialog-fade-enter-active,
+.dialog-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.dialog-fade-enter-from,
+.dialog-fade-leave-to {
+  opacity: 0;
+}
+
+/* 背景遮罩动画 */
+.custom-dialog-overlay .custom-dialog0 {
+  transform: scale(1);
+  transition: transform 0.3s ease 0.1s;
+}
+
+.dialog-fade-enter-active .custom-dialog {
+  transform: scale(1);
+  transition: all 0.3s ease;
+}
+
+.dialog-fade-enter-from .custom-dialog {
+  transform: scale(0.7); /* 减小初始缩放比例，使动画更明显 */
+}
+
+.dialog-fade-leave-active .custom-dialog {
+  transform: scale(0.7) translateY(-20px);
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+@media (prefers-color-scheme: dark) {
+.custom-dialog .dialog-header {
+  border-bottom-color: #4a5568;
+}
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+@media (prefers-color-scheme: dark) {
+.custom-dialog .dialog-title {
+  color: #f7fafc;
+}
+}
+
+.dialog-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #718096;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.dialog-close-btn:hover {
+  background-color: #f7fafc;
+  color: #4a5568;
+}
+
+@media (prefers-color-scheme: dark) {
+.custom-dialog .dialog-close-btn:hover {
+  background-color: #4a5568;
+  color: #e2e8f0;
+}
+}
+
+.dialog-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.custom-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 </style>
