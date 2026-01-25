@@ -136,8 +136,8 @@
           const amountWidth = ctx.measureText(item['金额(元)'].toString()).width + 30;
           widths[1] = Math.max(widths[1], amountWidth);
           
-          // 日期时间
-          const dateWidth = ctx.measureText(item['日期时间']).width + 30;
+          // 日期
+          const dateWidth = ctx.measureText(item['日期']).width + 30;
           widths[2] = Math.max(widths[2], dateWidth);
           
           // 备注列至少需要400像素宽度，为长文本提供更多空间
@@ -154,8 +154,43 @@
       const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0) + 100;
       // 确保最小宽度
       const width = Math.max(totalWidth, 1000); // 增加最小宽度
-      // 根据数据量动态调整高度（显著增加空间以适应备注换行）
-      const height = Math.max(800, data.length * 40 + 400); // 增加行高和额外空间
+      
+      // 先计算数据行的实际高度
+      let contentHeight = 150; // 初始Y坐标
+      const lineHeight = 22;
+      
+      data.forEach((item) => {
+        const remarkText = item['备注'] || '';
+        const maxWidth = columnWidths[3];
+        
+        // 模拟计算备注文本的高度
+        let tempLine = '';
+        let tempHeight = 0;
+        
+        for (let i = 0; i < remarkText.length; i++) {
+          tempLine += remarkText[i];
+          const metrics = ctx.measureText(tempLine);
+          
+          if (metrics.width > maxWidth) {
+            tempHeight += lineHeight;
+            tempLine = remarkText[i];
+          }
+        }
+        
+        if (tempLine.length > 0) {
+          tempHeight += lineHeight;
+        }
+        
+        // 调整行高
+        if (tempHeight > lineHeight) {
+          contentHeight += tempHeight;
+        } else {
+          contentHeight += 30;
+        }
+      });
+      
+      // 根据实际内容计算Canvas高度
+      const height = Math.max(400, contentHeight + 100); // 最小高度400像素，加上底部边距
       
       // 设置Canvas大小，使用更高的缩放比例提高DPI
       dataCanvas.width = width * totalScale;
@@ -168,140 +203,56 @@
       dataCanvas.style.width = width + 'px';
       dataCanvas.style.height = height + 'px';
       
-      // 清空Canvas
-      ctx.fillStyle = '#f0f4f8'; // 浅蓝色背景
+      // 绘制书页背景
+      ctx.fillStyle = '#f8f5f0'; // 浅米色书页背景
       ctx.fillRect(0, 0, width, height);
       
-      // 绘制液态玻璃风格的背景
-      function drawLiquidGlassBackground() {
-        // 1. 添加渐变背景
-        const gradient = ctx.createLinearGradient(0, 0, width, height);
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-        gradient.addColorStop(0.5, 'rgba(240, 248, 255, 0.9)');
-        gradient.addColorStop(1, 'rgba(224, 255, 255, 0.8)');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-        
-        // 2. 添加柔和的模糊效果（通过半透明圆形实现）
-        ctx.save();
-        ctx.globalAlpha = 0.3;
-        
-        // 左上角模糊
-        ctx.fillStyle = 'rgba(173, 216, 230, 0.5)';
-        ctx.beginPath();
-        ctx.arc(width * 0.2, height * 0.2, width * 0.3, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // 右下角模糊
-        ctx.fillStyle = 'rgba(221, 160, 221, 0.4)';
-        ctx.beginPath();
-        ctx.arc(width * 0.8, height * 0.8, width * 0.25, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // 中央模糊
-        ctx.fillStyle = 'rgba(144, 238, 144, 0.3)';
-        ctx.beginPath();
-        ctx.arc(width * 0.5, height * 0.5, width * 0.2, 0, Math.PI * 2);
-        ctx.fill();
-        
-        ctx.restore();
-        
-        // 3. 添加网格纹理
-        ctx.save();
-        ctx.strokeStyle = 'rgba(200, 200, 200, 0.1)';
-        ctx.lineWidth = 1;
-        
-        const gridSize = 20;
-        for (let x = 0; x < width; x += gridSize) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, height);
-          ctx.stroke();
-        }
-        for (let y = 0; y < height; y += gridSize) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(width, y);
-          ctx.stroke();
-        }
-        
-        ctx.restore();
+      // 添加轻微的纸张纹理
+      ctx.save();
+      ctx.globalAlpha = 0.03;
+      ctx.fillStyle = '#000000';
+      for (let i = 0; i < 200; i++) {
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+        const size = Math.random() * 2;
+        ctx.fillRect(x, y, size, size);
       }
-      
-      // 绘制液态玻璃背景
-      drawLiquidGlassBackground();
+      ctx.restore();
       
       // 设置标题样式
-      ctx.fillStyle = '#2c3e50';
+      ctx.fillStyle = '#333333';
       ctx.font = 'bold 24px Arial';
       
       // 绘制标题
       const title = `${currentMonth}消费数据`;
       const titleWidth = ctx.measureText(title).width;
       
-      // 标题背景（液态玻璃风格）
-      ctx.save();
-      const titleBgX = (width - titleWidth) / 2 - 20;
-      const titleBgY = 20;
-      const titleBgWidth = titleWidth + 40;
-      const titleBgHeight = 40;
+      // 绘制标题（简约风格）
+      ctx.fillText(title, (width - titleWidth) / 2, 60);
       
-      // 标题背景渐变
-      const titleGradient = ctx.createLinearGradient(titleBgX, titleBgY, titleBgX, titleBgY + titleBgHeight);
-      titleGradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-      titleGradient.addColorStop(1, 'rgba(200, 230, 255, 0.6)');
-      ctx.fillStyle = titleGradient;
-      
-      // 圆角矩形
+      // 绘制标题下划线
+      ctx.strokeStyle = '#e0e0e0';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      const titleRadius = 10;
-      ctx.moveTo(titleBgX + titleRadius, titleBgY);
-      ctx.lineTo(titleBgX + titleBgWidth - titleRadius, titleBgY);
-      ctx.arc(titleBgX + titleBgWidth - titleRadius, titleBgY + titleRadius, titleRadius, 3 * Math.PI / 2, 0);
-      ctx.lineTo(titleBgX + titleBgWidth, titleBgY + titleBgHeight - titleRadius);
-      ctx.arc(titleBgX + titleBgWidth - titleRadius, titleBgY + titleBgHeight - titleRadius, titleRadius, 0, Math.PI / 2);
-      ctx.lineTo(titleBgX + titleRadius, titleBgY + titleBgHeight);
-      ctx.arc(titleBgX + titleRadius, titleBgY + titleBgHeight - titleRadius, titleRadius, Math.PI / 2, Math.PI);
-      ctx.lineTo(titleBgX, titleBgY + titleRadius);
-      ctx.arc(titleBgX + titleRadius, titleBgY + titleRadius, titleRadius, Math.PI, 3 * Math.PI / 2);
-      ctx.fill();
+      ctx.moveTo((width - titleWidth) / 2 - 20, 70);
+      ctx.lineTo((width + titleWidth) / 2 + 20, 70);
+      ctx.stroke();
       
-      // 标题文字
-      ctx.fillStyle = '#2c3e50';
-      ctx.fillText(title, (width - titleWidth) / 2, 50);
-      
-      ctx.restore();
-      
-      // 绘制表格标题行（液态玻璃风格）
+      // 绘制表格标题行（简约风格）
       ctx.save();
       ctx.font = 'bold 16px Arial';
+      ctx.fillStyle = '#333333';
       
       // 标题行背景
-      const headerY = 80;
+      const headerY = 100;
       const headerHeight = 40;
       
-      // 渐变背景
-      const headerGradient = ctx.createLinearGradient(50, headerY, 50, headerY + headerHeight);
-      headerGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-      headerGradient.addColorStop(1, 'rgba(224, 235, 255, 0.7)');
-      ctx.fillStyle = headerGradient;
-      
-      // 圆角矩形背景
-      ctx.beginPath();
-      const headerRadius = 10;
-      ctx.moveTo(50 + headerRadius, headerY);
-      ctx.lineTo(width - 50 - headerRadius, headerY);
-      ctx.arc(width - 50 - headerRadius, headerY + headerRadius, headerRadius, 3 * Math.PI / 2, 0);
-      ctx.lineTo(width - 50, headerY + headerHeight - headerRadius);
-      ctx.arc(width - 50 - headerRadius, headerY + headerHeight - headerRadius, headerRadius, 0, Math.PI / 2);
-      ctx.lineTo(50 + headerRadius, headerY + headerHeight);
-      ctx.arc(50 + headerRadius, headerY + headerHeight - headerRadius, headerRadius, Math.PI / 2, Math.PI);
-      ctx.lineTo(50, headerY + headerRadius);
-      ctx.arc(50 + headerRadius, headerY + headerRadius, headerRadius, Math.PI, 3 * Math.PI / 2);
-      ctx.fill();
+      // 绘制标题行背景
+      ctx.fillStyle = '#f0f0f0';
+      ctx.fillRect(50, headerY, width - 100, headerHeight);
       
       // 绘制列标题
-      ctx.fillStyle = '#2c3e50';
+      ctx.fillStyle = '#333333';
       let x = 50;
       
       for (let i = 0; i < columns.length; i++) {
@@ -310,40 +261,32 @@
       }
       
       // 绘制分隔线
-      ctx.strokeStyle = 'rgba(173, 216, 230, 0.8)';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#e0e0e0';
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(50, headerY + headerHeight + 10);
-      ctx.lineTo(width - 50, headerY + headerHeight + 10);
+      ctx.moveTo(50, headerY + headerHeight);
+      ctx.lineTo(width - 50, headerY + headerHeight);
       ctx.stroke();
       
       ctx.restore();
       
-      // 绘制数据行（液态玻璃风格）
+      // 绘制数据行（简约风格）
       ctx.font = '14px Arial';
-      ctx.fillStyle = '#2c3e50';
+      ctx.fillStyle = '#333333';
       
       let y = 150;
       data.forEach((item, index) => {
-        // 绘制行背景（液态玻璃风格）
-        ctx.save();
-        
-        // 设置行背景透明度（偶数行不同透明度）
-        const rowBgAlpha = index % 2 === 0 ? 0.4 : 0.3;
-        const rowBgGradient = ctx.createLinearGradient(50, y - 20, 50, y + 20);
-        rowBgGradient.addColorStop(0, `rgba(255, 255, 255, ${rowBgAlpha})`);
-        rowBgGradient.addColorStop(1, `rgba(240, 250, 255, ${rowBgAlpha})`);
-        ctx.fillStyle = rowBgGradient;
-        
-        // 绘制行背景
-        ctx.fillRect(50, y - 20, width - 100, 40);
-        
-        ctx.restore();
+        // 绘制行背景（奇偶行不同颜色）
+        if (index % 2 === 0) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(50, y - 20, width - 100, 40);
+        }
         
         // 绘制数据
         x = 50;
         
         // 消费类型
+        ctx.fillStyle = '#333333';
         ctx.fillText(item['消费类型'], x, y);
         x += columnWidths[0] + 20;
         
@@ -354,13 +297,13 @@
         ctx.fillText(item['金额(元)'].toString(), x + columnWidths[1], y);
         ctx.textAlign = 'left';
         ctx.font = '14px Arial';
-        ctx.fillStyle = '#2c3e50';
+        ctx.fillStyle = '#333333';
         x += columnWidths[1] + 20;
         
         // 日期
-        ctx.fillStyle = '#3498db'; // 蓝色日期
+        ctx.fillStyle = '#666666';
         ctx.fillText(item['日期'], x, y);
-        ctx.fillStyle = '#2c3e50';
+        ctx.fillStyle = '#333333';
         x += columnWidths[2] + 20;
         
         // 备注（完全重写的换行逻辑，使用字符级别处理）
@@ -373,7 +316,6 @@
         function drawTextWithWrapping(text, x, y, maxWidth) {
           let currentY = y;
           let currentLine = '';
-          let previousLine = '';
           
           // 遍历每个字符
           for (let i = 0; i < text.length; i++) {
@@ -425,17 +367,13 @@
         }
       });
       
-      // 绘制底部装饰元素
-      ctx.save();
-      
-      // 底部渐变边框
-      const bottomGradient = ctx.createLinearGradient(0, height - 50, 0, height);
-      bottomGradient.addColorStop(0, 'rgba(173, 216, 230, 0.5)');
-      bottomGradient.addColorStop(1, 'rgba(173, 216, 230, 0.1)');
-      ctx.fillStyle = bottomGradient;
-      ctx.fillRect(0, height - 50, width, 50);
-      
-      ctx.restore();
+      // 绘制底部边框
+      ctx.strokeStyle = '#e0e0e0';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(50, y + 20);
+      ctx.lineTo(width - 50, y + 20);
+      ctx.stroke();
     }
     
     // 导出Canvas为图片
