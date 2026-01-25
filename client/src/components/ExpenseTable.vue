@@ -55,10 +55,10 @@
               <td>
                 <div class="action-buttons">
                   <button class="edit-btn" @click="handleEdit(expense)">
-                    {{ $t('common.edit') }}
+                    <FontAwesomeIcon icon="edit" /> {{ $t('common.edit') }}
                   </button>
                   <button class="delete-btn" @click="handleDelete(expense.id)">
-                    {{ $t('common.delete') }}
+                    <FontAwesomeIcon icon="trash-alt" /> {{ $t('common.delete') }}
                   </button>
                 </div>
               </td>
@@ -99,9 +99,15 @@
               </div>
               <div class="card-actions">
                 <GlassButton type="primary" class="card-edit-btn" @click="handleEdit(expense)">
+                  <template #icon>
+                    <FontAwesomeIcon icon="edit" />
+                  </template>
                   {{ $t('common.edit') }}
                 </GlassButton>
                 <GlassButton type="danger" class="card-delete-btn" @click="handleDelete(expense.id)">
+                  <template #icon>
+                    <FontAwesomeIcon icon="trash-alt" />
+                  </template>
                   {{ $t('common.delete') }}
                 </GlassButton>
               </div>
