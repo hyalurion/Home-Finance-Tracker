@@ -2400,8 +2400,8 @@ body.donation-modal-open {
 
 @media (prefers-color-scheme: dark) {
 .custom-dialog {
-  background: #2d3748;
-  color: #e2e8f0;
+  background: #1e1e1e;
+  color: #ffffff;
 }
 }
 
@@ -2531,7 +2531,7 @@ body.donation-modal-open {
   border-radius: 8px;
   font-size: 14px;
   transition: all 0.2s ease;
-  background-color: #ffffff;
+  background-color: transparent;
   color: #1a202c;
 }
 
@@ -2539,7 +2539,6 @@ body.donation-modal-open {
 .custom-dialog .form-select,
 .custom-dialog .form-input,
 .custom-dialog .form-textarea {
-  background-color: #4a5568;
   border-color: #718096;
   color: #e2e8f0;
 }

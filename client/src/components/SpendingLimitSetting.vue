@@ -319,7 +319,6 @@ onMounted(() => {
   }
   
   .custom-dialog {
-    background: rgba(30, 30, 30, 0.9);
     border: 1px solid #333;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   }
@@ -397,8 +396,8 @@ onMounted(() => {
 
 @media (prefers-color-scheme: dark) {
 .custom-dialog {
-  background: #2d3748;
-  color: #e2e8f0;
+  background: #1e1e1e;
+  color: #ffffff;
 }
 }
 

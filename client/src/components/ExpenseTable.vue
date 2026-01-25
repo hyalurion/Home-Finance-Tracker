@@ -200,11 +200,18 @@ export default {
 }
 
 .expense-table th {
-  background-color: #4361ee;
-  color: white;
+  background: linear-gradient(90deg, #ff7eb3, #ff758c);
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  -ms-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -moz-text-fill-color: transparent;
+  -ms-text-fill-color: transparent;
   text-align: left;
   padding: 12px 15px;
   font-weight: 600;
+  font-size: 15px;
 }
 
 .expense-table td {
@@ -539,11 +546,6 @@ export default {
 @media (prefers-color-scheme: dark) {
   .table-view {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  .expense-table th {
-    background-color: #333;
-    color: #e0e0e0;
   }
 
   .expense-table td {

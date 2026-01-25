@@ -739,18 +739,6 @@ defineExpose({
       box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
     }
     
-    /* 深色模式下的自定义下拉菜单样式 */
-    .select-trigger {
-      background: #1f2937;
-      border-color: #374151;
-      color: #e5e7eb;
-    }
-    
-    .select-trigger:hover {
-      background: #374151;
-      border-color: #4b5563;
-    }
-    
     .select-icon::before {
       border-right-color: #9ca3af;
       border-bottom-color: #9ca3af;
