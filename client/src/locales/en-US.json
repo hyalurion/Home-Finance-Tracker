@@ -191,7 +191,7 @@
     "amountMustBeAtLeast": "Amount must be at least 0.01",
     "amountMaxTwoDecimals": "Amount can have up to 2 decimal places",
     "feeNoticeTitle": "Payment Fee Notice",
-    "feeNoticeContent": "Payment processor may charge up to 15% fee. Amount shown is before fees.",
+    "feeNoticeContent": "Payment processor may charge up to 10% fee. Amount shown is before fees.",
     "successTitle": "Thank You!",
     "failureTitle": "Donation Failed",
     "successMessage": "Thank you for your ${amount} donation! Your support helps us improve the app.",

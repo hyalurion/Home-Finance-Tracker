@@ -191,7 +191,7 @@
     "amountMustBeAtLeast": "金額不能小於0.01",
     "amountMaxTwoDecimals": "金額最多保留兩位小數",
     "feeNoticeTitle": "支付手續費說明",
-    "feeNoticeContent": "支付管道可能收取最高15%的手續費，此處顯示金額為稅前金額",
+    "feeNoticeContent": "支付管道可能收取最高10%的手續費，此處顯示金額為稅前金額",
     "successTitle": "感謝支持！",
     "failureTitle": "捐贈失敗",
     "successMessage": "感謝您的{amount}元捐贈！您的支援幫助我們改進應用",
