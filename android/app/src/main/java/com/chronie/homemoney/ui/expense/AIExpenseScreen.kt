@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.clickable
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.chronie.homemoney.R
@@ -38,6 +39,9 @@ import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import com.yalantis.ucrop.UCrop
+import com.yalantis.ucrop.UCropActivity
+import android.content.Intent
 
 /**
  * AI 智能记录界面
@@ -52,11 +56,74 @@ fun AIExpenseScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
+    // 裁剪图片启动器
+    val cropLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == android.app.Activity.RESULT_OK) {
+            // 从uCrop获取裁剪后的图片URI
+            val outputUri = UCrop.getOutput(it.data ?: Intent())
+            outputUri?.let {
+                viewModel.addImages(listOf(it))
+                // 删除临时文件
+                val file = File(it.path ?: "")
+                if (file.exists()) {
+                    file.delete()
+                }
+            }
+        }
+    }
+    
+    // 用于已有图片裁剪的启动器
+    val existingImageCropLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == android.app.Activity.RESULT_OK) {
+            // 从uCrop获取裁剪后的图片URI
+            val outputUri = UCrop.getOutput(it.data ?: Intent())
+            outputUri?.let {
+                viewModel.addImages(listOf(it))
+                // 删除临时文件
+                val file = File(it.path ?: "")
+                if (file.exists()) {
+                    file.delete()
+                }
+            }
+        }
+    }
+    
     // 图片选择器
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) {
-        viewModel.addImages(it)
+        it.forEach { uri ->
+            // 启动裁剪
+            try {
+                // 创建临时文件用于保存裁剪结果
+                val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
+                val imageFileName = "CROP_${timeStamp}_"
+                val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                val image = File(storageDir, "$imageFileName.jpg")
+                val outputUri = androidx.core.content.FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    image
+                )
+                // 配置uCrop
+                val options = UCrop.Options()
+                options.setCompressionQuality(90)
+                options.setHideBottomControls(false)
+                options.setFreeStyleCropEnabled(true)
+                // 启动裁剪
+                val uCrop = UCrop.of(uri, outputUri)
+                    .withAspectRatio(1f, 1f)
+                    .withMaxResultSize(1080, 1080)
+                    .withOptions(options)
+                cropLauncher.launch(uCrop.getIntent(context))
+            } catch (e: Exception) {
+                android.util.Log.e("AIExpenseScreen", "Failed to start crop", e)
+            }
+        }
     }
 
     // 相机拍摄临时文件URI
@@ -69,8 +136,64 @@ fun AIExpenseScreen(
         if (it) {
             // 拍摄成功，将图片添加到选择列表
             cameraImageUri?.let { uri ->
-                viewModel.addImages(listOf(uri))
+                // 启动裁剪
+                try {
+                    // 创建临时文件用于保存裁剪结果
+                    val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
+                    val imageFileName = "CROP_${timeStamp}_"
+                    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                    val image = File(storageDir, "$imageFileName.jpg")
+                    val outputUri = androidx.core.content.FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.fileprovider",
+                        image
+                    )
+                    // 配置uCrop
+                    val options = UCrop.Options()
+                    options.setCompressionQuality(90)
+                    options.setHideBottomControls(false)
+                    options.setFreeStyleCropEnabled(true)
+                    // 启动裁剪
+                    val uCrop = UCrop.of(uri, outputUri)
+                        .withAspectRatio(1f, 1f)
+                        .withMaxResultSize(1080, 1080)
+                        .withOptions(options)
+                    cropLauncher.launch(uCrop.getIntent(context))
+                } catch (e: Exception) {
+                    android.util.Log.e("AIExpenseScreen", "Failed to start crop", e)
+                }
             }
+        }
+    }
+    
+    // 处理已有图片裁剪
+    fun handleCropExistingImage(uri: Uri) {
+        try {
+            // 从列表中移除旧图片
+            viewModel.removeImage(uri)
+            // 创建临时文件用于保存裁剪结果
+            val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
+            val imageFileName = "CROP_${timeStamp}_"
+            val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            val image = File(storageDir, "$imageFileName.jpg")
+            val outputUri = androidx.core.content.FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                image
+            )
+            // 配置uCrop
+            val options = UCrop.Options()
+            options.setCompressionQuality(90)
+            options.setHideBottomControls(false)
+            options.setFreeStyleCropEnabled(true)
+            // 启动裁剪
+            val uCrop = UCrop.of(uri, outputUri)
+                .withAspectRatio(1f, 1f)
+                .withMaxResultSize(1080, 1080)
+                .withOptions(options)
+            existingImageCropLauncher.launch(uCrop.getIntent(context))
+        } catch (e: Exception) {
+            android.util.Log.e("AIExpenseScreen", "Failed to start crop", e)
         }
     }
 
@@ -162,7 +285,8 @@ fun AIExpenseScreen(
                 context = context,
                 selectedImages = uiState.selectedImages,
                 onAddImages = { showImageSourceDialog = true },
-                onRemoveImage = viewModel::removeImage
+                onRemoveImage = viewModel::removeImage,
+                onCropImage = ::handleCropExistingImage
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -343,7 +467,8 @@ private fun ImageSelectionSection(
     context: android.content.Context,
     selectedImages: List<Uri>,
     onAddImages: () -> Unit,
-    onRemoveImage: (Uri) -> Unit
+    onRemoveImage: (Uri) -> Unit,
+    onCropImage: (Uri) -> Unit
 ) {
     Column {
         Row(
@@ -370,7 +495,8 @@ private fun ImageSelectionSection(
                 items(selectedImages.size) { index ->
                     ImagePreviewCard(
                         imageUri = selectedImages[index],
-                        onRemove = { onRemoveImage(selectedImages[index]) }
+                        onRemove = { onRemoveImage(selectedImages[index]) },
+                        onCrop = { onCropImage(selectedImages[index]) }
                     )
                 }
             }
@@ -414,7 +540,8 @@ private fun ImageSelectionSection(
 @Composable
 private fun ImagePreviewCard(
     imageUri: Uri,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    onCrop: () -> Unit
 ) {
     Card(
         modifier = Modifier.size(100.dp)
@@ -423,7 +550,11 @@ private fun ImagePreviewCard(
             AsyncImage(
                 model = imageUri,
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable {
+                        onCrop()
+                    },
                 contentScale = ContentScale.Crop
             )
             IconButton(
