@@ -339,6 +339,7 @@
     <string name="membership_active">已激活</string>
     <string name="membership_inactive">未激活</string>
     <string name="membership_expired">已过期</string>
+    <string name="membership_expired_message">您的会员已过期，请续费以继续使用所有功能。</string>
     <string name="membership_plan">当前方案</string>
     <string name="membership_expires_on">到期时间</string>
     <string name="membership_days_remaining">剩余 %d 天</string>
@@ -349,6 +350,7 @@
     <string name="membership_required">需要会员</string>
     <string name="membership_required_message">此功能需要有效会员资格，请订阅后继续使用。</string>
     <string name="membership_expiring_soon">您的会员将在 %d 天后到期</string>
+    <string name="membership_expiring_message">您的会员即将到期，请续费以继续使用所有功能。</string>
     <string name="membership_check_failed">检查会员状态失败</string>
     <string name="membership_using_cached">使用缓存的会员信息（离线）</string>
     <string name="membership_status_refreshed">会员状态已刷新</string>
@@ -356,14 +358,8 @@
     <string name="membership_refresh">刷新状态</string>
     
     <!-- 会员购买 -->
-    <string name="membership_benefits_title">会员权益</string>
     <string name="membership_plans_title">可选套餐</string>
     <string name="current_membership">当前会员</string>
-    <string name="benefit_unlimited_expenses">无限制记账</string>
-    <string name="benefit_advanced_charts">高级图表分析</string>
-    <string name="benefit_data_export">导出数据到 Excel</string>
-    <string name="benefit_cloud_sync">云端同步</string>
-    <string name="benefit_priority_support">优先客户支持</string>
     <string name="plan">套餐</string>
     <string name="duration">时长</string>
     <string name="purchase">购买</string>

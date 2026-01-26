@@ -340,6 +340,7 @@
     <string name="membership_active">Active</string>
     <string name="membership_inactive">Inactive</string>
     <string name="membership_expired">Expired</string>
+    <string name="membership_expired_message">Your membership has expired. Please renew to continue using all features.</string>
     <string name="membership_plan">Current Plan</string>
     <string name="membership_expires_on">Expires On</string>
     <string name="membership_days_remaining">%d days remaining</string>
@@ -350,6 +351,7 @@
     <string name="membership_required">Membership Required</string>
     <string name="membership_required_message">This feature requires an active membership. Please subscribe to continue.</string>
     <string name="membership_expiring_soon">Your membership will expire in %d days</string>
+    <string name="membership_expiring_message">Your membership is expiring soon. Please renew to continue using all features.</string>
     <string name="membership_check_failed">Failed to check membership status</string>
     <string name="membership_using_cached">Using cached membership information (offline)</string>
     <string name="membership_status_refreshed">Membership status refreshed</string>
@@ -357,14 +359,8 @@
     <string name="membership_refresh">Refresh Status</string>
    
     <!-- Membership Purchase -->
-    <string name="membership_benefits_title">Member Benefits</string>
     <string name="membership_plans_title">Available Plans</string>
     <string name="current_membership">Current Membership</string>
-    <string name="benefit_unlimited_expenses">Unlimited expense records</string>
-    <string name="benefit_advanced_charts">Advanced charts and analytics</string>
-    <string name="benefit_data_export">Export data to Excel</string>
-    <string name="benefit_cloud_sync">Cloud synchronization</string>
-    <string name="benefit_priority_support">Priority customer support</string>
     <string name="plan">Plan</string>
     <string name="duration">Duration</string>
     <string name="purchase">Purchase</string>

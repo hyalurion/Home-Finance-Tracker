@@ -18,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.SubscriptionPlan
 import com.chronie.homemoney.domain.model.SubscriptionStatus
@@ -139,6 +141,7 @@ fun MembershipPurchaseScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MembershipContent(
     context: Context,
@@ -148,121 +151,92 @@ private fun MembershipContent(
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // 会员过期提示
+    var showExpiredBottomSheet by remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    
+    LaunchedEffect(currentStatus) {
         if (currentStatus != null && !currentStatus.isActive) {
+            showExpiredBottomSheet = true
+        }
+    }
+    
+    Box(modifier = modifier) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // 当前会员状态
+            if (currentStatus != null && currentStatus.isActive) {
+                item {
+                    CurrentMembershipCard(context, currentStatus)
+                }
+            }
+            
+            // 会员套餐列表
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer
-                    )
+                Text(
+                    text = context.getString(R.string.membership_plans_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+            
+            items(plans) { plan ->
+                MembershipPlanCard(
+                    context = context,
+                    plan = plan,
+                    onPurchase = { onPurchase(plan) }
+                )
+            }
+            
+            // 刷新按钮
+            item {
+                OutlinedButton(
+                    onClick = onRefresh,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = context.getString(R.string.membership_expired),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    }
+                    Text(context.getString(R.string.membership_refresh))
                 }
             }
         }
-        
-        // 会员权益说明
-        item {
-            MembershipBenefitsCard(context)
-        }
-        
-        // 当前会员状态
-        if (currentStatus != null && currentStatus.isActive) {
-            item {
-                CurrentMembershipCard(context, currentStatus)
-            }
-        }
-        
-        // 会员套餐列表
-        item {
-            Text(
-                text = context.getString(R.string.membership_plans_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-        
-        items(plans) { plan ->
-            MembershipPlanCard(
-                context = context,
-                plan = plan,
-                onPurchase = { onPurchase(plan) }
-            )
-        }
-        
-        // 刷新按钮
-        item {
-            OutlinedButton(
-                onClick = onRefresh,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(context.getString(R.string.membership_refresh))
-            }
-        }
     }
-}
-
-@Composable
-private fun MembershipBenefitsCard(context: Context) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+    
+    // 会员过期提示BottomSheet
+    if (showExpiredBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showExpiredBottomSheet = false },
+            sheetState = bottomSheetState,
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            dragHandle = { BottomSheetDefaults.DragHandle() }
         ) {
-            Text(
-                text = context.getString(R.string.membership_benefits_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            
-            val benefits = listOf(
-                context.getString(R.string.benefit_unlimited_expenses),
-                context.getString(R.string.benefit_advanced_charts),
-                context.getString(R.string.benefit_data_export),
-                context.getString(R.string.benefit_cloud_sync),
-                context.getString(R.string.benefit_priority_support)
-            )
-            
-            benefits.forEach { benefit ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = context.getString(R.string.membership_expired),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                Text(
+                    text = context.getString(R.string.membership_expired_message),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                
+                Button(
+                    onClick = { showExpiredBottomSheet = false },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = benefit,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    Text(context.getString(R.string.confirm))
                 }
             }
         }

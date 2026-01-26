@@ -12,6 +12,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +29,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     context: Context,
@@ -44,6 +50,16 @@ fun MainScreen(
     val shouldShowExpiryWarning by viewModel.shouldShowExpiryWarning.collectAsState()
     val daysUntilExpiry by viewModel.daysUntilExpiry.collectAsState()
     var selectedTab by remember { mutableStateOf(0) }
+    var showExpiryBottomSheet by remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    
+    LaunchedEffect(shouldShowExpiryWarning) {
+        if (shouldShowExpiryWarning) {
+            showExpiryBottomSheet = true
+        }
+    }
     
     // 检查登录状态，未登录则跳转到欢迎页
     LaunchedEffect(isLoggedIn) {
@@ -62,45 +78,6 @@ fun MainScreen(
     // 原生界面（带底部 Tab 栏）
     Scaffold(
             topBar = {
-                // 显示会员过期提醒
-                if (shouldShowExpiryWarning) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.errorContainer
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = context.getString(R.string.membership_expiring_soon, daysUntilExpiry),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                modifier = Modifier.weight(1f)
-                            )
-                            
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                TextButton(onClick = onRequireMembership) {
-                                    Text(
-                                        text = context.getString(R.string.renew_now),
-                                        color = MaterialTheme.colorScheme.onErrorContainer
-                                    )
-                                }
-                                
-                                IconButton(onClick = { viewModel.dismissExpiryWarning() }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = context.getString(R.string.remind_later),
-                                        tint = MaterialTheme.colorScheme.onErrorContainer
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
             },
             bottomBar = {
                 BottomNavigationBar(
@@ -151,4 +128,61 @@ fun MainScreen(
                 }
             }
         }
+    
+    // 会员即将过期提醒BottomSheet
+    if (showExpiryBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { 
+                showExpiryBottomSheet = false
+                viewModel.dismissExpiryWarning()
+            },
+            sheetState = bottomSheetState,
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            dragHandle = { BottomSheetDefaults.DragHandle() }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = context.getString(R.string.membership_expiring_soon, daysUntilExpiry),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+                
+                Text(
+                    text = context.getString(R.string.membership_expiring_message),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            showExpiryBottomSheet = false
+                            onRequireMembership()
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(context.getString(R.string.renew_now))
+                    }
+                    
+                    TextButton(
+                        onClick = {
+                            showExpiryBottomSheet = false
+                            viewModel.dismissExpiryWarning()
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(context.getString(R.string.remind_later))
+                    }
+                }
+            }
+        }
+    }
 }
