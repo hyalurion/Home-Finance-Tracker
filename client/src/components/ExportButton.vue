@@ -10,7 +10,7 @@
   <div class="export-section">
     <GlassButton type="primary" @click="handleExport" class="btn btn-primary">
         <template #icon>
-          <FontAwesomeIcon icon="download" />
+          <FontAwesomeIcon :icon="['fas', 'file-export']" />
         </template>
         {{ $t('app.export') }}
       </GlassButton>

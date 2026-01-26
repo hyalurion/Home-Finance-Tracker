@@ -20,7 +20,8 @@ import {
   faPlus, faUpload, faDownload, faMicrochip,
   faFileAlt, faStar, faEnvelope, faQuestionCircle,
   faChartPie, faSyncAlt, faCog, faChartLine, faTimes,
-  faEdit, faTrashAlt
+  faEdit, faTrashAlt,
+  faFileExport
 } from '@fortawesome/free-solid-svg-icons'
 
 // 将图标添加到库中
@@ -28,7 +29,7 @@ library.add(
   faPlus, faUpload, faDownload, faMicrochip,
   faFileAlt, faStar, faEnvelope, faQuestionCircle,
   faChartPie, faSyncAlt, faCog, faChartLine, faTimes,
-  faEdit, faTrashAlt
+  faEdit, faTrashAlt, faFileExport
 )
 
 import App from './App.vue';

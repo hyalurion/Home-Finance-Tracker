@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "2025.8.26",
+  "version": "2026",
   "scripts": {
     "server": "node --max-old-space-size=256 src/app.js",
     "build": "echo '服务器无需构建过程。请在客户端目录运行`npm run build`。'",

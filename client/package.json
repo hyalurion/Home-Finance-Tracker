@@ -1,7 +1,7 @@
 {
   "name": "client",
   "type": "module",
-  "version": "2025.8.30",
+  "version": "2026",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
