@@ -1335,10 +1335,14 @@ fun AccountSection(
         options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
         options.setStatusBarColor(android.graphics.Color.parseColor("#6750A4"))
         options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
-        
+
         // 确保裁剪界面正确处理状态栏空间
-        options.setToolbarTitle("")
-        options.setToolbarWidgetColor(android.graphics.Color.WHITE)
+            options.setToolbarTitle("")
+            options.setToolbarWidgetColor(android.graphics.Color.WHITE)
+        // 为顶部工具栏添加额外padding，确保不占用状态栏空间
+            options.setDimmedLayerColor(android.graphics.Color.parseColor("#80000000"))
+            options.setShowCropGrid(false)
+            options.setShowCropFrame(true)
         
         // 隐藏底部控件
         options.setHideBottomControls(false)
