@@ -1336,11 +1336,18 @@ fun AccountSection(
         options.setStatusBarColor(android.graphics.Color.parseColor("#6750A4"))
         options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
         
+        // 确保裁剪界面正确处理状态栏空间
+        options.setToolbarTitle("")
+        options.setToolbarWidgetColor(android.graphics.Color.WHITE)
+        
         // 隐藏底部控件
         options.setHideBottomControls(false)
         
         // 设置最大缩放倍数
         options.setMaxScaleMultiplier(10F)
+        
+        // 添加顶部安全区，避免与状态栏重叠
+        options.setFreeStyleCropEnabled(true)
         
         return options
     }

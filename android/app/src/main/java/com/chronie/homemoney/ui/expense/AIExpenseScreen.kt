@@ -114,6 +114,13 @@ fun AIExpenseScreen(
                 options.setCompressionQuality(90)
                 options.setHideBottomControls(false)
                 options.setFreeStyleCropEnabled(true)
+                // 设置工具栏和状态栏颜色，避免与状态栏重叠
+                options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
+                options.setStatusBarColor(android.graphics.Color.parseColor("#6750A4"))
+                options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
+                // 确保裁剪界面正确处理状态栏空间
+                options.setToolbarTitle("")
+                options.setToolbarWidgetColor(android.graphics.Color.WHITE)
                 // 启动裁剪
                 val uCrop = UCrop.of(uri, outputUri)
                     .withAspectRatio(1f, 1f)
@@ -153,6 +160,13 @@ fun AIExpenseScreen(
                     options.setCompressionQuality(90)
                     options.setHideBottomControls(false)
                     options.setFreeStyleCropEnabled(true)
+                    // 确保裁剪界面正确处理状态栏空间
+                    options.setToolbarTitle("")
+                    options.setToolbarWidgetColor(android.graphics.Color.WHITE)
+                    // 设置工具栏和状态栏颜色，避免与状态栏重叠
+                    options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
+                    options.setStatusBarColor(android.graphics.Color.parseColor("#6750A4"))
+                    options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
                     // 启动裁剪
                     val uCrop = UCrop.of(uri, outputUri)
                         .withAspectRatio(1f, 1f)
@@ -186,6 +200,13 @@ fun AIExpenseScreen(
             options.setCompressionQuality(90)
             options.setHideBottomControls(false)
             options.setFreeStyleCropEnabled(true)
+            // 确保裁剪界面正确处理状态栏空间
+            options.setToolbarTitle("")
+            options.setToolbarWidgetColor(android.graphics.Color.WHITE)
+            // 设置工具栏和状态栏颜色，避免与状态栏重叠
+            options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
+            options.setStatusBarColor(android.graphics.Color.parseColor("#6750A4"))
+            options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
             // 启动裁剪
             val uCrop = UCrop.of(uri, outputUri)
                 .withAspectRatio(1f, 1f)
