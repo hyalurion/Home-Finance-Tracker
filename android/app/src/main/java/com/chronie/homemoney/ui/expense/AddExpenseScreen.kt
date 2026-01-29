@@ -25,7 +25,6 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.hilt.navigation.compose.hiltViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import top.yukonga.miuix.kmp.extra.SuperDropdown
 
 /**
  * 添加支出界面
@@ -43,12 +42,12 @@ fun AddExpenseScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    
+
     // 会员验证和编辑模式初始化
     LaunchedEffect(expenseId) {
         val isLoggedIn = viewModel.checkLoginStatusUseCase()
         val isMember = viewModel.checkMembershipUseCase()
-        
+
         when {
             !isLoggedIn -> onRequireLogin()
             !isMember -> onRequireMembership()
@@ -60,10 +59,10 @@ fun AddExpenseScreen(
             }
         }
     }
-    
+
     // 显示日期选择器的状态
     var showDatePicker by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -160,9 +159,9 @@ fun AddExpenseScreen(
                     )
                 }
             }
-            
+
             Divider()
-            
+
             // 类型选择
             ExpenseTypeDropdown(
                 selectedType = uiState.selectedType,
@@ -170,7 +169,7 @@ fun AddExpenseScreen(
                 context = context,
                 onTypeSelected = { viewModel.setType(it) }
             )
-            
+
             // 金额输入
             ExpenseAmountField(
                 amount = uiState.amount,
@@ -178,7 +177,7 @@ fun AddExpenseScreen(
                 context = context,
                 onAmountChange = { viewModel.setAmount(it) }
             )
-            
+
             // 日期选择
             ExpenseDateField(
                 selectedDate = uiState.selectedDate,
@@ -186,7 +185,7 @@ fun AddExpenseScreen(
                 context = context,
                 onClick = { showDatePicker = true }
             )
-            
+
             // 备注输入
             ExpenseRemarkField(
                 remark = uiState.remark,
@@ -195,7 +194,7 @@ fun AddExpenseScreen(
             )
         }
     }
-    
+
     // 日期选择器
     if (showDatePicker) {
         ExpenseDatePickerDialog(
@@ -208,7 +207,7 @@ fun AddExpenseScreen(
             }
         )
     }
-    
+
     // 显示保存错误
     LaunchedEffect(uiState.saveError) {
         uiState.saveError?.let { error ->
@@ -223,6 +222,7 @@ fun AddExpenseScreen(
 /**
  * 类型选择下拉菜单
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseTypeDropdown(
     selectedType: ExpenseType?,
@@ -230,34 +230,53 @@ fun ExpenseTypeDropdown(
     context: android.content.Context,
     onTypeSelected: (ExpenseType) -> Unit
 ) {
-    val expenseTypes = ExpenseType.values()
-    val typeNames = expenseTypes.map { ExpenseTypeLocalizer.getLocalizedName(context, it) }
-    val selectedIndex = if (selectedType != null) {
-        expenseTypes.indexOf(selectedType)
-    } else {
-        -1
-    }
-    
+    var expanded by remember { mutableStateOf(false) }
+
     Column {
-        SuperDropdown(
-            items = typeNames,
-            selectedIndex = if (selectedIndex >= 0) selectedIndex else 0,
-            title = context.getString(R.string.add_expense_type_label),
-            summary = if (selectedType != null) {
-                ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
-            } else {
-                context.getString(R.string.add_expense_type_hint)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = true,
-            showValue = true,
-            onSelectedIndexChange = { index ->
-                if (index >= 0 && index < expenseTypes.size) {
-                    onTypeSelected(expenseTypes[index])
+        Text(
+            text = context.getString(R.string.add_expense_type_label),
+            style = MaterialTheme.typography.labelLarge
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it }
+        ) {
+            OutlinedTextField(
+                value = if (selectedType != null) {
+                    ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
+                } else {
+                    ""
+                },
+                onValueChange = {},
+                readOnly = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
+                placeholder = { Text(context.getString(R.string.add_expense_type_hint)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                isError = error != null
+            )
+            
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                ExpenseType.values().forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(ExpenseTypeLocalizer.getLocalizedName(context, type)) },
+                        onClick = {
+                            onTypeSelected(type)
+                            expanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
                 }
             }
-        )
-        
+        }
+
         if (error != null) {
             Text(
                 text = when (error) {
@@ -325,7 +344,7 @@ fun ExpenseDateField(
     onClick: () -> Unit
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    
+
     Column {
         Text(
             text = context.getString(R.string.add_expense_date_label),
@@ -402,9 +421,9 @@ fun ExpenseDatePickerDialog(
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = initialDate.toEpochDay() * 24 * 60 * 60 * 1000
     )
-    
+
     val surfaceColor = MaterialTheme.colorScheme.surface
-    
+
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
