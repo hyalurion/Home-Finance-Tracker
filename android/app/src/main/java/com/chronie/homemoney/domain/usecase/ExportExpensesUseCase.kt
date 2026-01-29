@@ -23,7 +23,7 @@ import javax.inject.Inject
  */
 class ExportExpensesUseCase @Inject constructor(
     private val expenseRepository: ExpenseRepository,
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     
     suspend operator fun invoke(

@@ -34,7 +34,7 @@ class SettingsViewModel @Inject constructor(
     private val getMembershipStatusUseCase: com.chronie.homemoney.domain.usecase.GetMembershipStatusUseCase,
     private val memberRepository: com.chronie.homemoney.domain.repository.MemberRepository,
     private val preferencesManager: com.chronie.homemoney.data.local.PreferencesManager,
-    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
+    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
     // 动态颜色开关状态
@@ -131,7 +131,7 @@ class SettingsViewModel @Inject constructor(
                 val member = result.getOrNull()
                 if (member != null && member.avatar != null) {
                     // 日志记录头像数据的前50个字符，以检查格式
-                    android.util.Log.d("SettingsViewModel", "Fetched avatar data: ${member.avatar?.take(50)}...")
+                    android.util.Log.d("SettingsViewModel", "Fetched avatar data: ${member.avatar.take(50)}...")
                     _avatar.value = member.avatar
                     preferencesManager.saveAvatar(member.avatar)
                 }

@@ -22,8 +22,8 @@ import javax.inject.Singleton
 
 @Singleton
 class HealthCheckService @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @javax.inject.Named("HealthCheckApi") private val memberApi: MemberApi
+    @param:ApplicationContext private val context: Context,
+    @param:javax.inject.Named("HealthCheckApi") private val memberApi: MemberApi
 ) {
     private val serviceScope = CoroutineScope(Dispatchers.IO + Job())
     private var healthCheckJob: Job? = null

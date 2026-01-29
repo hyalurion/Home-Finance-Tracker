@@ -49,9 +49,9 @@ object DatabaseMigrations {
      * 为server_id字段添加唯一索引
      */
     val MIGRATION_3_4 = object : Migration(3, 4) {
-        override fun migrate(database: SupportSQLiteDatabase) {
+        override fun migrate(db: SupportSQLiteDatabase) {
             // 为expenses表的server_id字段添加唯一索引
-            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_expenses_server_id` ON `expenses` (`server_id`) WHERE `server_id` IS NOT NULL")
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_expenses_server_id` ON `expenses` (`server_id`) WHERE `server_id` IS NOT NULL")
         }
     }
     

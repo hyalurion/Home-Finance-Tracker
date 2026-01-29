@@ -382,7 +382,12 @@ fun SettingsScreen(
 fun AppVersionInfo(context: Context) {
     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
     val versionName = packageInfo.versionName
-    val versionCode = packageInfo.versionCode
+    val versionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+        packageInfo.longVersionCode
+    } else {
+        @Suppress("DEPRECATION")
+        packageInfo.versionCode.toLong()
+    }
     
     Text(
         text = "Version $versionName ($versionCode)",
@@ -1333,7 +1338,6 @@ fun AccountSection(
         
         // 设置裁剪界面颜色
         options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
-        options.setStatusBarColor(android.graphics.Color.parseColor("#6750A4"))
         options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
 
         // 确保裁剪界面正确处理状态栏空间

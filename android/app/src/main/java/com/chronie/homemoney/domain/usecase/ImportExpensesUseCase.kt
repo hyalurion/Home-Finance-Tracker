@@ -18,7 +18,7 @@ import javax.inject.Inject
  */
 class ImportExpensesUseCase @Inject constructor(
     private val expenseRepository: ExpenseRepository,
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     
     data class ImportResult(

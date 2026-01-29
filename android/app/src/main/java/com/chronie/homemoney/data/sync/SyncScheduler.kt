@@ -24,7 +24,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class SyncScheduler @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val networkMonitor: NetworkMonitor,
     private val syncManager: SyncManager
 ) {

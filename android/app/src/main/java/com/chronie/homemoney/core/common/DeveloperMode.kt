@@ -21,7 +21,7 @@ private val Context.developerDataStore: DataStore<Preferences> by preferencesDat
  */
 @Singleton
 class DeveloperMode @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val errorReporterTest: ErrorReporterTest
 ) {
     private val developerModeKey = booleanPreferencesKey("developer_mode_enabled")

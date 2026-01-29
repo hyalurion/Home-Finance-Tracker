@@ -25,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.hilt.navigation.compose.hiltViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import top.yukonga.miuix.kmp.extra.SuperDropdown
 
 /**
  * 添加支出界面
@@ -222,7 +223,6 @@ fun AddExpenseScreen(
 /**
  * 类型选择下拉菜单
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseTypeDropdown(
     selectedType: ExpenseType?,
@@ -230,52 +230,33 @@ fun ExpenseTypeDropdown(
     context: android.content.Context,
     onTypeSelected: (ExpenseType) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    val expenseTypes = ExpenseType.values()
+    val typeNames = expenseTypes.map { ExpenseTypeLocalizer.getLocalizedName(context, it) }
+    val selectedIndex = if (selectedType != null) {
+        expenseTypes.indexOf(selectedType)
+    } else {
+        -1
+    }
     
     Column {
-        Text(
-            text = context.getString(R.string.add_expense_type_label),
-            style = MaterialTheme.typography.labelLarge
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = it }
-        ) {
-            OutlinedTextField(
-                value = if (selectedType != null) {
-                    ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
-                } else {
-                    ""
-                },
-                onValueChange = {},
-                readOnly = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                placeholder = { Text(context.getString(R.string.add_expense_type_hint)) },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                isError = error != null
-            )
-            
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                ExpenseType.values().forEach { type ->
-                    DropdownMenuItem(
-                        text = { Text(ExpenseTypeLocalizer.getLocalizedName(context, type)) },
-                        onClick = {
-                            onTypeSelected(type)
-                            expanded = false
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
+        SuperDropdown(
+            items = typeNames,
+            selectedIndex = if (selectedIndex >= 0) selectedIndex else 0,
+            title = context.getString(R.string.add_expense_type_label),
+            summary = if (selectedType != null) {
+                ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
+            } else {
+                context.getString(R.string.add_expense_type_hint)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true,
+            showValue = true,
+            onSelectedIndexChange = { index ->
+                if (index >= 0 && index < expenseTypes.size) {
+                    onTypeSelected(expenseTypes[index])
                 }
             }
-        }
+        )
         
         if (error != null) {
             Text(

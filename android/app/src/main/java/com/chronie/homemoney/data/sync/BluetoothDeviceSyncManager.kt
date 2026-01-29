@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -67,6 +68,7 @@ class BluetoothDeviceSyncManager(
         return hasLocationPermission && hasScanPermission && hasConnectPermission
     }
     
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun searchDevices(): Flow<DeviceInfo> {
         Log.d(TAG, "Searching for Bluetooth devices")
         
@@ -323,7 +325,12 @@ class BluetoothDeviceSyncManager(
             when (intent?.action) {
                 BluetoothDevice.ACTION_FOUND -> {
                     // 发现设备
-                    val device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                    val device = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                    }
                     val rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE).toInt()
                     
                     device?.let {

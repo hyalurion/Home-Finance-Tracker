@@ -24,7 +24,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class AIRecordRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val aiRecordApi: AIRecordApi,
     private val expenseRepository: ExpenseRepository,
     private val gson: Gson

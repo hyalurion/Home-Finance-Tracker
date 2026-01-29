@@ -100,7 +100,7 @@ class LanDeviceSyncManager(
         Log.d(TAG, "Sending broadcast on LAN")
         
         val deviceName = Build.MODEL
-        val deviceId = "android_${Build.SERIAL ?: UUID.randomUUID().toString()}"
+        val deviceId = "android_${getDeviceSerial() ?: UUID.randomUUID().toString()}"
         val message = "DEVICE_DISCOVERY,$deviceId,$deviceName,ANDROID,LAN"
         
         try {
@@ -142,9 +142,12 @@ class LanDeviceSyncManager(
     
     /**
      * 获取当前WiFi网络的广播地址
+     * 注意：DhcpInfo 在 Android 12+ 已被弃用，但为了向后兼容性，我们继续使用它
+     * 在未来版本中，应该迁移到 ConnectivityManager 和 NetworkRequest API
      */
     private fun getBroadcastAddress(): InetAddress {
         return try {
+            @Suppress("DEPRECATION")
             val dhcpInfo = wifiManager.dhcpInfo
             if (dhcpInfo == null) {
                 return InetAddress.getByName("255.255.255.255")
@@ -295,6 +298,25 @@ class LanDeviceSyncManager(
      */
     private fun calculateChecksum(data: String): String {
         return data.hashCode().toString()
+    }
+    
+    /**
+     * 获取设备序列号
+     * 注意：Build.SERIAL 在 Android 8.0+ 已被弃用
+     * 在 Android 10+ 中，需要 READ_PRIVILEGED_PHONE_STATE 权限才能访问
+     */
+    private fun getDeviceSerial(): String? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                Build.getSerial()
+            } catch (e: SecurityException) {
+                // 如果没有权限，返回 null
+                null
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            Build.SERIAL
+        }
     }
     
     /**

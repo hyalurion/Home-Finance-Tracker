@@ -29,7 +29,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class SyncManagerImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val expenseDao: ExpenseDao,
     private val syncQueueDao: SyncQueueDao,
     private val expenseApi: ExpenseApi,
@@ -185,7 +185,7 @@ class SyncManagerImpl @Inject constructor(
                     expenseDao.updateExpense(
                         entity.copy(
                             isSynced = true,
-                            serverId = serverExpense?.id?.toString()
+                            serverId = serverExpense?.id.toString()
                         )
                     )
                 }

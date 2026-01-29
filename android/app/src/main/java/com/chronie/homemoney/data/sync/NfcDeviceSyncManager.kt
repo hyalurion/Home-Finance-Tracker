@@ -312,7 +312,12 @@ class NfcDeviceSyncManager(
      * 处理NFC意图并返回设备信息
      */
     private fun processNfcIntent(intent: Intent): DeviceInfo? {
-        val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
+        val tag = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
+        }
         
         return if (tag != null) {
             DeviceInfo(
@@ -320,7 +325,7 @@ class NfcDeviceSyncManager(
                 deviceName = "NFC Device",
                 deviceType = "ANDROID",
                 connectionType = "NFC",
-                address = tag?.id?.contentToString() ?: "",
+                address = tag.id.contentToString(),
                 signalStrength = 100
             )
         } else {

@@ -78,8 +78,16 @@ object SyncModule {
     
     @Provides
     @Singleton
-    fun provideBluetoothAdapter(): BluetoothAdapter? {
-        return BluetoothAdapter.getDefaultAdapter()
+    fun provideBluetoothAdapter(
+        @ApplicationContext context: Context
+    ): BluetoothAdapter? {
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
+            bluetoothManager.adapter
+        } else {
+            @Suppress("DEPRECATION")
+            BluetoothAdapter.getDefaultAdapter()
+        }
     }
     
     @Provides

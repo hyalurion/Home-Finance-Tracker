@@ -23,7 +23,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class AIExpenseViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val aiRecordRepository: AIRecordRepository,
     private val syncScheduler: com.chronie.homemoney.data.sync.SyncScheduler
 ) : ViewModel() {

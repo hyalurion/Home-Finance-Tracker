@@ -22,7 +22,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
  */
 @Singleton
 class ErrorReporter @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     // 使用MockErrorReportApi实例
     private val errorReportApi = MockErrorReportApi()
