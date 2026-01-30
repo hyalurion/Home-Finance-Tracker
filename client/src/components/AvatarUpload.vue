@@ -422,27 +422,63 @@ watch(
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+  /* 吧唧质感效果 */
+  box-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.8) inset,
+    0 0 20px rgba(0, 0, 0, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.15);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%);
+  transition: all 0.3s ease;
+}
+
+.avatar-image:hover {
+  transform: scale(1.05);
+  box-shadow: 
+    0 0 15px rgba(255, 255, 255, 0.9) inset,
+    0 0 30px rgba(0, 0, 0, 0.3),
+    0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-preview {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  /* 添加底座效果 */
+  background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.2) 100%);
+  border-radius: 50%;
+  padding: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .avatar-placeholder {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: rgba(240, 240, 240, 0.2);
+  background: linear-gradient(135deg, rgba(240,240,240,0.3) 0%, rgba(240,240,240,0.1) 50%, rgba(0,0,0,0.2) 100%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 2px dashed rgba(217, 217, 217, 0.5);
+  border: 3px solid rgba(217, 217, 217, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #909399;
   font-size: 14px;
   transition: all 0.3s ease;
+  box-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.5) inset,
+    0 0 20px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .avatar-placeholder:hover {
-  background: rgba(240, 240, 240, 0.3);
-  border-color: rgba(64, 158, 255, 0.5);
+  background: linear-gradient(135deg, rgba(240,240,240,0.4) 0%, rgba(240,240,240,0.2) 50%, rgba(0,0,0,0.1) 100%);
+  border-color: rgba(64, 158, 255, 0.8);
+  transform: scale(1.05);
+  box-shadow: 
+    0 0 15px rgba(255, 255, 255, 0.7) inset,
+    0 0 30px rgba(64, 158, 255, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* 裁剪弹窗样式 */
@@ -647,9 +683,43 @@ watch(
   }
 
   .avatar-placeholder {
-    background: rgba(48, 48, 48, 0.8);
-    border-color: rgba(64, 64, 64, 0.8);
+    background: linear-gradient(135deg, rgba(64,64,64,0.8) 0%, rgba(48,48,48,0.6) 50%, rgba(0,0,0,0.3) 100%);
+    border-color: rgba(128, 128, 128, 0.8);
     color: #a0a0a0;
+    box-shadow: 
+      0 0 10px rgba(255, 255, 255, 0.2) inset,
+      0 0 20px rgba(0, 0, 0, 0.3),
+      0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .avatar-placeholder:hover {
+    background: linear-gradient(135deg, rgba(80,80,80,0.8) 0%, rgba(64,64,64,0.6) 50%, rgba(0,0,0,0.2) 100%);
+    border-color: rgba(64, 158, 255, 0.8);
+    box-shadow: 
+      0 0 15px rgba(255, 255, 255, 0.3) inset,
+      0 0 30px rgba(64, 158, 255, 0.4),
+      0 4px 8px rgba(0, 0, 0, 0.25);
+  }
+
+  .avatar-image {
+    box-shadow: 
+      0 0 10px rgba(255, 255, 255, 0.3) inset,
+      0 0 20px rgba(0, 0, 0, 0.4),
+      0 4px 8px rgba(0, 0, 0, 0.3);
+    border: 3px solid rgba(128, 128, 128, 0.9);
+    background: linear-gradient(135deg, rgba(128,128,128,0.3) 0%, rgba(128,128,128,0) 50%, rgba(0,0,0,0.2) 100%);
+  }
+
+  .avatar-image:hover {
+    box-shadow: 
+      0 0 15px rgba(255, 255, 255, 0.4) inset,
+      0 0 30px rgba(0, 0, 0, 0.5),
+      0 6px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .avatar-preview {
+    background: radial-gradient(circle at center, rgba(128,128,128,0.2) 0%, rgba(0,0,0,0.3) 100%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .cropper-header,
