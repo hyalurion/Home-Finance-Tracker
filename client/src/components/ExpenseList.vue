@@ -37,6 +37,8 @@
         <!-- 表格组件 - 直接使用后端处理的数据 -->
         <ExpenseTable
           :groupedExpenses="groupedExpenses"
+          :sortField="sortField"
+          :sortOrder="sortOrder"
           @sort="sortBy"
           @edit="handleEdit"
           @delete="handleDelete"
@@ -412,6 +414,29 @@ export default {
       }
     };
 
+    // 计算 sortField 和 sortOrder
+    const sortField = computed(() => {
+      const sortOption = searchParams.value.sortOption;
+      console.log('Calculating sortField from:', sortOption);
+      if (sortOption.startsWith('date')) {
+        return 'date';
+      } else if (sortOption.startsWith('amount')) {
+        return 'amount';
+      }
+      return '';
+    });
+
+    const sortOrder = computed(() => {
+      const sortOption = searchParams.value.sortOption;
+      console.log('Calculating sortOrder from:', sortOption);
+      if (sortOption.endsWith('Asc')) {
+        return 'asc';
+      } else if (sortOption.endsWith('Desc')) {
+        return 'desc';
+      }
+      return 'asc';
+    });
+
     // 监听pageSize变化
     watch(pageSize, () => {
       currentPage.value = 1;
@@ -468,7 +493,9 @@ export default {
       handleEdit,
       handleDelete,
       sortBy,
-      refreshData
+      refreshData,
+      sortField,
+      sortOrder
     };
   }
 };

@@ -1,6 +1,15 @@
 <!-- ExpenseTable.vue -->
 <template>
   <div class="expense-container">
+    <!-- 渐变定义 SVG -->
+    <svg class="gradient-defs" width="0" height="0">
+      <defs>
+        <linearGradient id="gradient-arrow" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ff7eb3" stop-opacity="1" />
+          <stop offset="100%" stop-color="#ff758c" stop-opacity="1" />
+        </linearGradient>
+      </defs>
+    </svg>
     <!-- 大屏幕表格视图 -->
     <div class="table-view">
       <table class="expense-table">
@@ -9,19 +18,16 @@
             <th @click="$emit('sort', 'date')" class="sortable">
               {{ $t('expense.date') }}
               <span v-if="sortField && sortField === 'date'" class="sort-indicator">
-                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                <FontAwesomeIcon :icon="sortOrder === 'asc' ? 'arrow-up' : 'arrow-down'" />
               </span>
             </th>
-            <th @click="$emit('sort', 'type')" class="sortable">
+            <th>
               {{ $t('expense.type') }}
-              <span v-if="sortField && sortField === 'type'" class="sort-indicator">
-                {{ sortOrder === 'asc' ? '↑' : '↓' }}
-              </span>
             </th>
             <th @click="$emit('sort', 'amount')" class="sortable">
               {{ $t('expense.amount') }}
               <span v-if="sortField && sortField === 'amount'" class="sort-indicator">
-                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                <FontAwesomeIcon :icon="sortOrder === 'asc' ? 'arrow-up' : 'arrow-down'" />
               </span>
             </th>
             <th>{{ $t('expense.remark') }}</th>
@@ -55,10 +61,10 @@
               <td>
                 <div class="action-buttons">
                   <button class="edit-btn" @click="handleEdit(expense)">
-                    <FontAwesomeIcon icon="edit" /> {{ $t('common.edit') }}
+                    <FontAwesomeIcon icon="edit" /> 
                   </button>
                   <button class="delete-btn" @click="handleDelete(expense.id)">
-                    <FontAwesomeIcon icon="trash-alt" /> {{ $t('common.delete') }}
+                    <FontAwesomeIcon icon="trash-alt" /> 
                   </button>
                 </div>
               </td>
@@ -161,9 +167,13 @@
 
 <script>
 import { getTypeColor } from '../utils/expenseUtils';
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, toRefs } from 'vue';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 export default {
+  components: {
+    FontAwesomeIcon
+  },
   props: {
     groupedExpenses: {
       type: Object,
@@ -181,6 +191,9 @@ export default {
   },
 
   setup (props, { emit }) {
+    // 使用 toRefs 保持 props 的响应性
+    const { sortField, sortOrder } = toRefs(props);
+    
     const formatDate = (dateString) => {
       // 直接返回YYYY-MM-DD格式的日期字符串，不再需要转换
       return dateString || '';
@@ -316,7 +329,9 @@ export default {
       menuStyle,
       startLongPress,
       endLongPress,
-      closeMenu
+      closeMenu,
+      sortField,
+      sortOrder
     };
   }
 };
@@ -663,7 +678,33 @@ export default {
 .sort-indicator {
   position: absolute;
   right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  margin-left: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
+
+:deep(.sort-indicator svg) {
+  width: 14px;
+  height: 14px;
+}
+
+:deep(.sort-indicator svg path) {
+  fill: url(#gradient-arrow);
+}
+
+/* 渐变定义 */
+.gradient-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+
 
 .type-tag {
   display: inline-block;

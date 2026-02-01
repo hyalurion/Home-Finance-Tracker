@@ -21,7 +21,7 @@ import {
   faFileAlt, faStar, faEnvelope, faQuestionCircle,
   faChartPie, faSyncAlt, faCog, faChartLine, faTimes,
   faEdit, faTrashAlt,
-  faFileExport
+  faFileExport, faArrowUp, faArrowDown
 } from '@fortawesome/free-solid-svg-icons'
 
 // 将图标添加到库中
@@ -29,7 +29,7 @@ library.add(
   faPlus, faUpload, faDownload, faMicrochip,
   faFileAlt, faStar, faEnvelope, faQuestionCircle,
   faChartPie, faSyncAlt, faCog, faChartLine, faTimes,
-  faEdit, faTrashAlt, faFileExport
+  faEdit, faTrashAlt, faFileExport, faArrowUp, faArrowDown
 )
 
 import App from './App.vue';
