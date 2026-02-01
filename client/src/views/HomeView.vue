@@ -66,25 +66,6 @@
               <template #icon><FontAwesomeIcon icon="plus" /></template>
               {{ t('expense.addRecord') }}
             </GlassButton>
-            <CustomUpload
-              class="upload-excel"
-              action="/api/import/excel"
-              :show-file-list="false"
-              @success="handleImportSuccess"
-              @error="handleImportError"
-              accept=".xlsx, .xls"
-            >
-              <template #default="{ triggerUpload }">
-                <GlassButton type="warning" @click="triggerUpload">
-                  <template #icon><FontAwesomeIcon icon="upload" /></template>
-                  {{ t('import.title') }}
-                </GlassButton>
-              </template>
-            </CustomUpload>
-            <GlassButton type="primary" @click="exportMonthData">
-              <template #icon><FontAwesomeIcon icon="download" /></template>
-              导出本月数据
-            </GlassButton>
             <GlassButton type="primary" @click="goToCharts">
               <template #icon><FontAwesomeIcon icon="chart-pie" /></template>
               {{ t('chart.title') }}
@@ -97,11 +78,11 @@
           <div class="card-content">
             <GlassButton type="primary" @click="showAiAddDialog = true">
               <template #icon><FontAwesomeIcon icon="microchip" /></template>
-              AI智能记录
+              {{ t('expense.aiAddRecord') }}
             </GlassButton>
             <GlassButton type="primary" @click="showAiReportDialog = true">
               <template #icon><FontAwesomeIcon icon="file-alt" /></template>
-              AI消费问答
+              {{ t('expense.aiReport') }}
             </GlassButton>
           </div>
         </GlassCard>
@@ -128,25 +109,6 @@
           <GlassButton type="primary" @click="showAddDialog = true" size="large" class="mobile-btn" >
             <template #icon><FontAwesomeIcon icon="plus" /></template>
             {{ t('expense.addRecord') }}
-          </GlassButton>
-          <CustomUpload
-            class="upload-excel"
-            action="/api/import/excel"
-            :show-file-list="false"
-            @success="handleImportSuccess"
-            @error="handleImportError"
-            accept=".xlsx, .xls"
-          >
-            <template #default="{ triggerUpload }">
-              <GlassButton type="warning" size="large" @click="triggerUpload" class="mobile-btn">
-                <template #icon><FontAwesomeIcon icon="upload" /></template>
-                {{ t('import.title') }}
-              </GlassButton>
-            </template>
-          </CustomUpload>
-          <GlassButton type="primary" @click="exportMonthData" size="large" class="mobile-btn">
-            <template #icon><FontAwesomeIcon icon="download" /></template>
-            导出本月数据
           </GlassButton>
           <GlassButton type="primary" @click="goToCharts" size="large" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="chart-pie" /></template>
@@ -190,10 +152,32 @@
     />
     <div :class="['header']"></div>
     <Transition name="button">
-      <ExportButton
-        v-if="Expenses.length > 0"
-        @export-excel="() => exportToExcel(Expenses)"
-      />
+      <div v-if="Expenses.length > 0" class="export-buttons-container">
+        <div class="export-buttons-group">
+          <CustomUpload
+            class="upload-excel"
+            action="/api/import/excel"
+            :show-file-list="false"
+            @success="handleImportSuccess"
+            @error="handleImportError"
+            accept=".xlsx, .xls"
+          >
+            <template #default="{ triggerUpload }">
+              <GlassButton type="warning" @click="triggerUpload">
+                <template #icon><FontAwesomeIcon icon="upload" /></template>
+                {{ t('import.title') }}
+              </GlassButton>
+            </template>
+          </CustomUpload>
+          <ExportButton
+            @export-excel="() => exportToExcel(Expenses)"
+          />
+          <GlassButton type="primary" @click="exportMonthData">
+            <template #icon><FontAwesomeIcon icon="download" /></template>
+            {{ t('export.monthData') }}
+          </GlassButton>
+        </div>
+      </div>
       <div v-else class="no-data">{{ t('home.noDataForExport') }}</div>
     </Transition>
   </div>
@@ -2500,6 +2484,21 @@ body.donation-modal-open {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+/* 导出按钮容器样式 */
+.export-buttons-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.export-buttons-group {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
 /* 响应式设计 */

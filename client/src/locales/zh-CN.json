@@ -1,4 +1,7 @@
 {
+  "expense.aiAddRecord": "AI智能记录",
+  "expense.aiReport": "AI消费问答",
+  "export.monthData": "导出本月数据",
   "common.loadFailed": "数据加载失败，请稍后重试",
   "common.edit": "编辑",
   "common.delete": "删除",

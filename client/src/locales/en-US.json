@@ -1,4 +1,7 @@
 {
+  "expense.aiAddRecord": "AI Record",
+  "expense.aiReport": "AI Q&A",
+  "export.monthData": "Export This Month's Data",
   "common.loadFailed": "Failed to load data, please try again later",
   "common.edit": "Edit",
   "common.delete": "Delete",
