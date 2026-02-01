@@ -1,5 +1,4 @@
 {
-  "app.welcome": "欢迎回来，尊贵的会员{username}！",
   "common.loadFailed": "数据加载失败，请稍后重试",
   "common.edit": "编辑",
   "common.delete": "删除",

@@ -24,11 +24,6 @@
 
     <Header :title="$t('app.title')" />
     
-    <!-- 七彩欢迎信息 -->
-    <div class="welcome-text">
-      {{ t('app.welcome', { username: username || '' }) }}
-    </div>
-    
     <!-- 当前日期时间显示 -->
     <div class="datetime-container">
       <div class="date-part">{{ formattedDate }}</div>
@@ -1055,73 +1050,6 @@ const formattedDate = ref('');
 const formattedTime = ref('');
 let dateTimeTimer = null;
 
-// 初始加载和语言变化时重新加载
-// 创建闪烁星星效果
-const createSparkles = () => {
-  const welcomeText = document.querySelector('.welcome-text');
-  if (!welcomeText) return;
-  
-  // 清除已有的星星效果
-  const existingSparkles = welcomeText.querySelectorAll('.sparkle');
-  existingSparkles.forEach(sparkle => sparkle.remove());
-  
-  const textRect = welcomeText.getBoundingClientRect();
-  const numSparkles = 15;
-  
-  for (let i = 0; i < numSparkles; i++) {
-    const sparkle = document.createElement('div');
-    sparkle.classList.add('sparkle');
-    
-    // 随机位置
-    const x = Math.random() * textRect.width;
-    const y = Math.random() * textRect.height;
-    
-    sparkle.style.left = `${x}px`;
-    sparkle.style.top = `${y}px`;
-    
-    // 随机动画延迟和持续时间
-    const delay = Math.random() * 5;
-    const duration = 1 + Math.random() * 2;
-    
-    sparkle.style.animation = `sparkleAnimation ${duration}s ${delay}s infinite`;
-    
-    welcomeText.appendChild(sparkle);
-  }
-};
-
-// 创建脉动光环
-const createPulseRings = () => {
-  const welcomeText = document.querySelector('.welcome-text');
-  if (!welcomeText) return;
-  
-  // 清除已有的光环
-  const existingRings = welcomeText.querySelectorAll('.pulse-ring');
-  existingRings.forEach(ring => ring.remove());
-  
-  const numRings = 3;
-  
-  for (let i = 0; i < numRings; i++) {
-    const ring = document.createElement('div');
-    ring.classList.add('pulse-ring');
-    
-    const delay = i * 1.5;
-    const duration = 4.5;
-    
-    ring.style.animation = `pulse ${duration}s ${delay}s infinite`;
-    
-    welcomeText.appendChild(ring);
-  }
-};
-
-// 初始化华丽欢迎效果
-const initWelcomeEffects = () => {
-  // 延迟执行以确保DOM已经渲染
-  setTimeout(() => {
-    createSparkles();
-    createPulseRings();
-  }, 100);
-};
-
 onMounted(async () => {
   // 检测安卓设备
   detectAndroidDevice();
@@ -1141,9 +1069,6 @@ onMounted(async () => {
   
   // 监听路由变化
   window.addEventListener('popstate', handleRouteChange);
-  
-  // 初始化华丽欢迎效果
-  initWelcomeEffects();
   
   try {
     await fetchData(false);
@@ -1787,118 +1712,6 @@ const refreshPage = () => {
   color: var(--text-primary);
   background: transparent;
   transition: all 0.3s ease;
-}
-
-/* 华丽七彩欢迎文本样式 */
-.welcome-text {
-  position: relative;
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin: 20px 0;
-  padding: 20px 40px;
-  letter-spacing: 2px;
-  background: linear-gradient(90deg, 
-    #ff0000, #ff7f00, #ffff00, #00ff00, 
-    #0000ff, #4b0082, #9400d3, #ff0000);
-  background-size: 400% 100%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: rainbowText 3s linear infinite, float 6s ease-in-out infinite;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-  z-index: 2;
-}
-
-.welcome-text::before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: -5px;
-  right: -5px;
-  bottom: -5px;
-  background: inherit;
-  background-size: 400% 100%;
-  filter: blur(20px);
-  opacity: 0.7;
-  z-index: -1;
-  animation: rainbowText 3s linear infinite;
-}
-
-.sparkle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: white;
-  border-radius: 50%;
-  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
-  opacity: 0;
-  z-index: 1;
-}
-
-.pulse-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  opacity: 0;
-  z-index: -1;
-}
-
-@keyframes rainbowText {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-15px);
-  }
-}
-
-@keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes sparkleAnimation {
-  0%, 100% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.8;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1.5);
-    opacity: 0;
-  }
 }
 
 .error-alert {
@@ -2709,11 +2522,6 @@ body.donation-modal-open {
   .btn {
     padding: 8px 16px;
     font-size: 13px;
-  }
-
-  .welcome-text {
-    font-size: 16px;
-    font-weight: 600;
   }
   
   /* 手机端样式 */

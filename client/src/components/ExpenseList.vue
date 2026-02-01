@@ -528,7 +528,6 @@ export default {
 .empty-state h3 {
   margin: 0 0 10px;
   font-size: 1.4rem;
-  color: #2c3e50;
 }
 
 .empty-state p {

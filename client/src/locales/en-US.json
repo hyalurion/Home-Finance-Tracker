@@ -1,5 +1,4 @@
 {
-  "app.welcome": "Welcome back, esteemed member {username}!",
   "common.loadFailed": "Failed to load data, please try again later",
   "common.edit": "Edit",
   "common.delete": "Delete",

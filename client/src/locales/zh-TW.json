@@ -1,5 +1,4 @@
 {
-  "app.welcome": "歡迎回來，尊貴的會員{username}！",
   "common.loadFailed": "資料載入失敗，請稍後重試",
   "common.edit": "編輯",
   "common.delete": "刪除",
