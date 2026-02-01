@@ -102,12 +102,12 @@
     <!-- 金流服务费用提示 -->
     <div class="payment-fee-notice">
       <GlassAlert
-        :title="$t('donation.feeNoticeTitle')"
+        :title="$t('feeNoticeTitle')"
         type="info"
         :closable="false"
         class="fee-alert"
       >
-        <p class="fee-message">{{ $t('donation.feeNoticeContent') }}</p>
+        <p class="fee-message">{{ $t('feeNoticeContent') }}</p>
       </GlassAlert>
       <br>
     </div>

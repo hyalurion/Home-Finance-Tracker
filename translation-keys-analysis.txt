@@ -1,13 +1,13 @@
 翻译键使用情况分析报告
-生成时间: 2026/2/1 22:16:40
+生成时间: 2026/2/1 22:22:36
 =====================================
 
 1. 总体统计
 -----------------
-总翻译键数量: 269
+总翻译键数量: 250
 已使用翻译键: 205
-未使用翻译键: 95
-使用率: 76.21%
+未使用翻译键: 76
+使用率: 82.00%
 
 2. 未使用的翻译键
 -----------------
@@ -27,25 +27,6 @@
 - common.requestTimeout
 - common.save
 - common.total
-- donation.amount
-- donation.amountMaxTwoDecimals
-- donation.amountMustBeAtLeast
-- donation.amountMustBeNumber
-- donation.amountMustBePositive
-- donation.amountRequired
-- donation.description
-- donation.donationFailure
-- donation.donationSuccess
-- donation.enterCustomAmount
-- donation.enterUsername
-- donation.failureTitle
-- donation.submitDonation
-- donation.successMessage
-- donation.successTitle
-- donation.title
-- donation.transactionId
-- donation.username
-- donation.usernameRequired
 - expense.addFailed
 - expense.addNewEntry
 - expense.categoryRequired
@@ -110,20 +91,20 @@
 3. 各文件翻译键统计
 -----------------
 en-US.json:
-  总键数: 272
+  总键数: 253
   已使用: 182
-  未使用: 90
-  使用率: 66.91%
+  未使用: 71
+  使用率: 71.94%
 
 zh-CN.json:
-  总键数: 272
+  总键数: 253
   已使用: 183
-  未使用: 89
-  使用率: 67.28%
+  未使用: 70
+  使用率: 72.33%
 
 zh-TW.json:
-  总键数: 272
+  总键数: 253
   已使用: 183
-  未使用: 89
-  使用率: 67.28%
+  未使用: 70
+  使用率: 72.33%
 

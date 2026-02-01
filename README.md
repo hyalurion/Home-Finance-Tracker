@@ -1,7 +1,7 @@
 # Home Finance Tracker
 
 ## Project Overview
-The Home Finance Tracker is a modern multilingual financial management application designed to help users easily track income and expenses, analyze spending patterns, and improve financial transparency. The system provides a user-friendly interface with powerful data visualization and analysis capabilities, and now supports mini-applications for extended functionality.
+The Home Finance Tracker is a modern multilingual financial management application designed to help users easily track income and expenses, analyze spending patterns, and improve financial transparency. The system provides a user-friendly interface with powerful data visualization and analysis capabilities.
 
 ## Key Features
 - **Multilingual Support**: Auto-adapting UI text and date formats (English, Chinese, etc.)
@@ -14,14 +14,7 @@ The Home Finance Tracker is a modern multilingual financial management applicati
 - **Budget Management**: Set and track monthly spending limits with warnings
 - **Security Features**: Data encryption and secure storage
 - **Responsive Design**: Optimized for both desktop and mobile devices
-- **Mini-Applications System**:
-  - Built-in mini-app manager for discovering and launching applications
-  - Support for automatic scanning of mini-applications in the public directory
-  - Custom metadata definition via package.json
-  - Example calculator mini-application included
 - **Expense Tracking**: Record and categorize daily expenses with custom categories
-- **To-Do List**: Manage tasks and reminders related to financial activities
-- **Donation Tracking**: Record and track charitable donations
 
 ## Setup & Usage
 ### Requirements
@@ -126,10 +119,9 @@ The documentation includes endpoints for:
 - Expense tracking and management
 - Expense tracking and analysis
 - JSON file operations
-- Payment processing (donations and subscriptions)
+- Payment processing (subscriptions)
 - Data import/export functionality
 - Member and subscription management
 - Logging and monitoring
-- Mini-application management
 
 The API documentation is dynamically generated and will reflect any changes to the API structure.
