@@ -371,9 +371,10 @@ onUnmounted(() => {
 }
 
 .select-option {
-  padding: 10px 15px;
+  padding: 10px 15px 10px 30px;
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .select-option:hover {
@@ -382,9 +383,19 @@ onUnmounted(() => {
 }
 
 .select-option.selected {
-  background: #4361ee;
-  color: #fff;
+  background: transparent;
+  color: #4361ee;
+  position: relative;
 }
+
+.select-option.selected::before {
+  content: '✓';
+  position: absolute;
+  left: 15px;
+  font-weight: bold;
+}
+
+
 
 /* 响应式设计 */
 @media (max-width: 768px) {
@@ -453,8 +464,18 @@ onUnmounted(() => {
   }
   
   .select-option.selected {
-    background: #4361ee;
-    color: #fff;
+    background: transparent;
+    color: #a5b4fc;
+    position: relative;
   }
+
+  .select-option.selected::before {
+    content: '✓';
+    position: absolute;
+    left: 15px;
+    font-weight: bold;
+  }
+
+
 }
 </style>
