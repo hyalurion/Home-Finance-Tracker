@@ -23,13 +23,6 @@
     <MessageTip v-model:message="errorMessage" type="error" />
 
     <Header :title="$t('app.title')" />
-    
-    <!-- 当前日期时间显示 -->
-    <div class="datetime-container">
-      <div class="date-part">{{ formattedDate }}</div>
-      <div class="time-part">{{ formattedTime }}</div>
-    </div>
-
        <div v-if="isAndroidDevice" class="android-download-section">
          <GlassButton 
            type="info" 
@@ -1023,24 +1016,14 @@ const handleImportError = (error) => {
 
 // 打开安卓应用商店
 const openAndroidAppStore = () => {
-  window.open('https://universal-launcher.netlify.app/app-store.html', '_blank');
+  window.open('https://chronie-app-store.netlify.app/', '_blank');
 };
 const markdownContent = ref('');
 const markdownTitle = ref('');
 
-// 当前日期时间状态
-const currentDateTime = ref('');
-const formattedDate = ref('');
-const formattedTime = ref('');
-let dateTimeTimer = null;
-
 onMounted(async () => {
   // 检测安卓设备
   detectAndroidDevice();
-  
-  // 初始化并启动日期时间更新
-  updateDateTime();
-  dateTimeTimer = setInterval(updateDateTime, 1000);
   
   // 添加新的事件监听器以强制会员弹窗
   document.addEventListener('keydown', preventEscClose);
@@ -1079,40 +1062,6 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', preventEscClose);
   window.removeEventListener('popstate', handleRouteChange);
 });
-
-// 更新日期时间函数
-const updateDateTime = () => {
-  const now = new Date();
-  // 根据当前语言环境和设备时区格式化日期时间
-  const fullOptions = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    weekday: 'long',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  };
-  
-  const dateOptions = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    weekday: 'long'
-  };
-  
-  const timeOptions = {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  };
-  
-  currentDateTime.value = now.toLocaleString(locale.value, fullOptions);
-  formattedDate.value = now.toLocaleDateString(locale.value, dateOptions);
-  formattedTime.value = now.toLocaleTimeString(locale.value, timeOptions);
-};
 
 // 对话框相关数据
 const expenseTypes = ['日常用品', '奢侈品', '通讯费用', '食品', '零食糖果', '冷饮', '方便食品', '纺织品', '饮品', '调味品', '交通出行', '餐饮', '医疗费用', '水果', '其他', '水产品', '乳制品', '礼物人情', '旅行度假', '政务', '水电煤气'];
@@ -1777,59 +1726,6 @@ const refreshPage = () => {
 .button-enter-from,
 .button-leave-to {
   opacity: 0;
-}
-/* 日期时间显示样式 */
-.datetime-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 1.5rem 0;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.date-part {
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.5px;
-}
-
-.time-part {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--primary-color);
-  letter-spacing: 1px;
-  animation: timePulse 1s ease-in-out infinite;
-}
-
-/* 深色模式适配 */
-@media (prefers-color-scheme: dark) {
-  .date-part {
-    color: #e5e7eb;
-  }
-  
-  .time-part {
-    color: #4ade80;
-  }
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .datetime-container {
-    margin: 1rem 0;
-    padding: 0.8rem;
-  }
-  
-  .date-part {
-    font-size: 1rem;
-  }
-  
-  .time-part {
-    font-size: 1.2rem;
-  }
 }
 
 /* 输入框容器（修正选择器确保生效） */
