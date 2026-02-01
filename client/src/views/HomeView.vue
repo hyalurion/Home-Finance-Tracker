@@ -85,6 +85,10 @@
               <template #icon><FontAwesomeIcon icon="download" /></template>
               导出本月数据
             </GlassButton>
+            <GlassButton type="primary" @click="goToCharts">
+              <template #icon><FontAwesomeIcon icon="chart-pie" /></template>
+              {{ t('chart.title') }}
+            </GlassButton>
           </div>
         </GlassCard>
         
@@ -144,6 +148,10 @@
             <template #icon><FontAwesomeIcon icon="download" /></template>
             导出本月数据
           </GlassButton>
+          <GlassButton type="primary" @click="goToCharts" size="large" class="mobile-btn">
+            <template #icon><FontAwesomeIcon icon="chart-pie" /></template>
+            {{ t('chart.title') }}
+          </GlassButton>
         </div>
         
         <!-- AI功能组按钮 -->
@@ -174,14 +182,6 @@
 
     <!-- 月度消费限制显示 -->
     <SpendingLimitDisplay :expenses="Expenses" />
-    
-    <!-- 图表分析按钮 -->
-    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-      <GlassButton type="primary" @click="goToCharts" >
-        <template #icon><FontAwesomeIcon icon="chart-pie" /></template>
-        {{ t('chart.title') }}
-      </GlassButton>
-    </div>
     
     <ExpenseList 
       :refresh-trigger="refreshTrigger" 
