@@ -1,4 +1,9 @@
 {
+  "app.firstPage": "首頁",
+  "app.previousPage": "上一頁",
+  "app.page": "第 {page} 頁",
+  "app.nextPage": "下一頁",
+  "app.lastPage": "末頁",
   "expense.aiAddRecord": "AI智能記錄",
   "expense.aiReport": "AI消費問答",
   "export.monthData": "匯出本月資料",
@@ -53,12 +58,10 @@
   "expense.serverError": "伺服器錯誤",
   "app": {
     "title": "家庭記帳本",
-    "addRecord": "新增記錄",
     "statistics": "統計報表",
     "export": "匯出資料",
     "recordList": "所有記錄",
     "record": "支出記錄",
-    "consumptionTrend": "消費趨勢",
     "notFound": "頁面不存在",
     "pageNotFound": "您訪問的頁面不存在",
     "backToHome": "返回首頁"
@@ -281,10 +284,6 @@
     "cancelSubscription": "取消訂閱",
     "selectPlan": "選擇套餐",
     "subscribe": "立即訂閱",
-    "feature1": "無限制資料記錄和查詢",
-    "feature2": "高級資料分析和統計",
-    "feature3": "多格式資料匯出和備份",
-    "feature4": "優先技術支援",
     "subscriptionHistory": "訂閱歷史",
     "plan": "套餐",
     "startDate": "開始日期",

@@ -1,12 +1,12 @@
 <template>
   <div class="error-page">
-    <h1 class="error-code">404</h1>
+    <h1 class="error-code">404 {{ $t('app.notFound') }}</h1>
     <p class="error-message">{{ $t('app.pageNotFound') }}</p>
     <router-link
       class="home-link"
       :to="{ name: 'home' }"
     >
-      {{ $t('app.backToHome') }}
+      ← {{ $t('app.backToHome') }}
     </router-link>
   </div>
 </template>

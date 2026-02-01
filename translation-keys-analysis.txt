@@ -1,0 +1,129 @@
+翻译键使用情况分析报告
+生成时间: 2026/2/1 22:16:40
+=====================================
+
+1. 总体统计
+-----------------
+总翻译键数量: 269
+已使用翻译键: 205
+未使用翻译键: 95
+使用率: 76.21%
+
+2. 未使用的翻译键
+-----------------
+- app.page
+- app.record
+- app.statistics
+- avatar.error.sizeLimit
+- chart.mockData
+- common.back
+- common.index
+- common.loadFailed
+- common.networkError
+- common.next
+- common.perPage
+- common.prev
+- common.requestCanceled
+- common.requestTimeout
+- common.save
+- common.total
+- donation.amount
+- donation.amountMaxTwoDecimals
+- donation.amountMustBeAtLeast
+- donation.amountMustBeNumber
+- donation.amountMustBePositive
+- donation.amountRequired
+- donation.description
+- donation.donationFailure
+- donation.donationSuccess
+- donation.enterCustomAmount
+- donation.enterUsername
+- donation.failureTitle
+- donation.submitDonation
+- donation.successMessage
+- donation.successTitle
+- donation.title
+- donation.transactionId
+- donation.username
+- donation.usernameRequired
+- expense.addFailed
+- expense.addNewEntry
+- expense.categoryRequired
+- expense.columns.name
+- expense.columns.time
+- expense.common.requestTimeout
+- expense.descriptionRequired
+- expense.emptyText
+- expense.inputValidContent
+- expense.loading
+- expense.note
+- expense.pasteSuccess
+- expense.record.title
+- expense.search.button
+- expense.search.monthPlaceholder
+- expense.search.searchButton
+- expense.serverError
+- expense.totalAmount
+- expense.totalRecords
+- expense.type.food
+- expense.unknownError
+- function.other
+- home.closeButton
+- home.dailyDescending
+- home.dailyTrend
+- home.expenseAnalysisReportTitle
+- home.goToAddExpenseRecord
+- home.nextMonth
+- home.noData
+- home.prevMonth
+- home.viewExpenseAnalysisReport
+- membership.cancelSubscription
+- membership.currentPlan
+- membership.statusActive
+- membership.statusCanceled
+- membership.statusExpired
+- membership.username
+- network.error
+- pagination.firstPage
+- pagination.lastPage
+- pagination.nextPage
+- pagination.pageInfo
+- pagination.perPage
+- pagination.prevPage
+- spending.alert.nearLimit.description
+- spending.alert.normal.description
+- spending.alert.overLimit.description
+- spending.currentMonth
+- spending.currentSpending
+- spending.monthlyLimit
+- spending.remaining
+- spending.settings.limitUpdated
+- spending.settings.preview
+- spending.settings.quickSet
+- spending.settings.thresholdDescription
+- spending.status.disabled
+- spending.status.nearLimit
+- spending.status.normal
+- spending.status.overLimit
+- spending.title
+
+3. 各文件翻译键统计
+-----------------
+en-US.json:
+  总键数: 272
+  已使用: 182
+  未使用: 90
+  使用率: 66.91%
+
+zh-CN.json:
+  总键数: 272
+  已使用: 183
+  未使用: 89
+  使用率: 67.28%
+
+zh-TW.json:
+  总键数: 272
+  已使用: 183
+  未使用: 89
+  使用率: 67.28%
+

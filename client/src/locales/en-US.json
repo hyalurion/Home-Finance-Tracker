@@ -1,4 +1,9 @@
 {
+  "app.firstPage": "First Page",
+  "app.previousPage": "Previous Page",
+  "app.page": "Page {page}",
+  "app.nextPage": "Next Page",
+  "app.lastPage": "Last Page",
   "expense.aiAddRecord": "AI Record",
   "expense.aiReport": "AI Q&A",
   "export.monthData": "Export This Month's Data",
@@ -52,12 +57,10 @@
   "expense.record.title": "Expense Records",
   "app": {
     "title": "Home Finance Tracker",
-    "addRecord": "Add Expense",
     "statistics": "Spending Insights",
     "export": "Export Data",
     "recordList": "All Records",
     "record": "Expense Records",
-    "consumptionTrend": "Spending Trends",
     "notFound": "Page Not Found",
     "pageNotFound": "The page you're looking for doesn't exist",
     "backToHome": "Back to Home"
@@ -281,10 +284,6 @@
     "cancelSubscription": "Cancel Subscription",
     "selectPlan": "Choose a Plan",
     "subscribe": "Subscribe",
-    "feature1": "Complete data storage and search",
-    "feature2": "Advanced analytics and statistics",
-    "feature3": "Multiple export formats and backup",
-    "feature4": "Priority support",
     "subscriptionHistory": "Subscription History",
     "plan": "Plan",
     "startDate": "Start Date",

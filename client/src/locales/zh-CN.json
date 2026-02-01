@@ -1,4 +1,9 @@
 {
+  "app.firstPage": "首页",
+  "app.previousPage": "上一页",
+  "app.page": "第 {page} 页",
+  "app.nextPage": "下一页",
+  "app.lastPage": "末页",
   "expense.aiAddRecord": "AI智能记录",
   "expense.aiReport": "AI消费问答",
   "export.monthData": "导出本月数据",
@@ -55,12 +60,10 @@
   "howToUse.title": "使用说明",
   "app": {
     "title": "家庭记账本",
-    "addRecord": "记一笔",
     "statistics": "统计报表",
     "export": "导出数据",
     "recordList": "所有记录",
     "record": "支出记录",
-    "consumptionTrend": "消费趋势",
     "notFound": "页面不存在",
     "pageNotFound": "您访问的页面不存在",
     "backToHome": "返回首页"
@@ -281,10 +284,6 @@
     "cancelSubscription": "取消订阅",
     "selectPlan": "选择套餐",
     "subscribe": "立即订阅",
-    "feature1": "无限制数据记录和查询",
-    "feature2": "高级数据分析和统计",
-    "feature3": "多格式数据导出和备份",
-    "feature4": "优先技术支持",
     "subscriptionHistory": "订阅历史",
     "plan": "套餐",
     "startDate": "开始日期",

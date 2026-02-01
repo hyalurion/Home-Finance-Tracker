@@ -6,7 +6,7 @@
           class="pagination-btn"
           @click.prevent.stop="$emit('page-change', 1)" 
           :disabled="currentPage === 1" 
-          title="首页"
+          :title="$t('app.firstPage')"
         >
           &lt;&lt;
         </button>
@@ -14,7 +14,7 @@
           class="pagination-btn"
           @click.prevent.stop="$emit('page-change', currentPage - 1)" 
           :disabled="currentPage === 1" 
-          title="上一页"
+          :title="$t('app.previousPage')"
         >
           &lt;
         </button>
@@ -24,7 +24,7 @@
             class="pagination-btn"
             :class="{ active: currentPage === page }"
             @click.prevent.stop="$emit('page-change', page)"
-            :title="`第 ${page} 页`"
+            :title="$t('app.page', { page })"
             :disabled="page === '...'"
           >
             {{ page }}
@@ -35,7 +35,7 @@
           class="pagination-btn"
           @click.prevent.stop="$emit('page-change', currentPage + 1)" 
           :disabled="currentPage === totalPages" 
-          title="下一页"
+          :title="$t('app.nextPage')"
         >
           &gt;
         </button>
@@ -43,7 +43,7 @@
           class="pagination-btn"
           @click.prevent.stop="$emit('page-change', totalPages)" 
           :disabled="currentPage === totalPages" 
-          title="末页"
+          :title="$t('app.lastPage')"
         >
           &gt;&gt;
         </button>
