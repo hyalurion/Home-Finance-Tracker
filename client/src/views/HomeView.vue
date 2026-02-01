@@ -1050,10 +1050,6 @@ import { logUserAction } from '@/utils/operationLogger';
 
 // 清理定时器和事件监听器
 onBeforeUnmount(() => {
-  if (dateTimeTimer) {
-    clearInterval(dateTimeTimer);
-  }
-  
   if (membershipCheckTimer) {
     clearInterval(membershipCheckTimer);
   }
