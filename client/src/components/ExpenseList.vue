@@ -91,8 +91,8 @@ export default {
     };
     
     // 处理删除事件
-    const handleDelete = (expense) => {
-      emit('delete', expense);
+    const handleDelete = (id) => {
+      emit('delete', id);
     };
 
     // 统一搜索参数

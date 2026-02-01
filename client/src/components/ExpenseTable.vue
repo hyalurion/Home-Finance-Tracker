@@ -81,7 +81,18 @@
             <div class="total-amount">-¥{{ calculateDailyTotal(expenses).toFixed(2) }}</div>
           </div>
           <!-- 该日期下的支出卡片 -->
-          <div v-for="(expense, index) in expenses" :key="expense.id" class="expense-card" :data-index="index">
+          <div 
+            v-for="(expense, index) in expenses" 
+            :key="expense.id" 
+            class="expense-card" 
+            :data-index="index"
+            @touchstart="startLongPress(expense, $event)"
+            @touchend="endLongPress"
+            @touchcancel="endLongPress"
+            @mousedown="startLongPress(expense, $event)"
+            @mouseup="endLongPress"
+            @mouseleave="endLongPress"
+          >
             <div class="card-header">
               <div class="date">{{ formatDate(expense.date) }}</div>
               <div class="amount">¥{{ expense.amount.toFixed(2) }}</div>
@@ -97,22 +108,44 @@
                 <span class="remark-label">{{ $t('expense.remark') }}:</span>
                 <span class="remark-text">{{ expense.remark }}</span>
               </div>
-              <div class="card-actions">
-                <GlassButton type="primary" class="card-edit-btn" @click="handleEdit(expense)">
-                  <template #icon>
-                    <FontAwesomeIcon icon="edit" />
-                  </template>
-                  {{ $t('common.edit') }}
-                </GlassButton>
-                <GlassButton type="danger" class="card-delete-btn" @click="handleDelete(expense.id)">
-                  <template #icon>
-                    <FontAwesomeIcon icon="trash-alt" />
-                  </template>
-                  {{ $t('common.delete') }}
-                </GlassButton>
-              </div>
             </div>
           </div>
+        
+        <!-- 长按菜单 -->
+        <transition 
+          name="menu-fade"
+          mode="out-in"
+        >
+          <div 
+            v-if="showMenu && currentMenuExpense" 
+            key="menu"
+            class="long-press-menu"
+            :style="menuStyle"
+          >
+            <div class="menu-content">
+              <GlassButton 
+                type="primary" 
+                class="menu-btn menu-edit-btn" 
+                @click.stop="() => { handleEdit(currentMenuExpense); closeMenu() }"
+              >
+                <template #icon>
+                  <FontAwesomeIcon icon="edit" />
+                </template>
+                {{ $t('common.edit') }}
+              </GlassButton>
+              <GlassButton 
+                type="danger" 
+                class="menu-btn menu-delete-btn" 
+                @click.stop="() => { handleDelete(currentMenuExpense.id); closeMenu() }"
+              >
+                <template #icon>
+                  <FontAwesomeIcon icon="trash-alt" />
+                </template>
+                {{ $t('common.delete') }}
+              </GlassButton>
+            </div>
+          </div>
+        </transition>
         </template>
       </transition-group>
     </div>
@@ -158,6 +191,88 @@ export default {
       return expenses.reduce((total, expense) => total + parseFloat(expense.amount || 0), 0);
     };
 
+    // 长按相关状态
+    const showMenu = ref(false);
+    const menuExpenseId = ref('');
+    const currentMenuExpense = ref(null);
+    const menuPosition = ref({ x: 0, y: 0 });
+    const longPressTimer = ref(null);
+    const LONG_PRESS_DURATION = 500; // 长按触发时间
+
+    // 菜单样式计算
+    const menuStyle = computed(() => {
+      return {
+        top: `${menuPosition.value.y}px`,
+        right: `${menuPosition.value.x}px`
+      };
+    });
+
+    // 开始长按
+    const startLongPress = (expense, event) => {
+      // 清除之前的定时器
+      if (longPressTimer.value) {
+        clearTimeout(longPressTimer.value);
+      }
+      
+      // 保存target引用，避免在异步回调中丢失
+      const target = event.currentTarget;
+      
+      // 设置新的定时器
+      longPressTimer.value = setTimeout(() => {
+        // 计算菜单位置
+        // 添加空值检查，确保target存在
+        if (!target) {
+          console.warn('Long press target is null or undefined');
+          return;
+        }
+        
+        const rect = target.getBoundingClientRect();
+        // 获取触摸或鼠标事件的坐标
+        const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+        const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+        
+        // 计算菜单位置，从长按位置附近弹出
+        menuPosition.value = {
+          x: window.innerWidth - clientX - 110, // 调整菜单宽度
+          y: clientY + 10
+        };
+        
+        // 先设置菜单数据，再显示菜单
+        menuExpenseId.value = expense.id;
+        currentMenuExpense.value = expense;
+        
+        // 确保DOM更新后再显示菜单，触发动画
+        setTimeout(() => {
+          showMenu.value = true;
+          
+          console.log('Long press detected, showing menu for expense:', expense.id);
+          console.log('Menu state:', { showMenu: showMenu.value, menuExpenseId: menuExpenseId.value, menuPosition: menuPosition.value, currentMenuExpense: currentMenuExpense.value });
+        }, 10);
+      }, LONG_PRESS_DURATION);
+    };
+
+    // 结束长按
+    const endLongPress = () => {
+      if (longPressTimer.value) {
+        clearTimeout(longPressTimer.value);
+        longPressTimer.value = null;
+      }
+    };
+
+    // 关闭菜单
+    const closeMenu = () => {
+      showMenu.value = false;
+      menuExpenseId.value = '';
+      currentMenuExpense.value = null;
+    };
+
+    // 点击外部关闭菜单
+    const handleClickOutside = (event) => {
+      if (showMenu.value && !event.target.closest('.long-press-menu')) {
+        closeMenu();
+      }
+    };
+
     // 处理编辑事件
     const handleEdit = (expense) => {
       console.log('Edit expense clicked:', expense);
@@ -170,6 +285,19 @@ export default {
       emit('delete', id);
     };
 
+    // 添加全局点击事件监听
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside);
+    });
+
+    // 移除全局点击事件监听
+    onUnmounted(() => {
+      document.removeEventListener('click', handleClickOutside);
+      if (longPressTimer.value) {
+        clearTimeout(longPressTimer.value);
+      }
+    });
+
     // 监听数据变化
     watch(() => props.groupedExpenses, (newVal) => {
       const totalExpenses = Object.values(newVal || {}).reduce((sum, expenses) => sum + expenses.length, 0);
@@ -181,7 +309,14 @@ export default {
       formatDate,
       calculateDailyTotal,
       handleEdit,
-      handleDelete
+      handleDelete,
+      showMenu,
+      menuExpenseId,
+      currentMenuExpense,
+      menuStyle,
+      startLongPress,
+      endLongPress,
+      closeMenu
     };
   }
 };
@@ -416,6 +551,107 @@ export default {
   .card-delete-btn:hover {
     background-color: #c1121f;
   }
+
+/* 长按菜单样式 */
+.long-press-menu {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+.menu-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  min-width: 120px;
+  width: 120px;
+  overflow: hidden;
+  z-index: 10000;
+  transform-origin: top right;
+}
+
+.menu-btn {
+  width: 100%;
+  margin-bottom: 8px;
+  font-size: 12px;
+  padding: 6px 12px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.menu-btn:last-child {
+  margin-bottom: 0;
+}
+
+.menu-edit-btn {
+  background-color: #4361ee;
+  color: white;
+}
+
+.menu-edit-btn:hover {
+  background-color: #3a56d4;
+}
+
+.menu-delete-btn {
+  background-color: #e63946;
+  color: white;
+}
+
+.menu-delete-btn:hover {
+  background-color: #c1121f;
+}
+
+/* 菜单动画效果 */
+.menu-fade-enter-active,
+.menu-fade-leave-active {
+  transition: all 0.3s ease-out !important;
+  transform-origin: top right !important;
+  will-change: transform, opacity !important;
+}
+
+.menu-fade-enter-from {
+  opacity: 0 !important;
+  transform: scale(0.8) rotate(-10deg) !important;
+}
+
+.menu-fade-leave-to {
+  opacity: 0 !important;
+  transform: scale(0.8) rotate(10deg) !important;
+}
+
+/* 兼容Vue 2的动画类名 */
+.menu-fade-enter {
+  opacity: 0 !important;
+  transform: scale(0.8) rotate(-10deg) !important;
+}
+
+.menu-fade-leave-active {
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+}
+
+.menu-fade-leave-to {
+  opacity: 0 !important;
+  transform: scale(0.8) rotate(10deg) !important;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .menu-content {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .menu-btn {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .menu-btn:hover {
+    opacity: 0.9;
+  }
+}
 
 /* 通用样式 */
 .sortable {
