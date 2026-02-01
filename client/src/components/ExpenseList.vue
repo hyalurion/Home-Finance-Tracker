@@ -274,15 +274,13 @@ export default {
       return Math.ceil(totalItems.value / pageSize.value) || 1;
     });
 
-    // 引入 window 以方便测试模拟
-    const { innerWidth } = window;
     // 可见页码（小屏幕最多显示3个，大屏幕最多显示5个）
     const visiblePages = computed(() => {
       const pages = [];
       const total = totalPages.value;
       const current = currentPage.value;
       // 根据屏幕宽度确定最多显示的页码数
-      const maxVisible = innerWidth < 768 ? 1 : 5;
+      const maxVisible = window.innerWidth < 768 ? 1 : 5;
 
       if (total <= maxVisible) {
         for (let i = 1; i <= total; i++) pages.push(i);
