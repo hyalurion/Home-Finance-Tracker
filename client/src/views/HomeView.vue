@@ -991,11 +991,7 @@ const handleRouteChange = () => {
 };
 
 // 组件卸载时清理事件监听器
-onBeforeUnmount(() => {
-  if (dateTimeTimer) {
-    clearInterval(dateTimeTimer);
-  }
-  
+onBeforeUnmount(() => {  
   if (membershipCheckTimer) {
     clearInterval(membershipCheckTimer);
   }
