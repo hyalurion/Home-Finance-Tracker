@@ -12,7 +12,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
@@ -35,20 +34,20 @@ fun ExpressiveLoadingIndicator(
         initialValue = 0f,
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = LinearEasing),
+            animation = tween(3000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "rotation"
     )
     
-    val shapeProgress by infiniteTransition.animateFloat(
+    val morphProgress by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = EaseInOutCubic),
+            animation = tween(1200, easing = EaseInOutCubic),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "shape_progress"
+        label = "morph_progress"
     )
     
     val colorScheme = MaterialTheme.colorScheme
@@ -63,60 +62,58 @@ fun ExpressiveLoadingIndicator(
             drawCircle(
                 color = colorScheme.secondaryContainer,
                 radius = radius,
-                center = center,
-                style = Stroke(width = strokeWidth.toPx())
+                center = center
             )
         }
         
-        translate(center.x, center.y) {
-            val indicatorColor = if (containerVisible) {
-                colorScheme.onPrimaryContainer
-            } else {
-                colorScheme.primary
-            }
-            
-            val indicatorRadius = radius * 0.6f
-            val indicatorStrokeWidth = strokeWidth.toPx()
-            
-            drawExpressiveShape(
-                progress = shapeProgress,
-                radius = indicatorRadius,
-                strokeWidth = indicatorStrokeWidth,
-                color = indicatorColor,
-                rotation = rotation
-            )
+        val indicatorColor = if (containerVisible) {
+            colorScheme.onPrimaryContainer
+        } else {
+            colorScheme.primary
         }
+        
+        val indicatorRadius = radius * 0.6f
+        
+        drawExpressiveShape(
+            progress = morphProgress,
+            radius = indicatorRadius,
+            color = indicatorColor,
+            rotation = rotation,
+            center = center
+        )
     }
 }
 
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawExpressiveShape(
     progress: Float,
     radius: Float,
-    strokeWidth: Float,
     color: Color,
-    rotation: Float
+    rotation: Float,
+    center: Offset
 ) {
     val sides = when {
-        progress < 0.2f -> 7
-        progress < 0.4f -> 4
-        progress < 0.6f -> 3
-        progress < 0.8f -> 2
+        progress < 0.33f -> 9
+        progress < 0.66f -> 4
+        progress < 0.9f -> 2
         else -> 1
     }
     
+    val path = Path()
+    
     if (sides == 1) {
-        drawCircle(
+        val ellipseScale = 1f - ((progress - 0.9f) / 0.1f) * 0.3f
+        drawOval(
             color = color,
-            radius = strokeWidth * 2
+            topLeft = Offset(center.x - radius * ellipseScale, center.y - radius),
+            size = Size(radius * 2 * ellipseScale, radius * 2)
         )
     } else {
-        val path = Path()
         val angleStep = (2 * PI / sides).toFloat()
         
         for (i in 0 until sides) {
             val angle = angleStep * i - (PI / 2).toFloat()
-            val x = cos(angle).toFloat() * radius
-            val y = sin(angle).toFloat() * radius
+            val x = center.x + cos(angle).toFloat() * radius
+            val y = center.y + sin(angle).toFloat() * radius
             
             if (i == 0) {
                 path.moveTo(x, y)
@@ -127,32 +124,11 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawExpressiveShape
         
         path.close()
         
-        val rotationRad = (rotation * PI / 180).toFloat()
-        val cosRot = cos(rotationRad).toFloat()
-        val sinRot = sin(rotationRad).toFloat()
-        
-        val rotatedPath = Path()
-        
-        for (i in 0 until sides) {
-            val angle = angleStep * i - (PI / 2).toFloat()
-            val x = cos(angle).toFloat() * radius
-            val y = sin(angle).toFloat() * radius
-            
-            val rotatedX = x * cosRot - y * sinRot
-            val rotatedY = x * sinRot + y * cosRot
-            
-            if (i == 0) {
-                rotatedPath.moveTo(rotatedX, rotatedY)
-            } else {
-                rotatedPath.lineTo(rotatedX, rotatedY)
-            }
+        rotate(rotation, pivot = center) {
+            drawPath(
+                path = path,
+                color = color
+            )
         }
-        rotatedPath.close()
-        
-        drawPath(
-            path = rotatedPath,
-            color = color,
-            style = Stroke(width = strokeWidth)
-        )
     }
 }
