@@ -294,6 +294,7 @@ fun HomeMoneyTheme(
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,
+            shapes = ExpressiveShapes,
             motionScheme = MotionScheme.expressive(),
             content = content
         )
