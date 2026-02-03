@@ -11,6 +11,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.Budget
+import com.chronie.homemoney.ui.components.ExpressiveSwitch
 
 /**
  * 预算设置对话框
@@ -55,7 +56,7 @@ fun BudgetSettingsDialog(
                         text = context.getString(R.string.budget_enable_feature),
                         style = MaterialTheme.typography.bodyLarge
                     )
-                    Switch(
+                    ExpressiveSwitch(
                         checked = isEnabled,
                         onCheckedChange = { isEnabled = it }
                     )

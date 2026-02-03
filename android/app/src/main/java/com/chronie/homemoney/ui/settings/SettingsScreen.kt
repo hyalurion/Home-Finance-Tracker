@@ -38,6 +38,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.Language
+import com.chronie.homemoney.ui.components.ExpressiveSwitch
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
 import com.chronie.homemoney.ui.theme.ThemeSettings
 
@@ -200,7 +201,7 @@ fun SettingsScreen(
                     // 获取当前主题设置
                     val themeSettings = LocalThemeSettings.current
                     
-                    Switch(
+                    ExpressiveSwitch(
                         checked = useDynamicColor,
                         onCheckedChange = { enabled ->
                             // 同时更新本地状态和ViewModel
@@ -265,7 +266,7 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Switch(
+                    ExpressiveSwitch(
                         checked = isDeveloperMode,
                         onCheckedChange = { viewModel.toggleDeveloperMode() }
                     )
