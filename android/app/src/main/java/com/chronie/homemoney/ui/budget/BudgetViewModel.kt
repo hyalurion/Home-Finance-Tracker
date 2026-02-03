@@ -103,6 +103,10 @@ class BudgetViewModel @Inject constructor(
             else -> BudgetStatus.NORMAL
         }
     }
+    
+    fun refresh() {
+        loadBudgetUsage()
+    }
 }
 
 /**

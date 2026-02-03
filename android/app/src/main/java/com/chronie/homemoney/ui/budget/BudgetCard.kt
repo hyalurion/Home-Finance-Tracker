@@ -27,10 +27,16 @@ import java.util.Locale
 fun BudgetCard(
     context: android.content.Context,
     viewModel: BudgetViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    refreshTrigger: Int = 0
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
+    
+    // 监听刷新触发器
+    LaunchedEffect(refreshTrigger) {
+        viewModel.refresh()
+    }
     
     // 如果预算功能未启用，显示启用提示
     if (uiState.budget?.isEnabled != true) {

@@ -21,8 +21,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -36,8 +37,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.ui.budget.BudgetCard
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -58,12 +61,32 @@ fun ExpenseListScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showFilterDialog by remember { mutableStateOf(false) }
     var showMoreMenu by remember { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(false) }
+    var budgetRefreshTrigger by remember { mutableStateOf(0) }
+    
+    val pullRefreshState = rememberPullToRefreshState()
     
     // 处理刷新请求
     LaunchedEffect(shouldRefresh) {
         if (shouldRefresh) {
             viewModel.refresh()
+            budgetRefreshTrigger++
             onRefreshHandled()
+        }
+    }
+    
+    // 刷新函数
+    val onRefresh: () -> Unit = {
+        isRefreshing = true
+        viewModel.refresh()
+        budgetRefreshTrigger++
+    }
+    
+    // 处理刷新状态重置
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            delay(1000)
+            isRefreshing = false
         }
     }
     
@@ -86,13 +109,6 @@ fun ExpenseListScreen(
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.weight(1f).padding(start = 8.dp)
                 )
-                
-                IconButton(onClick = { viewModel.refresh() }) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = context.getString(R.string.common_refresh)
-                    )
-                }
                 
                 Box {
                     IconButton(onClick = { showMoreMenu = true }) {
@@ -136,7 +152,7 @@ fun ExpenseListScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        ExpressiveLoadingIndicator(containerVisible = true)
                     }
                 }
                 uiState.error != null && uiState.expenses.isEmpty() -> {
@@ -200,19 +216,26 @@ fun ExpenseListScreen(
                         }
                     }
                     
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 80.dp), // 为浮动按钮留出空间
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = onRefresh,
+                        state = pullRefreshState,
+                        modifier = Modifier.fillMaxSize()
                     ) {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 80.dp), // 为浮动按钮留出空间
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
                         // 预算管理卡片
                         item(key = "budget_card") {
                             BudgetCard(
                                 context = context,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                refreshTrigger = budgetRefreshTrigger
                             )
                         }
                         
@@ -265,7 +288,7 @@ fun ExpenseListScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (uiState.isLoading) {
-                                        CircularProgressIndicator()
+                                        ExpressiveLoadingIndicator(containerVisible = true)
                                     } else {
                                         Button(onClick = { viewModel.loadMore() }) {
                                             Text(context.getString(R.string.common_loading))
@@ -278,7 +301,7 @@ fun ExpenseListScreen(
                 }
             }
         }
-        
+    }   
         // 浮动按钮
         FloatingActionButton(
             onClick = onNavigateToAddExpense,
