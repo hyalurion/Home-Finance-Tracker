@@ -1,19 +1,20 @@
 <template>
-  <div class="charts-container">
-    <div class="chart-controls">
+  <div class="charts-container glass-card">
+    <div class="chart-controls glass-panel">
       <CustomSelect 
         v-model="activeChart" 
         :options="chartTypes"
         @change="renderChart"
         :include-empty-option="false"
+        class="glass-select"
       />
-      <div class="date-range-picker">
+      <div class="date-range-picker glass-input-group">
         <input
           type="date"
           v-model="startDate"
           @change="handleStartDateChange"
           :max="endDate"
-          class="date-input"
+          class="date-input glass-input"
         />
         <span class="range-separator">{{ t('common.to') }}</span>
         <input
@@ -21,11 +22,11 @@
           v-model="endDate"
           @change="handleEndDateChange"
           :min="startDate"
-          class="date-input"
+          class="date-input glass-input"
         />
       </div>
     </div>
-    <div class="chart-wrapper">
+    <div class="chart-wrapper glass-chart-container">
       <canvas id="expenseChart"></canvas>
     </div>
   </div>
@@ -916,140 +917,266 @@ const debounce = (func, wait) => {
 
 <style scoped>
 .charts-container {
-  padding: 20px;
-  border-radius: 10px;
-  background: transparent;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
   width: 100%;
   box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  position: relative;
+  overflow: hidden;
 }
 
-.chart-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 15px;
-  }
-  
-  .date-range-picker {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .date-input {
-    padding: 8px 12px;
-    border: 1px solid #dcdfe6;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: #fff;
-    transition: border-color 0.3s;
-    min-width: 120px;
-  }
-  
-  .date-input:focus {
-    outline: none;
-    border-color: #409eff;
-  }
-  
-  .range-separator {
-    color: #909399;
-    font-size: 14px;
-  }
+.glass-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  position: relative;
+  z-index: 10;
+}
 
-  .chart-wrapper {
-    height: 400px;
-    margin-bottom: 30px;
-    position: relative;
-    width: 100%;
-  }
+.glass-input-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.glass-input {
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 130px;
+  color: #333;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: rgba(64, 158, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 4px 12px rgba(64, 158, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.glass-input:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.range-separator {
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.glass-chart-container {
+  height: 400px;
+  margin-bottom: 30px;
+  position: relative;
+  width: 100%;
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.glass-chart-container:hover {
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
 
 #expenseChart {
   max-width: 100% !important;
 }
 
+/* 确保下拉菜单显示在图表容器之上 */
+:deep(.glass-select) {
+  position: relative;
+  z-index: 100;
+}
+
+:deep(.glass-select .select-dropdown) {
+  z-index: 200 !important;
+}
+
 /* 平板设备响应式设计 */
-  @media (max-width: 768px) {
-    .charts-container {
-      padding: 15px;
-    }
-    
-    .chart-controls {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    
-    .chart-wrapper {
-      height: 350px;
-    }
-    
-    .date-range-picker {
-      width: 100%;
-    }
-    
-    .date-input {
-      width: 100%;
-    }
+@media (max-width: 768px) {
+  .charts-container {
+    padding: 20px;
+    border-radius: 16px;
   }
+  
+  .glass-panel {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px;
+  }
+  
+  .glass-chart-container {
+    height: 350px;
+    padding: 16px;
+  }
+  
+  .glass-input-group {
+    width: 100%;
+  }
+  
+  .glass-input {
+    width: 100%;
+  }
+}
 
 /* 手机设备响应式设计 */
 @media (max-width: 480px) {
   .charts-container {
-    padding: 10px;
+    padding: 16px;
+    border-radius: 14px;
   }
   
-  .chart-wrapper {
+  .glass-chart-container {
     height: 300px;
+    padding: 12px;
   }
   
-  .chart-controls {
-    margin-bottom: 15px;
+  .glass-panel {
+    margin-bottom: 16px;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .glass-input-group {
+    width: 50%;
+    flex-direction: column;
     gap: 10px;
   }
   
-  .date-range-picker {
-    width: 50%;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .date-input {
+  .glass-input {
     width: 70%;
     min-width: auto;
+    padding: 8px 12px;
+    font-size: 13px;
   }
   
   .range-separator {
-    display: none; /* 在垂直布局中隐藏分隔符 */
+    display: none;
   }
 }
 
 /* 超小屏幕设备响应式设计 */
 @media (max-width: 360px) {
-  .chart-wrapper {
+  .glass-chart-container {
     height: 250px;
+    padding: 10px;
   }
   
-  .date-range-picker {
+  .glass-input-group {
     width: 50%;
     flex-direction: column;
     gap: 8px;
   }
   
-  .date-input {
+  .glass-input {
     width: 100%;
     min-width: auto;
-    font-size: 12px; /* 更小的字体以适应超小屏幕 */
-    padding: 6px 8px; /* 更小的内边距 */
+    font-size: 12px;
+    padding: 6px 10px;
   }
 }
 
 @media (prefers-color-scheme: dark) {
   .charts-container {
-    background: rgba(30, 30, 30, 0.7);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    color: #fff !important;
+    background: rgba(20, 20, 20, 0.6);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+  
+  .glass-panel {
+    background: rgba(30, 30, 30, 0.5);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 4px 16px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  
+  .glass-input {
+    background: rgba(40, 40, 40, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    box-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  
+  .glass-input:focus {
+    border-color: rgba(64, 158, 255, 0.6);
+    background: rgba(50, 50, 50, 0.7);
+    box-shadow: 
+      0 4px 12px rgba(64, 158, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .glass-input:hover {
+    background: rgba(45, 45, 45, 0.6);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  
+  .glass-chart-container {
+    background: rgba(30, 30, 30, 0.4);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 4px 20px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  
+  .glass-chart-container:hover {
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  
+  .range-separator {
+    color: #aaa;
   }
 }
 </style>

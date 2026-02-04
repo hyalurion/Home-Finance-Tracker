@@ -307,7 +307,7 @@ onUnmounted(() => {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   max-height: 240px;
   overflow-y: auto;
-  z-index: 1000;
+  z-index: 9999;
   transform-origin: top center;
 }
 
