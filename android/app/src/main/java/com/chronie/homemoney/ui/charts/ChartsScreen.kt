@@ -39,7 +39,8 @@ fun ChartsScreen(
     context: Context,
     viewModel: ChartsViewModel = hiltViewModel(),
     onRequireLogin: () -> Unit = {},
-    onRequireMembership: () -> Unit = {}
+    onRequireMembership: () -> Unit = {},
+    onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedTimeRange by viewModel.selectedTimeRange.collectAsState()
@@ -101,7 +102,8 @@ fun ChartsScreen(
                     ChartsContent(
                         context = context,
                         state = state,
-                        selectedTimeRange = selectedTimeRange
+                        selectedTimeRange = selectedTimeRange,
+                        onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
                     )
                 }
                 is ChartsUiState.Error -> {
@@ -144,7 +146,8 @@ fun ChartsScreen(
 private fun ChartsContent(
     context: Context,
     state: ChartsUiState.Success,
-    selectedTimeRange: TimeRange
+    selectedTimeRange: TimeRange,
+    onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
     val scrollState = rememberScrollState()
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.CHINA) }
@@ -181,7 +184,14 @@ private fun ChartsContent(
         Spacer(modifier = Modifier.height(16.dp))
         
         // 星期分析雷达图
-        WeekdayRadarChartCard(context, state.weekdayData, currencyFormat)
+        WeekdayRadarChartCard(
+            context = context,
+            weekdayData = state.weekdayData,
+            currencyFormat = currencyFormat,
+            startDate = state.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            endDate = state.endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
+        )
     }
 }
 

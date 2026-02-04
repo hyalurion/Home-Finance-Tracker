@@ -34,10 +34,11 @@ import kotlin.math.PI
 fun WeekdayRadarChartCard(
     context: Context,
     weekdayData: List<WeekdayChartData>,
-    currencyFormat: NumberFormat
+    currencyFormat: NumberFormat,
+    startDate: String,
+    endDate: String,
+    onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
-    var selectedWeekday by remember { mutableStateOf<WeekdayChartData?>(null) }
-    
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -62,7 +63,14 @@ fun WeekdayRadarChartCard(
                     weekdayData = weekdayData,
                     currencyFormat = currencyFormat,
                     onWeekdayClick = { weekday ->
-                        selectedWeekday = weekday
+                        onNavigateToWeekdayDetail(
+                            weekday.dayOfWeek,
+                            weekday.amount,
+                            weekday.count,
+                            weekday.percentage,
+                            startDate,
+                            endDate
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -80,16 +88,6 @@ fun WeekdayRadarChartCard(
                 }
             }
         }
-    }
-    
-    // 详细信息弹窗
-    if (selectedWeekday != null) {
-        WeekdayDetailDialog(
-            context = context,
-            weekdayData = selectedWeekday!!,
-            currencyFormat = currencyFormat,
-            onDismiss = { selectedWeekday = null }
-        )
     }
 }
 
@@ -323,133 +321,6 @@ private fun WeekdayDataItem(
             modifier = Modifier.width(100.dp)
         )
     }
-}
-
-/**
- * 星期详细信息弹窗
- */
-@Composable
-private fun WeekdayDetailDialog(
-    context: Context,
-    weekdayData: WeekdayChartData,
-    currencyFormat: NumberFormat,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Column {
-                Text(
-                    text = getWeekdayName(context, weekdayData.dayOfWeek),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = context.getString(R.string.expense_details),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                // 总金额和占比
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = context.getString(R.string.total_amount),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(
-                                text = currencyFormat.format(weekdayData.amount),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = context.getString(R.string.count),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(
-                                text = "${weekdayData.count} ${context.getString(R.string.records)}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = context.getString(R.string.percentage_of_total),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(
-                                text = "${String.format("%.1f", weekdayData.percentage)}%",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // 类型占比
-                if (weekdayData.categoryBreakdown.isNotEmpty()) {
-                    Text(
-                        text = context.getString(R.string.category_breakdown),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    weekdayData.categoryBreakdown.forEach { category ->
-                        CategoryDetailItem(context, category, currencyFormat)
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                } else {
-                    Text(
-                        text = context.getString(R.string.no_data),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.close))
-            }
-        }
-    )
 }
 
 /**

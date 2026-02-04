@@ -51,6 +51,7 @@ import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
 import com.chronie.homemoney.service.HealthCheckService
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDate
 import java.util.Locale
 import javax.inject.Inject
 
@@ -179,6 +180,7 @@ fun HomeMoneyApp(
 ) {
     val navController = rememberNavController()
     var shouldRefreshExpenses by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableStateOf(0) }
     
     // 确定初始路由
     val startDestination = remember {
@@ -332,20 +334,32 @@ fun HomeMoneyApp(
                 context = context,
                 shouldRefreshExpenses = shouldRefreshExpenses,
                 onRefreshHandled = { shouldRefreshExpenses = false },
+                selectedTab = selectedTab,
+                onTabChange = { selectedTab = it },
                 onNavigateToSettings = {
+                    selectedTab = 2
                     navController.navigate("settings")
                 },
                 onNavigateToDatabaseTest = {
+                    selectedTab = 2
                     navController.navigate("database_test")
                 },
                 onNavigateToAddExpense = {
+                    selectedTab = 0
                     navController.navigate("add_expense")
                 },
                 onNavigateToEditExpense = { expenseId ->
+                        selectedTab = 0
                         navController.navigate(
                             route = "add_expense?expenseId=$expenseId"
                         )
                     },
+                onNavigateToWeekdayDetail = { dayOfWeek, amount, count, percentage, startDate, endDate ->
+                    selectedTab = 1
+                    navController.navigate(
+                        route = "weekday_detail?dayOfWeek=$dayOfWeek&amount=$amount&count=$count&percentage=$percentage&startDate=$startDate&endDate=$endDate"
+                    )
+                },
                 onRequireLogin = {
                     // 未登录时，清空导航栈并返回欢迎页
                     navController.navigate("welcome") {
@@ -411,6 +425,36 @@ fun HomeMoneyApp(
         composable("database_test") {
             DatabaseTestScreen(
                 context = context,
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        
+        composable(
+            "weekday_detail?dayOfWeek={dayOfWeek}&amount={amount}&count={count}&percentage={percentage}&startDate={startDate}&endDate={endDate}",
+            arguments = listOf(
+                navArgument("dayOfWeek") { type = NavType.IntType },
+                navArgument("amount") { type = NavType.FloatType },
+                navArgument("count") { type = NavType.IntType },
+                navArgument("percentage") { type = NavType.FloatType },
+                navArgument("startDate") { type = NavType.StringType },
+                navArgument("endDate") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val dayOfWeek = backStackEntry.arguments?.getInt("dayOfWeek") ?: 0
+            val amount = backStackEntry.arguments?.getFloat("amount")?.toDouble() ?: 0.0
+            val count = backStackEntry.arguments?.getInt("count") ?: 0
+            val percentage = backStackEntry.arguments?.getFloat("percentage") ?: 0f
+            val startDate = backStackEntry.arguments?.getString("startDate") ?: LocalDate.now().minusMonths(1).toString()
+            val endDate = backStackEntry.arguments?.getString("endDate") ?: LocalDate.now().toString()
+            
+            com.chronie.homemoney.ui.charts.WeekdayDetailScreen(
+                context = context,
+                dayOfWeek = dayOfWeek,
+                amount = amount,
+                count = count,
+                percentage = percentage,
                 onNavigateBack = {
                     navController.popBackStack()
                 }

@@ -35,11 +35,14 @@ fun MainScreen(
     context: Context,
     shouldRefreshExpenses: Boolean = false,
     onRefreshHandled: () -> Unit = {},
+    selectedTab: Int = 0,
+    onTabChange: (Int) -> Unit = {},
     onNavigateToSettings: () -> Unit,
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToAddExpense: () -> Unit = {},
     onNavigateToEditExpense: (expenseId: String) -> Unit = {},
     onNavigateToMoreFunctions: () -> Unit = {},
+    onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> },
     onRequireLogin: () -> Unit = {},
     onRequireMembership: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel()
@@ -49,7 +52,6 @@ fun MainScreen(
     val isMember by viewModel.isMember.collectAsState()
     val shouldShowExpiryWarning by viewModel.shouldShowExpiryWarning.collectAsState()
     val daysUntilExpiry by viewModel.daysUntilExpiry.collectAsState()
-    var selectedTab by remember { mutableStateOf(0) }
     var showExpiryBottomSheet by remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -83,7 +85,7 @@ fun MainScreen(
                 BottomNavigationBar(
                     context = context,
                     selectedTab = selectedTab,
-                    onTabChange = { selectedTab = it }
+                    onTabChange = onTabChange
                 )
             }
         ) { paddingValues ->
@@ -105,7 +107,8 @@ fun MainScreen(
                         com.chronie.homemoney.ui.charts.ChartsScreen(
                             context = context,
                             onRequireLogin = onRequireLogin,
-                            onRequireMembership = onRequireMembership
+                            onRequireMembership = onRequireMembership,
+                            onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
                         )
                     }
                     2 -> {
