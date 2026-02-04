@@ -30,6 +30,8 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -545,77 +547,236 @@ private fun TimeRangeDialog(
     val customStartDate by viewModel.customStartDate.collectAsState()
     val customEndDate by viewModel.customEndDate.collectAsState()
     
+    var showCustomRangeBottomSheet by remember { mutableStateOf(false) }
+    
+    val sheetState = rememberModalBottomSheetState()
+    
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = context.getString(R.string.select_time_range),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
+            var expanded by remember { mutableStateOf(false) }
+            
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = it },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = getTimeRangeText(context, selectedTimeRange),
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(context.getString(R.string.select_time_range)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    listOf(
+                        TimeRange.THIS_WEEK,
+                        TimeRange.THIS_MONTH,
+                        TimeRange.LAST_MONTH,
+                        TimeRange.THIS_QUARTER,
+                        TimeRange.THIS_YEAR,
+                        TimeRange.CUSTOM
+                    ).forEach { timeRange ->
+                        DropdownMenuItem(
+                            text = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = selectedTimeRange == timeRange,
+                                        onClick = {
+                                            if (timeRange == TimeRange.CUSTOM) {
+                                                showCustomRangeBottomSheet = true
+                                            } else {
+                                                onTimeRangeSelected(timeRange)
+                                            }
+                                            expanded = false
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(getTimeRangeText(context, timeRange))
+                                }
+                            },
+                            onClick = {
+                                if (timeRange == TimeRange.CUSTOM) {
+                                    showCustomRangeBottomSheet = true
+                                } else {
+                                    onTimeRangeSelected(timeRange)
+                                }
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            if (selectedTimeRange == TimeRange.CUSTOM && customStartDate != null && customEndDate != null) {
+                Text(
+                    text = "${context.getString(R.string.expense_list_filter_start_date)} ${customStartDate?.format(DateTimeFormatter.ISO_LOCAL_DATE)} ${context.getString(R.string.expense_list_filter_end_date)} ${customEndDate?.format(DateTimeFormatter.ISO_LOCAL_DATE)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+    
+    if (showCustomRangeBottomSheet) {
+        CustomRangeBottomSheet(
+            context = context,
+            initialStartDate = customStartDate ?: LocalDate.now().minusMonths(1),
+            initialEndDate = customEndDate ?: LocalDate.now(),
+            onDismiss = { showCustomRangeBottomSheet = false },
+            onConfirm = { startDate, endDate ->
+                viewModel.setCustomDateRange(startDate, endDate)
+                onTimeRangeSelected(TimeRange.CUSTOM)
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CustomRangeBottomSheet(
+    context: Context,
+    initialStartDate: LocalDate,
+    initialEndDate: LocalDate,
+    onDismiss: () -> Unit,
+    onConfirm: (LocalDate, LocalDate) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState()
+    val coroutineScope = rememberCoroutineScope()
+    
+    var startDate by remember { mutableStateOf(initialStartDate) }
+    var endDate by remember { mutableStateOf(initialEndDate) }
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
     
-    AlertDialog(
+    ModalBottomSheet(
         onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.select_time_range)) },
-        text = {
-            Column {
-                // 预设时间范围选项
-                listOf(
-                    TimeRange.THIS_WEEK,
-                    TimeRange.THIS_MONTH,
-                    TimeRange.LAST_MONTH,
-                    TimeRange.THIS_QUARTER,
-                    TimeRange.THIS_YEAR
-                ).forEach { timeRange ->
-                    TimeRangeOption(
-                        context = context,
-                        timeRange = timeRange,
-                        isSelected = selectedTimeRange == timeRange,
-                        onClick = { onTimeRangeSelected(timeRange) }
-                    )
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = context.getString(R.string.custom_range),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
+            OutlinedTextField(
+                value = startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(context.getString(R.string.expense_list_filter_start_date)) },
+                trailingIcon = {
+                    IconButton(onClick = { showStartDatePicker = true }) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = context.getString(R.string.expense_list_filter_start_date)
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            OutlinedTextField(
+                value = endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(context.getString(R.string.expense_list_filter_end_date)) },
+                trailingIcon = {
+                    IconButton(onClick = { showEndDatePicker = true }) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = context.getString(R.string.expense_list_filter_end_date)
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            sheetState.hide()
+                            onDismiss()
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(context.getString(R.string.cancel))
                 }
-                
-                // 自定义时间范围选项
-                TimeRangeOption(
-                    context = context,
-                    timeRange = TimeRange.CUSTOM,
-                    isSelected = selectedTimeRange == TimeRange.CUSTOM,
-                    onClick = { showStartDatePicker = true }
-                )
-                
-                // 显示当前选择的自定义日期范围（如果有）
-                if (selectedTimeRange == TimeRange.CUSTOM && customStartDate != null && customEndDate != null) {
-                    Text(
-                        text = "${customStartDate?.format(DateTimeFormatter.ISO_LOCAL_DATE)} - ${customEndDate?.format(DateTimeFormatter.ISO_LOCAL_DATE)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 40.dp, vertical = 8.dp)
-                    )
+                Button(
+                    onClick = {
+                        onConfirm(startDate, endDate)
+                        coroutineScope.launch {
+                            sheetState.hide()
+                            onDismiss()
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = !startDate.isAfter(endDate)
+                ) {
+                    Text(context.getString(R.string.confirm))
                 }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.close))
             }
         }
-    )
+    }
     
-    // 开始日期选择器
     if (showStartDatePicker) {
-        val initialDate = customStartDate ?: LocalDate.now().minusMonths(1)
-        val datePickerState = androidx.compose.material3.rememberDatePickerState(
-            initialSelectedDateMillis = initialDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = startDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
         )
         
-        androidx.compose.material3.DatePickerDialog(
+        DatePickerDialog(
             onDismissRequest = { showStartDatePicker = false },
             confirmButton = {
                 TextButton(
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
-                            val selectedDate = java.time.Instant.ofEpochMilli(millis)
+                            startDate = java.time.Instant.ofEpochMilli(millis)
                                 .atZone(java.time.ZoneId.systemDefault())
                                 .toLocalDate()
-                            // 设置开始日期后，显示结束日期选择器
-                            viewModel.setCustomStartDate(selectedDate)
-                            showStartDatePicker = false
-                            showEndDatePicker = true
                         }
+                        showStartDatePicker = false
                     }
                 ) {
                     Text(context.getString(R.string.confirm))
@@ -627,33 +788,26 @@ private fun TimeRangeDialog(
                 }
             }
         ) {
-            androidx.compose.material3.DatePicker(state = datePickerState)
+            DatePicker(state = datePickerState)
         }
     }
     
-    // 结束日期选择器
     if (showEndDatePicker) {
-        val initialDate = customEndDate ?: LocalDate.now()
-        // minDate 仅用于显示，不用于逻辑处理
-        val datePickerState = androidx.compose.material3.rememberDatePickerState(
-            initialSelectedDateMillis = initialDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli(),
-            initialDisplayedMonthMillis = initialDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = endDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
         )
         
-        androidx.compose.material3.DatePickerDialog(
+        DatePickerDialog(
             onDismissRequest = { showEndDatePicker = false },
             confirmButton = {
                 TextButton(
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
-                            val selectedDate = java.time.Instant.ofEpochMilli(millis)
+                            endDate = java.time.Instant.ofEpochMilli(millis)
                                 .atZone(java.time.ZoneId.systemDefault())
                                 .toLocalDate()
-                            // 选择结束日期后，设置完整的自定义日期范围
-                            showEndDatePicker = false
-                            viewModel.setCustomDateRange(customStartDate!!, selectedDate)
-                            onTimeRangeSelected(TimeRange.CUSTOM)
                         }
+                        showEndDatePicker = false
                     }
                 ) {
                     Text(context.getString(R.string.confirm))
@@ -665,7 +819,7 @@ private fun TimeRangeDialog(
                 }
             }
         ) {
-            androidx.compose.material3.DatePicker(state = datePickerState)
+            DatePicker(state = datePickerState)
         }
     }
 }
