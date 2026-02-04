@@ -48,7 +48,7 @@
     <string name="database_statistics">Local Database Stats</string>
     <string name="record_count">Records: %d</string>
     <string name="total_amount">Total</string>
-    <string name="total_amount_database">Total: ¥%.2f</string>
+    <string name="total_amount_database">Total: $%.2f</string>
     <string name="expense_records">Expenses</string>
     <string name="no_data">No data</string>
     <string name="synced">Synced</string>
@@ -234,11 +234,11 @@
     <string name="budget_expand">Show More</string>
     <string name="budget_collapse">Show Less</string>
     <string name="budget_alert_normal_title">On Track</string>
-    <string name="budget_alert_normal_message">¥%1$s remaining (%2$.0f%%)</string>
+    <string name="budget_alert_normal_message">$%1$s remaining (%2$.0f%%)</string>
     <string name="budget_alert_warning_title">Approaching Limit</string>
-    <string name="budget_alert_warning_message">¥%1$s left (%2$.0f%%), watch spending</string>
+    <string name="budget_alert_warning_message">$%1$s left (%2$.0f%%), watch spending</string>
     <string name="budget_alert_over_title">Over Budget</string>
-    <string name="budget_alert_over_message">Over by ¥%1$s, adjust spending</string>
+    <string name="budget_alert_over_message">Over by $%1$s, adjust spending</string>
     <string name="common_save">Save</string>
     <string name="common_cancel">Cancel</string>
     <string name="budget_error_invalid_limit">Enter valid amount</string>
@@ -376,7 +376,7 @@
     <string name="renew_now">Renew Now</string>
     <string name="remind_later">Remind Later</string>
     <string name="confirm_purchase">Confirm Purchase</string>
-    <string name="confirm_purchase_message">Purchase %1$s for ¥%2$.2f?</string>
+    <string name="confirm_purchase_message">Purchase %1$s for $%2$.2f?</string>
     <string name="purchase_note">Payment processed by Chrysorrhoe</string>
     <string name="purchasing">Processing…</string>
     <string name="days">days</string>

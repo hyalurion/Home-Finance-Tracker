@@ -54,6 +54,22 @@ class LanguageManager @Inject constructor(
         resources.updateConfiguration(config, resources.displayMetrics)
     }
 
+    fun migrateOldLanguageCode(oldCode: String?) {
+        if (oldCode == null) return
+        
+        val newLanguage = when (oldCode) {
+            "zh-TW" -> Language.TRADITIONAL_CHINESE_TAIWAN
+            "zh-HK" -> Language.TRADITIONAL_CHINESE_HONG_KONG
+            "zh-MO" -> Language.TRADITIONAL_CHINESE_MACAU
+            "zh-SG" -> Language.SIMPLIFIED_CHINESE_SINGAPORE
+            "zh-CN" -> Language.SIMPLIFIED_CHINESE
+            "en" -> Language.ENGLISH
+            else -> return
+        }
+        
+        setLanguage(newLanguage)
+    }
+
     companion object {
         private const val KEY_LANGUAGE = "selected_language"
     }

@@ -2,10 +2,21 @@ package com.chronie.homemoney.core.common
 
 import java.util.Locale
 
-enum class Language(val code: String, val displayName: String, val locale: Locale) {
-    ENGLISH("en", "English", Locale.ENGLISH),
-    SIMPLIFIED_CHINESE("zh-CN", "简体中文", Locale.SIMPLIFIED_CHINESE),
-    TRADITIONAL_CHINESE("zh-TW", "繁體中文", Locale.TRADITIONAL_CHINESE);
+enum class Language(
+    val code: String,
+    val englishName: String,
+    val localName: String,
+    val locale: Locale
+) {
+    ENGLISH("en", "English", "English", Locale.ENGLISH),
+    SIMPLIFIED_CHINESE("zh-CN", "Simplified Chinese", "简体中文", Locale.SIMPLIFIED_CHINESE),
+    TRADITIONAL_CHINESE_TAIWAN("zh-TW", "Traditional Chinese (Taiwan)", "繁體中文（台灣）", Locale("zh", "TW")),
+    TRADITIONAL_CHINESE_HONG_KONG("zh-HK", "Traditional Chinese (Hong Kong)", "繁體中文（香港）", Locale("zh", "HK")),
+    TRADITIONAL_CHINESE_MACAU("zh-MO", "Traditional Chinese (Macau)", "繁體中文（澳門）", Locale("zh", "MO")),
+    SIMPLIFIED_CHINESE_SINGAPORE("zh-SG", "Simplified Chinese (Singapore)", "简体中文（新加坡）", Locale("zh", "SG"));
+
+    val displayName: String
+        get() = "$englishName / $localName"
 
     companion object {
         fun fromCode(code: String): Language {
@@ -14,8 +25,10 @@ enum class Language(val code: String, val displayName: String, val locale: Local
 
         fun fromLocale(locale: Locale): Language {
             return when {
-                locale.language == "zh" && locale.country == "TW" -> TRADITIONAL_CHINESE
-                locale.language == "zh" && locale.country == "HK" -> TRADITIONAL_CHINESE
+                locale.language == "zh" && locale.country == "TW" -> TRADITIONAL_CHINESE_TAIWAN
+                locale.language == "zh" && locale.country == "HK" -> TRADITIONAL_CHINESE_HONG_KONG
+                locale.language == "zh" && locale.country == "MO" -> TRADITIONAL_CHINESE_MACAU
+                locale.language == "zh" && locale.country == "SG" -> SIMPLIFIED_CHINESE_SINGAPORE
                 locale.language == "zh" -> SIMPLIFIED_CHINESE
                 else -> ENGLISH
             }
