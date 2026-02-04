@@ -1,4 +1,55 @@
 /**
+ * 格式化日期为相对日期格式（今天、昨天、X天前等）
+ * @param {string} dateString - 日期字符串 (YYYY-MM-DD)
+ * @param {Function} t - Vue i18n 翻译函数
+ * @returns {string} 格式化后的相对日期字符串
+ */
+export const formatRelativeDate = (dateString, t) => {
+  try {
+    console.log('formatRelativeDate called with:', dateString);
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    const today = new Date();
+    
+    today.setHours(0, 0, 0, 0);
+    
+    const diffTime = today - date;
+    const daysBetween = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    console.log('Date calculation:', { date, today, diffTime, daysBetween });
+    
+    const dayOfWeek = date.getDay();
+    const weekdayKeys = [
+      'common.sunday',
+      'common.monday',
+      'common.tuesday',
+      'common.wednesday',
+      'common.thursday',
+      'common.friday',
+      'common.saturday'
+    ];
+    const weekdayString = t(weekdayKeys[dayOfWeek]);
+    
+    let result;
+    if (daysBetween === 0) {
+      result = `${t('common.date_today')}（${weekdayString}）`;
+    } else if (daysBetween === 1) {
+      result = `${t('common.date_yesterday')}（${weekdayString}）`;
+    } else if (daysBetween >= 2 && daysBetween <= 6) {
+      result = `${t('common.date_days_ago', { days: daysBetween })}（${weekdayString}）`;
+    } else {
+      result = `${dateString}（${weekdayString}）`;
+    }
+    
+    console.log('formatRelativeDate result:', result);
+    return result;
+  } catch (e) {
+    console.error('formatRelativeDate error:', e);
+    return dateString;
+  }
+};
+
+/**
  * 格式化日期为 YYYY-MM-DD 格式
  * @param {string|Date} date - 日期字符串或Date对象
  * @returns {string} 格式化后的日期字符串
