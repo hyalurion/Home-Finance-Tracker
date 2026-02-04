@@ -17,6 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.SubscriptionStatus
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.components.CircularIconButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -38,13 +39,19 @@ fun SubscriptionHistoryScreen(
             TopAppBar(
                 title = { Text(context.getString(R.string.subscription_history)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = context.getString(R.string.back)
                         )
                     }
-                }
+                },
+                actions = {
+                    Box(modifier = Modifier.padding(end = 8.dp))
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         }
     ) { paddingValues ->

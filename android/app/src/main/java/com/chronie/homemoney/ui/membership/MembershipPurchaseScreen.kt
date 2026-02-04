@@ -24,6 +24,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.SubscriptionPlan
 import com.chronie.homemoney.domain.model.SubscriptionStatus
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.components.CircularIconButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +53,7 @@ fun MembershipPurchaseScreen(
             TopAppBar(
                 title = { Text(context.getString(R.string.membership_title)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateToMain) {
+                    CircularIconButton(onClick = onNavigateToMain, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = context.getString(R.string.back)
@@ -60,19 +61,22 @@ fun MembershipPurchaseScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onNavigateToHistory) {
+                    CircularIconButton(onClick = onNavigateToHistory, modifier = Modifier.padding(start = 4.dp, end = 4.dp)) {
                         Icon(
                             imageVector = Icons.Default.History,
                             contentDescription = context.getString(R.string.subscription_history)
                         )
                     }
-                    IconButton(onClick = { viewModel.logout(onNavigateToWelcome) }) {
+                    CircularIconButton(onClick = { viewModel.logout(onNavigateToWelcome) }, modifier = Modifier.padding(start = 4.dp, end = 8.dp)) {
                         Icon(
                             imageVector = Icons.Default.ExitToApp,
                             contentDescription = context.getString(R.string.auth_logout_button)
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }

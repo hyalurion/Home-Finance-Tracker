@@ -21,6 +21,7 @@ import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.components.CircularIconButton
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -76,12 +77,12 @@ fun AddExpenseScreen(
                     ) 
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
                         Icon(Icons.Default.ArrowBack, contentDescription = context.getString(R.string.back))
                     }
                 },
                 actions = {
-                    IconButton(
+                    CircularIconButton(
                         onClick = {
                             viewModel.saveExpense(
                                 onSuccess = {
@@ -92,7 +93,8 @@ fun AddExpenseScreen(
                                 }
                             )
                         },
-                        enabled = !uiState.isSaving
+                        enabled = !uiState.isSaving,
+                        modifier = Modifier.padding(start = 4.dp, end = 8.dp)
                     ) {
                         if (uiState.isSaving) {
                             ExpressiveLoadingIndicator(size = 24.dp, containerVisible = false)
@@ -100,7 +102,10 @@ fun AddExpenseScreen(
                             Icon(Icons.Default.Check, contentDescription = context.getString(R.string.save))
                         }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }

@@ -76,8 +76,8 @@ fun SettingsScreen(
         // 顶部标题栏
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 3.dp
+            color = MaterialTheme.colorScheme.background,
+            tonalElevation = 0.dp
         ) {
             Row(
                 modifier = Modifier

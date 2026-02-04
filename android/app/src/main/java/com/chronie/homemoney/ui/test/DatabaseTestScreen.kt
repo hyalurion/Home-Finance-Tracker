@@ -3,6 +3,8 @@ package com.chronie.homemoney.ui.test
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
+import com.chronie.homemoney.ui.components.CircularIconButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,10 +34,16 @@ fun DatabaseTestScreen(
             TopAppBar(
                 title = { Text(context.getString(R.string.database_test)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Text("<")
+                    CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = context.getString(R.string.back))
                     }
-                }
+                },
+                actions = {
+                    Box(modifier = Modifier.padding(end = 8.dp))
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         }
     ) { paddingValues ->

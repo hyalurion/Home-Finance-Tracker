@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.model.ExpenseType
 import java.io.File
@@ -297,10 +298,16 @@ fun AIExpenseScreen(
             TopAppBar(
                 title = { Text(context.getString(R.string.ai_expense_title)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
                         Icon(Icons.Default.ArrowBack, contentDescription = context.getString(R.string.back))
                     }
-                }
+                },
+                actions = {
+                    Box(modifier = Modifier.padding(end = 8.dp))
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         }
     ) { paddingValues ->
