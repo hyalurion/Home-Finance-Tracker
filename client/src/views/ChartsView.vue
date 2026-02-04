@@ -143,15 +143,7 @@ onMounted(async () => {
   text-align: center;
 }
 
-.loading-alert {
-  background-color: #e3f2fd;
-  color: #1976d2;
-  border: 1px solid #90caf9;
-}
-
 .error-alert {
-  background-color: #ffebee;
   color: #d32f2f;
-  border: 1px solid #ffcdd2;
 }
 </style>

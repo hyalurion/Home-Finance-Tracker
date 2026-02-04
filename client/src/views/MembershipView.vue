@@ -161,12 +161,6 @@ export default {
     const successMessage = ref('')
     const errorMessage = ref('')
     const avatarUrl = ref('')
-    const subscriptionColumns = ref([
-      { label: t('membership.plan'), prop: 'planName' },
-      { label: t('membership.startDate'), prop: 'startDate' },
-      { label: t('membership.endDate'), prop: 'endDate' },
-      { label: t('membership.status'), prop: 'status' }
-    ])
     const isLoggedIn = ref(false)
     const loginFormRef = ref(null)
     const loginForm = ref({
@@ -228,6 +222,48 @@ export default {
       const date = new Date(dateString)
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     }
+
+    // 格式化本地时间
+    const formatLocalDateTime = (dateString) => {
+      if (!dateString) return ''
+      const date = new Date(dateString)
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const hours = String(date.getHours()).padStart(2, '0')
+      const minutes = String(date.getMinutes()).padStart(2, '0')
+      const seconds = String(date.getSeconds()).padStart(2, '0')
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+    }
+
+    // 转换订阅状态为i18n文本
+    const formatSubscriptionStatus = (status) => {
+      const statusMap = {
+        'active': t('membership.statusActive'),
+        'expired': t('membership.statusExpired'),
+        'canceled': t('membership.statusCanceled')
+      }
+      return statusMap[status] || status
+    }
+
+    const subscriptionColumns = ref([
+      { label: t('membership.plan'), prop: 'planName' },
+      { 
+        label: t('membership.startDate'), 
+        prop: 'startDate',
+        render: (value) => formatLocalDateTime(value)
+      },
+      { 
+        label: t('membership.endDate'), 
+        prop: 'endDate',
+        render: (value) => formatLocalDateTime(value)
+      },
+      { 
+        label: t('membership.status'), 
+        prop: 'status',
+        render: (value) => formatSubscriptionStatus(value)
+      }
+    ])
     
     // 获取订阅计划列表
     const fetchSubscriptionPlans = async () => {
@@ -509,6 +545,8 @@ export default {
       subscribe,
       cancelSubscription,
       formatDate,
+      formatLocalDateTime,
+      formatSubscriptionStatus,
       handleLogin,
       logout,
       successMessage,

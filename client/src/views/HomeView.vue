@@ -2459,4 +2459,16 @@ body.donation-modal-open {
     display: none; /* 隐藏手机端按钮 */
   }
 }
+
+.loading-alert,
+.error-alert {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.error-alert {
+  color: #d32f2f;
+}
 </style>

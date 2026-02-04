@@ -4,7 +4,7 @@
         <router-view />
       </div>
       <template #fallback>
-        <div class="loading">{{ t('app.loading') }}</div>
+        <div class="loading-alert">{{ t('app.loading') }}</div>
       </template>
     </Suspense>
 
@@ -137,5 +137,12 @@ button {
     color: #999 !important;
     padding: 0 2px !important;
   }
+}
+
+.loading-alert {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  text-align: center;
 }
 </style>

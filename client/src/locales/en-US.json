@@ -97,7 +97,6 @@
   "expense.empty.description": "Add new expenses or adjust your filters",
   "expense.empty.reset": "Reset Filters",
   "expense.search.title": "Search Expenses",
-  "expense.loading": "Loading...",
   "expense.search.monthPlaceholder": "Month",
   "expense.search.minAmountPlaceholder": "Min amount",
   "expense.search.maxAmountPlaceholder": "Max amount",

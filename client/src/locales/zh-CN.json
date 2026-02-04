@@ -93,7 +93,6 @@
   "expense.empty.description": "添加新记录或调整筛选条件",
   "expense.empty.reset": "重置筛选",
   "expense.search.title": "搜索支出",
-  "expense.loading": "加载中...",
   "expense.search.monthPlaceholder": "月份",
   "expense.search.minAmountPlaceholder": "最小金额",
   "expense.search.maxAmountPlaceholder": "最大金额",
