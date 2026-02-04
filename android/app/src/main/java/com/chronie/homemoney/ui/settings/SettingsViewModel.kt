@@ -12,6 +12,7 @@ import com.chronie.homemoney.domain.model.SyncStatus
 import com.chronie.homemoney.domain.sync.SyncManager
 import com.chronie.homemoney.domain.usecase.ExportExpensesUseCase
 import com.chronie.homemoney.domain.usecase.ImportExpensesUseCase
+import com.chronie.homemoney.ui.theme.PaletteStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -44,6 +45,10 @@ class SettingsViewModel @Inject constructor(
     // 手动选择的主色调
     private val _primaryColor = MutableStateFlow(0xFF6750A4.toInt()) // 默认紫色
     val primaryColor: StateFlow<Int> = _primaryColor.asStateFlow()
+
+    // 调色板样式
+    private val _paletteStyle = MutableStateFlow(PaletteStyle.Expressive)
+    val paletteStyle: StateFlow<PaletteStyle> = _paletteStyle.asStateFlow()
 
     val currentLanguage: StateFlow<Language> = languageManager.currentLanguage
     
@@ -347,6 +352,9 @@ class SettingsViewModel @Inject constructor(
             val prefs = context.getSharedPreferences("theme_settings", android.content.Context.MODE_PRIVATE)
             _useDynamicColor.value = prefs.getBoolean("use_dynamic_color", true)
             _primaryColor.value = prefs.getInt("primary_color", 0xFF6750A4.toInt())
+            val paletteStyleValue = prefs.getInt("palette_style", PaletteStyle.Expressive.ordinal)
+            val paletteStyle = PaletteStyle.values().getOrElse(paletteStyleValue) { PaletteStyle.Expressive }
+            _paletteStyle.value = paletteStyle
         }
     }
 

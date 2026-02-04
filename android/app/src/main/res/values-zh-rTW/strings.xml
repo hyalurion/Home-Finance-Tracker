@@ -379,6 +379,7 @@
     <string name="purchase_note">付款將通過金流支付</string>
     <string name="purchasing">處理中…</string>
     <string name="days">天</string>
+    <string name="crop_image_failed">處理裁剪圖片失敗: %s</string>
 
     <!-- 健康檢查 -->
     <string name="health_check_channel_name">伺服器連接監控</string>
@@ -388,5 +389,141 @@
     <string name="server_connection_error">伺服器連接失敗</string>
     <string name="server_connection_error_message">無法連接到伺服器，請檢查網路連接</string>
     <string name="server_connection_restored">伺服器連接已恢復</string>
+
+    <!-- 顏色選擇器 -->
+    <string name="color_picker_title">選擇主題顏色</string>
+    <string name="color_picker_search_hint">搜索顏色名稱...</string>
+    <string name="current_theme_color">當前主題顏色</string>
+    <string name="color_group_default">默認</string>
+    <string name="color_group_red">紅色系</string>
+    <string name="color_group_orange">橙色系</string>
+    <string name="color_group_yellow">黃色系</string>
+    <string name="color_group_yellow_green">黃綠色系</string>
+    <string name="color_group_green">綠色系</string>
+    <string name="color_group_cyan">青色系</string>
+    <string name="color_group_blue">藍色系</string>
+    <string name="color_group_indigo">靛藍色系</string>
+    <string name="color_group_purple">紫色系</string>
+    <string name="color_group_pink">粉色系</string>
+    <string name="color_group_brown">棕色系</string>
+    <string name="color_group_gray">灰色系</string>
+    <string name="color_group_special">特殊色系</string>
+
+    <!-- 顏色名稱 - 紅色 -->
+    <string name="color_red_light">淺紅色</string>
+    <string name="color_red_bright">亮紅色</string>
+    <string name="color_red_pure">純紅色</string>
+    <string name="color_red_standard">標準紅</string>
+    <string name="color_red_deep">深紅色</string>
+    <string name="color_red_dark">暗紅色</string>
+
+    <!-- 顏色名稱 - 橙色 -->
+    <string name="color_orange_light">淺橙色</string>
+    <string name="color_orange_bright">亮橙色</string>
+    <string name="color_orange_pure">純橙色</string>
+    <string name="color_orange_standard">標準橙</string>
+    <string name="color_orange_deep">深橙色</string>
+    <string name="color_orange_dark">暗橙色</string>
+
+    <!-- 顏色名稱 - 黃色 -->
+    <string name="color_yellow_light">淺黃色</string>
+    <string name="color_yellow_bright">亮黃色</string>
+    <string name="color_yellow_pure">純黃色</string>
+    <string name="color_yellow_amber">琥珀黃</string>
+    <string name="color_yellow_gold">金色</string>
+    <string name="color_yellow_standard">標準黃</string>
+
+    <!-- 顏色名稱 - 黃綠色 -->
+    <string name="color_yellow_green_light">淺黃綠</string>
+    <string name="color_yellow_green_bright">亮黃綠</string>
+    <string name="color_yellow_green_pure">純黃綠</string>
+    <string name="color_yellow_green_standard">標準黃綠</string>
+    <string name="color_yellow_green_deep">深黃綠</string>
+
+    <!-- 顏色名稱 - 綠色 -->
+    <string name="color_green_light">淺綠色</string>
+    <string name="color_green_bright">亮綠色</string>
+    <string name="color_green_pure">純綠色</string>
+    <string name="color_green_standard">標準綠</string>
+    <string name="color_green_deep">深綠色</string>
+    <string name="color_green_dark">暗綠色</string>
+    <string name="color_green_forest">森林綠</string>
+
+    <!-- 顏色名稱 - 青色 -->
+    <string name="color_cyan_light">淺青色</string>
+    <string name="color_cyan_bright">亮青色</string>
+    <string name="color_cyan_pure">純青色</string>
+    <string name="color_cyan_standard">標準青</string>
+    <string name="color_cyan_deep">深青色</string>
+    <string name="color_cyan_dark">暗青色</string>
+
+    <!-- 顏色名稱 - 藍色 -->
+    <string name="color_blue_light">淺藍色</string>
+    <string name="color_blue_bright">亮藍色</string>
+    <string name="color_blue_pure">純藍色</string>
+    <string name="color_blue_sky">天藍色</string>
+    <string name="color_blue_standard">標準藍</string>
+    <string name="color_blue_deep">深藍色</string>
+    <string name="color_blue_dark">暗藍色</string>
+
+    <!-- 顏色名稱 - 靛藍色 -->
+    <string name="color_indigo_light">淺靛藍</string>
+    <string name="color_indigo_bright">亮靛藍</string>
+    <string name="color_indigo_pure">純靛藍</string>
+    <string name="color_indigo_standard">標準靛藍</string>
+    <string name="color_indigo_deep">深靛藍</string>
+    <string name="color_indigo_dark">暗靛藍</string>
+
+    <!-- 顏色名稱 - 紫色 -->
+    <string name="color_purple_light">淺紫色</string>
+    <string name="color_purple_bright">亮紫色</string>
+    <string name="color_purple_pure">純紫色</string>
+    <string name="color_purple_standard">標準紫</string>
+    <string name="color_purple_deep">深紫色</string>
+    <string name="color_purple_dark">暗紫色</string>
+
+    <!-- 顏色名稱 - 粉色 -->
+    <string name="color_pink_light">淺粉色</string>
+    <string name="color_pink_bright">亮粉色</string>
+    <string name="color_pink_pure">純粉色</string>
+    <string name="color_pink_standard">標準粉</string>
+    <string name="color_pink_deep">深粉色</string>
+
+    <!-- 顏色名稱 - 棕色 -->
+    <string name="color_brown_light">淺棕色</string>
+    <string name="color_brown_bright">亮棕色</string>
+    <string name="color_brown_pure">純棕色</string>
+    <string name="color_brown_standard">標準棕</string>
+    <string name="color_brown_deep">深棕色</string>
+    <string name="color_brown_dark">暗棕色</string>
+
+    <!-- 顏色名稱 - 灰色 -->
+    <string name="color_gray_very_light">極淺灰</string>
+    <string name="color_gray_light">淺灰色</string>
+    <string name="color_gray_bright">亮灰色</string>
+    <string name="color_gray_standard_light">標準淺灰</string>
+    <string name="color_gray_medium">中灰色</string>
+    <string name="color_gray_standard">灰色</string>
+    <string name="color_gray_deep">深灰色</string>
+    <string name="color_gray_dark">暗灰色</string>
+
+    <!-- 顏色名稱 - 特殊色 -->
+    <string name="color_special_coral_light">淺珊瑚</string>
+    <string name="color_special_coral">珊瑚紅</string>
+    <string name="color_special_coral_bright">亮珊瑚</string>
+    <string name="color_special_mint_light">淺薄荷</string>
+    <string name="color_special_mint">薄荷綠</string>
+    <string name="color_special_mint_deep">深薄荷</string>
+    <string name="color_special_lavender_light">淺薰衣草</string>
+    <string name="color_special_lavender">薰衣草紫</string>
+    <string name="color_special_lavender_deep">深薰衣草</string>
+    <string name="color_special_turquoise">綠松石</string>
+    <string name="color_special_sapphire">藍寶石</string>
+    <string name="color_special_malachite">孔雀石</string>
+    <string name="color_special_neon_green">霓虹綠</string>
+    <string name="color_special_neon_cyan">霓虹青</string>
+    <string name="color_special_neon_blue">霓虹藍</string>
+    <string name="color_special_neon_pink">霓虹粉</string>
+    <string name="color_special_neon_orange">霓虹橙</string>
 
 </resources>
