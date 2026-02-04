@@ -339,6 +339,8 @@ fun ExpenseDateHeader(
     context: android.content.Context,
     modifier: Modifier = Modifier
 ) {
+    val displayDate = formatRelativeDate(date, context)
+    
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -348,7 +350,7 @@ fun ExpenseDateHeader(
     ) {
         Column {
             Text(
-                text = date,
+                text = displayDate,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface

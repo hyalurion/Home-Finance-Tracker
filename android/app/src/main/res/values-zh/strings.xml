@@ -525,5 +525,9 @@
     <string name="color_special_neon_blue">霓虹蓝</string>
     <string name="color_special_neon_pink">霓虹粉</string>
     <string name="color_special_neon_orange">霓虹橙</string>
-
+    
+    <!-- 日期格式化 -->
+    <string name="date_today">今天</string>
+    <string name="date_yesterday">昨天</string>
+    <string name="date_days_ago">%d天前</string>
 </resources>
