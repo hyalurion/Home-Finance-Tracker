@@ -3,132 +3,97 @@ package com.chronie.homemoney.ui.components
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
+import androidx.graphics.shapes.Morph
+import androidx.graphics.shapes.RoundedPolygon
+import androidx.graphics.shapes.toPath
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ExpressiveLoadingIndicator(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp,
-    strokeWidth: Dp = 3.dp,
     containerVisible: Boolean = true
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "loading_animation")
-    
+    val colorScheme = MaterialTheme.colorScheme
+    val infiniteTransition = rememberInfiniteTransition(label = "loading")
+
+    // 1. 定义旋转动画
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+            animation = tween(1000, easing = LinearEasing)
         ),
         label = "rotation"
     )
-    
+
+    // 2. 定义变形进度 (0f 到 6f，对应 7 个状态的转换)
     val morphProgress by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 1f,
+        targetValue = 6f, 
         animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
+            animation = tween(2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
         ),
-        label = "morph_progress"
+        label = "morph"
     )
-    
-    val colorScheme = MaterialTheme.colorScheme
-    
-    Canvas(
-        modifier = modifier.size(size)
-    ) {
-        val center = Offset(size.toPx() / 2, size.toPx() / 2)
-        val radius = (size.toPx() - strokeWidth.toPx()) / 2
-        
+
+    // 3. 预生成的形状（关键点：设置 rounding 弧度让它看起来柔和）
+    val shapes = remember {
+        listOf(9, 6, 4, 3, 4, 6, 9).map { sides ->
+            RoundedPolygon(
+                numVertices = sides,
+                radius = 1f,
+                // 这里是灵魂：圆角比例，M3 的风格通常很圆润
+                rounding = androidx.graphics.shapes.CornerRounding(0.3f)
+            )
+        }
+    }
+
+    // 4. 创建 Morph 序列
+    val morphs = remember(shapes) {
+        List(shapes.size - 1) { i ->
+            Morph(shapes[i], shapes[i + 1])
+        }
+    }
+
+    Canvas(modifier = modifier.size(size)) {
+        val radius = size.toPx() / 2f
+        val centerOffset = center
+
+        // 绘制背景容器
         if (containerVisible) {
             drawCircle(
                 color = colorScheme.secondaryContainer,
-                radius = radius,
-                center = center
+                radius = radius
             )
         }
-        
-        val indicatorColor = if (containerVisible) {
-            colorScheme.onPrimaryContainer
-        } else {
-            colorScheme.primary
-        }
-        
-        val indicatorRadius = radius * 0.6f
-        
-        drawExpressiveShape(
-            progress = morphProgress,
-            radius = indicatorRadius,
-            color = indicatorColor,
-            rotation = rotation,
-            center = center
-        )
-    }
-}
 
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawExpressiveShape(
-    progress: Float,
-    radius: Float,
-    color: Color,
-    rotation: Float,
-    center: Offset
-) {
-    val sides = when {
-        progress < 0.33f -> 9
-        progress < 0.66f -> 4
-        progress < 0.9f -> 2
-        else -> 1
-    }
-    
-    val path = Path()
-    
-    if (sides == 1) {
-        val ellipseScale = 1f - ((progress - 0.9f) / 0.1f) * 0.3f
-        drawOval(
-            color = color,
-            topLeft = Offset(center.x - radius * ellipseScale, center.y - radius),
-            size = Size(radius * 2 * ellipseScale, radius * 2)
-        )
-    } else {
-        val angleStep = (2 * PI / sides).toFloat()
+        val indicatorColor = if (containerVisible) colorScheme.onPrimaryContainer else colorScheme.primary
+
+        // 计算当前处于哪两个形状之间
+        val index = morphProgress.toInt().coerceIn(0, morphs.size - 1)
+        val progress = morphProgress - index
         
-        for (i in 0 until sides) {
-            val angle = angleStep * i - (PI / 2).toFloat()
-            val x = center.x + cos(angle).toFloat() * radius
-            val y = center.y + sin(angle).toFloat() * radius
+        // 核心：获取当前变形状态的 Path
+        val currentPath = morphs[index].toPath(progress).asComposePath()
+
+        rotate(rotation) {
+            // 将 Path 缩放并平移到 Canvas 中心
+            val scale = radius * 0.6f
+            drawContext.canvas.save()
+            drawContext.canvas.translate(centerOffset.x, centerOffset.y)
+            drawContext.canvas.scale(scale, scale)
             
-            if (i == 0) {
-                path.moveTo(x, y)
-            } else {
-                path.lineTo(x, y)
-            }
-        }
-        
-        path.close()
-        
-        rotate(rotation, pivot = center) {
-            drawPath(
-                path = path,
-                color = color
-            )
+            drawPath(path = currentPath, color = indicatorColor)
+            
+            drawContext.canvas.restore()
         }
     }
 }
