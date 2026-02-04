@@ -35,8 +35,35 @@
 <script>
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import Chart from 'chart.js/auto';
-import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
+
+const isValidDate = (date) => {
+  return date instanceof Date && !isNaN(date.getTime());
+};
+
+const formatDate = (date) => {
+  if (!isValidDate(date)) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const parseDate = (dateString) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  return isValidDate(date) ? date : null;
+};
+
+const getStartOfMonth = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1);
+};
+
+const getEndOfMonth = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0);
+};
 
 export default {
   name: 'ExpenseCharts',
@@ -48,8 +75,8 @@ export default {
   },
   setup(props) {
     const activeChart = ref('bar');
-    const startDate = ref(dayjs().startOf('month').format('YYYY-MM-DD'));
-    const endDate = ref(dayjs().endOf('month').format('YYYY-MM-DD'));
+    const startDate = ref(formatDate(getStartOfMonth()));
+    const endDate = ref(formatDate(getEndOfMonth()));
     const chartInstances = ref({});
 // 事件处理函数引用，用于组件卸载时移除监听器
 const windowResizeHandler = ref(null);
@@ -111,10 +138,16 @@ const debounce = (func, wait) => {
         return;
       }
       
-      const startDateObj = dayjs(startDate.value);
-      const endDateObj = dayjs(endDate.value);
+      const startDateObj = parseDate(startDate.value);
+      const endDateObj = parseDate(endDate.value);
       
-      console.log('Date range filter:', startDateObj.format('YYYY-MM-DD'), 'to', endDateObj.format('YYYY-MM-DD'));
+      if (!startDateObj || !endDateObj) {
+        console.warn('Invalid date range parsing');
+        filteredExpenses.value = [];
+        return;
+      }
+      
+      console.log('Date range filter:', formatDate(startDateObj), 'to', formatDate(endDateObj));
 
       filteredExpenses.value = props.expenses.filter(expense => {
         // 确保expense.date有效
@@ -123,18 +156,18 @@ const debounce = (func, wait) => {
           return false;
         }
         
-        const expenseDate = dayjs(expense.date);
+        const expenseDate = parseDate(expense.date);
         // 检查日期解析是否成功
-        if (!expenseDate.isValid()) {
+        if (!expenseDate) {
           console.warn('Invalid expense date format:', expense.date);
           return false;
         }
         
         // 正确处理日期边界，包含开始和结束日期
-        const isAfterStart = expenseDate.isAfter(startDateObj.subtract(1, 'day'));
-        const isBeforeEnd = expenseDate.isBefore(endDateObj.add(1, 'day'));
+        const isAfterStart = expenseDate >= startDateObj;
+        const isBeforeEnd = expenseDate <= endDateObj;
         
-        console.log(`Expense date ${expenseDate.format('YYYY-MM-DD')}: isAfterStart=${isAfterStart}, isBeforeEnd=${isBeforeEnd}`);
+        console.log(`Expense date ${formatDate(expenseDate)}: isAfterStart=${isAfterStart}, isBeforeEnd=${isBeforeEnd}`);
         
         return isAfterStart && isBeforeEnd;
       });
@@ -289,25 +322,25 @@ const debounce = (func, wait) => {
         // 按时间排序
         const sortedExpenses = [...filteredExpenses.value].sort((a, b) => {
           // 使用date字段替代time字段，与后端数据保持一致
-          const dateA = dayjs(a.date || a.time);
-          const dateB = dayjs(b.date || b.time);
-          return dateA.diff(dateB);
+          const dateA = parseDate(a.date || a.time);
+          const dateB = parseDate(b.date || b.time);
+          return dateA - dateB;
         });
         
-        console.log('First expense time:', sortedExpenses.length > 0 ? dayjs(sortedExpenses[0].date || sortedExpenses[0].time).format('YYYY-MM-DD') : 'No data');
-        console.log('Last expense time:', sortedExpenses.length > 0 ? dayjs(sortedExpenses[sortedExpenses.length - 1].date || sortedExpenses[sortedExpenses.length - 1].time).format('YYYY-MM-DD') : 'No data');
+        console.log('First expense time:', sortedExpenses.length > 0 ? formatDate(parseDate(sortedExpenses[0].date || sortedExpenses[0].time)) : 'No data');
+        console.log('Last expense time:', sortedExpenses.length > 0 ? formatDate(parseDate(sortedExpenses[sortedExpenses.length - 1].date || sortedExpenses[sortedExpenses.length - 1].time)) : 'No data');
 
       // 按日期分组
       const dateData = {};
       sortedExpenses.forEach(expense => {
         // 再次验证日期有效性，使用date字段替代time字段
         const expenseDate = expense.date || expense.time;
-        if (!expenseDate || !dayjs(expenseDate).isValid()) {
+        if (!expenseDate || !parseDate(expenseDate)) {
           console.warn('Skipping expense with invalid date:', expense);
           return;
         }
         
-        const dateStr = dayjs(expenseDate).format('YYYY-MM-DD');
+        const dateStr = formatDate(parseDate(expenseDate));
         if (!dateData[dateStr]) {
           dateData[dateStr] = 0;
         }
@@ -367,8 +400,11 @@ const debounce = (func, wait) => {
         const values = Array(7).fill(0);
         filteredExpenses.value.forEach(expense => {
           if (expense.type === category) {
-            const weekday = dayjs(expense.date).day();
-            values[weekday] += parseFloat(expense.amount);
+            const expenseDate = parseDate(expense.date);
+            if (expenseDate) {
+              const weekday = expenseDate.getDay();
+              values[weekday] += parseFloat(expense.amount);
+            }
           }
         });
         return {

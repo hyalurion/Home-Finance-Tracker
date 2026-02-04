@@ -11,11 +11,6 @@ import { createI18n } from 'vue-i18n';
 import enUS from './en-US.json';
 import zhCN from './zh-CN.json';
 import zhTW from './zh-TW.json';
-import dayjs from 'dayjs';
-// 导入语言包
-import 'dayjs/locale/en'; // 英文
-import 'dayjs/locale/zh-cn'; // 简体中文
-import 'dayjs/locale/zh-tw'; // 繁体中文
 
 // 获取浏览器默认语言
 const browserLanguage = navigator.language || navigator.userLanguage;
@@ -61,27 +56,11 @@ const i18n = createI18n({
   }
 });
 
-// 监听语言切换并更新 Day.js 语言
-i18n.global.onLanguageChanged = (locale) => {
-  // 转换为 dayjs 兼容的语言代码格式
-  const dayjsLocale = locale === 'zh-CN' ? 'zh-cn' : locale === 'zh-TW' ? 'zh-tw' : 'en';
-  dayjs.locale(dayjsLocale);
-};
-
-// 初始化时设置正确的 dayjs 语言
-const initialDayjsLocale = defaultLocale === 'zh-CN' ? 'zh-cn' : defaultLocale === 'zh-TW' ? 'zh-tw' : 'en';
-dayjs.locale(initialDayjsLocale);
-console.log('Day.js 初始语言设置为:', initialDayjsLocale);
-
 // 导出语言切换方法
 export const changeLanguage = (newLocale) => {
   if (supportedLanguages.includes(newLocale)) {
     i18n.global.locale.value = newLocale;
-    // 转换为 dayjs 兼容的语言代码格式
-    const dayjsLocale = newLocale === 'zh-CN' ? 'zh-cn' : newLocale === 'zh-TW' ? 'zh-tw' : 'en';
-    dayjs.locale(dayjsLocale);
     console.log(`语言已切换为: ${newLocale}`);
-    console.log(`Day.js 语言已更新为: ${dayjsLocale}`);
   } else {
     console.error(`不支持的语言: ${newLocale}`);
   }

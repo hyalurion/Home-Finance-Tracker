@@ -124,6 +124,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { formatDateByLocale } from '@/utils/dateFormatter';
 import Header from '@/components/Header.vue';
 import GlassButton from '@/components/GlassButton.vue';
 import GlassForm from '@/components/GlassForm.vue';
@@ -149,7 +150,7 @@ export default {
   },
   setup() {
     const router = useRouter()
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
     const subscriptionPlans = ref([])
     const selectedPlanId = ref(null)
     const isProcessing = ref(false)
@@ -218,22 +219,24 @@ export default {
     
     // 格式化日期
     const formatDate = (dateString) => {
-      if (!dateString) return ''
-      const date = new Date(dateString)
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+      return formatDateByLocale(dateString, locale.value)
     }
 
     // 格式化本地时间
     const formatLocalDateTime = (dateString) => {
       if (!dateString) return ''
       const date = new Date(dateString)
-      const year = date.getFullYear()
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const day = String(date.getDate()).padStart(2, '0')
+      const formattedDate = formatDateByLocale(dateString, locale.value)
       const hours = String(date.getHours()).padStart(2, '0')
       const minutes = String(date.getMinutes()).padStart(2, '0')
       const seconds = String(date.getSeconds()).padStart(2, '0')
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+      const timeString = `${hours}:${minutes}:${seconds}`
+      
+      // 英语环境下时间在前，日期在后；中文环境下日期在前，时间在后
+      if (locale.value === 'en-US') {
+        return `${timeString} ${formattedDate}`
+      }
+      return `${formattedDate} ${timeString}`
     }
 
     // 转换订阅状态为i18n文本

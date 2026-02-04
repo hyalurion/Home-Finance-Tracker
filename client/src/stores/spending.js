@@ -1,5 +1,29 @@
 import { defineStore } from 'pinia';
-import dayjs from 'dayjs';
+
+const isValidDate = (date) => {
+  return date instanceof Date && !isNaN(date.getTime());
+};
+
+const formatDate = (date) => {
+  if (!isValidDate(date)) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const formatMonth = (date) => {
+  if (!isValidDate(date)) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+};
+
+const parseDate = (dateString) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  return isValidDate(date) ? date : null;
+};
 
 export const useSpendingStore = defineStore('spending', {
   state: () => ({
@@ -55,7 +79,7 @@ export const useSpendingStore = defineStore('spending', {
 
     // 当前月份字符串
     currentMonth: () => {
-      return dayjs().format('YYYY-MM');
+      return formatMonth(new Date());
     }
   },
 
@@ -100,7 +124,9 @@ export const useSpendingStore = defineStore('spending', {
           // 同时保持向后兼容性，先检查date字段，再检查time字段
           const expenseDate = expense.date || expense.time;
           if (!expenseDate) return false;
-          const expenseMonth = dayjs(expenseDate).format('YYYY-MM');
+          const parsedDate = parseDate(expenseDate);
+          if (!parsedDate) return false;
+          const expenseMonth = formatMonth(parsedDate);
           return expenseMonth === currentMonth;
         })
         .reduce((total, expense) => {
