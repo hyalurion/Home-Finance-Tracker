@@ -72,7 +72,6 @@ const debounce = (func, wait) => {
 };
     const chartTypes = [
       { value: 'bar', label: t('chart.bar') },
-      { value: 'pie', label: t('chart.pie') },
       { value: 'line', label: t('chart.line') },
       { value: 'doughnut', label: t('chart.doughnut') },
       { value: 'radar', label: t('chart.radar') }
@@ -149,12 +148,10 @@ const debounce = (func, wait) => {
       switch (type) {
         case 'bar':
           return prepareBarData();
-        case 'pie':
-          return preparePieData();
         case 'line':
           return prepareLineData();
         case 'doughnut':
-          return preparePieData(); // 环形图使用与饼图相同的数据
+          return preparePieData();
         case 'radar':
           return prepareRadarData();
         default:
@@ -182,15 +179,36 @@ const debounce = (func, wait) => {
           label: t('expense.amount'),
           data,
           backgroundColor: [
-            'rgba(255, 99, 132, 0.7)',
-            'rgba(54, 162, 235, 0.7)',
-            'rgba(255, 206, 86, 0.7)',
-            'rgba(75, 192, 192, 0.7)',
-            'rgba(153, 102, 255, 0.7)',
-            'rgba(255, 159, 64, 0.7)',
-            'rgba(199, 199, 199, 0.7)'
+            'rgba(255, 99, 132, 0.4)',
+            'rgba(54, 162, 235, 0.4)',
+            'rgba(255, 206, 86, 0.4)',
+            'rgba(75, 192, 192, 0.4)',
+            'rgba(153, 102, 255, 0.4)',
+            'rgba(255, 159, 64, 0.4)',
+            'rgba(199, 199, 199, 0.4)'
           ],
           borderColor: [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(153, 102, 255, 0.8)',
+            'rgba(255, 159, 64, 0.8)',
+            'rgba(199, 199, 199, 0.8)'
+          ],
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false,
+          hoverBackgroundColor: [
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)',
+            'rgba(255, 159, 64, 0.6)',
+            'rgba(199, 199, 199, 0.6)'
+          ],
+          hoverBorderColor: [
             'rgba(255, 99, 132, 1)',
             'rgba(54, 162, 235, 1)',
             'rgba(255, 206, 86, 1)',
@@ -199,7 +217,7 @@ const debounce = (func, wait) => {
             'rgba(255, 159, 64, 1)',
             'rgba(199, 199, 199, 1)'
           ],
-          borderWidth: 1
+          hoverBorderWidth: 3
         }]
       };
     };
@@ -222,6 +240,25 @@ const debounce = (func, wait) => {
         datasets: [{
           data,
           backgroundColor: [
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(54, 162, 235, 0.5)',
+            'rgba(255, 206, 86, 0.5)',
+            'rgba(75, 192, 192, 0.5)',
+            'rgba(153, 102, 255, 0.5)',
+            'rgba(255, 159, 64, 0.5)',
+            'rgba(199, 199, 199, 0.5)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 0.9)',
+            'rgba(54, 162, 235, 0.9)',
+            'rgba(255, 206, 86, 0.9)',
+            'rgba(75, 192, 192, 0.9)',
+            'rgba(153, 102, 255, 0.9)',
+            'rgba(255, 159, 64, 0.9)',
+            'rgba(199, 199, 199, 0.9)'
+          ],
+          borderWidth: 2,
+          hoverBackgroundColor: [
             'rgba(255, 99, 132, 0.7)',
             'rgba(54, 162, 235, 0.7)',
             'rgba(255, 206, 86, 0.7)',
@@ -230,7 +267,7 @@ const debounce = (func, wait) => {
             'rgba(255, 159, 64, 0.7)',
             'rgba(199, 199, 199, 0.7)'
           ],
-          borderColor: [
+          hoverBorderColor: [
             'rgba(255, 99, 132, 1)',
             'rgba(54, 162, 235, 1)',
             'rgba(255, 206, 86, 1)',
@@ -239,7 +276,8 @@ const debounce = (func, wait) => {
             'rgba(255, 159, 64, 1)',
             'rgba(199, 199, 199, 1)'
           ],
-          borderWidth: 1
+          hoverBorderWidth: 3,
+          hoverOffset: 10
         }]
       };
     };
@@ -292,14 +330,19 @@ const debounce = (func, wait) => {
         datasets: [{
           label: t('expense.dailyExpense'),
           data,
-          fill: false,
-          backgroundColor: 'rgba(54, 162, 235, 0.7)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 2,
-          tension: 0.3,
+          fill: true,
+          backgroundColor: 'rgba(54, 162, 235, 0.1)',
+          borderColor: 'rgba(54, 162, 235, 0.8)',
+          borderWidth: 3,
+          tension: 0.4,
           pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-          pointRadius: 4,
-          pointHoverRadius: 6
+          pointBorderColor: 'rgba(255, 255, 255, 0.8)',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: 'rgba(54, 162, 235, 1)',
+          pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
+          pointHoverBorderWidth: 3
         }]
       };
     };
@@ -332,9 +375,19 @@ const debounce = (func, wait) => {
           label: category,
           data: values,
           backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.2)`,
-          borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
+          borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.8)`,
           pointBackgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
-          borderWidth: 1
+          pointBorderColor: 'rgba(255, 255, 255, 0.8)',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          pointHoverBackgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
+          pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
+          pointHoverBorderWidth: 3,
+          borderWidth: 2,
+          hoverBackgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.4)`,
+          hoverBorderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
+          hoverBorderWidth: 3
         };
       });
 
@@ -397,7 +450,7 @@ const debounce = (func, wait) => {
         },
         // 优化性能的配置
         animation: {
-          duration: window.innerWidth < 480 ? 300 : 500, // 小屏幕设备上加快动画速度
+          duration: window.innerWidth < 480 ? 300 : 500,
           easing: 'easeOutQuart'
         },
         // 针对Canvas的事件处理优化
@@ -408,11 +461,41 @@ const debounce = (func, wait) => {
         // 优化渲染性能
         elements: {
           point: {
-            hoverRadius: window.innerWidth < 480 ? 6 : 8, // 小屏幕上使用较小的悬停半径
-            hitRadius: window.innerWidth < 480 ? 10 : 12, // 增加点击区域，提高移动端可点击性
-            radius: window.innerWidth < 480 ? 3 : 4 // 小屏幕上使用较小的点
+            hoverRadius: window.innerWidth < 480 ? 6 : 8,
+            hitRadius: window.innerWidth < 480 ? 10 : 12,
+            radius: window.innerWidth < 480 ? 3 : 4
           }
-        }
+        },
+        // 液态玻璃效果 - 通用配置
+        plugins: {
+          tooltip: {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(10px)',
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+            borderWidth: 1,
+            titleColor: '#333',
+            bodyColor: '#666',
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: true,
+            boxPadding: 4,
+            usePointStyle: true,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          },
+          legend: {
+            labels: {
+              color: '#666',
+              font: {
+                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              },
+              usePointStyle: true,
+              pointStyle: 'circle',
+              padding: 20
+            }
+          }
+        },
+        // 深色模式适配
+        isDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
       };
 
       // 根据图表类型设置不同的选项
@@ -421,13 +504,15 @@ const debounce = (func, wait) => {
           options = {
             ...commonOptions,
             plugins: {
+              ...commonOptions.plugins,
               legend: {
                 position: 'top',
                 labels: {
                   font: {
                     size: window.innerWidth < 480 ? 10 : 12
                   },
-                  padding: 10
+                  padding: 10,
+                  color: '#666'
                 }
               },
               title: {
@@ -435,6 +520,10 @@ const debounce = (func, wait) => {
                 text: t('chart.categoryAnalysis'),
                 font: {
                   size: window.innerWidth < 480 ? 14 : 16
+                },
+                color: '#333',
+                padding: {
+                  bottom: 20
                 }
               }
             },
@@ -446,12 +535,18 @@ const debounce = (func, wait) => {
                   text: t('expense.amount') + ' (' + t('common.currency') + ')',
                   font: {
                     size: window.innerWidth < 480 ? 10 : 12
-                  }
+                  },
+                  color: '#666'
                 },
                 ticks: {
                   font: {
                     size: window.innerWidth < 480 ? 9 : 11
-                  }
+                  },
+                  color: '#999'
+                },
+                grid: {
+                  color: 'rgba(0, 0, 0, 0.05)',
+                  drawBorder: false
                 }
               },
               x: {
@@ -460,38 +555,20 @@ const debounce = (func, wait) => {
                   text: t('expense.type'),
                   font: {
                     size: window.innerWidth < 480 ? 10 : 12
-                  }
+                  },
+                  color: '#666'
                 },
                 ticks: {
                   font: {
                     size: window.innerWidth < 480 ? 9 : 11
                   },
+                  color: '#999',
                   maxRotation: 45,
                   minRotation: 45
-                }
-              }
-            }
-          };
-          break;
-        case 'pie':
-          options = {
-            ...commonOptions,
-            plugins: {
-              legend: {
-                position: window.innerWidth < 480 ? 'bottom' : 'right',
-                labels: {
-                  font: {
-                    size: window.innerWidth < 480 ? 10 : 12
-                  },
-                  padding: 10,
-                  boxWidth: window.innerWidth < 480 ? 10 : 12
-                }
-              },
-              title: {
-                display: true,
-                text: t('chart.categoryPercentage'),
-                font: {
-                  size: window.innerWidth < 480 ? 14 : 16
+                },
+                grid: {
+                  display: false,
+                  drawBorder: false
                 }
               }
             }
@@ -501,6 +578,7 @@ const debounce = (func, wait) => {
           options = {
             ...commonOptions,
             plugins: {
+              ...commonOptions.plugins,
               legend: {
                 position: window.innerWidth < 480 ? 'bottom' : 'right',
                 labels: {
@@ -508,7 +586,8 @@ const debounce = (func, wait) => {
                     size: window.innerWidth < 480 ? 10 : 12
                   },
                   padding: 10,
-                  boxWidth: window.innerWidth < 480 ? 10 : 12
+                  boxWidth: window.innerWidth < 480 ? 10 : 12,
+                  color: '#666'
                 }
               },
               title: {
@@ -516,97 +595,69 @@ const debounce = (func, wait) => {
                 text: t('chart.categoryPercentage'),
                 font: {
                   size: window.innerWidth < 480 ? 14 : 16
+                },
+                color: '#333',
+                padding: {
+                  bottom: 20
                 }
               }
             },
-            cutout: '50%' // 为环形图设置中心孔大小
+            cutout: '60%'
           };
           break;
         case 'line':
           options = {
             ...commonOptions,
-            // 折线图特定的触摸优化
             interaction: {
               ...commonOptions.interaction,
-              // 针对折线图的特殊处理
               intersect: false,
               mode: 'index',
-              // 针对小屏幕优化点击区域
               axis: 'x',
-              // 小屏幕上增加触摸敏感度
               touch: {
-                // 增加触摸事件的响应范围
                 radius: window.innerWidth < 480 ? 20 : 10,
-                // 启用触摸手势
                 enabled: true,
-                // 增加触摸滚动的敏感度
                 axis: 'x',
-                // 禁用触摸缩放以提高性能
                 zoom: false
               }
             },
-            // 优化动画性能
             animation: {
               ...commonOptions.animation,
-              // 小屏幕上禁用一些非必要的动画
               duration: window.innerWidth < 480 ? 200 : 500,
-              // 减少动画复杂度
               easing: window.innerWidth < 480 ? 'linear' : 'easeOutQuart'
             },
-            // 针对小屏幕优化性能
             elements: {
               point: {
-                // 确保point配置是完整的，避免未定义属性
                 radius: window.innerWidth < 480 ? 2 : 4,
-                // 小屏幕上增大点击区域
                 hitRadius: window.innerWidth < 480 ? 15 : 12,
-                // 确保pointHoverRadius已定义
                 hoverRadius: window.innerWidth < 480 ? 8 : 6,
-                // 禁用点悬停动画以提高性能
                 hoverAnimationDuration: window.innerWidth < 480 ? 0 : 200,
-                // 确保所有必要的point属性都有默认值
                 backgroundColor: 'rgba(54, 162, 235, 1)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
+                borderColor: 'rgba(255, 255, 255, 0.8)',
+                borderWidth: 2
               },
               line: {
-                // 简化线段渲染
                 tension: window.innerWidth < 480 ? 0.1 : 0.4,
-                // 小屏幕上使用更粗的线条提高可读性
                 borderWidth: window.innerWidth < 480 ? 2 : 3
               }
             },
             plugins: {
+              ...commonOptions.plugins,
               legend: {
                 position: 'top',
                 labels: {
                   font: { size: window.innerWidth < 480 ? 10 : 12 },
-                  padding: 10
+                  padding: 10,
+                  color: '#666'
                 }
               },
               title: {
                 display: true,
                 text: t('chart.trendAnalysis'),
-                font: { size: window.innerWidth < 480 ? 14 : 16 }
-              },
-              tooltip: {
-                // 优化提示框性能
-                animationDuration: window.innerWidth < 480 ? 100 : 300,
-                // 确保提示框在移动设备上正确显示
-                caretSize: window.innerWidth < 480 ? 6 : 8,
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                titleFont: {
-                  size: window.innerWidth < 480 ? 12 : 14
-                },
-                bodyFont: {
-                  size: window.innerWidth < 480 ? 11 : 13
-                },
-                // 提示框最大宽度，避免在小屏幕上溢出
-                maxWidth: window.innerWidth < 480 ? 200 : 300,
-                // 禁用提示框点击事件，避免与图表点击事件冲突
-                enabled: true,
-                // 使用外部提示框以提高性能（可选）
-                usePointStyle: true
+                font: { size: window.innerWidth < 480 ? 14 : 16 },
+                color: '#333',
+                padding: {
+                  bottom: 20
+                }
               }
             },
             scales: {
@@ -615,33 +666,32 @@ const debounce = (func, wait) => {
                 title: {
                   display: true,
                   text: t('expense.amount') + ' (' + t('common.currency') + ')',
-                  font: { size: window.innerWidth < 480 ? 10 : 12 }
+                  font: { size: window.innerWidth < 480 ? 10 : 12 },
+                  color: '#666'
                 },
                 ticks: {
                   font: { size: window.innerWidth < 480 ? 9 : 11 },
-                  // 在小屏幕上显示更少的刻度线
-                  maxTicksLimit: window.innerWidth < 480 ? 4 : 6
+                  maxTicksLimit: window.innerWidth < 480 ? 4 : 6,
+                  color: '#999'
                 },
-                // 简化网格线以提高性能
                 grid: {
-                  color: 'rgba(0, 0, 0, 0.05)'
+                  color: 'rgba(0, 0, 0, 0.05)',
+                  drawBorder: false
                 }
               },
               x: {
-                type: 'category', // 明确指定为类别轴
+                type: 'category',
                 title: {
                   display: true,
                   text: t('common.date'),
-                  font: { size: window.innerWidth < 480 ? 10 : 12 }
+                  font: { size: window.innerWidth < 480 ? 10 : 12 },
+                  color: '#666'
                 },
                 ticks: {
-                  maxTicksLimit: window.innerWidth < 480 ? 5 : 10, // 在小屏幕上显示更少的标签
+                  maxTicksLimit: window.innerWidth < 480 ? 5 : 10,
                   callback: function(value, index, values) {
-                    // 在小屏幕上简化日期显示格式
                     if (window.innerWidth < 480) {
-                      // 确保value是字符串类型再调用substring
                       const valueStr = String(value);
-                      // 只显示月和日，去掉年份
                       return valueStr.length >= 5 ? valueStr.substring(5) : valueStr;
                     }
                     return value;
@@ -649,18 +699,17 @@ const debounce = (func, wait) => {
                   autoSkip: true,
                   maxRotation: 45,
                   minRotation: 45,
-                  font: { size: window.innerWidth < 480 ? 8 : 11 }
+                  font: { size: window.innerWidth < 480 ? 8 : 11 },
+                  color: '#999'
                 },
-                // 简化网格线以提高性能
                 grid: {
-                  color: 'rgba(0, 0, 0, 0.05)'
+                  color: 'rgba(0, 0, 0, 0.05)',
+                  drawBorder: false
                 }
               }
             },
-            // 禁用一些可能导致性能问题的交互功能
             responsive: true,
             maintainAspectRatio: false,
-            // 增加图表容器的padding以在小屏幕上有更好的触摸体验
             layout: {
               padding: window.innerWidth < 480 ? 15 : 25
             }
@@ -670,6 +719,7 @@ const debounce = (func, wait) => {
           options = {
             ...commonOptions,
             plugins: {
+              ...commonOptions.plugins,
               legend: {
                 position: window.innerWidth < 480 ? 'bottom' : 'top',
                 labels: {
@@ -677,7 +727,8 @@ const debounce = (func, wait) => {
                     size: window.innerWidth < 480 ? 10 : 12
                   },
                   padding: 8,
-                  boxWidth: window.innerWidth < 480 ? 10 : 12
+                  boxWidth: window.innerWidth < 480 ? 10 : 12,
+                  color: '#666'
                 }
               },
               title: {
@@ -685,25 +736,38 @@ const debounce = (func, wait) => {
                 text: t('chart.weekdayAnalysis'),
                 font: {
                   size: window.innerWidth < 480 ? 14 : 16
+                },
+                color: '#333',
+                padding: {
+                  bottom: 20
                 }
               }
             },
             scales: {
               r: {
                 angleLines: {
-                  display: true
+                  display: true,
+                  color: 'rgba(0, 0, 0, 0.05)'
                 },
-                suggestedMin: 0,
-                ticks: {
-                  font: {
-                    size: window.innerWidth < 480 ? 9 : 11
-                  }
+                grid: {
+                  color: 'rgba(0, 0, 0, 0.05)',
+                  drawBorder: false
                 },
                 pointLabels: {
                   font: {
                     size: window.innerWidth < 480 ? 10 : 12
-                  }
-                }
+                  },
+                  color: '#666'
+                },
+                ticks: {
+                  font: {
+                    size: window.innerWidth < 480 ? 9 : 11
+                  },
+                  color: '#999',
+                  backdropColor: 'rgba(255, 255, 255, 0.8)',
+                  backdropPadding: 4
+                },
+                suggestedMin: 0
               }
             }
           };
@@ -728,6 +792,50 @@ const debounce = (func, wait) => {
         if (!chartData || !options) {
           console.error('Invalid chart data or options');
           return;
+        }
+        
+        // 检测深色模式
+        const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 根据深色模式调整颜色
+        if (isDarkMode) {
+          if (options.plugins && options.plugins.tooltip) {
+            options.plugins.tooltip.backgroundColor = 'rgba(30, 30, 30, 0.9)';
+            options.plugins.tooltip.titleColor = '#fff';
+            options.plugins.tooltip.bodyColor = '#ccc';
+            options.plugins.tooltip.borderColor = 'rgba(255, 255, 255, 0.1)';
+          }
+          if (options.plugins && options.plugins.legend && options.plugins.legend.labels) {
+            options.plugins.legend.labels.color = '#ccc';
+          }
+          if (options.plugins && options.plugins.title) {
+            options.plugins.title.color = '#fff';
+          }
+          if (options.scales) {
+            if (options.scales.y) {
+              if (options.scales.y.title) options.scales.y.title.color = '#ccc';
+              if (options.scales.y.ticks) options.scales.y.ticks.color = '#999';
+            }
+            if (options.scales.x) {
+              if (options.scales.x.title) options.scales.x.title.color = '#ccc';
+              if (options.scales.x.ticks) options.scales.x.ticks.color = '#999';
+            }
+            if (options.scales.r) {
+              if (options.scales.r.ticks) {
+                options.scales.r.ticks.color = '#999';
+                options.scales.r.ticks.backdropColor = 'rgba(30, 30, 30, 0.8)';
+              }
+              if (options.scales.r.pointLabels) {
+                options.scales.r.pointLabels.color = '#ccc';
+              }
+              if (options.scales.r.grid) {
+                options.scales.r.grid.color = 'rgba(255, 255, 255, 0.05)';
+              }
+              if (options.scales.r.angleLines) {
+                options.scales.r.angleLines.color = 'rgba(255, 255, 255, 0.05)';
+              }
+            }
+          }
         }
         
         // 在小屏幕设备上，使用较小的图表配置以提高性能
@@ -968,7 +1076,7 @@ const debounce = (func, wait) => {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 130px;
+  min-width: 150px;
   color: #333;
   box-shadow: 
     0 2px 8px rgba(0, 0, 0, 0.05),
@@ -1082,20 +1190,13 @@ const debounce = (func, wait) => {
   }
   
   .glass-input-group {
-    width: 50%;
-    flex-direction: column;
     gap: 10px;
   }
   
   .glass-input {
-    width: 70%;
     min-width: auto;
     padding: 8px 12px;
     font-size: 13px;
-  }
-  
-  .range-separator {
-    display: none;
   }
 }
 
