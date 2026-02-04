@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.TimeRange
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.YearMonth
@@ -91,7 +92,7 @@ fun ChartsScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        ExpressiveLoadingIndicator()
                     }
                 }
                 is ChartsUiState.Success -> {

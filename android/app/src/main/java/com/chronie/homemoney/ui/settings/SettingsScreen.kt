@@ -39,6 +39,7 @@ import coil.request.ImageRequest
 import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.Language
 import com.chronie.homemoney.ui.components.ExpressiveSwitch
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
 import com.chronie.homemoney.ui.theme.ThemeSettings
 
@@ -711,11 +712,7 @@ fun DataImportExportSection(
             enabled = !exportInProgress && !importInProgress
         ) {
             if (exportInProgress) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = 2.dp
-                )
+                ExpressiveLoadingIndicator(size = 20.dp, containerVisible = false)
                 Spacer(modifier = Modifier.width(8.dp))
             }
             Text(
@@ -740,11 +737,7 @@ fun DataImportExportSection(
             enabled = !exportInProgress && !importInProgress
         ) {
             if (importInProgress) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = 2.dp
-                )
+                ExpressiveLoadingIndicator(size = 20.dp, containerVisible = false)
                 Spacer(modifier = Modifier.width(8.dp))
             }
             Text(
@@ -1161,11 +1154,7 @@ fun SyncSection(
                     enabled = syncStatus != com.chronie.homemoney.domain.model.SyncStatus.SYNCING
                 ) {
                     if (syncStatus == com.chronie.homemoney.domain.model.SyncStatus.SYNCING) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            strokeWidth = 2.dp
-                        )
+                        ExpressiveLoadingIndicator(size = 20.dp, containerVisible = false)
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                     Text(
@@ -1455,11 +1444,7 @@ fun AccountSection(
                             }
                     ) {
                         if (avatarLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(120.dp),
-                                color = MaterialTheme.colorScheme.primary,
-                                strokeWidth = 3.dp
-                            )
+                            ExpressiveLoadingIndicator(size = 120.dp, containerVisible = false)
                         } else if (avatar != null) {
                             // 日志记录头像数据的前50个字符，以检查格式
                             android.util.Log.d("SettingsScreen", "Avatar data: ${avatar?.take(50)}...")
@@ -1608,10 +1593,7 @@ fun AccountSection(
                         )
                         
                         if (membershipLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp
-                            )
+                            ExpressiveLoadingIndicator(size = 16.dp, containerVisible = false)
                         } else {
                             Text(
                                 text = if (membershipStatus?.isActive == true) {
@@ -1702,10 +1684,7 @@ fun AccountSection(
                         enabled = !membershipLoading
                     ) {
                         if (membershipLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp
-                            )
+                            ExpressiveLoadingIndicator(size = 20.dp, containerVisible = false)
                             Spacer(modifier = Modifier.width(8.dp))
                         }
                         Text(context.getString(R.string.membership_refresh))

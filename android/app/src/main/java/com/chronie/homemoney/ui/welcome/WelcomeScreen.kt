@@ -10,6 +10,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 
 @Composable
 fun WelcomeScreen(
@@ -57,7 +58,7 @@ fun WelcomeScreen(
 
         when (uiState) {
             is WelcomeUiState.CheckingLogin -> {
-                CircularProgressIndicator()
+                ExpressiveLoadingIndicator()
             }
             is WelcomeUiState.NotLoggedIn -> {
                 LoginForm(
@@ -68,7 +69,7 @@ fun WelcomeScreen(
                 )
             }
             is WelcomeUiState.Loading -> {
-                CircularProgressIndicator()
+                ExpressiveLoadingIndicator()
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = context.getString(R.string.auth_logging_in),

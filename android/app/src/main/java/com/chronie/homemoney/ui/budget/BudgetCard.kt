@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.BudgetStatus
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.util.Locale
 
 /**
@@ -71,7 +72,7 @@ fun BudgetCard(
                         .padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    ExpressiveLoadingIndicator()
                 }
             }
         }

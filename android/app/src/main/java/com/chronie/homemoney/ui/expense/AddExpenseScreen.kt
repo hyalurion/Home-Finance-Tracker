@@ -20,6 +20,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -94,10 +95,7 @@ fun AddExpenseScreen(
                         enabled = !uiState.isSaving
                     ) {
                         if (uiState.isSaving) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
-                            )
+                            ExpressiveLoadingIndicator(size = 24.dp, containerVisible = false)
                         } else {
                             Icon(Icons.Default.Check, contentDescription = context.getString(R.string.save))
                         }

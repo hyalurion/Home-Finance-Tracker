@@ -32,6 +32,7 @@ import androidx.compose.foundation.clickable
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.chronie.homemoney.R
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.model.ExpenseType
 import java.io.File
@@ -337,10 +338,7 @@ fun AIExpenseScreen(
                          (uiState.selectedImages.isNotEmpty() || uiState.textInput.isNotBlank())
             ) {
                 if (uiState.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                    ExpressiveLoadingIndicator(size = 20.dp, containerVisible = false)
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(
@@ -656,10 +654,7 @@ private fun RecognizedRecordsSection(
                 enabled = !isSaving && records.any { it.isValid }
             ) {
                 if (isSaving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                    ExpressiveLoadingIndicator(size = 16.dp, containerVisible = false)
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(

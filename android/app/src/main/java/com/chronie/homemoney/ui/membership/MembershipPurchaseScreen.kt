@@ -23,6 +23,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.SubscriptionPlan
 import com.chronie.homemoney.domain.model.SubscriptionStatus
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +85,7 @@ fun MembershipPurchaseScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    ExpressiveLoadingIndicator()
                 }
             }
             
@@ -117,7 +118,7 @@ fun MembershipPurchaseScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
-                                    CircularProgressIndicator()
+                                    ExpressiveLoadingIndicator(size = 48.dp)
                                     Text(
                                         text = context.getString(R.string.purchasing),
                                         style = MaterialTheme.typography.bodyLarge
