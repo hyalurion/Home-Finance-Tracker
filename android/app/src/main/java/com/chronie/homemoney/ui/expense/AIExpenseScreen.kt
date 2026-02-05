@@ -729,7 +729,7 @@ private fun RecordEditCard(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "¥${String.format("%.2f", record.amount)}",
+                        text = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), record.amount),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -826,7 +826,7 @@ private fun RecordEditDialog(
                     onValueChange = { amount = it },
                     label = { Text(context.getString(R.string.ai_expense_amount)) },
                     modifier = Modifier.fillMaxWidth(),
-                    prefix = { Text("¥") }
+                    prefix = { Text(context.getString(R.string.currency_symbol)) }
                 )
                 
                 // 日期选择

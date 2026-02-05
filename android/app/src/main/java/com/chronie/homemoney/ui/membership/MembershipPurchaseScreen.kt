@@ -317,7 +317,7 @@ private fun MembershipPlanCard(
                 )
                 
                 Text(
-                    text = "¥${plan.price}",
+                    text = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), plan.price),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary

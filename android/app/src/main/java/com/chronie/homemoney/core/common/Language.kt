@@ -8,7 +8,7 @@ enum class Language(
     val localName: String,
     val locale: Locale
 ) {
-    ENGLISH("en", "English", "English", Locale.ENGLISH),
+    ENGLISH("en-US", "English", "English", Locale.US),
     SIMPLIFIED_CHINESE("zh-CN", "Simplified Chinese (Mainland China)", "简体中文（中国大陆）", Locale.SIMPLIFIED_CHINESE),
     TRADITIONAL_CHINESE_TAIWAN("zh-TW", "Traditional Chinese (Taiwan)", "繁體中文（台灣）", Locale("zh", "TW")),
     TRADITIONAL_CHINESE_HONG_KONG("zh-HK", "Traditional Chinese (Hong Kong)", "繁體中文（香港）", Locale("zh", "HK")),

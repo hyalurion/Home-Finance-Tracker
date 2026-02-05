@@ -362,7 +362,7 @@ fun ExpenseDateHeader(
             )
         }
         Text(
-            text = String.format(Locale.getDefault(), "-¥%.2f", totalAmount),
+            text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), totalAmount),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.error
@@ -399,7 +399,7 @@ fun ExpenseStatisticsCard(
                 )
                 StatisticItem(
                     label = context.getString(R.string.expense_stats_total),
-                    value = String.format(Locale.getDefault(), "¥%.2f", statistics.totalAmount)
+                    value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.totalAmount)
                 )
             }
             Row(
@@ -408,11 +408,11 @@ fun ExpenseStatisticsCard(
             ) {
                 StatisticItem(
                     label = context.getString(R.string.expense_stats_average),
-                    value = String.format(Locale.getDefault(), "¥%.2f", statistics.averageAmount)
+                    value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.averageAmount)
                 )
                 StatisticItem(
                     label = context.getString(R.string.expense_stats_median),
-                    value = String.format(Locale.getDefault(), "¥%.2f", statistics.medianAmount)
+                    value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.medianAmount)
                 )
             }
         }
@@ -549,7 +549,7 @@ fun LongPressExpenseItem(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = String.format(Locale.getDefault(), "-¥%.2f", expense.amount),
+                                text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.error
@@ -700,7 +700,7 @@ fun ExpenseListItem(
                 )
             }
             Text(
-                text = String.format(Locale.getDefault(), "-¥%.2f", expense.amount),
+                text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.error

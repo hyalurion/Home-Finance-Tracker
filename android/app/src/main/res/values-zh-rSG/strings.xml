@@ -31,7 +31,12 @@
     <string name="loading">载入中…</string>
     <string name="error">错误</string>
     <string name="success">成功</string>
-
+    
+    <!-- Currency -->
+    <string name="currency_symbol">$</string>
+    <string name="currency_format">%s%.2f</string>
+    <string name="currency_format_no_decimal">%s%.0f</string>
+    
     <!-- Welcome -->
     <string name="welcome_message">欢迎使用家庭记账本</string>
     <string name="getting_started">开始使用</string>
@@ -48,7 +53,7 @@
     <string name="database_statistics">资料库统计</string>
     <string name="record_count">记录笔数：%d</string>
     <string name="total_amount">总金额</string>
-    <string name="total_amount_database">总金额：SG$%.2f</string>
+    <string name="total_amount_database">总金额：$%.2f</string>
     <string name="expense_records">支出记录</string>
     <string name="no_data">暂无资料</string>
     <string name="synced">已同步</string>
@@ -184,7 +189,7 @@
     <string name="ai_expense_select_images">选择图片</string>
     <string name="ai_expense_add_images">添加图片</string>
     <string name="ai_expense_or_input_text">或输入文字</string>
-    <string name="ai_expense_text_hint">例如：今天买了苹果30元，香蕉20元</string>
+    <string name="ai_expense_text_hint">e.g. bought chicken rice $4.50, kopi-o $1.20</string>
     <string name="ai_expense_start_recognition">开始识别</string>
     <string name="ai_expense_recognizing">识别中…</string>
     <string name="ai_expense_results">识别结果</string>
@@ -233,11 +238,11 @@
     <string name="budget_expand">展开</string>
     <string name="budget_collapse">收起</string>
     <string name="budget_alert_normal_title">预算正常</string>
-    <string name="budget_alert_normal_message">剩余 $%1$s，还有 %2$.0f%% 可用</string>
+    <string name="budget_alert_normal_message">剩余 %1$s，还有 %2$.0f%% 可用</string>
     <string name="budget_alert_warning_title">接近预算限额</string>
-    <string name="budget_alert_warning_message">剩余 $%1$s（%2$.0f%%），请注意控制支出</string>
+    <string name="budget_alert_warning_message">剩余 %1$s（%2$.0f%%），请注意控制支出</string>
     <string name="budget_alert_over_title">超出预算限额</string>
-    <string name="budget_alert_over_message">已超支 $%1$s，请合理规划支出</string>
+    <string name="budget_alert_over_message">已超支 %1$s，请合理规划支出</string>
     <string name="common_save">储存</string>
     <string name="common_cancel">取消</string>
     <string name="budget_error_invalid_limit">请输入有效的预算金额</string>

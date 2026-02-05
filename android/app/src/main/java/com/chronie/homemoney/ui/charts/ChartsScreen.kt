@@ -151,7 +151,7 @@ private fun ChartsContent(
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
     val scrollState = rememberScrollState()
-    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.CHINA) }
+    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.getDefault()) }
     
     // 调试日志
     LaunchedEffect(state) {

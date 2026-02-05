@@ -32,6 +32,11 @@
     <string name="error">错误</string>
     <string name="success">成功</string>
     
+    <!-- 货币 -->
+    <string name="currency_symbol">¥</string>
+    <string name="currency_format">%s%.2f</string>
+    <string name="currency_format_no_decimal">%s%.0f</string>
+    
     <!-- 欢迎页 -->
     <string name="welcome_message">欢迎使用家庭记账本</string>
     <string name="getting_started">开始使用</string>
@@ -184,7 +189,7 @@
     <string name="ai_expense_select_images">选择图片</string>
     <string name="ai_expense_add_images">添加图片</string>
     <string name="ai_expense_or_input_text">或输入文字</string>
-    <string name="ai_expense_text_hint">例如：今天买了苹果30元，香蕉20元</string>
+    <string name="ai_expense_text_hint">例如：今天买了西红柿12元，黄瓜8元，鸡蛋15元</string>
     <string name="ai_expense_start_recognition">开始识别</string>
     <string name="ai_expense_recognizing">识别中…</string>
     <string name="ai_expense_results">识别结果</string>
@@ -233,13 +238,13 @@
     <string name="budget_expand">展开</string>
     <string name="budget_collapse">收起</string>
     <string name="budget_alert_normal_title">预算正常</string>
-    <string name="budget_alert_normal_message">剩余 ¥%1$s，可用额度 %2$.0f%%</string>
+    <string name="budget_alert_normal_message">剩余 %1$s，可用额度 %2$.0f%%</string>
     <string name="budget_alert_warning_title">预算预警</string>
-    <string name="budget_alert_warning_message">剩余 ¥%1$s（%2$.0f%%），请注意控制支出</string>
+    <string name="budget_alert_warning_message">剩余 %1$s（%2$.0f%%），请注意控制支出</string>
     <string name="common_save">保存</string>
     <string name="common_cancel">取消</string>
     <string name="budget_alert_over_title">超出预算</string>
-    <string name="budget_alert_over_message">已超支 ¥%1$s，请合理规划</string>
+    <string name="budget_alert_over_message">已超支 %1$s，请合理规划</string>
     <string name="budget_error_invalid_limit">请输入有效的预算金额</string>
     <string name="budget_error_invalid_threshold">预警比例需在0-100之间</string>
     

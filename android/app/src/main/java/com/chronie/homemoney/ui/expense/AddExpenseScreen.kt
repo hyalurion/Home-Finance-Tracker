@@ -315,7 +315,7 @@ fun ExpenseAmountField(
             onValueChange = onAmountChange,
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(context.getString(R.string.add_expense_amount_hint)) },
-            prefix = { Text("¥ ") },
+            prefix = { Text(context.getString(R.string.currency_symbol) + " ") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true,
             isError = error != null

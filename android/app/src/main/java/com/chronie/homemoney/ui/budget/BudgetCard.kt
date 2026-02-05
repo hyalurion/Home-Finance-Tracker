@@ -199,7 +199,7 @@ fun BudgetUsageCard(
                             fontWeight = FontWeight.Medium
                         )
                         Text(
-                            text = "¥${String.format(Locale.getDefault(), "%.0f", usage.currentSpending)}/¥${String.format(Locale.getDefault(), "%.0f", usage.monthlyLimit)}",
+                            text = context.getString(R.string.currency_format_no_decimal, context.getString(R.string.currency_symbol), usage.currentSpending) + "/" + context.getString(R.string.currency_format_no_decimal, context.getString(R.string.currency_symbol), usage.monthlyLimit),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             color = progressColor
@@ -255,13 +255,13 @@ fun BudgetUsageCard(
                         verticalAlignment = Alignment.Bottom
                     ) {
                         Text(
-                            text = String.format(Locale.getDefault(), "¥%.2f", usage.currentSpending),
+                            text = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.currentSpending),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             color = progressColor
                         )
                         Text(
-                            text = "/ ¥${String.format(Locale.getDefault(), "%.2f", usage.monthlyLimit)}",
+                            text = "/ " + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.monthlyLimit),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                         )
@@ -291,7 +291,7 @@ fun BudgetUsageCard(
                                 title = context.getString(R.string.budget_alert_over_title),
                                 message = context.getString(
                                     R.string.budget_alert_over_message,
-                                    String.format(Locale.getDefault(), "%.2f", usage.currentSpending - usage.monthlyLimit)
+                                    context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.currentSpending - usage.monthlyLimit)
                                 ),
                                 containerColor = MaterialTheme.colorScheme.errorContainer,
                                 contentColor = MaterialTheme.colorScheme.onErrorContainer
@@ -303,7 +303,7 @@ fun BudgetUsageCard(
                                 title = context.getString(R.string.budget_alert_warning_title),
                                 message = context.getString(
                                     R.string.budget_alert_warning_message,
-                                    String.format(Locale.getDefault(), "%.2f", usage.remainingAmount),
+                                    context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.remainingAmount),
                                     usage.spendingPercentage
                                 ),
                                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -316,7 +316,7 @@ fun BudgetUsageCard(
                                 title = context.getString(R.string.budget_alert_normal_title),
                                 message = context.getString(
                                     R.string.budget_alert_normal_message,
-                                    String.format(Locale.getDefault(), "%.2f", usage.remainingAmount),
+                                    context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.remainingAmount),
                                     100 - usage.spendingPercentage
                                 ),
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -333,13 +333,13 @@ fun BudgetUsageCard(
                         DetailItem(
                             context = context,
                             label = context.getString(R.string.budget_daily_average),
-                            value = String.format(Locale.getDefault(), "¥%.2f", usage.dailyAverage)
+                            value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.dailyAverage)
                         )
                         
                         DetailItem(
                             context = context,
                             label = context.getString(R.string.budget_recommended_daily),
-                            value = String.format(Locale.getDefault(), "¥%.2f", usage.recommendedDaily),
+                            value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.recommendedDaily),
                             valueColor = if (usage.recommendedDaily <= 0) {
                                 MaterialTheme.colorScheme.error
                             } else if (usage.recommendedDaily < usage.dailyAverage * 0.8) {

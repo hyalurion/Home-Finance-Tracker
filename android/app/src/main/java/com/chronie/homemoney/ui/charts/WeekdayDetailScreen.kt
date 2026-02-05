@@ -30,7 +30,7 @@ fun WeekdayDetailScreen(
     viewModel: WeekdayDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val currencyFormat = remember { NumberFormat.getCurrencyInstance(java.util.Locale.CHINA) }
+    val currencyFormat = remember { NumberFormat.getCurrencyInstance(java.util.Locale.getDefault()) }
     
     Scaffold(
         topBar = {

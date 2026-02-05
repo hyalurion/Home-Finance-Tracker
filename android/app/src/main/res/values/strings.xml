@@ -32,6 +32,11 @@
     <string name="error">Error</string>
     <string name="success">Success</string>
     
+    <!-- Currency -->
+    <string name="currency_symbol">$</string>
+    <string name="currency_format">%s%.2f</string>
+    <string name="currency_format_no_decimal">%s%.0f</string>
+    
     <!-- Welcome -->
     <string name="welcome_message">Welcome to Home Finance</string>
     <string name="getting_started">Get Started</string>
@@ -185,7 +190,7 @@
     <string name="ai_expense_select_images">Select Photos</string>
     <string name="ai_expense_add_images">Add Photos</string>
     <string name="ai_expense_or_input_text">Or Enter Text</string>
-    <string name="ai_expense_text_hint">Example: apples $30, bananas $20 today</string>
+    <string name="ai_expense_text_hint">Example: groceries $45, gas $35 today</string>
     <string name="ai_expense_start_recognition">Scan Receipt</string>
     <string name="ai_expense_recognizing">Scanning…</string>
     <string name="ai_expense_results">Scan Results</string>
@@ -234,11 +239,11 @@
     <string name="budget_expand">Show More</string>
     <string name="budget_collapse">Show Less</string>
     <string name="budget_alert_normal_title">On Track</string>
-    <string name="budget_alert_normal_message">$%1$s remaining (%2$.0f%%)</string>
+    <string name="budget_alert_normal_message">%1$s remaining (%2$.0f%%)</string>
     <string name="budget_alert_warning_title">Approaching Limit</string>
-    <string name="budget_alert_warning_message">$%1$s left (%2$.0f%%), watch spending</string>
+    <string name="budget_alert_warning_message">%1$s left (%2$.0f%%), watch spending</string>
     <string name="budget_alert_over_title">Over Budget</string>
-    <string name="budget_alert_over_message">Over by $%1$s, adjust spending</string>
+    <string name="budget_alert_over_message">Over by %1$s, adjust spending</string>
     <string name="common_save">Save</string>
     <string name="common_cancel">Cancel</string>
     <string name="budget_error_invalid_limit">Enter valid amount</string>

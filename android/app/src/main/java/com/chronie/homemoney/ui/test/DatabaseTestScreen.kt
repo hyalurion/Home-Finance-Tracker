@@ -124,14 +124,14 @@ fun DatabaseTestScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
+                        .height(200.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(context.getString(R.string.no_data))
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(uiState.expenses) { expense ->
@@ -164,10 +164,10 @@ fun ExpenseItem(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "¥${String.format("%.2f", expense.amount)}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.error
-                )
+                        text = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
             }
             
             if (expense.remark.isNotEmpty()) {
@@ -198,7 +198,7 @@ fun ExpenseItem(
                 )
                 
                 Text(
-                    text = "ID: ${expense.id.take(8)}...",
+                    text = "ID: ${expense.id}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -40,7 +40,7 @@ fun formatDateByLocale(dateString: String, locale: String): String {
         val date = LocalDate.parse(dateString)
         
         return when (locale) {
-            "en" -> {
+            "en-US" -> {
                 val monthNames = arrayOf(
                     "January", "February", "March", "April", "May", "June",
                     "July", "August", "September", "October", "November", "December"

@@ -210,7 +210,7 @@
       "preview": "Current Status",
       "disabledNotice": "Enable budget to track your monthly spending",
       "pleaseSetLimit": "Please set your monthly budget",
-      "limitUpdated": "Monthly budget updated to ¥{amount}"
+      "limitUpdated": "Monthly budget updated to ${amount}"
     },
     "status": {
       "disabled": "Budget disabled",
@@ -221,15 +221,15 @@
     "alert": {
       "normal": {
         "title": "On Track",
-        "description": "Remaining: ¥{remaining} ({percentage}% used)"
+        "description": "Remaining: ${remaining} ({percentage}% used)"
       },
       "nearLimit": {
         "title": "Approaching Budget",
-        "description": "Remaining: ¥{remaining} ({percentage}% used). Consider slowing down."
+        "description": "Remaining: ${remaining} ({percentage}% used). Consider slowing down."
       },
       "overLimit": {
         "title": "Over Budget",
-        "description": "Over budget by ¥{amount}. Please review your spending."
+        "description": "Over budget by ${amount}. Please review your spending."
       }
     },
     "enablePrompt": {

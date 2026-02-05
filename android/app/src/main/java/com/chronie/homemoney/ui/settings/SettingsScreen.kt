@@ -665,7 +665,7 @@ fun BudgetSettingsSection(
                         // 显示当前预算状态
                         if (uiState.budget?.isEnabled == true) {
                             Text(
-                                text = "${context.getString(R.string.budget_enable_feature)}: ¥${String.format(java.util.Locale.getDefault(), "%.2f", uiState.budget?.monthlyLimit ?: 0.0)}",
+                                text = "${context.getString(R.string.budget_enable_feature)}: " + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), uiState.budget?.monthlyLimit ?: 0.0),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary
                             )

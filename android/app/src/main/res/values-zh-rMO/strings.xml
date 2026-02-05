@@ -32,6 +32,11 @@
     <string name="error">錯誤</string>
     <string name="success">成功</string>
     
+    <!-- Currency -->
+    <string name="currency_symbol">MOP$</string>
+    <string name="currency_format">%s%.2f</string>
+    <string name="currency_format_no_decimal">%s%.0f</string>
+    
     <!-- Welcome -->
     <string name="welcome_message">歡迎使用家庭記帳簿</string>
     <string name="getting_started">開始使用</string>
@@ -184,7 +189,7 @@
     <string name="ai_expense_select_images">選擇相片</string>
     <string name="ai_expense_add_images">新增相片</string>
     <string name="ai_expense_or_input_text">或輸入文字</string>
-    <string name="ai_expense_text_hint">例如：今日買咗蘋果 30 蚊，香蕉 20 蚊</string>
+    <string name="ai_expense_text_hint">例如：今日買咗豬肉 50 蚊，菜心 15 蚊，叉燒包 12 蚊</string>
     <string name="ai_expense_start_recognition">開始辨識</string>
     <string name="ai_expense_recognizing">辨識中…</string>
     <string name="ai_expense_results">辨識結果</string>
@@ -233,11 +238,11 @@
     <string name="budget_expand">展開</string>
     <string name="budget_collapse">摺疊</string>
     <string name="budget_alert_normal_title">預算正常</string>
-    <string name="budget_alert_normal_message">剩餘 $%1$s，仲有 %2$.0f%% 可用</string>
+    <string name="budget_alert_normal_message">剩餘 %1$s，仲有 %2$.0f%% 可用</string>
     <string name="budget_alert_warning_title">就快超出預算</string>
-    <string name="budget_alert_warning_message">剩餘 $%1$s (%2$.0f%%)，請留意支出</string>
+    <string name="budget_alert_warning_message">剩餘 %1$s (%2$.0f%%)，請留意支出</string>
     <string name="budget_alert_over_title">已超出預算</string>
-    <string name="budget_alert_over_message">已超支 $%1$s，請妥善規劃支出</string>
+    <string name="budget_alert_over_message">已超支 %1$s，請妥善規劃支出</string>
     <string name="common_save">儲存</string>
     <string name="common_cancel">取消</string>
     <string name="budget_error_invalid_limit">請輸入有效嘅預算金額</string>
