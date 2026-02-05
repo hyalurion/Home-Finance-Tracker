@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
@@ -77,11 +80,12 @@ fun BottomNavigationBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.Transparent)
+            .windowInsetsPadding(WindowInsets.navigationBars)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(65.dp)
+                .height(56.dp)
                 .background(backgroundColor),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
@@ -92,7 +96,7 @@ fun BottomNavigationBar(
             Row(
                 modifier = Modifier
                     .weight(1f)
-                    .height(65.dp) // 放大1.25倍
+                    .height(56.dp)
                     .padding(4.dp)
                     .background(
                         color = if (isSelected) Color.Transparent else Color.Transparent,
