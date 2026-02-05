@@ -46,13 +46,22 @@ fun ExpressiveLoadingIndicator(
 
     // 3. 预生成的形状（关键点：设置 rounding 弧度让它看起来柔和）
     val shapes = remember {
-        listOf(9, 6, 4, 3, 4, 6, 9).map { sides ->
-            RoundedPolygon(
-                numVertices = sides,
-                radius = 1f,
-                // 这里是灵魂：圆角比例，M3 的风格通常很圆润
-                rounding = androidx.graphics.shapes.CornerRounding(0.3f)
-            )
+        listOf(10, 9, 5, 4, 5, 9, 10).map { sides ->
+            if (sides == 4) {
+                // 用 4 个顶点 + 大圆角制造胶囊（椭圆）效果
+                RoundedPolygon(
+                    numVertices = 4,
+                    radius = 1f,
+                    rounding = androidx.graphics.shapes.CornerRounding(0.8f)   // 非常大的圆角形成长胶囊
+                )
+            } else {
+                RoundedPolygon(
+                    numVertices = sides,
+                    radius = 1f,
+                    // 这里是灵魂：圆角比例，M3 的风格通常很圆润
+                    rounding = androidx.graphics.shapes.CornerRounding(0.3f)
+                )
+            }
         }
     }
 

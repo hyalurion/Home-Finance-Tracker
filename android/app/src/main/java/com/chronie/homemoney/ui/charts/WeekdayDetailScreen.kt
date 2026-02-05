@@ -15,6 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.text.NumberFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -141,7 +142,10 @@ fun WeekdayDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = androidx.compose.ui.Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        ExpressiveLoadingIndicator(
+                            size = 40.dp,
+                            containerVisible = false
+                        )
                     }
                 }
                 is WeekdayDetailUiState.Success -> {

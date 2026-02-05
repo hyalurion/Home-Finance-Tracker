@@ -558,9 +558,9 @@ fun LongPressExpenseItem(
                     }
                     
                     // 操作按钮
-                    Column(
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         // 编辑按钮
                         Button(
@@ -568,7 +568,7 @@ fun LongPressExpenseItem(
                                 showBottomSheetMenu.value = false
                                 onEdit()
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -588,7 +588,7 @@ fun LongPressExpenseItem(
                             onClick = {
                                 showDeleteConfirm()
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.errorContainer,
                                 contentColor = MaterialTheme.colorScheme.onErrorContainer
