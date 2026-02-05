@@ -544,7 +544,7 @@ fun LongPressExpenseItem(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = expense.date,
+                                text = formatDateByLocale(expense.date, context.resources.configuration.locale.toLanguageTag()),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -694,7 +694,7 @@ fun ExpenseListItem(
                     )
                 }
                 Text(
-                    text = expense.date,
+                    text = formatDateByLocale(expense.date, context.resources.configuration.locale.toLanguageTag()),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

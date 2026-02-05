@@ -42,6 +42,7 @@ import com.chronie.homemoney.ui.components.ExpressiveSwitch
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.ColorPickerBottomSheet
 import com.chronie.homemoney.ui.components.getColorGroups
+import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
 import com.chronie.homemoney.ui.theme.ThemeSettings
 
@@ -907,7 +908,7 @@ fun DataImportExportSection(
                         shape = MaterialTheme.shapes.medium
                     ) {
                         Text(
-                            text = startDate?.toString() ?: context.getString(R.string.export_start_date),
+                            text = startDate?.let { formatDateByLocale(it.toString(), context.resources.configuration.locale.toLanguageTag()) } ?: context.getString(R.string.export_start_date),
                             modifier = Modifier.padding(16.dp)
                         )
                     }
@@ -929,7 +930,7 @@ fun DataImportExportSection(
                         shape = MaterialTheme.shapes.medium
                     ) {
                         Text(
-                            text = endDate?.toString() ?: context.getString(R.string.export_end_date),
+                            text = endDate?.let { formatDateByLocale(it.toString(), context.resources.configuration.locale.toLanguageTag()) } ?: context.getString(R.string.export_end_date),
                             modifier = Modifier.padding(16.dp)
                         )
                     }
@@ -1187,7 +1188,24 @@ fun SyncSection(
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = lastSyncTime ?: context.getString(R.string.sync_never),
+                        text = lastSyncTime?.let { 
+                            try {
+                                // 尝试处理包含时间的格式（如 "2026-02-05 22:10:07"）
+                                val dateTimeString = it
+                                val parts = dateTimeString.split(' ')
+                                val datePart = parts[0] // 提取日期部分
+                                val timePart = if (parts.size > 1) parts[1] else "" // 提取时间部分
+                                val formattedDate = formatDateByLocale(datePart, context.resources.configuration.locale.toLanguageTag())
+                                if (timePart.isNotEmpty()) {
+                                    "$formattedDate $timePart"
+                                } else {
+                                    formattedDate
+                                }
+                            } catch (e: Exception) {
+                                // 如果解析失败，返回原始字符串
+                                it
+                            }
+                        } ?: context.getString(R.string.sync_never),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1704,7 +1722,9 @@ fun AccountSection(
                     }
                     
                     // 到期时间
-                    if (membershipStatus?.endDate != null) {
+                    val status = membershipStatus
+                    val endDateMillis = status?.endDate
+                    if (endDateMillis != null) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -1716,8 +1736,12 @@ fun AccountSection(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                            val endDate = java.time.Instant.ofEpochMilli(endDateMillis)
+                                .atZone(java.time.ZoneId.systemDefault())
+                                .toLocalDate()
+                            val dateString = endDate.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
                             Text(
-                                text = formatTimestamp(membershipStatus?.endDate ?: 0L),
+                                text = formatDateByLocale(dateString, context.resources.configuration.locale.toLanguageTag()),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

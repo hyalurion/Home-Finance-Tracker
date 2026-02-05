@@ -34,3 +34,51 @@ fun formatRelativeDate(dateString: String, context: Context): String {
         return dateString
     }
 }
+
+fun formatDateByLocale(dateString: String, locale: String): String {
+    try {
+        val date = LocalDate.parse(dateString)
+        
+        return when (locale) {
+            "en" -> {
+                val monthNames = arrayOf(
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                )
+                "${monthNames[date.monthValue - 1]} ${date.dayOfMonth}, ${date.year}"
+            }
+            "zh", "zh-CN", "zh-HK", "zh-MO", "zh-SG", "zh-TW" -> {
+                "${date.year}年${String.format("%02d", date.monthValue)}月${String.format("%02d", date.dayOfMonth)}日"
+            }
+            else -> {
+                "${date.year}-${String.format("%02d", date.monthValue)}-${String.format("%02d", date.dayOfMonth)}"
+            }
+        }
+    } catch (e: Exception) {
+        return dateString
+    }
+}
+
+fun formatMonthLabelByLocale(dateString: String, locale: String): String {
+    try {
+        val date = LocalDate.parse(dateString)
+        
+        return when (locale) {
+            "zh", "zh-CN", "zh-HK", "zh-MO", "zh-SG", "zh-TW" -> {
+                "${date.year}年${String.format("%02d", date.monthValue)}月"
+            }
+            "en" -> {
+                val monthNames = arrayOf(
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                )
+                "${monthNames[date.monthValue - 1]} ${date.year}"
+            }
+            else -> {
+                "${date.year}-${String.format("%02d", date.monthValue)}"
+            }
+        }
+    } catch (e: Exception) {
+        return dateString
+    }
+}

@@ -9,12 +9,11 @@ enum class Language(
     val locale: Locale
 ) {
     ENGLISH("en", "English", "English", Locale.ENGLISH),
-    SIMPLIFIED_CHINESE("zh-CN", "Simplified Chinese", "简体中文", Locale.SIMPLIFIED_CHINESE),
+    SIMPLIFIED_CHINESE("zh-CN", "Simplified Chinese (Mainland China)", "简体中文（中国大陆）", Locale.SIMPLIFIED_CHINESE),
     TRADITIONAL_CHINESE_TAIWAN("zh-TW", "Traditional Chinese (Taiwan)", "繁體中文（台灣）", Locale("zh", "TW")),
     TRADITIONAL_CHINESE_HONG_KONG("zh-HK", "Traditional Chinese (Hong Kong)", "繁體中文（香港）", Locale("zh", "HK")),
     TRADITIONAL_CHINESE_MACAU("zh-MO", "Traditional Chinese (Macau)", "繁體中文（澳門）", Locale("zh", "MO")),
     SIMPLIFIED_CHINESE_SINGAPORE("zh-SG", "Simplified Chinese (Singapore)", "简体中文（新加坡）", Locale("zh", "SG"));
-
     val displayName: String
         get() = "$englishName / $localName"
 

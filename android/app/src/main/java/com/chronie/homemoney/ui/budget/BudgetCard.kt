@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.BudgetStatus
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.expense.formatMonthLabelByLocale
 import java.util.Locale
 
 /**
@@ -193,7 +194,7 @@ fun BudgetUsageCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = usage.currentMonth,
+                            text = formatMonthLabelByLocale(usage.currentMonth + "-01", context.resources.configuration.locale.toLanguageTag()),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium
                         )
@@ -218,7 +219,7 @@ fun BudgetUsageCard(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = usage.currentMonth,
+                            text = formatMonthLabelByLocale(usage.currentMonth + "-01", context.resources.configuration.locale.toLanguageTag()),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                         )

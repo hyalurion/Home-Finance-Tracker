@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.expense.formatDateByLocale
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -178,7 +179,7 @@ fun ExpenseItem(
             }
             
             Text(
-                text = expense.timeFormatted,
+                text = formatDateByLocale(expense.timeFormatted, context.resources.configuration.locale.toLanguageTag()),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.TimeRange
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
+import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -210,7 +211,7 @@ private fun TimeRangeCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "${state.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE)} - ${state.endDate.format(DateTimeFormatter.ISO_LOCAL_DATE)}",
+                text = "${formatDateByLocale(state.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE), context.resources.configuration.locale.toLanguageTag())} - ${formatDateByLocale(state.endDate.format(DateTimeFormatter.ISO_LOCAL_DATE), context.resources.configuration.locale.toLanguageTag())}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -644,11 +645,17 @@ private fun TimeRangeDialog(
             Spacer(modifier = Modifier.height(16.dp))
             
             if (selectedTimeRange == TimeRange.CUSTOM && customStartDate != null && customEndDate != null) {
-                Text(
-                    text = "${context.getString(R.string.expense_list_filter_start_date)} ${customStartDate?.format(DateTimeFormatter.ISO_LOCAL_DATE)} ${context.getString(R.string.expense_list_filter_end_date)} ${customEndDate?.format(DateTimeFormatter.ISO_LOCAL_DATE)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                val start = customStartDate
+                val end = customEndDate
+                if (start != null && end != null) {
+                    val startDateString = start.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                    val endDateString = end.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                    Text(
+                        text = "${context.getString(R.string.expense_list_filter_start_date)} ${formatDateByLocale(startDateString, context.resources.configuration.locale.toLanguageTag())} ${context.getString(R.string.expense_list_filter_end_date)} ${formatDateByLocale(endDateString, context.resources.configuration.locale.toLanguageTag())}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
             
             Spacer(modifier = Modifier.height(16.dp))

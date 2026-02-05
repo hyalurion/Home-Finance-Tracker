@@ -25,6 +25,7 @@ import com.chronie.homemoney.domain.model.SubscriptionPlan
 import com.chronie.homemoney.domain.model.SubscriptionStatus
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.expense.formatDateByLocale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -275,9 +276,13 @@ private fun CurrentMembershipCard(
             )
             
             status.endDate?.let { endDate ->
-                val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                val dateString = java.time.Instant.ofEpochMilli(endDate)
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDate()
+                    .toString()
+                val formattedDate = formatDateByLocale(dateString, context.resources.configuration.locale.toLanguageTag())
                 Text(
-                    text = "${context.getString(R.string.membership_expires_on)}: ${dateFormat.format(java.util.Date(endDate))}",
+                    text = "${context.getString(R.string.membership_expires_on)}: $formattedDate",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

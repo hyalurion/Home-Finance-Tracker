@@ -18,7 +18,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.SubscriptionStatus
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.CircularIconButton
-import java.text.SimpleDateFormat
+import com.chronie.homemoney.ui.expense.formatDateByLocale
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -139,18 +139,30 @@ private fun SubscriptionHistoryCard(
             }
             
             subscription.startDate?.let { startDate ->
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val dateTime = java.time.Instant.ofEpochMilli(startDate)
+                    .atZone(java.time.ZoneId.systemDefault())
+                val localDate = dateTime.toLocalDate()
+                val localTime = dateTime.toLocalTime()
+                val dateString = localDate.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+                val timeString = localTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
+                val formattedDate = formatDateByLocale(dateString, context.resources.configuration.locale.toLanguageTag())
                 Text(
-                    text = "${context.getString(R.string.start_date)}: ${dateFormat.format(Date(startDate))}",
+                    text = "${context.getString(R.string.start_date)}: $formattedDate $timeString",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             
             subscription.endDate?.let { endDate ->
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val dateTime = java.time.Instant.ofEpochMilli(endDate)
+                    .atZone(java.time.ZoneId.systemDefault())
+                val localDate = dateTime.toLocalDate()
+                val localTime = dateTime.toLocalTime()
+                val dateString = localDate.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+                val timeString = localTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
+                val formattedDate = formatDateByLocale(dateString, context.resources.configuration.locale.toLanguageTag())
                 Text(
-                    text = "${context.getString(R.string.end_date)}: ${dateFormat.format(Date(endDate))}",
+                    text = "${context.getString(R.string.end_date)}: $formattedDate $timeString",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
