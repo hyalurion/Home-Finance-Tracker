@@ -84,7 +84,7 @@
         >
           <div class="plan-header">
             <h3>{{ plan.name }}</h3>
-            <div class="price-tag">¥{{ plan.price }}</div>
+            <div class="price-tag">{{ $t('common.currencySymbol') }}{{ plan.price }}</div>
           </div>
           <div class="plan-description">{{ plan.description }}</div>
           <GlassButton 

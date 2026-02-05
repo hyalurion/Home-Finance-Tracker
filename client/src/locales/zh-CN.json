@@ -31,7 +31,8 @@
   "chart.weekdayAnalysis": "每周支出分析",
   "chart.mockData": "示例数据",
   "common.to": "至",
-  "common.currency": "元",
+  "common.currency": "CNY",
+  "common.currencySymbol": "¥",
   "common.sunday": "周日",
   "common.monday": "周一",
   "common.tuesday": "周二",
@@ -209,7 +210,7 @@
       "preview": "当前状态",
       "disabledNotice": "启用预算功能来追踪月度支出",
       "pleaseSetLimit": "请设置您的月度预算",
-      "limitUpdated": "月度预算已更新为¥{amount}"
+      "limitUpdated": "月度预算已更新为{amount}"
     },
     "status": {
       "disabled": "预算未启用",
@@ -220,15 +221,15 @@
     "alert": {
       "normal": {
         "title": "预算正常",
-        "description": "剩余预算：¥{remaining}（已使用{percentage}%）"
+        "description": "剩余预算：{remaining}（已使用{percentage}%）"
       },
       "nearLimit": {
         "title": "接近预算",
-        "description": "剩余预算：¥{remaining}（已使用{percentage}%）。请注意控制支出"
+        "description": "剩余预算：{remaining}（已使用{percentage}%）。请注意控制支出"
       },
       "overLimit": {
         "title": "超出预算",
-        "description": "已超出预算¥{amount}，请检查您的支出"
+        "description": "已超出预算{amount}，请检查您的支出"
       }
     },
     "enablePrompt": {

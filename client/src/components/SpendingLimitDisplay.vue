@@ -24,11 +24,11 @@
     <div class="progress-section">
       <div class="progress-info">
         <span class="current-spending">
-          ¥{{ formatAmount(spendingStore.currentMonthSpending) }}
+          {{ $t('common.currencySymbol') }}{{ formatAmount(spendingStore.currentMonthSpending) }}
         </span>
         <span class="progress-separator">/</span>
         <span class="limit-amount">
-          ¥{{ formatAmount(spendingStore.monthlyLimit) }}
+          {{ $t('common.currencySymbol') }}{{ formatAmount(spendingStore.monthlyLimit) }}
         </span>
         <span class="percentage" :class="percentageClass">
           ({{ Math.round(spendingStore.spendingPercentage) }}%)
@@ -60,19 +60,19 @@
       <div class="detail-item" v-if="spendingStore.isOverLimit">
         <span class="detail-label">{{ $t('spending.exceeded') }}:</span>
         <span class="detail-value exceeded-amount">
-          ¥{{ formatAmount(spendingStore.currentMonthSpending - spendingStore.monthlyLimit) }}
+          {{ $t('common.currencySymbol') }}{{ formatAmount(spendingStore.currentMonthSpending - spendingStore.monthlyLimit) }}
         </span>
       </div>
       <div class="detail-item">
         <span class="detail-label">{{ $t('spending.dailyAverage') }}:</span>
         <span class="detail-value">
-          ¥{{ formatAmount(dailyAverage) }}
+          {{ $t('common.currencySymbol') }}{{ formatAmount(dailyAverage) }}
         </span>
       </div>
       <div class="detail-item">
         <span class="detail-label">{{ $t('spending.recommendedDaily') }}:</span>
         <span class="detail-value" :class="recommendedDailyClass">
-          ¥{{ formatAmount(recommendedDaily) }}
+          {{ $t('common.currencySymbol') }}{{ formatAmount(recommendedDaily) }}
         </span>
       </div>
     </div>
@@ -152,7 +152,7 @@ const statusAlert = computed(() => {
       type: 'error',
       title: t('spending.alert.overLimit.title'),
       description: t('spending.alert.overLimit.description', {
-        amount: formatAmount(status.data.overAmount)
+        amount: t('common.currencySymbol') + formatAmount(status.data.overAmount)
       })
     };
   case 'warning':
@@ -160,7 +160,7 @@ const statusAlert = computed(() => {
       type: 'warning',
       title: t('spending.alert.nearLimit.title'),
       description: t('spending.alert.nearLimit.description', {
-        remaining: formatAmount(status.data.remaining),
+        remaining: t('common.currencySymbol') + formatAmount(status.data.remaining),
         percentage: status.data.percentage
       })
     };
@@ -169,7 +169,7 @@ const statusAlert = computed(() => {
       type: 'success',
       title: t('spending.alert.normal.title'),
       description: t('spending.alert.normal.description', {
-        remaining: formatAmount(status.data.remaining),
+        remaining: t('common.currencySymbol') + formatAmount(status.data.remaining),
         percentage: status.data.percentage
       })
     };

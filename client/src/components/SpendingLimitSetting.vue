@@ -42,7 +42,7 @@
                     :placeholder="$t('spending.settings.enterLimit')"
                     class="limit-input"
                     size="large"
-                    prefix="¥"
+                    :prefix="$t('common.currencySymbol')"
                   />
                 </div>
 

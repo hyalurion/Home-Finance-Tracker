@@ -31,7 +31,8 @@
   "chart.weekdayAnalysis": "每週支出分析",
   "chart.mockData": "示例資料",
   "common.to": "至",
-  "common.currency": "币",
+  "common.currency": "TWD",
+  "common.currencySymbol": "$",
   "common.sunday": "周日",
   "common.monday": "週一",
   "common.tuesday": "週二",
@@ -220,15 +221,15 @@
     "alert": {
       "normal": {
         "title": "預算正常",
-        "description": "剩餘預算：${remaining}（已使用{percentage}%）"
+        "description": "剩餘預算：{remaining}（已使用{percentage}%）"
       },
       "nearLimit": {
         "title": "接近預算",
-        "description": "剩餘預算：${remaining}（已使用{percentage}%）。請注意控制支出"
+        "description": "剩餘預算：{remaining}（已使用{percentage}%）。請注意控制支出"
       },
       "overLimit": {
         "title": "超出預算",
-        "description": "已超出預算${amount}，請檢查您的支出"
+        "description": "已超出預算{amount}，請檢查您的支出"
       }
     },
     "enablePrompt": {
