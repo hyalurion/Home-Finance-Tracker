@@ -336,11 +336,12 @@ fun HomeMoneyTheme(
             val window = (view.context as Activity).window
             val insetsController = WindowCompat.getInsetsController(window, view)
             insetsController.isAppearanceLightStatusBars = !darkTheme
-            // 设置导航栏颜色
-            window.navigationBarColor = colorScheme.primary.toArgb()
-            // 设置状态栏颜色 - 虽然statusBarColor被标记为弃用，但在API 21+上仍然有效
-            // 目前没有直接的WindowCompat替代方法，所以我们继续使用它
-            window.statusBarColor = colorScheme.primary.toArgb()
+            // 设置导航栏颜色为基本白/黑色
+            window.navigationBarColor = if (darkTheme) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+            // 设置状态栏颜色为基本白/黑色，在高版本安卓系统上，状态栏颜色会被系统忽略（由系统自动管理）
+            window.statusBarColor = if (darkTheme) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+            // 确保导航栏图标颜色正确
+            insetsController.isAppearanceLightNavigationBars = !darkTheme
         }
     }
 
