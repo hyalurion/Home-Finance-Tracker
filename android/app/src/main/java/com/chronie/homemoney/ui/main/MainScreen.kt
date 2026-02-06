@@ -78,59 +78,67 @@ fun MainScreen(
     }
     
     // 原生界面（带底部 Tab 栏）
-    Scaffold(
-            topBar = {
-            },
-            bottomBar = {
-                BottomNavigationBar(
-                    context = context,
-                    selectedTab = selectedTab,
-                    onTabChange = onTabChange
-                )
-            }
-        ) { paddingValues ->
-            Box(modifier = Modifier.padding(paddingValues)) {
-                when (selectedTab) {
-                    0 -> {
-                        // 支出记录界面
-                        ExpenseListScreen(
-                            context = context,
-                            shouldRefresh = shouldRefreshExpenses,
-                            onRefreshHandled = onRefreshHandled,
-                            onNavigateToMoreFunctions = {},
-                            onNavigateToAddExpense = onNavigateToAddExpense,
-                            onNavigateToEditExpense = onNavigateToEditExpense
-                        )
-                    }
-                    1 -> {
-                        // 图表界面
-                        com.chronie.homemoney.ui.charts.ChartsScreen(
-                            context = context,
-                            onRequireLogin = onRequireLogin,
-                            onRequireMembership = onRequireMembership,
-                            onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
-                        )
-                    }
-                    2 -> {
-                        // 设置界面
-                        SettingsScreen(
-                            context = context,
-                            onNavigateToDatabaseTest = onNavigateToDatabaseTest,
-                            onNavigateToMembership = {
-                                android.util.Log.d("MainScreen", "收到 onNavigateToMembership 回调")
-                                onRequireMembership()
-                            },
-                            onLogout = {
-                                android.util.Log.d("MainScreen", "收到 onLogout 回调")
-                                onRequireLogin()
-                            },
-                            onRequireLogin = onRequireLogin,
-                            onRequireMembership = onRequireMembership
-                        )
-                    }
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .windowInsetsPadding(WindowInsets.systemBars)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            when (selectedTab) {
+                0 -> {
+                    // 支出记录界面
+                    ExpenseListScreen(
+                        context = context,
+                        shouldRefresh = shouldRefreshExpenses,
+                        onRefreshHandled = onRefreshHandled,
+                        onNavigateToMoreFunctions = {},
+                        onNavigateToAddExpense = onNavigateToAddExpense,
+                        onNavigateToEditExpense = onNavigateToEditExpense
+                    )
+                }
+                1 -> {
+                    // 图表界面
+                    com.chronie.homemoney.ui.charts.ChartsScreen(
+                        context = context,
+                        onRequireLogin = onRequireLogin,
+                        onRequireMembership = onRequireMembership,
+                        onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
+                    )
+                }
+                2 -> {
+                    // 设置界面
+                    SettingsScreen(
+                        context = context,
+                        onNavigateToDatabaseTest = onNavigateToDatabaseTest,
+                        onNavigateToMembership = {
+                            android.util.Log.d("MainScreen", "收到 onNavigateToMembership 回调")
+                            onRequireMembership()
+                        },
+                        onLogout = {
+                            android.util.Log.d("MainScreen", "收到 onLogout 回调")
+                            onRequireLogin()
+                        },
+                        onRequireLogin = onRequireLogin,
+                        onRequireMembership = onRequireMembership
+                    )
                 }
             }
         }
+        
+        // 悬浮导航栏
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+        ) {
+            BottomNavigationBar(
+                context = context,
+                selectedTab = selectedTab,
+                onTabChange = onTabChange
+            )
+        }
+    }
     
     // 会员即将过期提醒BottomSheet
     if (showExpiryBottomSheet) {

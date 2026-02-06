@@ -310,6 +310,7 @@ fun ExpenseListScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
+                .padding(bottom = 80.dp) // 抬高按钮，避免被底部导航栏遮挡
         ) {
             Icon(Icons.Default.Add, contentDescription = context.getString(R.string.add_expense_title))
         }
