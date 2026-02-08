@@ -54,4 +54,13 @@ interface ExpenseDao {
     
     @Query("SELECT * FROM expenses WHERE date BETWEEN :startDate AND :endDate ORDER BY date DESC")
     suspend fun getExpensesByDateRangeSync(startDate: String, endDate: String): List<ExpenseEntity>
+    
+    @Query("SELECT * FROM expenses WHERE date = :date AND amount = :amount AND type = :type AND (remark = :remark OR (remark IS NULL AND :remark IS NULL))")
+    suspend fun getExpenseByContent(date: String, amount: Double, type: String, remark: String?): ExpenseEntity?
+    
+    @Query("SELECT MIN(CAST(id AS INTEGER)) FROM expenses WHERE CAST(id AS INTEGER) < 0")
+    suspend fun getMinLocalId(): Int?
+    
+    @Query("SELECT MAX(CAST(id AS INTEGER)) FROM expenses WHERE CAST(id AS INTEGER) < 0")
+    suspend fun getMaxLocalId(): Int?
 }

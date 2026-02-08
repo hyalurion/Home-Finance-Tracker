@@ -122,15 +122,18 @@ private fun BottomNavigationBarImpl(
     val animationScope = rememberCoroutineScope()
     var currentIndex by remember { mutableIntStateOf(selectedTabIndex) }
     
-    // 用于动画的背景位置
+    // 用于动画的背景位置，初始化为当前选中的 tab 索引
     val backgroundPosition = remember {
-        Animatable(0f)
+        Animatable(selectedTabIndex.toFloat())
     }
     
     // 监听选中索引变化
     LaunchedEffect(selectedTabIndex) {
         if (selectedTabIndex != currentIndex) {
             currentIndex = selectedTabIndex
+            backgroundPosition.snapTo(selectedTabIndex.toFloat())
+        } else if (backgroundPosition.value != selectedTabIndex.toFloat()) {
+            // 确保动画位置与选中索引一致（处理组件重建的情况）
             backgroundPosition.snapTo(selectedTabIndex.toFloat())
         }
     }

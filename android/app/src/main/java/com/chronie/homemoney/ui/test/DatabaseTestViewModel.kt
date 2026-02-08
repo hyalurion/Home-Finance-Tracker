@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chronie.homemoney.R
+import com.chronie.homemoney.core.common.LocalIdGenerator
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DatabaseTestViewModel @Inject constructor(
     private val expenseDao: ExpenseDao,
+    private val localIdGenerator: LocalIdGenerator,
     private val application: Application
 ) : ViewModel() {
     
@@ -83,11 +85,11 @@ class DatabaseTestViewModel @Inject constructor(
                 val types = listOf("餐饮", "交通", "购物", "娱乐", "医疗", "其他")
                 val remarks = listOf("早餐", "午餐", "晚餐", "打车", "地铁", "购物", "看电影", "买药")
                 
-                // 获取当前日期字符串
                 val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                val localId = localIdGenerator.generateNextLocalId()
                 
                 val expense = ExpenseEntity(
-                    id = UUID.randomUUID().toString(),
+                    id = localId,
                     type = types.random(),
                     remark = remarks.random(),
                     amount = (10..200).random().toDouble(),

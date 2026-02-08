@@ -1,13 +1,12 @@
 package com.chronie.homemoney.domain.model
 
 import java.time.LocalDateTime
-import java.util.UUID
 
 /**
  * AI 识别的支出记录
  */
 data class AIExpenseRecord(
-    val id: String = UUID.randomUUID().toString(),
+    val id: String = "",
     val type: ExpenseType,
     val amount: Double,
     val date: String,

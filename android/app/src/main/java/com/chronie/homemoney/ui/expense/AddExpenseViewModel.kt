@@ -2,6 +2,7 @@ package com.chronie.homemoney.ui.expense
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chronie.homemoney.core.common.LocalIdGenerator
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.repository.ExpenseRepository
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -22,6 +22,7 @@ import javax.inject.Inject
 class AddExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     private val syncScheduler: com.chronie.homemoney.data.sync.SyncScheduler,
+    private val localIdGenerator: LocalIdGenerator,
     val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase,
     val checkMembershipUseCase: com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
 ) : ViewModel() {
@@ -123,10 +124,12 @@ class AddExpenseViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 // 用户选择的日期转换为字符串格式
-                val dateStr = state.selectedDate.toString() // 使用YYYY-MM-DD格式
+                val dateStr = state.selectedDate.toString()
+                
+                val expenseId = state.expenseId ?: localIdGenerator.generateNextLocalId()
                 
                 val expense = Expense(
-                    id = state.expenseId ?: UUID.randomUUID().toString(),
+                    id = expenseId,
                     type = state.selectedType!!,
                     amount = state.amount.toDouble(),
                     date = dateStr,

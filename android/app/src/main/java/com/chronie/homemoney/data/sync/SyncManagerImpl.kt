@@ -166,12 +166,24 @@ class SyncManagerImpl @Inject constructor(
         when (item.operation) {
             "CREATE", "UPDATE" -> {
                 val expenseDto = gson.fromJson(item.data, ExpenseDto::class.java)
-                val response = if (item.operation == "CREATE") {
-                    expenseApi.createExpense(expenseDto)
+                
+                // 对于本地创建的记录（负数ID），上传时使用null作为ID，让服务器生成新ID
+                val uploadDto = if (item.operation == "CREATE") {
+                    expenseDto.copy(id = null)
                 } else {
-                    // 确保 id 不为 null 并转换为 Long
-                    val expenseId = expenseDto.id ?: throw Exception("Expense ID is null for UPDATE operation")
-                    expenseApi.updateExpense(expenseId, expenseDto)
+                    // UPDATE操作时，如果ID是负数（本地ID），说明还未同步，改为CREATE操作
+                    if (expenseDto.id != null && expenseDto.id < 0) {
+                        expenseDto.copy(id = null)
+                    } else {
+                        expenseDto
+                    }
+                }
+                
+                val response = if (item.operation == "CREATE" || (item.operation == "UPDATE" && uploadDto.id == null)) {
+                    expenseApi.createExpense(uploadDto)
+                } else {
+                    val expenseId = uploadDto.id ?: throw Exception("Expense ID is null for UPDATE operation")
+                    expenseApi.updateExpense(expenseId, uploadDto)
                 }
                 
                 if (!response.isSuccessful) {
@@ -182,6 +194,7 @@ class SyncManagerImpl @Inject constructor(
                 val entity = expenseDao.getExpenseById(item.entityId)
                 if (entity != null) {
                     val serverExpense = response.body()?.data
+                    // 保留本地ID，更新serverId和isSynced标志
                     expenseDao.updateExpense(
                         entity.copy(
                             isSynced = true,
@@ -201,6 +214,8 @@ class SyncManagerImpl @Inject constructor(
                         }
                     }
                 }
+                // 删除本地记录
+                expenseDao.deleteExpenseById(item.entityId)
             }
         }
     }
@@ -257,24 +272,41 @@ class SyncManagerImpl @Inject constructor(
                         val serverId = serverExpense.id?.toString() ?: continue
                         serverIds.add(serverId)
                         
-                        // 查找本地是否存在该记录
-                        val localExpense = expenseDao.getExpenseByServerId(serverId)
+                        // 从服务器下载的记录使用服务器的ID（正数）
                         val serverExpenseEntity = ExpenseMapper.toEntity(ExpenseMapper.toDomain(serverExpense)).copy(
+                            id = serverId,
                             serverId = serverId,
                             isSynced = true
                         )
                         
-                        if (localExpense == null) {
+                        // 查找本地是否存在该记录（通过 serverId）
+                        val localExpenseByServerId = expenseDao.getExpenseByServerId(serverId)
+                        
+                        // 查找本地是否存在重复记录（通过内容：日期、金额、类型、备注）
+                        val duplicateExpense = expenseDao.getExpenseByContent(
+                            date = serverExpenseEntity.date,
+                            amount = serverExpenseEntity.amount,
+                            type = serverExpenseEntity.type,
+                            remark = serverExpenseEntity.remark
+                        )
+                        
+                        if (localExpenseByServerId != null) {
+                            // 已存在记录（通过 serverId 匹配），使用 replace 策略更新
+                            val entityToUpdate = serverExpenseEntity.copy(id = localExpenseByServerId.id)
+                            expenseDao.insertExpense(entityToUpdate)
+                            updatedItems++
+                            Log.d(TAG, "Updated expense: $serverId")
+                        } else if (duplicateExpense != null) {
+                            // 发现重复记录（通过内容匹配），删除本地记录并使用服务器记录
+                            Log.d(TAG, "Found duplicate expense, replacing with server record: $serverId (local id: ${duplicateExpense.id})")
+                            expenseDao.deleteExpenseById(duplicateExpense.id)
+                            expenseDao.insertExpense(serverExpenseEntity)
+                            updatedItems++
+                        } else {
                             // 新记录，直接插入
                             expenseDao.insertExpense(serverExpenseEntity)
                             newItems++
                             Log.d(TAG, "Downloaded new expense: $serverId")
-                        } else {
-                            // 已存在记录，使用replace策略更新
-                            val entityToUpdate = serverExpenseEntity.copy(id = localExpense.id)
-                            expenseDao.insertExpense(entityToUpdate) // 使用INSERT REPLACE策略
-                            updatedItems++
-                            Log.d(TAG, "Updated expense: $serverId")
                         }
                     } catch (e: Exception) {
                         Log.e(TAG, "Failed to process server expense", e)

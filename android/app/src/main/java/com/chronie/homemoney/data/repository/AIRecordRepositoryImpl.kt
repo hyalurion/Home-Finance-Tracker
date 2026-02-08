@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import com.chronie.homemoney.core.common.LocalIdGenerator
 import com.chronie.homemoney.data.mapper.AIRecordMapper
 import com.chronie.homemoney.data.remote.api.AIRecordApi
 import com.chronie.homemoney.data.remote.dto.*
@@ -27,6 +28,7 @@ class AIRecordRepositoryImpl @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val aiRecordApi: AIRecordApi,
     private val expenseRepository: ExpenseRepository,
+    private val localIdGenerator: LocalIdGenerator,
     private val gson: Gson
 ) : AIRecordRepository {
     
@@ -146,7 +148,8 @@ class AIRecordRepositoryImpl @Inject constructor(
             
             records.forEach { aiRecord ->
                 if (aiRecord.isValid) {
-                    val expense = aiRecord.toExpense()
+                    val localId = localIdGenerator.generateNextLocalId()
+                    val expense = aiRecord.copy(id = localId).toExpense()
                     expenseRepository.addExpense(expense)
                 }
             }
