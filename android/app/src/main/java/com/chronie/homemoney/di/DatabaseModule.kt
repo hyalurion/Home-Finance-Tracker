@@ -14,8 +14,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import net.sqlcipher.database.SQLiteDatabase
-import net.sqlcipher.database.SupportFactory
+import net.zetetic.database.sqlcipher.SQLiteDatabase
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
+import java.nio.charset.StandardCharsets
 import javax.inject.Singleton
 
 /**
@@ -24,6 +25,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
+    
+    init {
+        System.loadLibrary("sqlcipher")
+    }
     
     private const val DB_PASSPHRASE_KEY = "db_passphrase"
     private const val ENCRYPTED_PREFS_FILE = "secure_prefs"
@@ -55,7 +60,7 @@ object DatabaseModule {
             sharedPreferences.edit().putString(DB_PASSPHRASE_KEY, passphrase).apply()
         }
         
-        return SQLiteDatabase.getBytes(passphrase.toCharArray())
+        return passphrase.toByteArray(StandardCharsets.UTF_8)
     }
     
     /**
@@ -77,8 +82,7 @@ object DatabaseModule {
         @ApplicationContext context: Context,
         passphrase: ByteArray
     ): AppDatabase {
-        // 创建 SQLCipher 支持工厂
-        val factory = SupportFactory(passphrase)
+        val factory = SupportOpenHelperFactory(passphrase)
         
         return Room.databaseBuilder(
             context,
@@ -87,7 +91,7 @@ object DatabaseModule {
         )
             .openHelperFactory(factory)
             .addMigrations(*DatabaseMigrations.getAllMigrations())
-            .fallbackToDestructiveMigration() // 开发阶段使用,生产环境应该移除
+            .fallbackToDestructiveMigration()
             .build()
     }
     
