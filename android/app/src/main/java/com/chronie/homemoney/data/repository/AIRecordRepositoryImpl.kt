@@ -4,13 +4,16 @@ import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
-import com.chronie.homemoney.core.common.LocalIdGenerator
+import com.chronie.homemoney.data.local.dao.ExpenseDao
+import com.chronie.homemoney.data.local.dao.SyncQueueDao
+import com.chronie.homemoney.data.local.entity.ExpenseEntity
+import com.chronie.homemoney.data.local.entity.SyncQueueEntity
 import com.chronie.homemoney.data.mapper.AIRecordMapper
+import com.chronie.homemoney.data.mapper.ExpenseMapper
 import com.chronie.homemoney.data.remote.api.AIRecordApi
 import com.chronie.homemoney.data.remote.dto.*
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.repository.AIRecordRepository
-import com.chronie.homemoney.domain.repository.ExpenseRepository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,8 +30,8 @@ import javax.inject.Singleton
 class AIRecordRepositoryImpl @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val aiRecordApi: AIRecordApi,
-    private val expenseRepository: ExpenseRepository,
-    private val localIdGenerator: LocalIdGenerator,
+    private val expenseDao: ExpenseDao,
+    private val syncQueueDao: SyncQueueDao,
     private val gson: Gson
 ) : AIRecordRepository {
     
@@ -146,15 +149,32 @@ class AIRecordRepositoryImpl @Inject constructor(
         return try {
             Log.d(TAG, "Saving ${records.size} AI records")
             
-            records.forEach { aiRecord ->
-                if (aiRecord.isValid) {
-                    val localId = localIdGenerator.generateNextLocalId()
-                    val expense = aiRecord.copy(id = localId).toExpense()
-                    expenseRepository.addExpense(expense)
-                }
+            val validRecords = records.filter { it.isValid }
+            if (validRecords.isEmpty()) {
+                Log.d(TAG, "No valid records to save")
+                return Result.success(Unit)
             }
             
-            Log.d(TAG, "Successfully saved all records")
+            val maxLocalId = expenseDao.getMaxLocalId()
+            val startId = if (maxLocalId == null) {
+                -1
+            } else {
+                maxLocalId - 1
+            }
+            
+            val expenses = validRecords.mapIndexed { index, aiRecord ->
+                val localId = (startId - index).toString()
+                aiRecord.copy(id = localId).toExpense()
+            }
+            
+            val entities = expenses.map { ExpenseMapper.toEntity(it).copy(isSynced = false) }
+            expenseDao.insertExpenses(entities)
+            
+            entities.forEach { entity ->
+                addToSyncQueue("expense", entity.id, "CREATE", entity)
+            }
+            
+            Log.d(TAG, "Successfully saved all ${validRecords.size} records")
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to save records", e)
@@ -273,5 +293,29 @@ class AIRecordRepositoryImpl @Inject constructor(
         }
         
         Base64.encodeToString(bytes.toByteArray(), Base64.NO_WRAP)
+    }
+    
+    /**
+     * 添加到同步队列
+     */
+    private suspend fun addToSyncQueue(
+        entityType: String,
+        entityId: String,
+        operation: String,
+        data: Any
+    ) {
+        val dto = when (data) {
+            is ExpenseEntity -> ExpenseMapper.toDto(ExpenseMapper.toDomain(data))
+            else -> data
+        }
+        
+        val jsonData = gson.toJson(dto)
+        val syncItem = SyncQueueEntity(
+            entityType = entityType,
+            entityId = entityId,
+            operation = operation,
+            data = jsonData
+        )
+        syncQueueDao.insertSyncItem(syncItem)
     }
 }
