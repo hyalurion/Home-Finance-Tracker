@@ -10,10 +10,10 @@ enum class Language(
 ) {
     ENGLISH("en-US", "English", "English", Locale.US),
     SIMPLIFIED_CHINESE("zh-CN", "Simplified Chinese (Mainland China)", "简体中文（中国大陆）", Locale.SIMPLIFIED_CHINESE),
-    TRADITIONAL_CHINESE_TAIWAN("zh-TW", "Traditional Chinese (Taiwan)", "繁體中文（台灣）", Locale("zh", "TW")),
-    TRADITIONAL_CHINESE_HONG_KONG("zh-HK", "Traditional Chinese (Hong Kong)", "繁體中文（香港）", Locale("zh", "HK")),
-    TRADITIONAL_CHINESE_MACAU("zh-MO", "Traditional Chinese (Macau)", "繁體中文（澳門）", Locale("zh", "MO")),
-    SIMPLIFIED_CHINESE_SINGAPORE("zh-SG", "Simplified Chinese (Singapore)", "简体中文（新加坡）", Locale("zh", "SG"));
+    TRADITIONAL_CHINESE_TAIWAN("zh-TW", "Traditional Chinese (Taiwan)", "繁體中文（台灣）", Locale.Builder().setLanguage("zh").setRegion("TW").build()),
+    TRADITIONAL_CHINESE_HONG_KONG("zh-HK", "Traditional Chinese (Hong Kong)", "繁體中文（香港）", Locale.Builder().setLanguage("zh").setRegion("HK").build()),
+    TRADITIONAL_CHINESE_MACAU("zh-MO", "Traditional Chinese (Macau)", "繁體中文（澳門）", Locale.Builder().setLanguage("zh").setRegion("MO").build()),
+    SIMPLIFIED_CHINESE_SINGAPORE("zh-SG", "Simplified Chinese (Singapore)", "简体中文（新加坡）", Locale.Builder().setLanguage("zh").setRegion("SG").build());
     val displayName: String
         get() = "$englishName / $localName"
 

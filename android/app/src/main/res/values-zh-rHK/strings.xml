@@ -34,8 +34,8 @@
     
     <!-- Currency -->
     <string name="currency_symbol">HK$</string>
-    <string name="currency_format">%s%.2f</string>
-    <string name="currency_format_no_decimal">%s%.0f</string>
+    <string name="currency_format" formatted="false">%s%.2f</string>
+    <string name="currency_format_no_decimal" formatted="false">%s%.0f</string>
     
     <!-- Welcome -->
     <string name="welcome_message">歡迎使用家庭記帳簿</string>

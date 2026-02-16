@@ -24,6 +24,15 @@ def getBuildTime() {
     return String.format("%02d%02d", hour, minute)
 }
 
+def getLocalProperty(String key) {
+    Properties properties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        properties.load(new FileInputStream(localPropertiesFile))
+    }
+    return properties.getProperty(key)
+}
+
 android {
     namespace "com.chronie.homemoney"
     compileSdk rootProject.ext.compileSdkVersion
@@ -58,10 +67,21 @@ android {
         }
     }
     
+    signingConfigs {
+        release {
+            storeFile file(getLocalProperty('RELEASE_STORE_FILE') ?: 'release.keystore')
+            storePassword getLocalProperty('RELEASE_STORE_PASSWORD') ?: ''
+            keyAlias getLocalProperty('RELEASE_KEY_ALIAS') ?: ''
+            keyPassword getLocalProperty('RELEASE_KEY_PASSWORD') ?: ''
+        }
+    }
+    
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     

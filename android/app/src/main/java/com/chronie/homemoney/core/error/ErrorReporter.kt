@@ -49,7 +49,7 @@ class ErrorReporter @Inject constructor(
 
     private val errorQueue = LinkedList<ErrorInfo>()
     private val handler = Handler(Looper.getMainLooper())
-    private val mainThreadId = Looper.getMainLooper().thread.id
+    private val mainThreadId = Looper.getMainLooper().thread.threadId()
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
 
     /**
@@ -61,7 +61,7 @@ class ErrorReporter @Inject constructor(
         
         // 设置自定义的未捕获异常处理器
         Thread.setDefaultUncaughtExceptionHandler(
-            UncaughtExceptionHandler(defaultHandler, this)
+            UncaughtExceptionHandler(defaultHandler ?: Thread.UncaughtExceptionHandler { _, _ -> }, this)
         )
 
         Log.d(TAG, "Error reporter initialized")
@@ -84,7 +84,7 @@ class ErrorReporter @Inject constructor(
             message = "[$tag] $message",
             stackTrace = throwable?.let { getStackTraceString(it) } ?: getCurrentStackTrace(),
             threadName = Thread.currentThread().name,
-            isMainThread = Thread.currentThread().id == mainThreadId,
+            isMainThread = Thread.currentThread().threadId() == mainThreadId,
             timestamp = System.currentTimeMillis(),
             deviceInfo = getDeviceInfo()
         )
@@ -129,12 +129,12 @@ class ErrorReporter @Inject constructor(
             message = "Network error at $endpoint: $errorCode - $message",
             stackTrace = throwable?.let { getStackTraceString(it) } ?: getCurrentStackTrace(),
             threadName = Thread.currentThread().name,
-            isMainThread = Thread.currentThread().id == mainThreadId,
+            isMainThread = Thread.currentThread().threadId() == mainThreadId,
             timestamp = System.currentTimeMillis(),
             deviceInfo = getDeviceInfo(),
             additionalInfo = mapOf(
                 "endpoint" to endpoint,
-                "errorCode" to errorCode.toString() // 保持String类型
+                "errorCode" to errorCode.toString()
             )
         )
 
@@ -259,7 +259,7 @@ class ErrorReporter @Inject constructor(
      * 检查当前是否在主线程
      */
     private fun isMainThread(): Boolean {
-        return Thread.currentThread().id == mainThreadId
+        return Thread.currentThread().threadId() == mainThreadId
     }
 
     /**
@@ -294,7 +294,7 @@ class ErrorReporter @Inject constructor(
                 message = ex.message ?: "Unknown error",
                 stackTrace = Log.getStackTraceString(ex),
                 threadName = thread.name,
-                isMainThread = thread.id == errorReporter.mainThreadId,
+                isMainThread = thread.threadId() == errorReporter.mainThreadId,
                 timestamp = System.currentTimeMillis(),
                 deviceInfo = errorReporter.getDeviceInfo()
             )
