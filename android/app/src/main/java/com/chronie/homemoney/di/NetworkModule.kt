@@ -28,9 +28,9 @@ object NetworkModule {
     
     // 注意：BASE_URL不包含/api/，因为各个API接口会自己添加路径前缀
     private const val BASE_URL = "http://192.168.0.197:3010/"
-    private const val CONNECT_TIMEOUT = 30L
-    private const val READ_TIMEOUT = 30L
-    private const val WRITE_TIMEOUT = 30L
+    private const val CONNECT_TIMEOUT = 5L
+    private const val READ_TIMEOUT = 5L
+    private const val WRITE_TIMEOUT = 5L
     
     @Provides
     @Singleton
