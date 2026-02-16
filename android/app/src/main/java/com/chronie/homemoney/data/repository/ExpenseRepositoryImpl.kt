@@ -19,6 +19,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.time.LocalDate
@@ -57,61 +58,66 @@ class ExpenseRepositoryImpl @Inject constructor(
         filters: ExpenseFilters
     ): Result<List<Expense>> {
         return try {
-            // 优先从服务器获取数据以支持分页
-            try {
-                val response = expenseApi.getExpenses(
-                    page = page,
-                    limit = limit,
-                    keyword = filters.keyword,
-                    type = filters.type?.let { getChineseTypeName(it) },
-                    month = filters.month,
-                    minAmount = filters.minAmount,
-                    maxAmount = filters.maxAmount,
-                    sort = getSortString(filters.sortBy)
-                )
-                
-                if (response.isSuccessful && response.body() != null) {
-                    val apiResponse = response.body()!!
-                    var expenses = apiResponse.data.map { ExpenseMapper.toDomain(it) }
+            val networkTimeoutMillis = 3000L
+            
+            val expenses = try {
+                withTimeout(networkTimeoutMillis) {
+                    val response = expenseApi.getExpenses(
+                        page = page,
+                        limit = limit,
+                        keyword = filters.keyword,
+                        type = filters.type?.let { getChineseTypeName(it) },
+                        month = filters.month,
+                        minAmount = filters.minAmount,
+                        maxAmount = filters.maxAmount,
+                        sort = getSortString(filters.sortBy)
+                    )
                     
-                    // 应用日期筛选（服务器可能不支持这些参数）
-                    if (filters.startDate != null) {
-                        expenses = expenses.filter { LocalDate.parse(it.date) >= filters.startDate }
+                    if (response.isSuccessful && response.body() != null) {
+                        val apiResponse = response.body()!!
+                        var expenses = apiResponse.data.map { ExpenseMapper.toDomain(it) }
+                        
+                        if (filters.startDate != null) {
+                            expenses = expenses.filter { LocalDate.parse(it.date) >= filters.startDate }
+                        }
+                        if (filters.endDate != null) {
+                            expenses = expenses.filter { LocalDate.parse(it.date) <= filters.endDate }
+                        }
+                        
+                        expenses = when (filters.sortBy) {
+                            SortOption.DATE_ASC -> expenses.sortedBy { it.date }
+                            SortOption.DATE_DESC -> expenses.sortedByDescending { it.date }
+                            SortOption.AMOUNT_ASC -> expenses.sortedBy { it.amount }
+                            SortOption.AMOUNT_DESC -> expenses.sortedByDescending { it.amount }
+                        }
+                        
+                        if (page == 1) {
+                            expenses.forEach { expense ->
+                                expenseDao.insertExpense(ExpenseMapper.toEntity(expense))
+                            }
+                        }
+                        
+                        android.util.Log.d("ExpenseRepository", "Filtered expenses from server: ${expenses.size} (startDate=${filters.startDate}, endDate=${filters.endDate})")
+                        Result.success(expenses)
+                    } else {
+                        Result.failure(Exception("Server returned error: ${response.code()}"))
                     }
-                    if (filters.endDate != null) {
-                        expenses = expenses.filter { LocalDate.parse(it.date) <= filters.endDate }
-                    }
-                    
-                    // 重新应用排序（确保日期筛选后保持正确排序）
-                    expenses = when (filters.sortBy) {
-                        SortOption.DATE_ASC -> expenses.sortedBy { it.date }
-                        SortOption.DATE_DESC -> expenses.sortedByDescending { it.date }
-                        SortOption.AMOUNT_ASC -> expenses.sortedBy { it.amount }
-                        SortOption.AMOUNT_DESC -> expenses.sortedByDescending { it.amount }
-                    }
-                    
-                    // 保存到本地数据库（仅第一页时清空旧数据）
-                    if (page == 1) {
-                        // 可选：清空旧数据
-                        // expenseDao.deleteAllExpenses()
-                    }
-                    expenses.forEach { expense ->
-                        expenseDao.insertExpense(ExpenseMapper.toEntity(expense))
-                    }
-                    
-                    android.util.Log.d("ExpenseRepository", "Filtered expenses from server: ${expenses.size} (startDate=${filters.startDate}, endDate=${filters.endDate})")
-                    return Result.success(expenses)
                 }
+            } catch (timeoutException: kotlinx.coroutines.TimeoutCancellationException) {
+                android.util.Log.w("ExpenseRepository", "Network request timeout after ${networkTimeoutMillis}ms, falling back to local data")
+                null
             } catch (networkError: Exception) {
-                // 网络错误时尝试从本地数据库获取
                 android.util.Log.w("ExpenseRepository", "Network error, falling back to local data", networkError)
+                null
             }
             
-            // 如果网络请求失败，从本地数据库获取并应用筛选
+            if (expenses != null) {
+                return expenses
+            }
+            
             val allExpenses = expenseDao.getAllExpenses().first()
             var filteredExpenses = allExpenses.map { ExpenseMapper.toDomain(it) }
             
-            // 应用筛选条件
             if (filters.keyword != null) {
                 filteredExpenses = filteredExpenses.filter { expense ->
                     expense.remark?.contains(filters.keyword, ignoreCase = true) == true ||
@@ -143,7 +149,6 @@ class ExpenseRepositoryImpl @Inject constructor(
                 }
             }
             
-            // 应用排序
             filteredExpenses = when (filters.sortBy) {
                 SortOption.DATE_ASC -> filteredExpenses.sortedBy { it.date }
                 SortOption.DATE_DESC -> filteredExpenses.sortedByDescending { it.date }
@@ -151,7 +156,6 @@ class ExpenseRepositoryImpl @Inject constructor(
                 SortOption.AMOUNT_DESC -> filteredExpenses.sortedByDescending { it.amount }
             }
             
-            // 应用分页
             val startIndex = (page - 1) * limit
             val endIndex = minOf(startIndex + limit, filteredExpenses.size)
             val localExpenses = if (startIndex < filteredExpenses.size) {
@@ -265,22 +269,28 @@ class ExpenseRepositoryImpl @Inject constructor(
     
     override suspend fun getStatistics(filters: ExpenseFilters): Result<ExpenseStatistics> {
         return try {
-            // 优先从服务器获取统计数据
+            val networkTimeoutMillis = 3000L
+            
             try {
-                val response = expenseApi.getStatistics(
-                    keyword = filters.keyword,
-                    type = filters.type?.let { getChineseTypeName(it) },
-                    month = filters.month,
-                    minAmount = filters.minAmount,
-                    maxAmount = filters.maxAmount
-                )
-                
-                if (response.isSuccessful && response.body() != null) {
-                    // 服务器统计可能不支持日期筛选，回退到本地计算
-                    android.util.Log.d("ExpenseRepository", "Server stats available but using local calculation for date filtering")
+                withTimeout(networkTimeoutMillis) {
+                    val response = expenseApi.getStatistics(
+                        keyword = filters.keyword,
+                        type = filters.type?.let { getChineseTypeName(it) },
+                        month = filters.month,
+                        minAmount = filters.minAmount,
+                        maxAmount = filters.maxAmount
+                    )
+                    
+                    if (response.isSuccessful && response.body() != null) {
+                        android.util.Log.d("ExpenseRepository", "Server stats available but using local calculation for date filtering")
+                    } else {
+                        android.util.Log.w("ExpenseRepository", "Server stats returned error: ${response.code()}")
+                    }
                 }
+            } catch (timeoutException: kotlinx.coroutines.TimeoutCancellationException) {
+                android.util.Log.w("ExpenseRepository", "Network request timeout after ${networkTimeoutMillis}ms, using local statistics")
             } catch (networkError: Exception) {
-                android.util.Log.w("ExpenseRepository", "Network error, falling back to local statistics", networkError)
+                android.util.Log.w("ExpenseRepository", "Network error, using local statistics", networkError)
             }
             
             // 从本地数据库计算统计数据
