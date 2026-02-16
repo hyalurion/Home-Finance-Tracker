@@ -1,6 +1,6 @@
 const { ErrorReport, Member, sequelize } = require('../db')
 const { Op } = require('sequelize')
-const logger = console // 可以替换为更高级的日志系统
+const logger = console
 
 /**
  * 接收并保存错误报告
@@ -12,12 +12,13 @@ exports.reportError = async (req, res) => {
       message, 
       stackTrace, 
       deviceInfo, 
-      appVersion, 
+      appVersion,
+      appBuild,
       environment,
-      memberId
+      memberId,
+      additionalInfo
     } = req.body
 
-    // 数据验证
     if (!errorType || !message) {
       return res.status(400).json({
         success: false,
@@ -25,39 +26,40 @@ exports.reportError = async (req, res) => {
       })
     }
 
-    // 创建错误报告记录
     const errorReportData = {
       errorType,
       message,
       stackTrace,
       deviceInfo,
       appVersion,
+      appBuild,
       environment,
       isProcessed: false
     }
 
-    // 如果提供了memberId，则添加到报告中
     if (memberId) {
       errorReportData.memberId = memberId
     }
 
-    // 保存到数据库
+    if (additionalInfo) {
+      errorReportData.deviceInfo = {
+        ...deviceInfo,
+        additionalInfo
+      }
+    }
+
     const errorReport = await ErrorReport.create(errorReportData)
 
-    // 记录日志
     logger.log(`接收到错误报告: ${errorType} - ${message.substring(0, 50)}...`)
 
-    // 返回成功响应
     return res.status(201).json({
       success: true,
       message: '错误报告已成功提交',
       reportId: errorReport.id
     })
   } catch (error) {
-    // 记录处理错误报告时发生的错误
     logger.error('处理错误报告失败:', error)
     
-    // 返回500错误，但不提供详细信息给客户端
     return res.status(500).json({
       success: false,
       message: '服务器处理错误报告时出现问题'
@@ -83,7 +85,6 @@ exports.getErrorReports = async (req, res) => {
     const pageSize = parseInt(limit, 10)
     const offset = (pageNum - 1) * pageSize
 
-    // 构建查询条件
     const where = {}
     
     if (errorType) {
@@ -99,13 +100,11 @@ exports.getErrorReports = async (req, res) => {
     }
     
     if (dateTo) {
-      // 设置为当天的最后一刻
       const endDate = new Date(dateTo)
       endDate.setHours(23, 59, 59, 999)
       where.createdAt = { ...where.createdAt, [Op.lte]: endDate }
     }
 
-    // 查询错误报告
     const { count, rows } = await ErrorReport.findAndCountAll({
       where,
       limit: pageSize,
@@ -120,7 +119,6 @@ exports.getErrorReports = async (req, res) => {
       ]
     })
 
-    // 格式化响应数据
     const reports = rows.map(report => ({
       id: report.id,
       errorType: report.errorType,
@@ -128,6 +126,7 @@ exports.getErrorReports = async (req, res) => {
       stackTrace: report.stackTrace,
       deviceInfo: report.deviceInfo,
       appVersion: report.appVersion,
+      appBuild: report.appBuild,
       environment: report.environment,
       isProcessed: report.isProcessed,
       processedAt: report.processedAt,
@@ -173,7 +172,6 @@ exports.processErrorReport = async (req, res) => {
       })
     }
 
-    // 查找报告
     const errorReport = await ErrorReport.findByPk(reportId)
     
     if (!errorReport) {
@@ -183,7 +181,6 @@ exports.processErrorReport = async (req, res) => {
       })
     }
 
-    // 更新为已处理
     await errorReport.update({
       isProcessed: true,
       processedAt: new Date()
@@ -207,7 +204,6 @@ exports.processErrorReport = async (req, res) => {
  */
 exports.getErrorStats = async (req, res) => {
   try {
-    // 按错误类型统计
     const typeStats = await ErrorReport.findAll({
       attributes: [
         'errorType',
@@ -217,7 +213,6 @@ exports.getErrorStats = async (req, res) => {
       raw: true
     })
 
-    // 按是否处理统计
     const processedStats = await ErrorReport.findAll({
       attributes: [
         'isProcessed',
@@ -227,7 +222,6 @@ exports.getErrorStats = async (req, res) => {
       raw: true
     })
 
-    // 获取最近24小时的错误报告数量
     const last24Hours = new Date()
     last24Hours.setHours(last24Hours.getHours() - 24)
     

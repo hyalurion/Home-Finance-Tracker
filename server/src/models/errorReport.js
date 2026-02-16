@@ -38,7 +38,12 @@ module.exports = (sequelize) => {
     appVersion: {
       type: DataTypes.STRING,
       allowNull: true,
-      comment: '应用版本'
+      comment: '应用版本名称'
+    },
+    appBuild: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: '应用构建版本号'
     },
     environment: {
       type: DataTypes.STRING,
@@ -80,6 +85,10 @@ module.exports = (sequelize) => {
       {
         name: 'idx_error_reports_is_processed',
         fields: ['isProcessed']
+      },
+      {
+        name: 'idx_error_reports_error_type',
+        fields: ['errorType']
       }
     ]
   })

@@ -3,170 +3,146 @@ package com.chronie.homemoney.core.error
 import android.content.Context
 import android.os.Environment
 import android.util.Log
-import androidx.annotation.WorkerThread
 import java.io.File
+import java.io.FileWriter
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.text.SimpleDateFormat
-import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
+import java.util.Date
+import java.util.Locale
 
 /**
  * 日志文件管理器
- * 负责错误日志文件的创建、写入和清理
+ * 负责管理错误日志文件的创建和写入
  */
-@Singleton
-class LogFileManager @Inject constructor(
-    private val context: Context
-) {
+class LogFileManager(private val context: Context) {
 
     companion object {
         private const val TAG = "LogFileManager"
-        private const val LOG_DIR_NAME = "error_logs"
-        private const val LOG_FILE_PREFIX = "error_"
-        private const val LOG_FILE_EXTENSION = ".log"
-        private const val MAX_LOG_FILE_SIZE = 5 * 1024 * 1024L // 5MB
-        private const val MAX_LOG_FILES = 3 // 最多保留3个日志文件
+        private const val CRASH_LOG_DIR = "crash_logs"
     }
 
-    private val logDir: File by lazy {
-        val dir = if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()) {
-            // 优先使用外部存储
-            File(context.getExternalFilesDir(null), LOG_DIR_NAME)
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
+    private val timestampFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+
+    /**
+     * 获取日志目录
+     */
+    fun getLogDir(): File {
+        return if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
+            File(context.getExternalFilesDir(null), CRASH_LOG_DIR)
         } else {
-            // 外部存储不可用，使用内部存储
-            File(context.filesDir, LOG_DIR_NAME)
+            File(context.filesDir, CRASH_LOG_DIR)
         }
-        
-        if (!dir.exists()) {
-            dir.mkdirs()
-        }
-        dir
     }
 
-    private val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-
     /**
-     * 获取当前日志文件
-     * 如果当前日志文件超过大小限制，则创建新文件
+     * 保存崩溃日志到文件
      */
-    private fun getCurrentLogFile(): File {
-        synchronized(this) {
-            // 获取最新的日志文件
-            val logFiles = logDir.listFiles()?.filter {
-                it.name.startsWith(LOG_FILE_PREFIX) && it.name.endsWith(LOG_FILE_EXTENSION)
-            }?.sortedByDescending { it.lastModified() }
-            
-            val currentFile = logFiles?.firstOrNull()
-            
-            if (currentFile != null && currentFile.length() < MAX_LOG_FILE_SIZE) {
-                // 文件存在且未超过大小限制
-                return currentFile
+    fun saveCrashLog(thread: Thread, throwable: Throwable): File? {
+        return try {
+            val logDir = getLogDir()
+            if (!logDir.exists()) {
+                logDir.mkdirs()
             }
-            
-            // 创建新的日志文件
-            val newFileName = LOG_FILE_PREFIX + dateFormat.format(Date()) + LOG_FILE_EXTENSION
-            val newFile = File(logDir, newFileName)
-            
-            // 清理旧的日志文件
-            cleanupOldLogFiles()
-            
-            return newFile
-        }
-    }
 
-    /**
-     * 将错误信息追加到日志文件
-     */
-    @WorkerThread
-    fun appendToLogFile(content: String) {
-        try {
-            val file = getCurrentLogFile()
-            file.appendText(content + "\n\n")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to write to log file", e)
-        }
-    }
+            val logFileName = "crash-${dateFormat.format(Date())}.txt"
+            val logFile = File(logDir, logFileName)
 
-    /**
-     * 清理旧的日志文件
-     * 只保留最新的MAX_LOG_FILES个文件
-     */
-    private fun cleanupOldLogFiles() {
-        try {
-            val logFiles = logDir.listFiles()?.filter {
-                it.name.startsWith(LOG_FILE_PREFIX) && it.name.endsWith(LOG_FILE_EXTENSION)
-            }?.sortedByDescending { it.lastModified() }
-            
-            if (logFiles != null && logFiles.size > MAX_LOG_FILES) {
-                // 删除多余的旧文件
-                for (i in MAX_LOG_FILES until logFiles.size) {
-                    val fileToDelete = logFiles[i]
-                    if (fileToDelete.delete()) {
-                        Log.d(TAG, "Deleted old log file: ${fileToDelete.name}")
-                    } else {
-                        Log.e(TAG, "Failed to delete old log file: ${fileToDelete.name}")
-                    }
-                }
+            FileWriter(logFile).use { fileWriter ->
+                fileWriter.write("Crash Time: ${timestampFormat.format(Date())}\n\n")
+
+                fileWriter.write("Device Information:\n")
+                val deviceInfo = DeviceInfoUtils.getDeviceInfo()
+                fileWriter.write("- OS Version: Android ${deviceInfo["osVersion"]} (API ${deviceInfo["sdkVersion"]})\n")
+                fileWriter.write("- Device: ${deviceInfo["manufacturer"]} ${deviceInfo["deviceModel"]}\n")
+                val appVersion = DeviceInfoUtils.getAppVersion(context)
+                fileWriter.write("- App Version: ${appVersion.versionName} (${appVersion.versionCode})\n\n")
+
+                fileWriter.write("Thread Information:\n")
+                fileWriter.write("- Thread Name: ${thread.name}\n")
+                fileWriter.write("- Thread ID: ${ThreadUtils.getThreadId(thread)}\n\n")
+
+                fileWriter.write("Crash Stack Trace:\n")
+                val stringWriter = StringWriter()
+                val printWriter = PrintWriter(stringWriter)
+                throwable.printStackTrace(printWriter)
+                fileWriter.write(stringWriter.toString())
             }
+
+            Log.d(TAG, "Crash log saved to: ${logFile.absolutePath}")
+            logFile
         } catch (e: Exception) {
-            Log.e(TAG, "Error cleaning up old log files", e)
+            Log.e(TAG, "Failed to save crash log", e)
+            null
         }
     }
 
     /**
-     * 获取所有日志文件的列表
+     * 保存错误信息到日志文件
+     */
+    fun saveErrorLog(errorInfo: ErrorInfo): File? {
+        return try {
+            val logDir = getLogDir()
+            if (!logDir.exists()) {
+                logDir.mkdirs()
+            }
+
+            val logFileName = "error-${dateFormat.format(Date())}.txt"
+            val logFile = File(logDir, logFileName)
+
+            FileWriter(logFile).use { fileWriter ->
+                fileWriter.write(convertErrorInfoToText(errorInfo))
+            }
+
+            Log.d(TAG, "Error log saved to: ${logFile.absolutePath}")
+            logFile
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save error log", e)
+            null
+        }
+    }
+
+    /**
+     * 将错误信息转换为文本格式
+     */
+    private fun convertErrorInfoToText(errorInfo: ErrorInfo): String {
+        val timestampStr = timestampFormat.format(Date(errorInfo.timestamp))
+        val deviceInfoStr = errorInfo.deviceInfo.entries.joinToString(", ") { "${it.key}: ${it.value}" }
+        val additionalInfoStr = errorInfo.additionalInfo?.entries?.joinToString(", ") { "${it.key}: ${it.value}" }
+
+        return "[${timestampStr}] ${errorInfo.errorType}: ${errorInfo.message}\n" +
+               "Thread: ${errorInfo.threadName} (${if (errorInfo.isMainThread) "Main" else "Worker"})\n" +
+               "Device: $deviceInfoStr\n" +
+               (additionalInfoStr?.let { "Additional info: $it\n" } ?: "") +
+               "Stack trace:\n${errorInfo.stackTrace}\n"
+    }
+
+    /**
+     * 获取所有日志文件
      */
     fun getLogFiles(): List<File> {
-        return logDir.listFiles()?.filter {
-            it.name.startsWith(LOG_FILE_PREFIX) && it.name.endsWith(LOG_FILE_EXTENSION)
-        }?.sortedByDescending { it.lastModified() } ?: emptyList()
-    }
-
-    /**
-     * 读取指定日志文件的内容
-     */
-    @WorkerThread
-    fun readLogFile(file: File): String {
-        return try {
-            if (file.exists() && file.length() > 0) {
-                file.readText()
-            } else {
-                ""
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to read log file: ${file.name}", e)
-            ""
+        val logDir = getLogDir()
+        if (!logDir.exists()) {
+            return emptyList()
         }
+        return logDir.listFiles()?.toList() ?: emptyList()
     }
 
     /**
-     * 删除所有日志文件
+     * 清除所有日志文件
      */
-    fun deleteAllLogFiles() {
-        try {
-            val logFiles = getLogFiles()
-            for (file in logFiles) {
-                if (file.delete()) {
-                    Log.d(TAG, "Deleted log file: ${file.name}")
-                } else {
-                    Log.e(TAG, "Failed to delete log file: ${file.name}")
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error deleting all log files", e)
-        }
-    }
-
-    /**
-     * 获取日志文件总大小
-     */
-    fun getTotalLogSize(): Long {
+    fun clearLogFiles(): Boolean {
         return try {
-            val logFiles = getLogFiles()
-            logFiles.sumOf { it.length() }
+            val logDir = getLogDir()
+            if (!logDir.exists()) {
+                return true
+            }
+            logDir.listFiles()?.forEach { it.delete() }
+            true
         } catch (e: Exception) {
-            Log.e(TAG, "Error calculating log size", e)
-            0
+            Log.e(TAG, "Failed to clear log files", e)
+            false
         }
     }
 }

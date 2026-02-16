@@ -35,7 +35,7 @@ data class ErrorReportRequest(
     /**
      * 堆栈跟踪
      */
-    val stackTrace: String,
+    val stackTrace: String? = null,
 
     /**
      * 错误发生的时间戳
@@ -45,17 +45,27 @@ data class ErrorReportRequest(
     /**
      * 设备信息
      */
-    val deviceInfo: Map<String, String>,
+    val deviceInfo: Map<String, String>? = null,
 
     /**
      * 应用版本名称
      */
-    val appVersion: String,
+    val appVersion: String? = null,
 
     /**
      * 应用构建版本号
      */
-    val appBuild: String,
+    val appBuild: String? = null,
+
+    /**
+     * 环境（如：production、development）
+     */
+    val environment: String? = null,
+
+    /**
+     * 会员ID（可选）
+     */
+    val memberId: String? = null,
 
     /**
      * 额外信息（可选）

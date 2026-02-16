@@ -8,15 +8,12 @@ import retrofit2.Response
  */
 class MockErrorReportApi : ErrorReportApi {
     
-    /**
-     * 模拟上报错误信息到服务器
-     * 不实际发送网络请求，仅返回成功响应
-     */
     override suspend fun reportError(request: ErrorReportRequest): Response<Unit> {
-        // 记录错误信息到日志
         println("Mock error report: ${request.errorType} - ${request.message}")
+        println("App Version: ${request.appVersion} (${request.appBuild})")
+        println("Environment: ${request.environment}")
+        println("Device Info: ${request.deviceInfo}")
         
-        // 返回成功响应
         return Response.success(Unit)
     }
 }
