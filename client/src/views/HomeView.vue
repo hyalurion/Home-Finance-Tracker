@@ -360,18 +360,18 @@
   </transition>
 
   <!-- API密钥设置对话框 -->
-  <GlassDialog v-model:visible="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%" :z-index="9999">
+  <GlassDialog v-model:visible="showApiKeyDialog" title="设置硅基流动（SiliconFlow） API密钥" width="50%" :z-index="9999">
     <GlassForm :model="apiKeyForm" ref="apiKeyFormRef">
       <GlassFormItem :label="'API密钥'" prop="apiKey">
         <GlassInput
           v-model="apiKeyForm.apiKey"
-          placeholder="请输入您的SiliconFlow API密钥"
+          placeholder="请输入您的硅基流动（SiliconFlow）API密钥"
           type="password"
           show-password
         ></GlassInput>
       </GlassFormItem>
         <div style="margin-top: 10px; font-size: 12px;">
-          获取API密钥: <a href="https://console.siliconflow.cn/api-keys" target="_blank">https://console.siliconflow.cn/api-keys</a>
+          密钥获取: <a href="https://cloud.siliconflow.cn/me/account/ak" target="_blank">https://cloud.siliconflow.cn/me/account/ak</a>
         </div>
     </GlassForm>
     <template #footer>
