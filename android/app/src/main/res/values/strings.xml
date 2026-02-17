@@ -219,6 +219,7 @@
     <string name="settings_ai_api_key">API Key</string>
     <string name="settings_ai_api_key_hint">Enter API Key</string>
     <string name="settings_ai_api_key_description">For smart receipt scanning</string>
+    <string name="settings_ai_get_api_key">Haven\'t got an API key? Get one here</string>
     <string name="settings_ai_api_key_saved">API Key saved</string>
     <string name="ai_expense_entry_description">Scan receipts or enter text to add expenses</string>
 

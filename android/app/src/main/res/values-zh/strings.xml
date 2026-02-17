@@ -218,6 +218,7 @@
     <string name="settings_ai_api_key">硅基流动API密钥</string>
     <string name="settings_ai_api_key_hint">输入API密钥</string>
     <string name="settings_ai_api_key_description">用于智能识别功能</string>
+    <string name="settings_ai_get_api_key">没有密钥？获取一个</string>
     <string name="settings_ai_api_key_saved">API密钥已保存</string>
     <string name="ai_expense_entry_description">拍照或输入文字快速记账</string>
     

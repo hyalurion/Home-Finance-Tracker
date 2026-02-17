@@ -596,6 +596,29 @@ fun AISettingsSection(
                         placeholder = { Text(context.getString(R.string.settings_ai_api_key_hint)) },
                         singleLine = true
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = context.getString(R.string.settings_ai_get_api_key),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .clickable {
+                                try {
+                                    val intent = Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("https://cloud.siliconflow.cn/me/account/ak")
+                                    )
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    Toast.makeText(
+                                        context,
+                                        "Browser Open Failed: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                    )
                 }
             },
             confirmButton = {

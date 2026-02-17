@@ -218,6 +218,7 @@
     <string name="settings_ai_api_key">SiliconFlow API 金鑰</string>
     <string name="settings_ai_api_key_hint">輸入您的 API 金鑰</string>
     <string name="settings_ai_api_key_description">用於 AI 智慧辨識功能</string>
+    <string name="settings_ai_get_api_key">還沒有 API 金鑰？點擊取得</string>
     <string name="settings_ai_api_key_saved">API 金鑰已儲存</string>
     <string name="ai_expense_entry_description">拍照或輸入文字快速記帳</string>
     
