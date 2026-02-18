@@ -63,9 +63,22 @@ class AIRecordRepositoryImpl @Inject constructor(
             )
             
             val response = aiRecordApi.parseRecord(request)
-            
+
             if (!response.isSuccessful) {
-                throw Exception("API returned error: ${response.code()}")
+                val errorBody = response.errorBody()?.string()
+                val errorMessage = when (response.code()) {
+                    400 -> "请求参数错误 (400): ${errorBody ?: "请检查输入内容"}"
+                    401 -> "API密钥无效或已过期 (401): ${errorBody ?: "请检查API Key设置"}"
+                    403 -> "请求被拒绝 (403): ${errorBody ?: "可能没有权限访问该模型"}"
+                    404 -> "API端点不存在 (404): ${errorBody ?: "请检查API地址配置"}"
+                    429 -> "请求过于频繁 (429): ${errorBody ?: "请稍后再试"}"
+                    500 -> "服务器内部错误 (500): ${errorBody ?: "AI服务暂时不可用"}"
+                    502 -> "网关错误 (502): ${errorBody ?: "服务器维护中"}"
+                    503 -> "服务不可用 (503): ${errorBody ?: "服务器过载或维护中"}"
+                    else -> "HTTP错误 (${response.code()}): ${errorBody ?: "未知错误"}"
+                }
+                Log.e(TAG, "API request failed: $errorMessage")
+                throw Exception(errorMessage)
             }
             
             val content = response.body()?.choices?.firstOrNull()?.message?.content
@@ -127,11 +140,24 @@ class AIRecordRepositoryImpl @Inject constructor(
             )
             
             val response = aiRecordApi.parseRecord(request)
-            
+
             if (!response.isSuccessful) {
-                throw Exception("API returned error: ${response.code()}")
+                val errorBody = response.errorBody()?.string()
+                val errorMessage = when (response.code()) {
+                    400 -> "请求参数错误 (400): ${errorBody ?: "请检查输入内容"}"
+                    401 -> "API密钥无效或已过期 (401): ${errorBody ?: "请检查API Key设置"}"
+                    403 -> "请求被拒绝 (403): ${errorBody ?: "可能没有权限访问该模型"}"
+                    404 -> "API端点不存在 (404): ${errorBody ?: "请检查API地址配置"}"
+                    429 -> "请求过于频繁 (429): ${errorBody ?: "请稍后再试"}"
+                    500 -> "服务器内部错误 (500): ${errorBody ?: "AI服务暂时不可用"}"
+                    502 -> "网关错误 (502): ${errorBody ?: "服务器维护中"}"
+                    503 -> "服务不可用 (503): ${errorBody ?: "服务器过载或维护中"}"
+                    else -> "HTTP错误 (${response.code()}): ${errorBody ?: "未知错误"}"
+                }
+                Log.e(TAG, "API request failed: $errorMessage")
+                throw Exception(errorMessage)
             }
-            
+
             val content = response.body()?.choices?.firstOrNull()?.message?.content
                 ?: throw Exception("Empty response from AI")
             

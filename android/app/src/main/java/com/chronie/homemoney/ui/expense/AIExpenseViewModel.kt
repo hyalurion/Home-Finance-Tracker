@@ -99,10 +99,12 @@ class AIExpenseViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                val errorMessage = e.message ?: "未知错误"
+                android.util.Log.e("AIExpenseViewModel", "Recognition failed: $errorMessage", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = context.getString(R.string.ai_expense_recognition_failed, e.message ?: "")
+                        errorMessage = context.getString(R.string.ai_expense_recognition_failed, errorMessage)
                     )
                 }
             }
