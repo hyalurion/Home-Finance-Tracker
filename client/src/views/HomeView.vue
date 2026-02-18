@@ -1,20 +1,4 @@
 <template>
-  <!-- 全局会员资格检查弹窗 -->
-  <div v-if="showMembershipModal" class="donation-modal-overlay">
-    <div class="donation-modal-content">
-      <h2 class="donation-modal-title">请开通会员<br>Please Activate Membership</h2>
-      <p class="donation-modal-message">为了继续使用完整功能，请开通会员订阅。开通会员后您可以无限制使用所有功能。<br>To continue using all features, please activate a membership subscription. With an active membership, you can enjoy unlimited access to all functionalities.</p>
-      <div class="donation-modal-footer">
-        <GlassButton type="primary" @click="proceedToMembership">
-          开通会员<br>Activate Membership
-        </GlassButton>
-        <GlassButton type="primary" @click="exportMonthData">
-          或者免费导出本月数据图片<br>Or avail yourself of the complimentary exportation for the current month's data schematic
-        </GlassButton>
-      </div>
-    </div>
-  </div>
-
   <div class="container">
     <!-- 主弹窗 -->
     <div v-if="isLoading" class="loading-alert">{{ t('app.loading') }}</div>
@@ -800,15 +784,6 @@ const apiKeyForm = reactive({
   apiKey: localStorage.getItem('siliconflow_api_key') || ''
 });
 
-// 导入会员API
-import { checkMemberStatus } from '@/api/membership';
-
-// 全局会员资格检查弹窗状态
-const showMembershipModal = ref(false);
-const hasActiveMembership = ref(false);
-let membershipCheckTimer = null;
-
-
 // 前往图表页面
 const goToCharts = () => {
   router.push('/charts');
@@ -816,15 +791,6 @@ const goToCharts = () => {
 
 // 前往会员订阅页面
 const goToMembership = () => {
-  router.push('/membership');
-};
-
-// 前往会员订阅页面
-const proceedToMembership = () => {
-  // 保存当前页面作为重定向目标
-  const currentPath = window.location.pathname + window.location.search;
-  localStorage.setItem('redirectAfterMembership', currentPath);
-  // 跳转到会员订阅页面
   router.push('/membership');
 };
 
@@ -929,76 +895,8 @@ const confirmDelete = async () => {
   }
 };
 
-// 检查会员状态
-const checkMembership = async () => {
-  try {
-    console.log(`检查会员状态: username=${username.value}`);
-    
-    // 初始状态：默认不是会员，显示弹窗
-    hasActiveMembership.value = false;
-    showMembershipModal.value = true;
-    
-    // 异步检查实际状态
-    const isActive = await checkMemberStatus(username.value);
-    console.log(`会员状态检查结果: isActive=${isActive}`);
-    hasActiveMembership.value = isActive;
-    
-    // 根据实际状态更新弹窗显示
-    showMembershipModal.value = !hasActiveMembership.value;
-  } catch (error) {
-    console.error('检查会员状态失败:', error);
-    // 出错时保持默认状态（非会员），显示弹窗
-    hasActiveMembership.value = false;
-    showMembershipModal.value = true;
-  }
-};
 
-// 导出本月数据图片
-const exportMonthData = () => {
-  window.open('/photo.html', '_blank');
-};
 
-// 防止用户通过ESC键关闭弹窗
-const preventEscClose = (e) => {
-  if (e.key === 'Escape' && showMembershipModal.value) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-};
-
-// 定期检查会员状态
-const startMembershipCheckInterval = () => {
-  // 清除之前可能存在的定时器
-  if (membershipCheckTimer) {
-    clearInterval(membershipCheckTimer);
-  }
-  
-  // 每5分钟检查一次会员状态
-  membershipCheckTimer = setInterval(async () => {
-    await checkMembership();
-  }, 300000);
-};
-
-// 监听路由变化，确保用户不能绕过会员检查
-const handleRouteChange = () => {
-  if (showMembershipModal.value) {
-    // 除非用户在会员页面或photo.html，否则强制显示弹窗
-    const currentPath = window.location.pathname;
-    if (currentPath !== '/membership' && currentPath !== '/photo.html') {
-      showMembershipModal.value = true;
-    }
-  }
-};
-
-// 组件卸载时清理事件监听器
-onBeforeUnmount(() => {  
-  if (membershipCheckTimer) {
-    clearInterval(membershipCheckTimer);
-  }
-  
-  document.removeEventListener('keydown', preventEscClose);
-  window.removeEventListener('popstate', handleRouteChange);
-});
 
 // 导入处理
 const handleImportSuccess = () => {
@@ -1014,24 +912,18 @@ const handleImportError = (error) => {
 const openAndroidAppStore = () => {
   window.open('https://chronie-app-store.netlify.app/', '_blank');
 };
+
+// 导出本月数据图片
+const exportMonthData = () => {
+  window.open('/photo.html', '_blank');
+};
+
 const markdownContent = ref('');
 const markdownTitle = ref('');
 
 onMounted(async () => {
   // 检测安卓设备
   detectAndroidDevice();
-  
-  // 添加新的事件监听器以强制会员弹窗
-  document.addEventListener('keydown', preventEscClose);
-  
-  // 检查会员状态
-  await checkMembership();
-  
-  // 启动会员状态检查机制
-  startMembershipCheckInterval();
-  
-  // 监听路由变化
-  window.addEventListener('popstate', handleRouteChange);
   
   try {
     await fetchData(false);
@@ -1043,17 +935,6 @@ onMounted(async () => {
 
 // 导入操作日志工具
 import { logUserAction } from '@/utils/operationLogger';
-
-// 清理定时器和事件监听器
-onBeforeUnmount(() => {
-  if (membershipCheckTimer) {
-    clearInterval(membershipCheckTimer);
-  }
-  
-  // 移除强制会员弹窗相关的事件监听器
-  document.removeEventListener('keydown', preventEscClose);
-  window.removeEventListener('popstate', handleRouteChange);
-});
 
 // 对话框相关数据
 const expenseTypes = ['日常用品', '奢侈品', '通讯费用', '食品', '零食糖果', '冷饮', '方便食品', '纺织品', '饮品', '调味品', '交通出行', '餐饮', '医疗费用', '水果', '其他', '水产品', '乳制品', '礼物人情', '旅行度假', '政务', '水电煤气'];
