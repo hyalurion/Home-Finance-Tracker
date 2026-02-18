@@ -81,7 +81,7 @@ export default {
     }
   },
 
-  emits: ['refreshCompleted', 'edit', 'delete'],
+  emits: ['refreshCompleted', 'edit', 'delete', 'data-loaded'],
   
   setup (props, { emit }) {
     const { t, locale } = useI18n(); // 解构出locale响应式对象
@@ -229,6 +229,8 @@ export default {
           totalItems: totalItems.value,
           page: currentPage.value
         });
+        // 通知父组件数据已加载，传递总记录数
+        emit('data-loaded', { total: totalItems.value });
       } catch (error) {
         console.error('获取分页数据失败:', error);
         console.error('Data fetch error details:', { message: error.message, stack: error.stack });

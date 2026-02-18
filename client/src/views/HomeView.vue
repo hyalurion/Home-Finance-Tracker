@@ -82,14 +82,15 @@
     <!-- 月度消费限制显示 -->
     <SpendingLimitDisplay :expenses="Expenses" />
     
-    <ExpenseList 
-      :refresh-trigger="refreshTrigger" 
+    <ExpenseList
+      :refresh-trigger="refreshTrigger"
       @edit="handleEditExpense"
       @delete="handleDeleteExpense"
+      @data-loaded="handleDataLoaded"
     />
     <div :class="['header']"></div>
     <Transition name="button">
-      <div v-if="Expenses.length > 0" class="export-buttons-container">
+      <div v-if="expenseListTotal > 0 || Expenses.length > 0" class="export-buttons-container">
         <div class="export-buttons-group">
           <CustomUpload
             class="upload-excel"
@@ -1016,6 +1017,13 @@ const handleAddRecord = async () => {
 const Expenses = ref([]);
 const isLoading = ref(false);
 const refreshTrigger = ref(0); // 用于触发ExpenseList组件刷新的数据版本号
+const expenseListTotal = ref(0); // ExpenseList组件中的数据总数
+
+// 处理ExpenseList数据加载完成事件
+const handleDataLoaded = (data) => {
+  console.log('ExpenseList data loaded:', data);
+  expenseListTotal.value = data.total || 0;
+};
 
 // 导出功能
 const { exportToExcel } = useExcelExport();
