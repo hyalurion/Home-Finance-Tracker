@@ -514,7 +514,7 @@ import GlassUpload from '@/components/GlassUpload.vue';
 import GlassCheckbox from '@/components/GlassCheckbox.vue';
 
 import axios from 'axios';
-import { ref, computed, onMounted, onBeforeUnmount, reactive } from 'vue';
+import { ref, computed, onMounted, reactive } from 'vue';
 import { marked } from 'marked';
 
 import { useRouter } from 'vue-router';
@@ -2116,6 +2116,7 @@ const refreshPage = () => {
 
 /* 功能组样式 */
 .function-section {
+  margin-top: 75px;
   margin-bottom: 20px;
 }
 

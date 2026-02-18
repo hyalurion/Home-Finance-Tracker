@@ -1,7 +1,8 @@
 <template>
-  <div ref="headerRef" :class="['header']">
+  <div :class="['header']">
     <h1>{{ title }}</h1>
 
+    <div class="header-right">
       <div class="language-buttons">
         <GlassButton
           v-for="lang in languages"
@@ -12,15 +13,15 @@
         >
           {{ lang.shortLabel }}
         </GlassButton>
+      </div>
 
       <div class="header-actions">
-      <!-- 头像显示 -->
-      <div class="user-avatar-container" @click="goToMembership">
-        <img :src="avatarUrl" alt="User Avatar" class="user-avatar" />
-      </div>
+        <!-- 头像显示 -->
+        <div class="user-avatar-container" @click="goToMembership">
+          <img :src="avatarUrl" alt="User Avatar" class="user-avatar" />
+        </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -113,24 +114,6 @@ const fetchUserInfo = async () => {
   }
 };
 
-// 监听滚动事件，添加滚动效果
-const headerRef = ref(null);
-
-const handleScroll = () => {
-  if (headerRef.value) {
-    const shouldBeScrolled = window.scrollY > 50;
-    const isCurrentlyScrolled = headerRef.value.classList.contains('scrolled');
-    
-    if (shouldBeScrolled && !isCurrentlyScrolled) {
-      headerRef.value.classList.add('scrolled');
-      console.log('Header scroll effect activated:', { scrollY: window.scrollY });
-    } else if (!shouldBeScrolled && isCurrentlyScrolled) {
-      headerRef.value.classList.remove('scrolled');
-      console.log('Header scroll effect deactivated:', { scrollY: window.scrollY });
-    }
-  }
-};
-
 // 生命周期钩子
 onMounted(async () => {
   console.log('Header component mounted:', { initialLanguage: currentLang.value });
@@ -150,15 +133,21 @@ onUnmounted(() => {
   display: flex; /* 使用 Flexbox 布局 */
   justify-content: space-between; /* 子元素两端对齐 */
   align-items: center; /* 子元素垂直居中 */
-  padding: 1rem 1.5rem; /* 内边距 */
+  padding: 1rem 2rem; /* 内边距 */
   background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(250,250,250,0.9) 100%); /* 渐变背景 */
   backdrop-filter: blur(10px); /* 毛玻璃效果 */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* 底部阴影 */
-  border-bottom: 1px solid var(#e4e7ed); /* 底部边框 */
-  position: sticky; /* 粘性定位，使其在滚动时保持在顶部 */
+  border-bottom: 1px solid #e4e7ed; /* 底部边框 */
+  width: 95%; /* 宽度95% */
+  max-width: 1200px; /* 最大宽度限制 */
+  margin: 0 auto; /* 水平居中 */
+  position: fixed; /* 固定定位，使其在滚动时保持在顶部 */
   top: 0; /* 距离顶部0 */
+  left: 50%; /* 水平居中定位 */
+  transform: translateX(-50%); /* 水平居中修正 */
   z-index: 100; /* 确保在其他内容之上 */
   transition: all 0.3s ease; /* 所有属性的过渡效果 */
+  box-sizing: border-box; /* 边框盒模型 */
 }
 
 /* 滚动时的效果 */
@@ -172,7 +161,7 @@ onUnmounted(() => {
   font-size: 1.8rem; /* 标题字体大小 */
   color: var(#303133); /* 标题文本颜色 */
   margin: 0; /* 移除默认外边距 */
-  flex-grow: 1; /* 允许标题占据可用空间 */
+  flex-shrink: 0; /* 防止标题被压缩 */
   text-align: left; /* 文本左对齐 */
   font-weight: 600; /* 字体粗细 */
   background: linear-gradient(90deg, #409eff, #7928ca); /* 文本渐变背景 */
@@ -183,13 +172,25 @@ onUnmounted(() => {
   transition: all 0.3s ease; /* 过渡效果 */
   position: relative;
   z-index: 1;
+  white-space: nowrap; /* 防止标题换行 */
+  overflow: hidden;
+  text-overflow: ellipsis; /* 超出显示省略号 */
+  max-width: 50%; /* 最大宽度限制 */
+}
+
+/* 右侧区域容器 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0; /* 防止被压缩 */
 }
 
 /* 头部操作区域 */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 /* 用户头像容器 */
@@ -216,6 +217,7 @@ onUnmounted(() => {
 .language-buttons {
   display: flex; /* 使用 Flexbox 布局 */
   gap: 0.5rem; /* 按钮之间的间距 */
+  flex-wrap: nowrap; /* 不换行 */
 }
 
 /* 语言按钮样式 */
@@ -241,25 +243,48 @@ onUnmounted(() => {
   }
 
   .header h1 {
-    font-size: 1.3rem; /* 减小移动端标题字体大小 */
+    font-size: 1.4rem; /* 减小移动端标题字体大小 */
+    max-width: 40%; /* 减小最大宽度 */
   }
 
-  .earth-icon {
-    font-size: 24px; /* 减小移动端图标大小 */
-    width: 40px;
-    height: 40px;
+  .header-right {
+    gap: 0.5rem;
+  }
+
+  .language-btn {
+    padding: 6px 12px; /* 减小按钮内边距 */
+    font-size: 12px; /* 减小字体大小 */
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
   }
 }
 
 @media (max-width: 480px) {
-  .header h1 {
-    font-size: 1.2rem; /* 进一步减小极小屏幕的标题字体大小 */
+  .header {
+    padding: 0.6rem 0.8rem; /* 进一步减小内边距 */
   }
 
-  /* 移动端下拉菜单宽度调整 */
-  .header {
-    min-width: 200px !important;
-    max-width: 90vw !important;
+  .header h1 {
+    font-size: 1.1rem; /* 进一步减小极小屏幕的标题字体大小 */
+    max-width: 35%;
+  }
+
+  .language-buttons {
+    gap: 0.3rem;
+  }
+
+  .language-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 4px;
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
   }
 }
 
