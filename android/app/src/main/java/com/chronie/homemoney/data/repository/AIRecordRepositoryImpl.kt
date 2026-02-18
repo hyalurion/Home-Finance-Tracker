@@ -37,7 +37,7 @@ class AIRecordRepositoryImpl @Inject constructor(
     
     companion object {
         private const val TAG = "AIRecordRepository"
-        private const val TEXT_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+        private const val TEXT_MODEL = "Qwen/Qwen3-8B"
         private const val IMAGE_MODEL = "THUDM/GLM-4.1V-9B-Thinking"
     }
     
