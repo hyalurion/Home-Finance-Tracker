@@ -538,11 +538,8 @@ import GlassInput from '@/components/GlassInput.vue';
 import CustomUpload from '@/components/CustomUpload.vue';
 
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const router = useRouter();
-
-// 用户名响应式变量 - 必须在所有使用前定义
-const username = ref(localStorage.getItem('username') || '');
 
 // 安卓设备检测
 const isAndroidDevice = ref(false);
@@ -789,11 +786,6 @@ const goToCharts = () => {
   router.push('/charts');
 };
 
-// 前往会员订阅页面
-const goToMembership = () => {
-  router.push('/membership');
-};
-
 // 处理编辑消费记录
 const handleEditExpense = (expense) => {
   console.log('Editing expense:', expense);
@@ -894,9 +886,6 @@ const confirmDelete = async () => {
     errorMessage.value = t('expense.deleteFailed');
   }
 };
-
-
-
 
 // 导入处理
 const handleImportSuccess = () => {
@@ -1012,9 +1001,6 @@ const handleAddRecord = async () => {
       // 表单验证失败，错误信息已经在表单中显示
       return;
     }
-
-    // 处理金额（这里只是再次确认，因为已经在validateForm中验证过）
-    const amountStr = form.amount.toString().replace(',', '.');
 
     // 添加详细日志来跟踪日期
     console.log('用户选择的原始日期:', form.date);

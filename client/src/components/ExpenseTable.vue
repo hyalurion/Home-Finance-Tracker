@@ -713,8 +713,6 @@ export default {
   overflow: hidden;
 }
 
-
-
 .type-tag {
   display: inline-block;
   padding: 4px 10px;
@@ -787,41 +785,16 @@ export default {
   margin: 0 auto;
 }
 
-/* 表格行动画效果 */
+/* 表格翻页渐隐渐入动画效果 */
 .row-fade-enter-active,
 .row-fade-leave-active {
-  transition: all 0.3s ease-out;
-  position: relative;
+  transition: opacity 0.3s ease;
 }
 
-.row-fade-leave-active {
-  transition: all 0.2s ease-in;
-}
-
-.row-fade-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
+.row-fade-enter-from,
 .row-fade-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
-  position: absolute;
-  width: 100%;
-  left: 0;
 }
-
-/* 为每行添加不同的延迟，实现逐行动画 */
-.row-fade-enter-active > [data-index="0"] { transition-delay: 0ms; }
-.row-fade-enter-active > [data-index="1"] { transition-delay: 30ms; }
-.row-fade-enter-active > [data-index="2"] { transition-delay: 60ms; }
-.row-fade-enter-active > [data-index="3"] { transition-delay: 90ms; }
-.row-fade-enter-active > [data-index="4"] { transition-delay: 120ms; }
-.row-fade-enter-active > [data-index="5"] { transition-delay: 150ms; }
-.row-fade-enter-active > [data-index="6"] { transition-delay: 180ms; }
-.row-fade-enter-active > [data-index="7"] { transition-delay: 210ms; }
-.row-fade-enter-active > [data-index="8"] { transition-delay: 240ms; }
-.row-fade-enter-active > [data-index="9"] { transition-delay: 270ms; }
 
 /* 响应式设计 - 小屏幕使用卡片视图 */
 @media (max-width: 768px) {
