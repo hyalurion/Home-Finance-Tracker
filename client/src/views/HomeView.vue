@@ -7,20 +7,6 @@
     <MessageTip v-model:message="errorMessage" type="error" />
 
     <Header :title="$t('app.title')" />
-       <div v-if="isAndroidDevice" class="android-download-section">
-         <GlassButton 
-           type="info" 
-           size="large" 
-           class="android-download-btn"
-           @click="openAndroidAppStore"
-           style="width: 100%;display: flex; justify-content: center; margin-bottom: 20px; white-space: normal; height: auto; line-height: 1.5; padding: 16px;"
-         >
-           <div style="text-align: center;">
-             <div>在应用商店获取安卓版本客户端</div>
-             <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">提升使用体验！</div>
-           </div>
-         </GlassButton>
-       </div>
 
     <!-- 功能组网格布局 -->
     <div class="function-section">
@@ -537,19 +523,8 @@ import GlassButton from '@/components/GlassButton.vue';
 import GlassInput from '@/components/GlassInput.vue';
 import CustomUpload from '@/components/CustomUpload.vue';
 
-
 const { t } = useI18n();
 const router = useRouter();
-
-// 安卓设备检测
-const isAndroidDevice = ref(false);
-
-const detectAndroidDevice = () => {
-  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-  // 检查是否为安卓设备
-  const androidRegex = /Android/i;
-  isAndroidDevice.value = androidRegex.test(userAgent);
-};
 
 // 播放警报声 - 支持循环多秒
 const playAlertSound = (duration = 5) => {
@@ -897,11 +872,6 @@ const handleImportError = (error) => {
   console.error('Import error:', error);
 };
 
-// 打开安卓应用商店
-const openAndroidAppStore = () => {
-  window.open('https://chronie-app-store.netlify.app/', '_blank');
-};
-
 // 导出本月数据图片
 const exportMonthData = () => {
   window.open('/photo.html', '_blank');
@@ -909,18 +879,6 @@ const exportMonthData = () => {
 
 const markdownContent = ref('');
 const markdownTitle = ref('');
-
-onMounted(async () => {
-  // 检测安卓设备
-  detectAndroidDevice();
-  
-  try {
-    await fetchData(false);
-  } catch (err) {
-    console.error('Failed to initialize data:', err);
-    error.value = t('error.dataInitializationFailed');
-  }
-});
 
 // 导入操作日志工具
 import { logUserAction } from '@/utils/operationLogger';
