@@ -3,184 +3,314 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>导出数据图片</title>
-  <!-- 引入Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 引入Font Awesome -->
-  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  
-  <!-- Tailwind CSS 配置 -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            success: '#00B42A',
-          }
-        },
-      }
-    }
-  </script>
-  
+  <title>导出本月数据图片</title>
+
   <!-- 基础样式 -->
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       background-color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      font-family: system-ui, sans-serif;
     }
+
     @media (prefers-color-scheme: dark) {
       body {
         background-color: #1a202c;
       }
     }
+
+    /* 导出按钮样式 */
+    .export-btn {
+      position: relative;
+      background: rgba(255, 255, 255, 0.3);
+      color: #15803d;
+      padding: 1rem 2rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 1.125rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .export-btn:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .export-btn {
+        background: rgba(0, 0, 0, 0.3);
+        color: #4ade80;
+        border-color: rgba(0, 0, 0, 0.2);
+      }
+
+      .export-btn:hover {
+        background: rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    .export-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+      border-radius: 0.75rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .export-btn::before {
+        background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1));
+      }
+    }
+
+    .export-btn .icon {
+      margin-right: 0.5rem;
+      z-index: 10;
+    }
+
+    .export-btn .text {
+      z-index: 10;
+    }
+
+    .export-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* 自定义图标样式 */
+    .icon {
+      display: inline-block;
+      width: 1.2em;
+      height: 1.2em;
+      vertical-align: middle;
+    }
+
+    .icon-download {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2315803d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='7 10 12 15 17 10'/%3E%3Cline x1='12' y1='15' x2='12' y2='3'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .icon-download {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ade80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='7 10 12 15 17 10'/%3E%3Cline x1='12' y1='15' x2='12' y2='3'/%3E%3C/svg%3E");
+      }
+    }
+
+    .icon-check {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ade80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/%3E%3Cpolyline points='22 4 12 14.01 9 11.01'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .icon-times {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f87171' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='15' y1='9' x2='9' y2='15'/%3E%3Cline x1='9' y1='9' x2='15' y2='15'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    /* Toast提示样式 */
+    .toast {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      color: #000;
+      padding: 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      z-index: 50;
+      transform: translateY(5rem);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .toast {
+        background: rgba(0, 0, 0, 0.2);
+        color: #fff;
+        border-color: rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast .icon {
+      margin-right: 0.5rem;
+      font-size: 1.25rem;
+      width: 1.5em;
+      height: 1.5em;
+    }
+
     /* 隐藏canvas元素 */
     #dataCanvas {
       display: none;
     }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body>
   <!-- 导出按钮 -->
-<button id="exportBtn" class="relative bg-white/30 dark:bg-black/30 text-green-700 dark:text-green-400 px-8 py-4 rounded-xl shadow-lg backdrop-blur-md border border-white/20 dark:border-black/20 hover:bg-white/40 dark:hover:bg-black/40 transition-all duration-300 text-lg flex items-center justify-center overflow-hidden">
-  <span class="absolute inset-0 bg-gradient-to-br from-white/40 to-white/10 dark:from-black/40 dark:to-black/10 rounded-xl"></span>
-  <i class="fa fa-download mr-2 z-10"></i>
-  <span class="z-10">导出本月数据图片</span>
-</button>
-  
+  <button id="exportBtn" class="export-btn">
+    <span class="icon icon-download"></span>
+    <span class="text">导出本月数据图片</span>
+  </button>
+
   <!-- 导出成功提示 -->
-  <div id="successToast" class="fixed bottom-4 right-4 bg-white/20 dark:bg-black/20 backdrop-blur-lg text-black dark:text-white p-4 rounded-2xl shadow-2xl border border-white/30 dark:border-black/30 transform transition-all duration-300 translate-y-20 opacity-0 flex items-center z-50">
-    <i class="fa fa-check-circle mr-2 text-xl text-green-400"></i>
+  <div id="successToast" class="toast">
+    <span class="icon icon-check"></span>
     <span>图片导出成功</span>
   </div>
-  
+
   <!-- 导出失败提示 -->
-  <div id="errorToast" class="fixed bottom-4 right-4 bg-white/20 dark:bg-black/20 backdrop-blur-lg text-black dark:text-white p-4 rounded-2xl shadow-2xl border border-white/30 dark:border-black/30 transform transition-all duration-300 translate-y-20 opacity-0 flex items-center z-50">
-    <i class="fa fa-times-circle mr-2 text-xl text-red-400"></i>
+  <div id="errorToast" class="toast">
+    <span class="icon icon-times"></span>
     <span>图片导出失败</span>
   </div>
-  
+
   <!-- Canvas元素用于绘制数据 -->
   <canvas id="dataCanvas"></canvas>
-  
+
   <!-- JavaScript代码 -->
   <script>
     // API基础地址
     const API_BASE_URL = 'http://192.168.0.197:3010/api';
-    
+
     // DOM元素
     const exportBtn = document.getElementById('exportBtn');
     const successToast = document.getElementById('successToast');
     const errorToast = document.getElementById('errorToast');
     const dataCanvas = document.getElementById('dataCanvas');
     const ctx = dataCanvas.getContext('2d');
-    
+
     // 辅助函数：补零
     function padZero(num) {
       return num.toString().padStart(2, '0');
     }
-    
+
     // 显示成功提示
     function showSuccessToast() {
-      successToast.classList.remove('translate-y-20', 'opacity-0');
-      successToast.classList.add('translate-y-0', 'opacity-100');
-      
+      successToast.classList.add('show');
+
       // 3秒后隐藏
       setTimeout(() => {
-        successToast.classList.remove('translate-y-0', 'opacity-100');
-        successToast.classList.add('translate-y-20', 'opacity-0');
+        successToast.classList.remove('show');
       }, 3000);
     }
-    
+
     // 显示错误提示
     function showErrorToast() {
-      errorToast.classList.remove('translate-y-20', 'opacity-0');
-      errorToast.classList.add('translate-y-0', 'opacity-100');
-      
+      errorToast.classList.add('show');
+
       // 3秒后隐藏
       setTimeout(() => {
-        errorToast.classList.remove('translate-y-0', 'opacity-100');
-        errorToast.classList.add('translate-y-20', 'opacity-0');
+        errorToast.classList.remove('show');
       }, 3000);
     }
-    
+
     // 在Canvas上绘制数据文本
     function drawDataOnCanvas(data, currentMonth) {
       // 设置设备像素比和额外缩放因子，显著提高清晰度
       const dpr = window.devicePixelRatio || 1;
       const scaleFactor = 2; // 增加一个额外的缩放因子来提高DPI
       const totalScale = dpr * scaleFactor;
-      
+
       // 设置初始文本样式
       ctx.fillStyle = '#000000';
-      
+
       // 定义列名
       const columns = ['消费类型', '金额(元)', '日期', '备注'];
-      
+
       // 计算每列的最大宽度（自适应）
       function calculateColumnWidths() {
         // 设置标题字体
         ctx.font = 'bold 16px Arial';
-        
+
         // 初始化列宽为列标题的宽度
         const widths = columns.map(col => ctx.measureText(col).width + 30); // 增加边距到30像素
-        
+
         // 设置数据字体
         ctx.font = '14px Arial';
-        
+
         // 遍历所有数据行，更新每列的最大宽度
         data.forEach(item => {
           // 消费类型
           const typeWidth = ctx.measureText(item['消费类型']).width + 30;
           widths[0] = Math.max(widths[0], typeWidth);
-          
+
           // 金额
           const amountWidth = ctx.measureText(item['金额(元)'].toString()).width + 30;
           widths[1] = Math.max(widths[1], amountWidth);
-          
+
           // 日期
           const dateWidth = ctx.measureText(item['日期']).width + 30;
           widths[2] = Math.max(widths[2], dateWidth);
-          
+
           // 备注列至少需要400像素宽度，为长文本提供更多空间
           widths[3] = Math.max(widths[3], 400);
         });
-        
+
         return widths;
       }
-      
+
       // 计算列宽
       const columnWidths = calculateColumnWidths();
-      
+
       // 计算Canvas总宽度（包括左右边距各50像素）
       const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0) + 100;
       // 确保最小宽度
       const width = Math.max(totalWidth, 1000); // 增加最小宽度
-      
+
       // 先计算数据行的实际高度
       let contentHeight = 150; // 初始Y坐标
       const lineHeight = 22;
-      
+
       data.forEach((item) => {
         const remarkText = item['备注'] || '';
         const maxWidth = columnWidths[3];
-        
+
         // 模拟计算备注文本的高度
         let tempLine = '';
         let tempHeight = 0;
-        
+
         for (let i = 0; i < remarkText.length; i++) {
           tempLine += remarkText[i];
           const metrics = ctx.measureText(tempLine);
-          
+
           if (metrics.width > maxWidth) {
             tempHeight += lineHeight;
             tempLine = remarkText[i];
           }
         }
-        
+
         if (tempLine.length > 0) {
           tempHeight += lineHeight;
         }
-        
+
         // 调整行高
         if (tempHeight > lineHeight) {
           contentHeight += tempHeight;
@@ -188,25 +318,25 @@
           contentHeight += 30;
         }
       });
-      
+
       // 根据实际内容计算Canvas高度
       const height = Math.max(400, contentHeight + 100); // 最小高度400像素，加上底部边距
-      
+
       // 设置Canvas大小，使用更高的缩放比例提高DPI
       dataCanvas.width = width * totalScale;
       dataCanvas.height = height * totalScale;
-      
+
       // 调整缩放
       ctx.scale(totalScale, totalScale);
-      
+
       // 设置Canvas显示大小
       dataCanvas.style.width = width + 'px';
       dataCanvas.style.height = height + 'px';
-      
+
       // 绘制书页背景
       ctx.fillStyle = '#f8f5f0'; // 浅米色书页背景
       ctx.fillRect(0, 0, width, height);
-      
+
       // 添加轻微的纸张纹理
       ctx.save();
       ctx.globalAlpha = 0.03;
@@ -218,18 +348,18 @@
         ctx.fillRect(x, y, size, size);
       }
       ctx.restore();
-      
+
       // 设置标题样式
       ctx.fillStyle = '#333333';
       ctx.font = 'bold 24px Arial';
-      
+
       // 绘制标题
-      const title = `${currentMonth}消费数据`;
+      const title = currentMonth + '消费数据';
       const titleWidth = ctx.measureText(title).width;
-      
+
       // 绘制标题（简约风格）
       ctx.fillText(title, (width - titleWidth) / 2, 60);
-      
+
       // 绘制标题下划线
       ctx.strokeStyle = '#e0e0e0';
       ctx.lineWidth = 2;
@@ -237,29 +367,29 @@
       ctx.moveTo((width - titleWidth) / 2 - 20, 70);
       ctx.lineTo((width + titleWidth) / 2 + 20, 70);
       ctx.stroke();
-      
+
       // 绘制表格标题行（简约风格）
       ctx.save();
       ctx.font = 'bold 16px Arial';
       ctx.fillStyle = '#333333';
-      
+
       // 标题行背景
       const headerY = 100;
       const headerHeight = 40;
-      
+
       // 绘制标题行背景
       ctx.fillStyle = '#f0f0f0';
       ctx.fillRect(50, headerY, width - 100, headerHeight);
-      
+
       // 绘制列标题
       ctx.fillStyle = '#333333';
       let x = 50;
-      
+
       for (let i = 0; i < columns.length; i++) {
         ctx.fillText(columns[i], x, headerY + headerHeight * 0.6);
         x += columnWidths[i] + 20;
       }
-      
+
       // 绘制分隔线
       ctx.strokeStyle = '#e0e0e0';
       ctx.lineWidth = 1;
@@ -267,13 +397,13 @@
       ctx.moveTo(50, headerY + headerHeight);
       ctx.lineTo(width - 50, headerY + headerHeight);
       ctx.stroke();
-      
+
       ctx.restore();
-      
+
       // 绘制数据行（简约风格）
       ctx.font = '14px Arial';
       ctx.fillStyle = '#333333';
-      
+
       let y = 150;
       data.forEach((item, index) => {
         // 绘制行背景（奇偶行不同颜色）
@@ -281,15 +411,15 @@
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(50, y - 20, width - 100, 40);
         }
-        
+
         // 绘制数据
         x = 50;
-        
+
         // 消费类型
         ctx.fillStyle = '#333333';
         ctx.fillText(item['消费类型'], x, y);
         x += columnWidths[0] + 20;
-        
+
         // 金额（加粗突出）
         ctx.font = 'bold 14px Arial';
         ctx.fillStyle = '#e74c3c'; // 红色金额
@@ -299,37 +429,37 @@
         ctx.font = '14px Arial';
         ctx.fillStyle = '#333333';
         x += columnWidths[1] + 20;
-        
+
         // 日期
         ctx.fillStyle = '#666666';
         ctx.fillText(item['日期'], x, y);
         ctx.fillStyle = '#333333';
         x += columnWidths[2] + 20;
-        
+
         // 备注（完全重写的换行逻辑，使用字符级别处理）
         const remarkText = item['备注'] || '';
         const maxWidth = columnWidths[3];
         const lineHeight = 22; // 增加行高
         let currentY = y;
-        
+
         // 字符级别的文本换行函数，确保任何长度的文本都能正确换行
         function drawTextWithWrapping(text, x, y, maxWidth) {
           let currentY = y;
           let currentLine = '';
-          
+
           // 遍历每个字符
           for (let i = 0; i < text.length; i++) {
             // 添加当前字符到当前行
             currentLine += text[i];
-            
+
             // 测量当前行的宽度
             const metrics = ctx.measureText(currentLine);
-            
+
             // 如果当前行超过最大宽度
             if (metrics.width > maxWidth) {
               // 找到最近的空格位置进行换行
               const lastSpaceIndex = currentLine.lastIndexOf(' ');
-              
+
               if (lastSpaceIndex > 0) {
                 // 如果找到了空格，在空格处换行
                 ctx.fillText(currentLine.substring(0, lastSpaceIndex), x, currentY);
@@ -346,19 +476,19 @@
               currentY += lineHeight;
             }
           }
-          
+
           // 绘制最后一行
           if (currentLine.length > 0) {
             ctx.fillText(currentLine, x, currentY);
           }
-          
+
           // 返回最后一行的Y坐标
           return currentY;
         }
-        
+
         // 绘制备注文本，确保正确换行
         currentY = drawTextWithWrapping(remarkText, x, y, maxWidth);
-        
+
         // 调整行高
         if (currentY > y) {
           y = currentY + lineHeight;
@@ -366,7 +496,7 @@
           y += 30;
         }
       });
-      
+
       // 绘制底部边框
       ctx.strokeStyle = '#e0e0e0';
       ctx.lineWidth = 1;
@@ -375,50 +505,50 @@
       ctx.lineTo(width - 50, y + 20);
       ctx.stroke();
     }
-    
+
     // 导出Canvas为图片
     function exportCanvasAsImage() {
       // 创建一个临时链接
       const link = document.createElement('a');
-      
+
       // 获取图片数据URL
       const now = new Date();
       const monthStr = `${now.getFullYear()}${padZero(now.getMonth() + 1)}`;
-      const filename = `家庭财务记录_${monthStr}.png`;
-      
+      const filename = `家庭记账本数据导出_${monthStr}.png`;
+
       // 设置下载属性
       link.download = filename;
       link.href = dataCanvas.toDataURL('image/png');
-      
+
       // 触发下载
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
-    
+
     // 处理导出
     async function handleExport() {
       exportBtn.disabled = true;
-      exportBtn.textContent = '生成图片中...';
-      
+      exportBtn.querySelector('.text').textContent = '生成图片中...';
+
       try {
         // 获取当月日期范围
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         const currentMonth = `${now.getFullYear()}年${now.getMonth() + 1}月`;
-        
+
         // 从API获取数据
         const response = await fetch(`${API_BASE_URL}/expenses?limit=10000`, {
           timeout: 10000
         });
-        
+
         if (!response.ok) {
           throw new Error('获取数据失败');
         }
-        
+
         const data = await response.json();
-        
+
         // 过滤当月数据
         const filteredData = Array.isArray(data.data) ? data.data.filter(expense => {
           // 使用date字段替代time字段，保持向后兼容
@@ -426,10 +556,10 @@
           const expenseDate = expense.date || expense.time;
           return new Date(expenseDate) >= startOfMonth && new Date(expenseDate) <= endOfMonth;
         }) : [];
-        
+
         // 按日期排序（从新到旧）
         filteredData.sort((a, b) => new Date(b.date || b.time) - new Date(a.date || a.time));
-        
+
         // 准备导出数据
         const exportData = filteredData.map(expense => ({
           '消费类型': expense.type || '未知类型',
@@ -442,13 +572,13 @@
           }),
           '备注': expense.remark || ''
         }));
-        
+
         // 在Canvas上绘制数据
         drawDataOnCanvas(exportData, currentMonth);
-        
+
         // 导出为图片
         exportCanvasAsImage();
-        
+
         // 显示成功提示
         showSuccessToast();
       } catch (error) {
@@ -458,11 +588,11 @@
         // 重置按钮状态
         setTimeout(() => {
           exportBtn.disabled = false;
-          exportBtn.innerHTML = '<i class="fa fa-download mr-2"></i>导出本月数据图片';
+          exportBtn.querySelector('.text').textContent = '导出本月数据图片';
         }, 1000);
       }
     }
-    
+
     // 绑定事件
     exportBtn.addEventListener('click', handleExport);
   </script>
