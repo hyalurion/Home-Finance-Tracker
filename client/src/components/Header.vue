@@ -117,13 +117,8 @@ const fetchUserInfo = async () => {
 // 生命周期钩子
 onMounted(async () => {
   console.log('Header component mounted:', { initialLanguage: currentLang.value });
-  window.addEventListener('scroll', handleScroll);
   // 从后端获取最新的用户信息和头像
   await fetchUserInfo();
-});
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
 });
 </script>
 
