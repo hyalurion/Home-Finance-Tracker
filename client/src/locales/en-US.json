@@ -182,8 +182,6 @@
   "common.perPage": "per page",
   "common.prev": "Previous",
   "common.next": "Next",
-  "function.support": "About Us",
-  "howToUse.title": "How to Use",
     "feeNoticeTitle": "Payment Fee Notice",
     "feeNoticeContent": "Payment processor may charge up to 10% fee. Amount shown is before fees.",
 
@@ -243,8 +241,7 @@
   "function": {
     "primary": "Main Features",
     "aiFeatures": "AI Features",
-    "other": "Other",
-    "aboutus": "About Us"
+    "other": "Other"
   },
   "avatar": {
     "cropTitle": "Crop Avatar",

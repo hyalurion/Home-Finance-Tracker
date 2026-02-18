@@ -60,8 +60,6 @@
   "expense.enterRemark": "添加备注（可选）",
   "common.confirm": "确认",
   "expense.serverError": "服务器错误",
-  "function.support": "关于我们",
-  "howToUse.title": "使用说明",
   "app": {
     "title": "家庭记账本",
     "statistics": "统计报表",
@@ -83,9 +81,6 @@
     "dailyDescending": "高消费日期",
     "noData": "暂无支出记录",
     "noDataForExport": "暂无数据可导出"
-  },
-  "feedback": {
-    "title": "意见反馈"
   },
   "expense.noRecords": "暂无支出记录",
   "expense.record": "支出记录",
@@ -242,8 +237,7 @@
   "function": {
     "primary": "主要功能",
     "aiFeatures": "AI功能",
-    "other": "其他",
-    "aboutus": "关于我们"
+    "other": "其他"
   },
   "avatar": {
     "cropTitle": "裁剪头像",

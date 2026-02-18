@@ -49,20 +49,6 @@
             </GlassButton>
           </div>
         </GlassCard>
-
-        <!-- 支持与帮助组 -->
-        <GlassCard :title="t('function.support')">
-          <div class="card-content">
-            <GlassButton type="primary" @click="handleFeedback">
-              <template #icon><FontAwesomeIcon icon="envelope" /></template>
-              {{ t('feedback.title') }}
-            </GlassButton>
-            <GlassButton type="primary" @click="goToHowToUse">
-              <template #icon><FontAwesomeIcon icon="question-circle" /></template>
-              {{ t('howToUse.title') }}
-            </GlassButton>
-          </div>
-        </GlassCard>
       </div>
       
       <!-- 手机端按钮显示 -->
@@ -88,18 +74,6 @@
           <GlassButton type="primary" @click="showAiReportDialog = true" size="large" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="file-alt" /></template>
             AI消费问答
-          </GlassButton>
-        </div>
-        
-        <!-- 关于我们组按钮 -->
-        <div v-else-if="selectedFunctionGroup === 'about'" class="mobile-button-group">
-          <GlassButton type="primary" @click="handleFeedback" class="mobile-btn">
-            <template #icon><FontAwesomeIcon icon="envelope" /></template>
-            {{ t('feedback.title') }}
-          </GlassButton>
-          <GlassButton type="primary" @click="goToHowToUse" class="mobile-btn">
-            <template #icon><FontAwesomeIcon icon="question-circle" /></template>
-            使用方法
           </GlassButton>
         </div>
       </div>
@@ -714,8 +688,7 @@ const selectedFunctionGroup = ref('primary');
 // 使用computed属性确保t函数正确初始化后再获取翻译值
 const functionGroups = computed(() => [
   { label: t('function.primary'), value: 'primary' },
-  { label: t('function.aiFeatures'), value: 'ai' },
-  { label: t('function.aboutus'), value: 'about' }
+  { label: t('function.aiFeatures'), value: 'ai' }
 ]);
 const aiForm = reactive({
   text: '',
@@ -1382,22 +1355,6 @@ const checkApiKey = () => {
   return true;
 };
 
-// 处理反馈按钮点击事件
-const handleFeedback = () => {
-  try {
-    const feedbackUrl = 'https://wj.qq.com/s2/24109109/3572/';
-    window.open(feedbackUrl, '_blank');
-  } catch (error) {
-    console.error('打开反馈链接失败:', error);
-    errorMessage.value = '打开反馈链接失败，请重试';
-  }
-};
-
-// 跳转到如何使用页面
-const goToHowToUse = () => {
-  window.open('/how-to-use/how-to-use.html', '_blank');
-};
-
 // Function to force the browser to re-fetch new frontend data
 const refreshPage = () => {
   // Force a full reload to bypass cache and fetch fresh data
@@ -1407,8 +1364,6 @@ const refreshPage = () => {
     window.location.reload(true);
   }
 }
-
-
 </script>
 
 <style scoped>
