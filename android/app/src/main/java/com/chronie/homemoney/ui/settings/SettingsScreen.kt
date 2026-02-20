@@ -18,12 +18,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -59,14 +61,6 @@ fun SettingsScreen(
     val currentLanguage by viewModel.currentLanguage.collectAsState()
     val scrollState = androidx.compose.foundation.rememberScrollState()
 
-    // 登录验证
-    LaunchedEffect(Unit) {
-        val isLoggedIn = viewModel.checkLoginStatusUseCase()
-        if (!isLoggedIn) {
-            onRequireLogin()
-        }
-    }
-    
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -101,7 +95,8 @@ fun SettingsScreen(
                 viewModel = viewModel, 
                 context = context, 
                 onLogout = onLogout,
-                onNavigateToMembership = onNavigateToMembership
+                onNavigateToMembership = onNavigateToMembership,
+                onRequireLogin = onRequireLogin
             )
             
             Spacer(modifier = Modifier.height(32.dp))
@@ -1400,7 +1395,8 @@ fun AccountSection(
     viewModel: SettingsViewModel,
     context: Context,
     onLogout: () -> Unit,
-    onNavigateToMembership: () -> Unit = {}
+    onNavigateToMembership: () -> Unit = {},
+    onRequireLogin: () -> Unit = {}
 ) {
     val currentUsername by viewModel.currentUsername.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -1523,23 +1519,51 @@ fun AccountSection(
         Text(
             text = context.getString(R.string.auth_account_info),
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 12.dp)
         )
-        
-        Surface(
+
+        // 美化后的账户卡片 - 使用渐变背景
+        androidx.compose.material3.Card(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            shape = MaterialTheme.shapes.medium
+            shape = MaterialTheme.shapes.large,
+            colors = androidx.compose.material3.CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            elevation = androidx.compose.material3.CardDefaults.cardElevation(
+                defaultElevation = 2.dp
+            )
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 头像显示区域
-                Box(modifier = Modifier.padding(bottom = 16.dp)) {
-                    // 圆形头像
+                // 吧唧质感头像显示区域
+                Box(
+                    modifier = Modifier.padding(bottom = 20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // 外圈装饰环 - 吧唧质感
+                    Surface(
+                        modifier = Modifier.size(140.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        shadowElevation = 4.dp
+                    ) {}
+
+                    // 中间层 - 金属质感边框
+                    Surface(
+                        modifier = Modifier.size(132.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        border = BorderStroke(
+                            3.dp,
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                        )
+                    ) {}
+
+                    // 头像主体 - 圆形头像
                     Box(
                         modifier = Modifier
                             .size(120.dp)
@@ -1637,62 +1661,62 @@ fun AccountSection(
                                 )
                             }
                         }
-                        
-                        // 上传按钮
-                        Surface(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .align(Alignment.BottomEnd)
-                                .clickable {
-                                    imagePickerLauncher.launch("image/*")
-                                },
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.CameraAlt,
-                                    contentDescription = "Change Avatar",
-                                    modifier = Modifier.size(20.dp),
-                                    tint = MaterialTheme.colorScheme.onPrimary
-                                )
-                            }
-                        }
                     }
                 }
-                
-                // 当前用户
-                Row(
+
+                // 用户名显示 - 美化版
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = context.getString(R.string.auth_current_user),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
                         text = currentUsername ?: context.getString(R.string.auth_not_logged_in),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                    )
+
+                    Text(
+                        text = context.getString(R.string.auth_current_user),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
 
-                if (currentUsername != null) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                    // 退出登录按钮
-                    OutlinedButton(
+                if (currentUsername != null) {
+                    // 退出登录按钮 - 美化版
+                    androidx.compose.material3.FilledTonalButton(
                         onClick = { showLogoutDialog = true },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
+                        colors = androidx.compose.material3.ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
                         )
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.Logout,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(context.getString(R.string.auth_logout_button))
+                    }
+                } else {
+                    // 登录按钮
+                    androidx.compose.material3.Button(
+                        onClick = onRequireLogin,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(context.getString(R.string.auth_login_button))
                     }
                 }
             }

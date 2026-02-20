@@ -42,12 +42,9 @@ fun AddExpenseScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // 登录验证和编辑模式初始化
+    // 编辑模式初始化（不再强制要求登录）
     LaunchedEffect(expenseId) {
-        val isLoggedIn = viewModel.checkLoginStatusUseCase()
-        if (!isLoggedIn) {
-            onRequireLogin()
-        } else if (expenseId != null) {
+        if (expenseId != null) {
             // 如果有expenseId，加载支出记录进行编辑
             viewModel.loadExpenseForEdit(expenseId)
         }

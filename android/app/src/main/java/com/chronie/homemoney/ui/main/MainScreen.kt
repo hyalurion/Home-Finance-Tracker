@@ -44,13 +44,6 @@ fun MainScreen(
     val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
-    // 检查登录状态，未登录则跳转到欢迎页
-    LaunchedEffect(isLoggedIn) {
-        if (!isLoggedIn) {
-            onRequireLogin()
-        }
-    }
-
     // 原生界面（带底部 Tab 栏）
     Box(modifier = Modifier
         .fillMaxSize()

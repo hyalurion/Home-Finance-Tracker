@@ -43,16 +43,7 @@ fun ChartsScreen(
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val selectedTimeRange by viewModel.selectedTimeRange.collectAsState()
-
-    // 登录验证
-    LaunchedEffect(Unit) {
-        val isLoggedIn = viewModel.checkLoginStatusUseCase()
-        if (!isLoggedIn) {
-            onRequireLogin()
-        }
-    }
-    
+    val selectedTimeRange by viewModel.selectedTimeRange.collectAsState()   
     var showTimeRangeDialog by remember { mutableStateOf(false) }
     
     Box(modifier = Modifier.fillMaxSize()) {
