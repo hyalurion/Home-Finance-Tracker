@@ -35,8 +35,6 @@ declare module 'vue' {
     GlassmorphismComponent: typeof import('./src/components/GlassmorphismComponent.vue')['default']
     GlassSlider: typeof import('./src/components/GlassSlider.vue')['default']
     GlassSwitch: typeof import('./src/components/GlassSwitch.vue')['default']
-    GlassTable: typeof import('./src/components/GlassTable.vue')['default']
-    GlassTableColumn: typeof import('./src/components/GlassTableColumn.vue')['default']
     GlassUpload: typeof import('./src/components/GlassUpload.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     MarkdownDialog: typeof import('./src/components/MarkdownDialog.vue')['default']

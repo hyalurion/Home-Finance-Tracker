@@ -294,20 +294,7 @@ router.get('/api', (req, res) => {
           }
         }
       ],
-      payments: [
-        {
-          endpoint: '/api/payments/subscribe',
-          method: 'POST',
-          description: {
-            en: 'Subscription payment',
-            zh: '订阅支付'
-          },
-          usage: {
-            en: 'Process a subscription payment',
-            zh: '处理订阅支付'
-          }
-        }
-      ],
+      payments: [],
       exportImport: [
         {
           endpoint: '/api/export/excel',
@@ -358,77 +345,16 @@ router.get('/api', (req, res) => {
             en: 'Retrieve detailed information about a specific member',
             zh: '获取特定会员的详细信息'
           }
-        },
-        {
-          endpoint: '/api/members/:id/status',
+        },        {
+          endpoint: '/api/members/:username/avatar',
           method: 'PUT',
           description: {
-            en: 'Update member status',
-            zh: '更新会员状态'
+            en: 'Update member avatar',
+            zh: '更新会员头像'
           },
           usage: {
-            en: 'Modify the status of a member',
-            zh: '修改会员状态'
-          }
-        },
-        {
-          endpoint: '/api/members/:username/subscriptions',
-          method: 'GET',
-          description: {
-            en: 'Get member subscriptions',
-            zh: '获取会员订阅'
-          },
-          usage: {
-            en: 'Retrieve all subscriptions for a specific member',
-            zh: '获取特定会员的所有订阅'
-          }
-        },
-        {
-          endpoint: '/api/members/:username/current-subscription',
-          method: 'GET',
-          description: {
-            en: 'Get current subscription',
-            zh: '获取当前订阅'
-          },
-          usage: {
-            en: 'Retrieve the active subscription for a member',
-            zh: '获取会员的活跃订阅'
-          }
-        },
-        {
-          endpoint: '/api/members/:username/subscriptions',
-          method: 'DELETE',
-          description: {
-            en: 'Cancel subscription',
-            zh: '取消订阅'
-          },
-          usage: {
-            en: 'Cancel a member\'s subscription',
-            zh: '取消会员的订阅'
-          }
-        },
-        {
-          endpoint: '/api/subscription-plans',
-          method: 'GET',
-          description: {
-            en: 'Get subscription plans',
-            zh: '获取订阅计划'
-          },
-          usage: {
-            en: 'Retrieve all available subscription plans',
-            zh: '获取所有可用的订阅计划'
-          }
-        },
-        {
-          endpoint: '/api/subscriptions',
-          method: 'POST',
-          description: {
-            en: 'Create subscription',
-            zh: '创建订阅'
-          },
-          usage: {
-            en: 'Create a new subscription for a member',
-            zh: '为会员创建新的订阅'
+            en: 'Update the avatar for a specific member',
+            zh: '更新特定会员的头像'
           }
         }
       ],
@@ -485,8 +411,8 @@ router.get('/api', (req, res) => {
 
     },
     usageGuide: {
-      en: 'This API provides endpoints for managing household finances including expense tracking, subscription handling, and data import/export functionality.',
-      zh: '本API提供了家庭财务管理的各种端点，包括消费记录跟踪、订阅处理和数据导入/导出功能。'
+      en: 'This API provides endpoints for managing household finances including expense tracking, member management, and data import/export functionality.',
+      zh: '本API提供了家庭财务管理的各种端点，包括消费记录跟踪、会员管理和数据导入/导出功能。'
     },
     lastUpdated: new Date().toISOString()
   }

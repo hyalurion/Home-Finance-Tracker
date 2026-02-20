@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3010
 
 // Middlewares
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://192.168.0.197:5173', 'http://192.168.0.197:3200'],
+  origin: ['http://localhost:5173', 'http://192.168.0.197:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -30,7 +30,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 // API Routes
 app.use('/api/expenses', require('./routes/expense'))
 app.use('/api/json-files', require('./routes/jsonFiles'))
-app.use('/api/payments', require('./routes/payment'))
 app.use('/api/members', require('./routes/memberRoutes'))
 app.use('/api', require('./routes/errorReportRoutes'))
 app.use('/api', require('./routes/api'))
@@ -64,59 +63,28 @@ app.use((err, req, res, next) => {
   })
 })
 
-// 初始化订阅计划
-const initSubscriptionPlans = require('./scripts/initSubscriptionPlans')
-// 导入更新过期订阅的函数
-const { updateExpiredSubscriptions } = require('./controllers/subscriptionController')
-
-let subscriptionCheckTimer = null
-
 const startServer = async () => {
   try {
     await syncDatabase()
     // 初始化日志表
     await initLogTable(sequelize)
-    
-    // 初始化订阅计划
-    await initSubscriptionPlans()
-    
-    // 启动时检查一次过期订阅
-    updateExpiredSubscriptions()
-    
-    // 设置定时任务，每小时检查一次过期订阅
-    subscriptionCheckTimer = setInterval(updateExpiredSubscriptions, 60 * 60 * 1000)
-    
+
     const server = http.createServer(app)
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ Server is running on port ${PORT}`)
     })
-    
-    // 服务器关闭事件处理
-    server.on('close', () => {
-      console.log('Server is closing...')
-      // 清除定时任务
-      if (subscriptionCheckTimer) {
-        clearInterval(subscriptionCheckTimer)
-        subscriptionCheckTimer = null
-      }
-    })
-    
+
     // 进程终止信号处理
     const handleShutdown = () => {
       console.log('Received shutdown signal, closing server...')
-      // 清除定时任务
-      if (subscriptionCheckTimer) {
-        clearInterval(subscriptionCheckTimer)
-        subscriptionCheckTimer = null
-      }
-      
+
       // 关闭服务器
       server.close(() => {
         console.log('Server closed gracefully')
         process.exit(0)
       })
     }
-    
+
     // 监听终止信号
     process.on('SIGTERM', handleShutdown)
     process.on('SIGINT', handleShutdown)
