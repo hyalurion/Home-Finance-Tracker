@@ -21,7 +21,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.expense.ExpenseListScreen
 import com.chronie.homemoney.ui.settings.SettingsScreen
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +47,7 @@ fun MainScreen(
     // 原生界面（带底部 Tab 栏）
     Box(modifier = Modifier
         .fillMaxSize()
-        .windowInsetsPadding(WindowInsets.systemBars)) {
+        .windowInsetsPadding(WindowInsets.safeDrawing)) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
