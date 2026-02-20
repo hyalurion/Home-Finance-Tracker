@@ -23,6 +23,13 @@ fun WelcomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val username by viewModel.username.collectAsState()
 
+    // 监听跳过登录事件
+    LaunchedEffect(Unit) {
+        viewModel.skipLoginEvent.collect {
+            onGetStartedClick()
+        }
+    }
+
     LaunchedEffect(uiState) {
         if (uiState is WelcomeUiState.Error) {
             // 错误会在UI中显示，3秒后自动清除

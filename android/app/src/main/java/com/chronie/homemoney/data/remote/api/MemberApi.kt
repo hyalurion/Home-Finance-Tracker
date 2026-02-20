@@ -9,6 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import com.google.gson.annotations.SerializedName
 
 interface MemberApi {
     @GET("api/health/lite")
@@ -25,5 +26,6 @@ interface MemberApi {
 }
 
 data class AvatarUpdateRequest(
+    @SerializedName("avatar")
     val avatar: String
 )

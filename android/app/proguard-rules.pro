@@ -67,3 +67,30 @@
 -dontwarn org.osgi.framework.FrameworkUtil
 -dontwarn org.osgi.framework.ServiceReference
 -dontwarn org.osgi.framework.wiring.BundleRevision
+
+# Retrofit and DTO classes
+-keep class com.chronie.homemoney.data.remote.dto.** { *; }
+-keep class com.chronie.homemoney.data.remote.api.** { *; }
+-keep class com.chronie.homemoney.domain.model.** { *; }
+
+# Retrofit
+-keepattributes Signature
+-keepattributes Exceptions
+-keepattributes *Annotation*
+-keep class retrofit2.** { *; }
+-keepclasseswithmembers class * {
+    @retrofit2.http.* <methods>;
+}
+
+# Gson
+-keep class com.google.gson.** { *; }
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken { *; }
+
+# Kotlin Serialization
+-keep class kotlinx.serialization.** { *; }
+-keepclassmembers class * {
+    @kotlinx.serialization.* <fields>;
+}
