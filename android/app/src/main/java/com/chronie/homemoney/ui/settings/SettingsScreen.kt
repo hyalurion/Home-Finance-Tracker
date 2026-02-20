@@ -105,19 +105,12 @@ fun SettingsScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            Text(
-                text = context.getString(R.string.select_language),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
+            // 语言选择下拉菜单
+            LanguageDropdownSelector(
+                currentLanguage = currentLanguage,
+                onLanguageSelected = { viewModel.setLanguage(it) },
+                context = context
             )
-
-            Language.values().forEach { language ->
-                LanguageItem(
-                    language = language,
-                    isSelected = language == currentLanguage,
-                    onClick = { viewModel.setLanguage(language) }
-                )
-            }
             
             Spacer(modifier = Modifier.height(32.dp))
             
@@ -455,6 +448,71 @@ fun AppVersionInfo(context: Context) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LanguageDropdownSelector(
+    currentLanguage: Language,
+    onLanguageSelected: (Language) -> Unit,
+    context: Context
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it }
+    ) {
+        OutlinedTextField(
+            value = currentLanguage.localName,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(context.getString(R.string.select_language)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            Language.values().forEach { language ->
+                DropdownMenuItem(
+                    text = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = language.englishName,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    text = language.localName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            if (language == currentLanguage) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    },
+                    onClick = {
+                        onLanguageSelected(language)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun LanguageItem(
