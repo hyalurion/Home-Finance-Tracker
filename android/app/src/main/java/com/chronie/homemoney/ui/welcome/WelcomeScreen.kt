@@ -65,6 +65,7 @@ fun WelcomeScreen(
                     username = username,
                     onUsernameChange = viewModel::onUsernameChange,
                     onLoginClick = viewModel::login,
+                    onSkipLogin = { viewModel.skipLogin() },
                     context = context
                 )
             }
@@ -85,14 +86,7 @@ fun WelcomeScreen(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
-                    onClick = {
-                        // 根据会员状态决定导航目标
-                        if (state.isMember) {
-                            onGetStartedClick()
-                        } else {
-                            onNavigateToMembership()
-                        }
-                    },
+                    onClick = onGetStartedClick,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(context.getString(R.string.getting_started))
@@ -111,6 +105,7 @@ fun WelcomeScreen(
                     username = username,
                     onUsernameChange = viewModel::onUsernameChange,
                     onLoginClick = viewModel::login,
+                    onSkipLogin = { viewModel.skipLogin() },
                     context = context
                 )
             }
@@ -123,6 +118,7 @@ private fun LoginForm(
     username: String,
     onUsernameChange: (String) -> Unit,
     onLoginClick: () -> Unit,
+    onSkipLogin: () -> Unit,
     context: Context
 ) {
     OutlinedTextField(
@@ -142,6 +138,16 @@ private fun LoginForm(
         enabled = username.isNotBlank()
     ) {
         Text(context.getString(R.string.auth_login_button))
+    }
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    // 跳过登录按钮
+    TextButton(
+        onClick = onSkipLogin,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(context.getString(R.string.auth_skip_login))
     }
 
     Spacer(modifier = Modifier.height(8.dp))

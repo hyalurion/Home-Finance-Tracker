@@ -18,8 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseType
-import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
-import com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.CircularIconButton
 import androidx.compose.ui.platform.LocalContext
@@ -39,26 +37,19 @@ fun AddExpenseScreen(
     viewModel: AddExpenseViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit,
     onNavigateToAI: () -> Unit = {},
-    onRequireLogin: () -> Unit = {},
-    onRequireMembership: () -> Unit = {}
+    onRequireLogin: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // 会员验证和编辑模式初始化
+    // 登录验证和编辑模式初始化
     LaunchedEffect(expenseId) {
         val isLoggedIn = viewModel.checkLoginStatusUseCase()
-        val isMember = viewModel.checkMembershipUseCase()
-
-        when {
-            !isLoggedIn -> onRequireLogin()
-            !isMember -> onRequireMembership()
-            else -> {
-                // 如果有expenseId，加载支出记录进行编辑
-                if (expenseId != null) {
-                    viewModel.loadExpenseForEdit(expenseId)
-                }
-            }
+        if (!isLoggedIn) {
+            onRequireLogin()
+        } else if (expenseId != null) {
+            // 如果有expenseId，加载支出记录进行编辑
+            viewModel.loadExpenseForEdit(expenseId)
         }
     }
 

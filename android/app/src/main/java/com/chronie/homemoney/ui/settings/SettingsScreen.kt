@@ -54,20 +54,16 @@ fun SettingsScreen(
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToMembership: () -> Unit = {},
     onLogout: () -> Unit = {},
-    onRequireLogin: () -> Unit = {},
-    onRequireMembership: () -> Unit = {}
+    onRequireLogin: () -> Unit = {}
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
     val scrollState = androidx.compose.foundation.rememberScrollState()
-    
-    // 会员验证
+
+    // 登录验证
     LaunchedEffect(Unit) {
         val isLoggedIn = viewModel.checkLoginStatusUseCase()
-        val isMember = viewModel.checkMembershipUseCase()
-        
-        when {
-            !isLoggedIn -> onRequireLogin()
-            !isMember -> onRequireMembership()
+        if (!isLoggedIn) {
+            onRequireLogin()
         }
     }
     
@@ -1407,19 +1403,16 @@ fun AccountSection(
     onNavigateToMembership: () -> Unit = {}
 ) {
     val currentUsername by viewModel.currentUsername.collectAsState()
-    val membershipStatus by viewModel.membershipStatus.collectAsState()
-    val membershipLoading by viewModel.membershipLoading.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
-    
+
     // 监听退出登录事件
     LaunchedEffect(Unit) {
         viewModel.logoutEvent.collect {
             onLogout()
         }
     }
-    
+
     // 头像相关状态
-    var showImagePicker by remember { mutableStateOf(false) }
     val avatar by viewModel.avatar.collectAsState()
     val avatarLoading by viewModel.avatarLoading.collectAsState()
     // 保存解码后的Bitmap，用于AsyncImage加载失败时的后备显示
@@ -1687,129 +1680,10 @@ fun AccountSection(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                
-                // 会员状态
+
                 if (currentUsername != null) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Divider()
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = context.getString(R.string.membership_status),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        
-                        if (membershipLoading) {
-                            ExpressiveLoadingIndicator(size = 16.dp, containerVisible = false)
-                        } else {
-                            Text(
-                                text = if (membershipStatus?.isActive == true) {
-                                    context.getString(R.string.membership_active)
-                                } else {
-                                    context.getString(R.string.membership_inactive)
-                                },
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = if (membershipStatus?.isActive == true) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.error
-                                }
-                            )
-                        }
-                    }
-                    
-                    // 会员计划
-                    if (membershipStatus?.planName != null) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = context.getString(R.string.membership_plan),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = membershipStatus?.planName ?: "",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                    
-                    // 到期时间
-                    val status = membershipStatus
-                    val endDateMillis = status?.endDate
-                    if (endDateMillis != null) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = context.getString(R.string.membership_expires_on),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            val endDate = java.time.Instant.ofEpochMilli(endDateMillis)
-                                .atZone(java.time.ZoneId.systemDefault())
-                                .toLocalDate()
-                            val dateString = endDate.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
-                            Text(
-                                text = formatDateByLocale(dateString, context.resources.configuration.locale.toLanguageTag()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                    
                     Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // 会员管理/续费按钮
-                    Button(
-                        onClick = {
-                            android.util.Log.d("SettingsScreen", "管理订阅按钮被点击")
-                            android.util.Log.d("SettingsScreen", "会员状态: ${membershipStatus?.isActive}")
-                            android.util.Log.d("SettingsScreen", "调用 onNavigateToMembership")
-                            onNavigateToMembership()
-                            android.util.Log.d("SettingsScreen", "onNavigateToMembership 调用完成")
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = if (membershipStatus?.isActive == true) {
-                                context.getString(R.string.membership_manage)
-                            } else {
-                                context.getString(R.string.membership_subscribe_now)
-                            }
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // 刷新会员状态按钮
-                    OutlinedButton(
-                        onClick = { viewModel.refreshMembershipStatus() },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !membershipLoading
-                    ) {
-                        if (membershipLoading) {
-                            ExpressiveLoadingIndicator(size = 20.dp, containerVisible = false)
-                            Spacer(modifier = Modifier.width(8.dp))
-                        }
-                        Text(context.getString(R.string.membership_refresh))
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     // 退出登录按钮
                     OutlinedButton(
                         onClick = { showLogoutDialog = true },

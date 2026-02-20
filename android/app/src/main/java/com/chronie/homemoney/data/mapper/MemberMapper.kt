@@ -14,7 +14,6 @@ object MemberMapper {
         return Member(
             id = dto.id,
             username = dto.username,
-            isActive = dto.isActive,
             createdAt = parseDate(dto.createdAt),
             updatedAt = parseDate(dto.updatedAt),
             avatar = dto.avatar

@@ -30,9 +30,7 @@ class SettingsViewModel @Inject constructor(
     private val exportExpensesUseCase: ExportExpensesUseCase,
     private val importExpensesUseCase: ImportExpensesUseCase,
     val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase,
-    val checkMembershipUseCase: com.chronie.homemoney.domain.usecase.CheckMembershipUseCase,
     private val logoutUseCase: com.chronie.homemoney.domain.usecase.LogoutUseCase,
-    private val getMembershipStatusUseCase: com.chronie.homemoney.domain.usecase.GetMembershipStatusUseCase,
     private val memberRepository: com.chronie.homemoney.domain.repository.MemberRepository,
     private val preferencesManager: com.chronie.homemoney.data.local.PreferencesManager,
     @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
@@ -51,45 +49,39 @@ class SettingsViewModel @Inject constructor(
     val paletteStyle: StateFlow<PaletteStyle> = _paletteStyle.asStateFlow()
 
     val currentLanguage: StateFlow<Language> = languageManager.currentLanguage
-    
+
     val isDeveloperMode: Flow<Boolean> = developerMode.isDeveloperModeEnabled
-    
+
     private val _aiApiKey = MutableStateFlow("")
     val aiApiKey: StateFlow<String> = _aiApiKey.asStateFlow()
-    
+
     val syncStatus: StateFlow<SyncStatus> = syncManager.observeSyncStatus()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = SyncStatus.IDLE
         )
-    
+
     private val _lastSyncTime = MutableStateFlow<String?>(null)
     val lastSyncTime: StateFlow<String?> = _lastSyncTime.asStateFlow()
-    
+
     private val _pendingSyncCount = MutableStateFlow(0)
     val pendingSyncCount: StateFlow<Int> = _pendingSyncCount.asStateFlow()
-    
+
     private val _syncMessage = MutableStateFlow<String?>(null)
     val syncMessage: StateFlow<String?> = _syncMessage.asStateFlow()
-    
+
     private val _exportInProgress = MutableStateFlow(false)
     val exportInProgress: StateFlow<Boolean> = _exportInProgress.asStateFlow()
-    
+
     private val _importInProgress = MutableStateFlow(false)
     val importInProgress: StateFlow<Boolean> = _importInProgress.asStateFlow()
-    
+
     private val _currentUsername = MutableStateFlow<String?>(null)
     val currentUsername: StateFlow<String?> = _currentUsername.asStateFlow()
-    
+
     private val _logoutEvent = MutableSharedFlow<Unit>()
     val logoutEvent: SharedFlow<Unit> = _logoutEvent.asSharedFlow()
-    
-    private val _membershipStatus = MutableStateFlow<com.chronie.homemoney.domain.model.SubscriptionStatus?>(null)
-    val membershipStatus: StateFlow<com.chronie.homemoney.domain.model.SubscriptionStatus?> = _membershipStatus.asStateFlow()
-    
-    private val _membershipLoading = MutableStateFlow(false)
-    val membershipLoading: StateFlow<Boolean> = _membershipLoading.asStateFlow()
 
     // 头像状态
     private val _avatar = MutableStateFlow<String?>(null)
@@ -102,11 +94,10 @@ class SettingsViewModel @Inject constructor(
         loadSyncInfo()
         loadAIApiKey()
         loadCurrentUser()
-        loadMembershipStatus()
         loadDynamicColorSettings()
         loadAvatar()
     }
-    
+
     private fun loadCurrentUser() {
         viewModelScope.launch {
             _currentUsername.value = checkLoginStatusUseCase.getUsername()
@@ -118,7 +109,7 @@ class SettingsViewModel @Inject constructor(
             // 首先从本地加载头像
             val localAvatar = preferencesManager.getAvatar()
             _avatar.value = localAvatar
-            
+
             // 然后尝试从后端获取最新头像
             fetchAvatarFromBackend()
         }
@@ -159,7 +150,7 @@ class SettingsViewModel @Inject constructor(
                 _avatar.value = avatarData
                 preferencesManager.saveAvatar(avatarData)
                 android.util.Log.d("SettingsViewModel", "Avatar saved locally")
-                
+
                 // 更新后端头像
                 val username = checkLoginStatusUseCase.getUsername()
                 if (username.isNullOrEmpty()) {
@@ -184,53 +175,11 @@ class SettingsViewModel @Inject constructor(
             }
         }
     }
-    
-    private fun loadMembershipStatus() {
-        viewModelScope.launch {
-            val username = checkLoginStatusUseCase.getUsername()
-            if (username != null) {
-                _membershipLoading.value = true
-                try {
-                    val result = getMembershipStatusUseCase(username, forceRefresh = false)
-                    if (result.isSuccess) {
-                        _membershipStatus.value = result.getOrNull()
-                    }
-                } catch (e: Exception) {
-                    android.util.Log.e("SettingsViewModel", "Failed to load membership status", e)
-                } finally {
-                    _membershipLoading.value = false
-                }
-            }
-        }
-    }
-    
-    fun refreshMembershipStatus() {
-        viewModelScope.launch {
-            val username = checkLoginStatusUseCase.getUsername()
-            if (username != null) {
-                _membershipLoading.value = true
-                try {
-                    val result = getMembershipStatusUseCase(username, forceRefresh = true)
-                    if (result.isSuccess) {
-                        _membershipStatus.value = result.getOrNull()
-                        _syncMessage.value = context.getString(R.string.membership_status_refreshed)
-                    } else {
-                        _syncMessage.value = context.getString(R.string.membership_status_refresh_failed)
-                    }
-                } catch (e: Exception) {
-                    _syncMessage.value = context.getString(R.string.membership_status_refresh_failed)
-                } finally {
-                    _membershipLoading.value = false
-                }
-            }
-        }
-    }
-    
+
     fun logout() {
         viewModelScope.launch {
             logoutUseCase()
             _currentUsername.value = null
-            _membershipStatus.value = null
             _avatar.value = null
             preferencesManager.clearAvatar()
             _logoutEvent.emit(Unit)
@@ -240,19 +189,19 @@ class SettingsViewModel @Inject constructor(
     fun setLanguage(language: Language) {
         languageManager.setLanguage(language)
     }
-    
+
     fun toggleDeveloperMode() {
         viewModelScope.launch {
             developerMode.toggleDeveloperMode()
         }
     }
-    
+
     fun manualSync() {
         viewModelScope.launch {
             try {
                 _syncMessage.value = null
                 val result = syncScheduler.manualSync()
-                
+
                 if (result.isSuccess) {
                     val syncResult = result.getOrNull()
                     if (syncResult?.success == true) {
@@ -269,52 +218,52 @@ class SettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun clearSyncMessage() {
         _syncMessage.value = null
     }
-    
+
     fun searchDevices(connectionType: String): Flow<com.chronie.homemoney.domain.sync.DeviceInfo> {
         return syncManager.getDeviceSyncManager(connectionType).searchDevices()
     }
-    
+
     fun deviceSync(connectionType: String, deviceInfo: com.chronie.homemoney.domain.sync.DeviceInfo) {
         viewModelScope.launch {
             try {
                 _syncMessage.value = null
-                
+
                 // 根据连接类型创建设备同步管理器
                 val deviceSyncManager = syncManager.getDeviceSyncManager(connectionType)
-                
+
                 // 尝试连接设备
                 _syncMessage.value = context.getString(R.string.device_sync_connecting, deviceInfo.deviceName)
                 val connected = deviceSyncManager.connect(deviceInfo)
-                
+
                 if (!connected) {
                     _syncMessage.value = context.getString(R.string.device_sync_connect_failed)
                     return@launch
                 }
-                
+
                 // 执行同步
                 _syncMessage.value = context.getString(R.string.device_sync_synchronizing)
                 val syncResult = deviceSyncManager.syncWithDevice(deviceInfo)
-                
+
                 if (syncResult.success) {
                     _syncMessage.value = context.getString(R.string.device_sync_success)
                     loadSyncInfo()
                 } else {
                     _syncMessage.value = context.getString(R.string.device_sync_failed, syncResult.error)
                 }
-                
+
                 // 断开连接
                 deviceSyncManager.disconnect()
-                
+
             } catch (e: Exception) {
                 _syncMessage.value = context.getString(R.string.device_sync_failed, e.message)
             }
         }
     }
-    
+
     fun setAIApiKey(apiKey: String) {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("ai_settings", android.content.Context.MODE_PRIVATE)
@@ -323,14 +272,14 @@ class SettingsViewModel @Inject constructor(
             _syncMessage.value = context.getString(R.string.settings_ai_api_key_saved)
         }
     }
-    
+
     private fun loadAIApiKey() {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("ai_settings", android.content.Context.MODE_PRIVATE)
             _aiApiKey.value = prefs.getString("siliconflow_api_key", "") ?: ""
         }
     }
-    
+
     private fun loadSyncInfo() {
         viewModelScope.launch {
             // 加载最后同步时间
@@ -340,7 +289,7 @@ class SettingsViewModel @Inject constructor(
             } else {
                 null
             }
-            
+
             // 加载待同步项数量
             _pendingSyncCount.value = syncManager.getPendingSyncCount()
         }
@@ -377,20 +326,20 @@ class SettingsViewModel @Inject constructor(
             _syncMessage.value = context.getString(R.string.primary_color_updated)
         }
     }
-    
+
     private fun formatTimestamp(timestamp: Long): String {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return sdf.format(Date(timestamp))
     }
-    
+
     fun exportExpenses(startDate: LocalDate? = null, endDate: LocalDate? = null) {
         viewModelScope.launch {
             try {
                 _exportInProgress.value = true
                 _syncMessage.value = context.getString(R.string.export_in_progress)
-                
+
                 val result = exportExpensesUseCase(startDate, endDate)
-                
+
                 if (result.isSuccess) {
                     val filePath = result.getOrNull()
                     _syncMessage.value = context.getString(R.string.export_success, filePath)
@@ -407,22 +356,22 @@ class SettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun importExpenses(uri: Uri) {
         viewModelScope.launch {
             try {
                 _importInProgress.value = true
                 _syncMessage.value = context.getString(R.string.import_in_progress)
-                
+
                 val result = importExpensesUseCase(uri)
-                
+
                 if (result.isSuccess) {
                     val importResult = result.getOrNull()!!
                     _syncMessage.value = context.getString(
                         R.string.import_success,
                         importResult.successCount
                     )
-                    
+
                     // 如果有失败的记录，显示错误信息
                     if (importResult.failedCount > 0) {
                         android.util.Log.w("ImportExpenses", "Failed to import ${importResult.failedCount} records")

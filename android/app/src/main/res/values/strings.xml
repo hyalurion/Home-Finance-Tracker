@@ -339,54 +339,10 @@
     <string name="auth_account_info">Account</string>
     <string name="auth_logout_confirm_title">Logout</string>
     <string name="auth_logout_confirm_message">Are you sure you want to logout?</string>
-    
-    <!-- Membership -->
-    <string name="membership_title">Membership</string>
-    <string name="membership_status">Membership Status</string>
-    <string name="membership_active">Active</string>
-    <string name="membership_inactive">Inactive</string>
-    <string name="membership_expired">Expired</string>
-    <string name="membership_expired_message">Your membership has expired. Please renew to continue using all features.</string>
-    <string name="membership_plan">Current Plan</string>
-    <string name="membership_expires_on">Expires On</string>
-    <string name="membership_days_remaining">%d days remaining</string>
-    <string name="membership_no_subscription">No active subscription</string>
-    <string name="membership_subscribe_now">Subscribe Now</string>
-    <string name="membership_renew">Renew Subscription</string>
-    <string name="membership_manage">Manage Subscription</string>
-    <string name="membership_required">Membership Required</string>
-    <string name="membership_required_message">This feature requires an active membership. Please subscribe to continue.</string>
-    <string name="membership_expiring_soon">Your membership will expire in %d days</string>
-    <string name="membership_expiring_message">Your membership is expiring soon. Please renew to continue using all features.</string>
-    <string name="membership_check_failed">Failed to check membership status</string>
-    <string name="membership_using_cached">Using cached membership information (offline)</string>
-    <string name="membership_status_refreshed">Membership status refreshed</string>
-    <string name="membership_status_refresh_failed">Failed to refresh membership status</string>
-    <string name="membership_refresh">Refresh Status</string>
-   
-    <!-- Membership Purchase -->
-    <string name="membership_plans_title">Available Plans</string>
-    <string name="current_membership">Current Membership</string>
-    <string name="plan">Plan</string>
-    <string name="duration">Duration</string>
-    <string name="purchase">Purchase</string>
-    <string name="refresh_membership_status">Refresh Status</string>
-    <string name="subscription_history">Subscription History</string>
-    <string name="no_subscription_history">No subscription history</string>
-    <string name="unknown_plan">Unknown Plan</string>
-    <string name="start_date">Start Date</string>
-    <string name="end_date">End Date</string>
-    <string name="status_active">Active</string>
-    <string name="status_expired">Expired</string>
-    <string name="status_cancelled">Cancelled</string>
-    <string name="renew_now">Renew Now</string>
-    <string name="remind_later">Remind Later</string>
-    <string name="confirm_purchase">Confirm Purchase</string>
-    <string name="confirm_purchase_message">Purchase %1$s for $%2$.2f?</string>
-    <string name="purchase_note">Payment processed by Chrysorrhoe</string>
-    <string name="purchasing">Processing…</string>
-    <string name="days">days</string>
     <string name="crop_image_failed">Failed to process cropped image: %s</string>
+    <string name="membership_title">Account</string>
+    <string name="auth_logged_in">Logged in</string>
+    <string name="auth_skip_login">Skip</string>
 
     <!-- Health Check -->
     <string name="health_check_channel_name">Server Connection Monitor</string>

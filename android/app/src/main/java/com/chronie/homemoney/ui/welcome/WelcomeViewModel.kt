@@ -3,11 +3,13 @@ package com.chronie.homemoney.ui.welcome
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
-import com.chronie.homemoney.domain.usecase.GetMembershipStatusUseCase
 import com.chronie.homemoney.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,8 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val checkLoginStatusUseCase: CheckLoginStatusUseCase,
-    private val getMembershipStatusUseCase: GetMembershipStatusUseCase
+    private val checkLoginStatusUseCase: CheckLoginStatusUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<WelcomeUiState>(WelcomeUiState.CheckingLogin)
@@ -24,6 +25,9 @@ class WelcomeViewModel @Inject constructor(
 
     private val _username = MutableStateFlow("")
     val username: StateFlow<String> = _username.asStateFlow()
+
+    private val _skipLoginEvent = MutableSharedFlow<Unit>()
+    val skipLoginEvent: SharedFlow<Unit> = _skipLoginEvent.asSharedFlow()
 
     init {
         checkLoginStatus()
@@ -34,12 +38,7 @@ class WelcomeViewModel @Inject constructor(
             val isLoggedIn = checkLoginStatusUseCase()
             if (isLoggedIn) {
                 val username = checkLoginStatusUseCase.getUsername() ?: ""
-                
-                // 获取会员状态
-                val membershipResult = getMembershipStatusUseCase(username, forceRefresh = false)
-                val isMember = membershipResult.getOrNull()?.isActive ?: false
-                
-                _uiState.value = WelcomeUiState.LoggedIn(username, isMember)
+                _uiState.value = WelcomeUiState.LoggedIn(username)
             } else {
                 _uiState.value = WelcomeUiState.NotLoggedIn
             }
@@ -58,20 +57,12 @@ class WelcomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.value = WelcomeUiState.Loading
-            
-            // 1. 执行登录
+
+            // 执行登录
             loginUseCase(_username.value.trim())
                 .onSuccess { member ->
-                    // 2. 获取会员状态
-                    val membershipResult = getMembershipStatusUseCase(
-                        username = member.username,
-                        forceRefresh = true
-                    )
-                    
-                    val isMember = membershipResult.getOrNull()?.isActive ?: false
                     _uiState.value = WelcomeUiState.LoggedIn(
-                        username = member.username,
-                        isMember = isMember
+                        username = member.username
                     )
                 }
                 .onFailure { error ->
@@ -79,6 +70,12 @@ class WelcomeViewModel @Inject constructor(
                         error.message ?: "登录失败"
                     )
                 }
+        }
+    }
+
+    fun skipLogin() {
+        viewModelScope.launch {
+            _skipLoginEvent.emit(Unit)
         }
     }
 
@@ -93,6 +90,6 @@ sealed class WelcomeUiState {
     object CheckingLogin : WelcomeUiState()
     object NotLoggedIn : WelcomeUiState()
     object Loading : WelcomeUiState()
-    data class LoggedIn(val username: String, val isMember: Boolean) : WelcomeUiState()
+    data class LoggedIn(val username: String) : WelcomeUiState()
     data class Error(val message: String) : WelcomeUiState()
 }

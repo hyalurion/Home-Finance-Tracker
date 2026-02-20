@@ -40,20 +40,16 @@ fun ChartsScreen(
     context: Context,
     viewModel: ChartsViewModel = hiltViewModel(),
     onRequireLogin: () -> Unit = {},
-    onRequireMembership: () -> Unit = {},
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedTimeRange by viewModel.selectedTimeRange.collectAsState()
-    
-    // 会员验证
+
+    // 登录验证
     LaunchedEffect(Unit) {
         val isLoggedIn = viewModel.checkLoginStatusUseCase()
-        val isMember = viewModel.checkMembershipUseCase()
-        
-        when {
-            !isLoggedIn -> onRequireLogin()
-            !isMember -> onRequireMembership()
+        if (!isLoggedIn) {
+            onRequireLogin()
         }
     }
     

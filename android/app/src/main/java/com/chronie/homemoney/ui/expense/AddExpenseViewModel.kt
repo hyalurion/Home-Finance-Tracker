@@ -23,8 +23,7 @@ class AddExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     private val syncScheduler: com.chronie.homemoney.data.sync.SyncScheduler,
     private val localIdGenerator: LocalIdGenerator,
-    val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase,
-    val checkMembershipUseCase: com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
+    val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(AddExpenseUiState())

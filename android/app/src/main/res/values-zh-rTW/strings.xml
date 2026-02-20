@@ -338,54 +338,10 @@
     <string name="auth_account_info">帳戶資訊</string>
     <string name="auth_logout_confirm_title">確認登出</string>
     <string name="auth_logout_confirm_message">確定要登出嗎？</string>
-    
-    <!-- 會員 -->
-    <string name="membership_title">會員</string>
-    <string name="membership_status">會員狀態</string>
-    <string name="membership_active">有效</string>
-    <string name="membership_inactive">無效</string>
-    <string name="membership_expired">已過期</string>
-    <string name="membership_expired_message">您的會員已過期，請續約以繼續使用所有功能。</string>
-    <string name="membership_plan">目前方案</string>
-    <string name="membership_expires_on">到期時間</string>
-    <string name="membership_days_remaining">剩餘 %d 天</string>
-    <string name="membership_no_subscription">無有效訂閱</string>
-    <string name="membership_subscribe_now">立即訂閱</string>
-    <string name="membership_renew">續約</string>
-    <string name="membership_manage">管理訂閱</string>
-    <string name="membership_required">需要會員</string>
-    <string name="membership_required_message">此功能需要有效會員資格，請訂閱後繼續使用。</string>
-    <string name="membership_expiring_soon">您的會員將在 %d 天後到期</string>
-    <string name="membership_expiring_message">您的會員即將到期，請續約以繼續使用所有功能。</string>
-    <string name="membership_check_failed">檢查會員狀態失敗</string>
-    <string name="membership_using_cached">使用快取的會員資訊（離線）</string>
-    <string name="membership_status_refreshed">會員狀態已重新整理</string>
-    <string name="membership_status_refresh_failed">重新整理會員狀態失敗</string>
-    <string name="membership_refresh">重新整理狀態</string>
-    
-    <!-- 會員購買 -->
-    <string name="membership_plans_title">可選方案</string>
-    <string name="current_membership">目前會員</string>
-    <string name="plan">方案</string>
-    <string name="duration">時長</string>
-    <string name="purchase">購買</string>
-    <string name="refresh_membership_status">重新整理狀態</string>
-    <string name="subscription_history">訂閱紀錄</string>
-    <string name="no_subscription_history">暫無訂閱紀錄</string>
-    <string name="unknown_plan">未知方案</string>
-    <string name="start_date">開始日期</string>
-    <string name="end_date">結束日期</string>
-    <string name="status_active">有效</string>
-    <string name="status_expired">已過期</string>
-    <string name="status_cancelled">已取消</string>
-    <string name="renew_now">立即續約</string>
-    <string name="remind_later">稍後提醒</string>
-    <string name="confirm_purchase">確認購買</string>
-    <string name="confirm_purchase_message">購買 %1$s，價格 $%2$.2f？</string>
-    <string name="purchase_note">款項將透過金流支付</string>
-    <string name="purchasing">處理中…</string>
-    <string name="days">天</string>
     <string name="crop_image_failed">圖片裁剪失敗：%s</string>
+    <string name="membership_title">帳戶</string>
+    <string name="auth_logged_in">已登入</string>
+    <string name="auth_skip_login">跳過</string>
 
     <!-- 連線狀態檢查 -->
     <string name="health_check_channel_name">伺服器連線監控</string>

@@ -7,8 +7,6 @@ data class MemberDto(
     val id: String,
     @SerializedName("username")
     val username: String,
-    @SerializedName("isActive")
-    val isActive: Boolean,
     @SerializedName("createdAt")
     val createdAt: String,
     @SerializedName("updatedAt")
