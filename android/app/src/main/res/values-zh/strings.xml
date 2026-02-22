@@ -492,4 +492,23 @@
     <string name="date_today">今天</string>
     <string name="date_yesterday">昨天</string>
     <string name="date_days_ago">%d天前</string>
+    
+    <!-- 局域网同步 -->
+    <string name="lan_sync_title">局域网同步</string>
+    <string name="sync_options">同步选项</string>
+    <string name="search_nearby_devices">搜索附近设备</string>
+    <string name="search_nearby_devices_desc">发现同一WiFi网络下的设备</string>
+    <string name="wait_for_connection">等待连接</string>
+    <string name="wait_for_connection_desc">其他设备可以发现此设备</string>
+    <string name="this_device">本机设备</string>
+    <string name="lan_sync_ready">准备就绪，可与同一网络下的其他设备同步</string>
+    <string name="sync_info_title">局域网同步说明</string>
+    <string name="sync_info_content">1. 将所有设备连接到同一WiFi网络\n2. 搜索附近设备\n3. 选择要同步的设备\n4. 数据将在设备间同步</string>
+    <string name="edit_device_name">编辑设备名称</string>
+    <string name="device_name">设备名称</string>
+    <string name="searching_devices">正在搜索设备</string>
+    <string name="make_sure_same_wifi">请确保所有设备连接到同一WiFi网络</string>
+    <string name="searching">正在搜索…</string>
+    <string name="no_devices_found">未找到设备</string>
+    <string name="device_name_updated">设备名称已更新</string>
 </resources>

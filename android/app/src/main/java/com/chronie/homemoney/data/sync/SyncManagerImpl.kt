@@ -1,10 +1,7 @@
 package com.chronie.homemoney.data.sync
 
-import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.SharedPreferences
-import android.net.wifi.WifiManager
-import android.nfc.NfcAdapter
 import android.util.Log
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
@@ -111,7 +108,6 @@ class SyncManagerImpl @Inject constructor(
                 try {
                     when (item.entityType) {
                         "expense" -> uploadExpenseItem(item)
-                        // 可以添加其他实体类型的处理
                         else -> {
                             Log.w(TAG, "Unknown entity type: ${item.entityType}")
                             continue
@@ -465,8 +461,7 @@ class SyncManagerImpl @Inject constructor(
         }
     }
     
-    override fun getDeviceSyncManager(connectionType: String): com.chronie.homemoney.domain.sync.DeviceSyncManager {
-        return deviceSyncManagerFactory.createDeviceSyncManager(connectionType)
-            ?: throw IllegalStateException("No device sync manager available for $connectionType connection")
+    override fun getDeviceSyncManager(): DeviceSyncManager {
+        return deviceSyncManagerFactory.createDeviceSyncManager()
     }
 }

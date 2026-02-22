@@ -9,6 +9,7 @@ import com.chronie.homemoney.core.common.Language
 import com.chronie.homemoney.core.common.LanguageManager
 import com.chronie.homemoney.data.sync.SyncScheduler
 import com.chronie.homemoney.domain.model.SyncStatus
+import com.chronie.homemoney.domain.sync.DeviceInfo
 import com.chronie.homemoney.domain.sync.SyncManager
 import com.chronie.homemoney.domain.usecase.ExportExpensesUseCase
 import com.chronie.homemoney.domain.usecase.ImportExpensesUseCase
@@ -90,12 +91,17 @@ class SettingsViewModel @Inject constructor(
     private val _avatarLoading = MutableStateFlow(false)
     val avatarLoading: StateFlow<Boolean> = _avatarLoading.asStateFlow()
 
+    // 设备名称
+    private val _deviceName = MutableStateFlow("")
+    val deviceName: StateFlow<String> = _deviceName.asStateFlow()
+
     init {
         loadSyncInfo()
         loadAIApiKey()
         loadCurrentUser()
         loadDynamicColorSettings()
         loadAvatar()
+        loadDeviceName()
     }
 
     private fun loadCurrentUser() {
@@ -205,16 +211,16 @@ class SettingsViewModel @Inject constructor(
                 if (result.isSuccess) {
                     val syncResult = result.getOrNull()
                     if (syncResult?.success == true) {
-                        _syncMessage.value = "同步成功"
+                        _syncMessage.value = context.getString(R.string.device_sync_success)
                         loadSyncInfo()
                     } else {
-                        _syncMessage.value = "同步失败: ${syncResult?.error}"
+                        _syncMessage.value = context.getString(R.string.device_sync_failed, syncResult?.error ?: "Unknown error")
                     }
                 } else {
-                    _syncMessage.value = "同步失败: ${result.exceptionOrNull()?.message}"
+                    _syncMessage.value = context.getString(R.string.device_sync_failed, result.exceptionOrNull()?.message ?: "Unknown error")
                 }
             } catch (e: Exception) {
-                _syncMessage.value = "同步失败: ${e.message}"
+                _syncMessage.value = context.getString(R.string.device_sync_failed, e.message ?: "Unknown error")
             }
         }
     }
@@ -223,17 +229,23 @@ class SettingsViewModel @Inject constructor(
         _syncMessage.value = null
     }
 
-    fun searchDevices(connectionType: String): Flow<com.chronie.homemoney.domain.sync.DeviceInfo> {
-        return syncManager.getDeviceSyncManager(connectionType).searchDevices()
+    /**
+     * 搜索局域网设备
+     */
+    fun searchDevices(): Flow<DeviceInfo> {
+        return syncManager.getDeviceSyncManager().searchDevices()
     }
 
-    fun deviceSync(connectionType: String, deviceInfo: com.chronie.homemoney.domain.sync.DeviceInfo) {
+    /**
+     * 与设备同步
+     */
+    fun deviceSync(deviceInfo: DeviceInfo) {
         viewModelScope.launch {
             try {
                 _syncMessage.value = null
 
-                // 根据连接类型创建设备同步管理器
-                val deviceSyncManager = syncManager.getDeviceSyncManager(connectionType)
+                // 获取设备同步管理器
+                val deviceSyncManager = syncManager.getDeviceSyncManager()
 
                 // 尝试连接设备
                 _syncMessage.value = context.getString(R.string.device_sync_connecting, deviceInfo.deviceName)
@@ -324,6 +336,24 @@ class SettingsViewModel @Inject constructor(
             prefs.edit().putInt("primary_color", color).apply()
             _primaryColor.value = color
             _syncMessage.value = context.getString(R.string.primary_color_updated)
+        }
+    }
+
+    // 加载设备名称
+    private fun loadDeviceName() {
+        viewModelScope.launch {
+            val prefs = context.getSharedPreferences("sync_prefs", android.content.Context.MODE_PRIVATE)
+            _deviceName.value = prefs.getString("device_custom_name", android.os.Build.MODEL ?: "Android Device") ?: "Android Device"
+        }
+    }
+
+    // 设置设备名称
+    fun setDeviceName(name: String) {
+        viewModelScope.launch {
+            val prefs = context.getSharedPreferences("sync_prefs", android.content.Context.MODE_PRIVATE)
+            prefs.edit().putString("device_custom_name", name).apply()
+            _deviceName.value = name
+            _syncMessage.value = context.getString(R.string.device_name_updated)
         }
     }
 

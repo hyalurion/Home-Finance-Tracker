@@ -492,4 +492,23 @@
     <string name="date_today">今日</string>
     <string name="date_yesterday">昨日</string>
     <string name="date_days_ago">%d 日前</string>
+    
+    <!-- 區域網路同步 -->
+    <string name="lan_sync_title">區域網路同步</string>
+    <string name="sync_options">同步選項</string>
+    <string name="search_nearby_devices">搜尋附近裝置</string>
+    <string name="search_nearby_devices_desc">發現同一WiFi網絡下的裝置</string>
+    <string name="wait_for_connection">等待連線</string>
+    <string name="wait_for_connection_desc">其他裝置可以發現此裝置</string>
+    <string name="this_device">本機裝置</string>
+    <string name="lan_sync_ready">準備就緒，可與同一網絡下的其他裝置同步</string>
+    <string name="sync_info_title">區域網路同步說明</string>
+    <string name="sync_info_content">1. 將所有裝置連接到同一WiFi網絡\n2. 搜尋附近裝置\n3. 選擇要同步的裝置\n4. 資料將在裝置間同步</string>
+    <string name="edit_device_name">編輯裝置名稱</string>
+    <string name="device_name">裝置名稱</string>
+    <string name="searching_devices">正在搜尋裝置</string>
+    <string name="make_sure_same_wifi">請確保所有裝置連接到同一WiFi網絡</string>
+    <string name="searching">正在搜尋…</string>
+    <string name="no_devices_found">未找到裝置</string>
+    <string name="device_name_updated">裝置名稱已更新</string>
 </resources>

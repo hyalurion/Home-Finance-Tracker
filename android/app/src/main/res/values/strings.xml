@@ -493,4 +493,23 @@
     <string name="date_today">Today</string>
     <string name="date_yesterday">Yesterday</string>
     <string name="date_days_ago">%d days ago</string>
+    
+    <!-- LAN Sync -->
+    <string name="lan_sync_title">LAN Sync</string>
+    <string name="sync_options">Sync Options</string>
+    <string name="search_nearby_devices">Search Nearby Devices</string>
+    <string name="search_nearby_devices_desc">Discover devices on the same WiFi network</string>
+    <string name="wait_for_connection">Wait for Connection</string>
+    <string name="wait_for_connection_desc">Other devices can discover this device</string>
+    <string name="this_device">This Device</string>
+    <string name="lan_sync_ready">Ready to sync with other devices on the same network</string>
+    <string name="sync_info_title">How LAN Sync Works</string>
+    <string name="sync_info_content">1. Connect all devices to the same WiFi network\n2. Search for nearby devices\n3. Select a device to sync with\n4. Data will be synchronized between devices</string>
+    <string name="edit_device_name">Edit Device Name</string>
+    <string name="device_name">Device Name</string>
+    <string name="searching_devices">Searching Devices</string>
+    <string name="make_sure_same_wifi">Make sure all devices are connected to the same WiFi network</string>
+    <string name="searching">Searching…</string>
+    <string name="no_devices_found">No devices found</string>
+    <string name="device_name_updated">Device name updated</string>
 </resources>

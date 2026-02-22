@@ -38,6 +38,7 @@ fun MainScreen(
     onNavigateToEditExpense: (expenseId: String) -> Unit = {},
     onNavigateToMoreFunctions: () -> Unit = {},
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> },
+    onNavigateToLanSync: () -> Unit = {},
     onRequireLogin: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel()
 ) {
@@ -81,6 +82,7 @@ fun MainScreen(
                             android.util.Log.d("MainScreen", "收到 onNavigateToMembership 回调")
                             onNavigateToSettings()
                         },
+                        onNavigateToLanSync = onNavigateToLanSync,
                         onLogout = {
                             android.util.Log.d("MainScreen", "收到 onLogout 回调")
                             onRequireLogin()

@@ -55,6 +55,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToMembership: () -> Unit = {},
+    onNavigateToLanSync: () -> Unit = {},
     onLogout: () -> Unit = {},
     onRequireLogin: () -> Unit = {}
 ) {
@@ -137,7 +138,11 @@ fun SettingsScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            SyncSection(viewModel = viewModel, context = context)
+            SyncSection(
+                viewModel = viewModel,
+                context = context,
+                onNavigateToLanSync = onNavigateToLanSync
+            )
             
             Spacer(modifier = Modifier.height(32.dp))
             
@@ -1102,7 +1107,7 @@ fun DeviceSyncDialog(
     LaunchedEffect(connectionType) {
         isActive.value = true
         discoveredDevices = emptyList()
-        viewModel.searchDevices(connectionType).collect {
+        viewModel.searchDevices().collect {
             if (isActive.value) {
                 if (!discoveredDevices.any { existing -> existing.deviceId == it.deviceId }) {
                     discoveredDevices = discoveredDevices + it
@@ -1172,7 +1177,8 @@ fun DeviceSyncDialog(
 @Composable
 fun SyncSection(
     viewModel: SettingsViewModel,
-    context: Context
+    context: Context,
+    onNavigateToLanSync: () -> Unit = {}
 ) {
     val syncStatus by viewModel.syncStatus.collectAsState()
     val lastSyncTime by viewModel.lastSyncTime.collectAsState()
@@ -1181,10 +1187,6 @@ fun SyncSection(
     
     // 同步方式选择对话框
     var showSyncMethodDialog by remember { mutableStateOf(false) }
-    // 设备同步对话框
-    var showDeviceSyncDialog by remember { mutableStateOf(false) }
-    // 当前选择的连接类型
-    var selectedConnectionType by remember { mutableStateOf("") }
     
     // 显示同步消息
     syncMessage?.let { message ->
@@ -1368,56 +1370,15 @@ fun SyncSection(
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp)
                             .clickable {
                                 showSyncMethodDialog = false
-                                selectedConnectionType = "LAN"
-                                showDeviceSyncDialog = true
+                                onNavigateToLanSync()
                             },
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = MaterialTheme.shapes.medium
                     ) {
                         Text(
                             text = context.getString(R.string.sync_lan),
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
-                    
-                    // 蓝牙同步选项
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                            .clickable {
-                                showSyncMethodDialog = false
-                                selectedConnectionType = "BLUETOOTH"
-                                showDeviceSyncDialog = true
-                            },
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.medium
-                    ) {
-                        Text(
-                            text = context.getString(R.string.sync_bluetooth),
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
-                    
-                    // NFC同步选项
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                showSyncMethodDialog = false
-                                selectedConnectionType = "NFC"
-                                showDeviceSyncDialog = true
-                            },
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.medium
-                    ) {
-                        Text(
-                            text = context.getString(R.string.sync_nfc),
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.padding(16.dp)
                         )
@@ -1430,18 +1391,6 @@ fun SyncSection(
                 ) {
                     Text(context.getString(R.string.cancel))
                 }
-            }
-        )
-    }
-    
-    // 设备同步对话框
-    if (showDeviceSyncDialog) {
-        DeviceSyncDialog(
-            context = context,
-            connectionType = selectedConnectionType,
-            onDismiss = { showDeviceSyncDialog = false },
-            onDeviceSelected = { deviceInfo ->
-                viewModel.deviceSync(selectedConnectionType, deviceInfo)
             }
         )
     }

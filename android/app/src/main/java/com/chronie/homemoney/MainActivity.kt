@@ -42,6 +42,7 @@ import com.chronie.homemoney.ui.expense.AddExpenseScreen
 import com.chronie.homemoney.ui.expense.AIExpenseScreen
 import com.chronie.homemoney.ui.main.MainScreen
 import com.chronie.homemoney.ui.settings.SettingsScreen
+import com.chronie.homemoney.ui.sync.LanSyncScreen
 import com.chronie.homemoney.ui.test.DatabaseTestScreen
 import com.chronie.homemoney.ui.theme.HomeMoneyTheme
 import com.chronie.homemoney.ui.welcome.WelcomeScreen
@@ -259,6 +260,9 @@ fun HomeMoneyApp(
                 onNavigateToMembership = {
                     navController.navigate("membership")
                 },
+                onNavigateToLanSync = {
+                    navController.navigate("lan_sync")
+                },
                 onLogout = {
                     // 退出登录后，清空整个导航栈并返回欢迎页
                     navController.navigate("welcome") {
@@ -269,6 +273,15 @@ fun HomeMoneyApp(
                     navController.navigate("welcome") {
                         popUpTo(0) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        composable("lan_sync") {
+            LanSyncScreen(
+                context = context,
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -303,6 +316,10 @@ fun HomeMoneyApp(
                     navController.navigate(
                         route = "weekday_detail?dayOfWeek=$dayOfWeek&amount=$amount&count=$count&percentage=$percentage&startDate=$startDate&endDate=$endDate"
                     )
+                },
+                onNavigateToLanSync = {
+                    selectedTab = 2
+                    navController.navigate("lan_sync")
                 },
                 onRequireLogin = {
                     // 未登录时，清空导航栈并返回欢迎页

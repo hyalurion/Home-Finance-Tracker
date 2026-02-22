@@ -1,9 +1,7 @@
 package com.chronie.homemoney.di
 
-import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.net.wifi.WifiManager
-import android.nfc.NfcAdapter
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
 import com.chronie.homemoney.data.remote.api.ExpenseApi
@@ -22,7 +20,7 @@ import javax.inject.Singleton
 
 /**
  * 同步模块
- * 提供数据同步相关的依赖
+ * 提供数据同步相关的依赖（仅支持局域网同步）
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -54,17 +52,13 @@ object SyncModule {
         @ApplicationContext context: Context,
         expenseDao: ExpenseDao,
         gson: Gson,
-        wifiManager: WifiManager,
-        bluetoothAdapter: BluetoothAdapter?,
-        nfcAdapter: NfcAdapter?
+        wifiManager: WifiManager
     ): DeviceSyncManagerFactory {
         return DeviceSyncManagerFactory(
             context = context,
             expenseDao = expenseDao,
             gson = gson,
-            wifiManager = wifiManager,
-            bluetoothAdapter = bluetoothAdapter,
-            nfcAdapter = nfcAdapter
+            wifiManager = wifiManager
         )
     }
     
@@ -74,28 +68,6 @@ object SyncModule {
         @ApplicationContext context: Context
     ): WifiManager {
         return context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-    }
-    
-    @Provides
-    @Singleton
-    fun provideBluetoothAdapter(
-        @ApplicationContext context: Context
-    ): BluetoothAdapter? {
-        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
-            bluetoothManager.adapter
-        } else {
-            @Suppress("DEPRECATION")
-            BluetoothAdapter.getDefaultAdapter()
-        }
-    }
-    
-    @Provides
-    @Singleton
-    fun provideNfcAdapter(
-        @ApplicationContext context: Context
-    ): NfcAdapter? {
-        return NfcAdapter.getDefaultAdapter(context)
     }
     
     @Provides

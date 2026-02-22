@@ -52,7 +52,7 @@ interface SyncManager {
     fun observeSyncStatus(): Flow<com.chronie.homemoney.domain.model.SyncStatus>
     
     /**
-     * 获取设备同步管理器
+     * 获取设备同步管理器（仅支持局域网同步）
      */
-    fun getDeviceSyncManager(connectionType: String): DeviceSyncManager
+    fun getDeviceSyncManager(): DeviceSyncManager
 }
