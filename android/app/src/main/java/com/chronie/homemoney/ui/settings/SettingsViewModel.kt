@@ -17,6 +17,7 @@ import com.chronie.homemoney.ui.theme.PaletteStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
@@ -35,7 +36,7 @@ class SettingsViewModel @Inject constructor(
     private val memberRepository: com.chronie.homemoney.domain.repository.MemberRepository,
     private val preferencesManager: com.chronie.homemoney.data.local.PreferencesManager,
     @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
-) : ViewModel() {
+) : ViewModel(), com.chronie.homemoney.domain.sync.SyncRequestCallback {
 
     // 动态颜色开关状态
     private val _useDynamicColor = MutableStateFlow(true)
@@ -95,6 +96,34 @@ class SettingsViewModel @Inject constructor(
     private val _deviceName = MutableStateFlow("")
     val deviceName: StateFlow<String> = _deviceName.asStateFlow()
 
+    // 同步进度状态
+    private val _syncProgress = MutableStateFlow(0f)
+    val syncProgress: StateFlow<Float> = _syncProgress.asStateFlow()
+
+    private val _syncProgressMessage = MutableStateFlow("")
+    val syncProgressMessage: StateFlow<String> = _syncProgressMessage.asStateFlow()
+
+    private val _showSyncProgress = MutableStateFlow(false)
+    val showSyncProgress: StateFlow<Boolean> = _showSyncProgress.asStateFlow()
+
+    // 同步请求确认状态
+    private val _pendingSyncRequest = MutableStateFlow<DeviceInfo?>(null)
+    val pendingSyncRequest: StateFlow<DeviceInfo?> = _pendingSyncRequest.asStateFlow()
+
+    private val _showSyncRequestDialog = MutableStateFlow(false)
+    val showSyncRequestDialog: StateFlow<Boolean> = _showSyncRequestDialog.asStateFlow()
+
+    // 服务器端被动同步进度（被搜索方）
+    val serverSyncProgress: StateFlow<com.chronie.homemoney.domain.sync.SyncProgressInfo> =
+        syncManager.getDeviceSyncManager().syncProgress
+
+    // 收到的同步请求（被搜索方）
+    private val _incomingSyncRequest = MutableStateFlow<com.chronie.homemoney.domain.sync.SyncRequestInfo?>(null)
+    val incomingSyncRequest: StateFlow<com.chronie.homemoney.domain.sync.SyncRequestInfo?> = _incomingSyncRequest.asStateFlow()
+
+    // 同步请求回调的continuation
+    private var syncRequestContinuation: kotlin.coroutines.Continuation<Boolean>? = null
+
     init {
         loadSyncInfo()
         loadAIApiKey()
@@ -102,6 +131,37 @@ class SettingsViewModel @Inject constructor(
         loadDynamicColorSettings()
         loadAvatar()
         loadDeviceName()
+
+        // 设置同步请求回调
+        syncManager.getDeviceSyncManager().setSyncRequestCallback(this)
+    }
+
+    /**
+     * 同步请求回调实现
+     */
+    override suspend fun onSyncRequest(requestInfo: com.chronie.homemoney.domain.sync.SyncRequestInfo): Boolean {
+        return kotlin.coroutines.suspendCoroutine { continuation ->
+            syncRequestContinuation = continuation
+            _incomingSyncRequest.value = requestInfo
+        }
+    }
+
+    /**
+     * 接受 incoming 同步请求
+     */
+    fun acceptIncomingSyncRequest() {
+        syncRequestContinuation?.resume(true)
+        syncRequestContinuation = null
+        _incomingSyncRequest.value = null
+    }
+
+    /**
+     * 拒绝 incoming 同步请求
+     */
+    fun rejectIncomingSyncRequest() {
+        syncRequestContinuation?.resume(false)
+        syncRequestContinuation = null
+        _incomingSyncRequest.value = null
     }
 
     private fun loadCurrentUser() {
@@ -242,38 +302,112 @@ class SettingsViewModel @Inject constructor(
     fun deviceSync(deviceInfo: DeviceInfo) {
         viewModelScope.launch {
             try {
+                android.util.Log.d("SettingsViewModel", "Starting device sync with: ${deviceInfo.deviceName} at ${deviceInfo.address}")
                 _syncMessage.value = null
+                _showSyncProgress.value = true
+                _syncProgress.value = 0f
+                _syncProgressMessage.value = context.getString(R.string.device_sync_connecting, deviceInfo.deviceName)
 
                 // 获取设备同步管理器
                 val deviceSyncManager = syncManager.getDeviceSyncManager()
+                android.util.Log.d("SettingsViewModel", "Got device sync manager")
 
-                // 尝试连接设备
-                _syncMessage.value = context.getString(R.string.device_sync_connecting, deviceInfo.deviceName)
-                val connected = deviceSyncManager.connect(deviceInfo)
+                // 更新进度 - 连接中
+                _syncProgress.value = 0.1f
+                _syncProgressMessage.value = context.getString(R.string.device_sync_connecting, deviceInfo.deviceName)
 
-                if (!connected) {
-                    _syncMessage.value = context.getString(R.string.device_sync_connect_failed)
-                    return@launch
-                }
-
-                // 执行同步
-                _syncMessage.value = context.getString(R.string.device_sync_synchronizing)
+                android.util.Log.d("SettingsViewModel", "Calling syncWithDevice...")
                 val syncResult = deviceSyncManager.syncWithDevice(deviceInfo)
+                android.util.Log.d("SettingsViewModel", "syncWithDevice returned: success=${syncResult.success}, error=${syncResult.error}")
 
+                // 更新进度 - 完成或失败
+                _syncProgress.value = 1f
                 if (syncResult.success) {
+                    _syncProgressMessage.value = context.getString(R.string.device_sync_success)
                     _syncMessage.value = context.getString(R.string.device_sync_success)
                     loadSyncInfo()
                 } else {
+                    _syncProgressMessage.value = context.getString(R.string.device_sync_failed, syncResult.error)
                     _syncMessage.value = context.getString(R.string.device_sync_failed, syncResult.error)
                 }
 
-                // 断开连接
-                deviceSyncManager.disconnect()
+                // 延迟关闭进度对话框
+                kotlinx.coroutines.delay(1500)
+                _showSyncProgress.value = false
 
             } catch (e: Exception) {
+                android.util.Log.e("SettingsViewModel", "Device sync failed", e)
+                _syncProgress.value = 1f
+                _syncProgressMessage.value = context.getString(R.string.device_sync_failed, e.message)
                 _syncMessage.value = context.getString(R.string.device_sync_failed, e.message)
+                kotlinx.coroutines.delay(1500)
+                _showSyncProgress.value = false
             }
         }
+    }
+
+    /**
+     * 显示同步进度
+     */
+    fun showSyncProgress() {
+        _showSyncProgress.value = true
+        _syncProgress.value = 0f
+    }
+
+    /**
+     * 隐藏同步进度
+     */
+    fun hideSyncProgress() {
+        _showSyncProgress.value = false
+    }
+
+    /**
+     * 更新同步进度
+     */
+    fun updateSyncProgress(progress: Float, message: String) {
+        _syncProgress.value = progress
+        _syncProgressMessage.value = message
+    }
+
+    /**
+     * 显示同步请求确认对话框
+     */
+    fun showSyncRequestDialog(deviceInfo: DeviceInfo) {
+        _pendingSyncRequest.value = deviceInfo
+        _showSyncRequestDialog.value = true
+    }
+
+    /**
+     * 隐藏同步请求确认对话框
+     */
+    fun hideSyncRequestDialog() {
+        _showSyncRequestDialog.value = false
+        _pendingSyncRequest.value = null
+    }
+
+    /**
+     * 接受同步请求
+     */
+    fun acceptSyncRequest() {
+        val deviceInfo = _pendingSyncRequest.value
+        if (deviceInfo != null) {
+            hideSyncRequestDialog()
+            deviceSync(deviceInfo)
+        }
+    }
+
+    /**
+     * 拒绝同步请求
+     */
+    fun rejectSyncRequest() {
+        hideSyncRequestDialog()
+    }
+
+    /**
+     * 清除服务器端同步进度
+     */
+    fun clearServerSyncProgress() {
+        syncManager.getDeviceSyncManager().clearSyncProgress()
     }
 
     fun setAIApiKey(apiKey: String) {

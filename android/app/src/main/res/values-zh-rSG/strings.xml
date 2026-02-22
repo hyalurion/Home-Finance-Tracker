@@ -511,4 +511,11 @@
     <string name="searching">正在搜索…</string>
     <string name="no_devices_found">未找到设备</string>
     <string name="device_name_updated">设备名称已更新</string>
+    <string name="sync_in_progress">正在同步...</string>
+    <string name="sync_request_title">同步请求</string>
+    <string name="sync_request_message">是否要与该设备同步数据？</string>
+    <string name="accept">接受</string>
+    <string name="reject">拒绝</string>
+    <string name="incoming_sync_request_title">收到同步请求</string>
+    <string name="incoming_sync_request_message">想要与您的设备同步数据</string>
 </resources>

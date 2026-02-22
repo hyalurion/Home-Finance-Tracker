@@ -152,9 +152,61 @@ fun LanSyncScreen(
             viewModel = viewModel,
             onDismiss = { showDeviceSearchDialog = false },
             onDeviceSelected = { device ->
-                viewModel.deviceSync(device)
+                // 显示同步请求确认对话框
+                viewModel.showSyncRequestDialog(device)
                 showDeviceSearchDialog = false
             }
+        )
+    }
+
+    // 同步进度 BottomSheet（客户端主动同步的进度）
+    val showSyncProgress by viewModel.showSyncProgress.collectAsState()
+    val syncProgress by viewModel.syncProgress.collectAsState()
+    val syncProgressMessage by viewModel.syncProgressMessage.collectAsState()
+
+    if (showSyncProgress) {
+        SyncProgressBottomSheet(
+            context = context,
+            progress = syncProgress,
+            message = syncProgressMessage,
+            onDismiss = { viewModel.hideSyncProgress() }
+        )
+    }
+
+    // 服务器端被动同步的进度（被搜索方）
+    val serverSyncProgress by viewModel.serverSyncProgress.collectAsState()
+
+    if (serverSyncProgress.isActive) {
+        SyncProgressBottomSheet(
+            context = context,
+            progress = serverSyncProgress.progress,
+            message = serverSyncProgress.message,
+            onDismiss = { viewModel.clearServerSyncProgress() }
+        )
+    }
+
+    // 同步请求确认对话框（发起端）
+    val showSyncRequestDialog by viewModel.showSyncRequestDialog.collectAsState()
+    val pendingSyncRequest by viewModel.pendingSyncRequest.collectAsState()
+
+    if (showSyncRequestDialog && pendingSyncRequest != null) {
+        SyncRequestDialog(
+            context = context,
+            deviceInfo = pendingSyncRequest!!,
+            onAccept = { viewModel.acceptSyncRequest() },
+            onReject = { viewModel.rejectSyncRequest() }
+        )
+    }
+
+    // 收到的同步请求对话框（被搜索方）
+    val incomingSyncRequest by viewModel.incomingSyncRequest.collectAsState()
+
+    if (incomingSyncRequest != null) {
+        IncomingSyncRequestDialog(
+            context = context,
+            requestInfo = incomingSyncRequest!!,
+            onAccept = { viewModel.acceptIncomingSyncRequest() },
+            onReject = { viewModel.rejectIncomingSyncRequest() }
         )
     }
 }
@@ -681,6 +733,290 @@ fun DeviceListItem(
                     },
                     modifier = Modifier.size(20.dp)
                 )
+            }
+        }
+    }
+}
+
+/**
+ * 同步进度 BottomSheet
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SyncProgressBottomSheet(
+    context: Context,
+    progress: Float,
+    message: String,
+    onDismiss: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // 图标
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Sync,
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 标题
+            Text(
+                text = context.getString(R.string.sync_in_progress),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 进度消息
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 进度条
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 进度百分比
+            Text(
+                text = "${(progress * 100).toInt()}%",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+/**
+ * 同步请求确认对话框
+ */
+@Composable
+fun SyncRequestDialog(
+    context: Context,
+    deviceInfo: DeviceInfo,
+    onAccept: () -> Unit,
+    onReject: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onReject,
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .wrapContentHeight(),
+            shape = RoundedCornerShape(24.dp),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // 图标
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Devices,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // 标题
+                Text(
+                    text = context.getString(R.string.sync_request_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 设备名称
+                Text(
+                    text = deviceInfo.deviceName,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 说明文字
+                Text(
+                    text = context.getString(R.string.sync_request_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // 按钮
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onReject,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(context.getString(R.string.reject))
+                    }
+
+                    Button(
+                        onClick = onAccept,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(context.getString(R.string.accept))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 收到的同步请求对话框（被搜索方）
+ */
+@Composable
+fun IncomingSyncRequestDialog(
+    context: Context,
+    requestInfo: com.chronie.homemoney.domain.sync.SyncRequestInfo,
+    onAccept: () -> Unit,
+    onReject: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onReject,
+        properties = DialogProperties(
+            dismissOnBackPress = false, // 禁止通过返回键关闭
+            dismissOnClickOutside = false, // 禁止点击外部关闭
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .wrapContentHeight(),
+            shape = RoundedCornerShape(24.dp),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // 图标
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Sync,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // 标题
+                Text(
+                    text = context.getString(R.string.incoming_sync_request_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 设备名称
+                Text(
+                    text = requestInfo.deviceName,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 说明文字
+                Text(
+                    text = context.getString(R.string.incoming_sync_request_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // 按钮
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onReject,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(context.getString(R.string.reject))
+                    }
+
+                    Button(
+                        onClick = onAccept,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(context.getString(R.string.accept))
+                    }
+                }
             }
         }
     }

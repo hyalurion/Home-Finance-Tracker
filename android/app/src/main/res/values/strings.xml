@@ -512,4 +512,11 @@
     <string name="searching">Searching…</string>
     <string name="no_devices_found">No devices found</string>
     <string name="device_name_updated">Device name updated</string>
+    <string name="sync_in_progress">Synchronizing...</string>
+    <string name="sync_request_title">Sync Request</string>
+    <string name="sync_request_message">Do you want to synchronize data with this device?</string>
+    <string name="accept">Accept</string>
+    <string name="reject">Reject</string>
+    <string name="incoming_sync_request_title">Incoming Sync Request</string>
+    <string name="incoming_sync_request_message">wants to synchronize data with your device</string>
 </resources>
