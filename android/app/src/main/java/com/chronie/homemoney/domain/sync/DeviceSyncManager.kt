@@ -1,6 +1,7 @@
 package com.chronie.homemoney.domain.sync
 
 import com.chronie.homemoney.domain.model.SyncResult
+import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,9 +11,13 @@ import kotlinx.coroutines.flow.asStateFlow
  * 同步进度信息
  */
 data class SyncProgressInfo(
+    @SerializedName("progress")
     val progress: Float = 0f,
+    @SerializedName("message")
     val message: String = "",
+    @SerializedName("isActive")
     val isActive: Boolean = false,
+    @SerializedName("deviceName")
     val deviceName: String = ""
 )
 
@@ -20,9 +25,13 @@ data class SyncProgressInfo(
  * 同步请求信息
  */
 data class SyncRequestInfo(
+    @SerializedName("deviceId")
     val deviceId: String,
+    @SerializedName("deviceName")
     val deviceName: String,
+    @SerializedName("address")
     val address: String,
+    @SerializedName("timestamp")
     val timestamp: Long = System.currentTimeMillis()
 )
 
@@ -103,9 +112,13 @@ interface DeviceSyncManager {
  * 设备间同步数据模型
  */
 data class DeviceSyncData(
+    @SerializedName("deviceId")
     val deviceId: String,
+    @SerializedName("deviceName")
     val deviceName: String,
+    @SerializedName("syncTimestamp")
     val syncTimestamp: Long,
+    @SerializedName("entities")
     val entities: List<SyncEntity>
 )
 
@@ -113,10 +126,15 @@ data class DeviceSyncData(
  * 同步实体
  */
 data class SyncEntity(
+    @SerializedName("entityType")
     val entityType: String,
+    @SerializedName("entityId")
     val entityId: String,
+    @SerializedName("operation")
     val operation: String, // "CREATE", "UPDATE", "DELETE"
+    @SerializedName("data")
     val data: String, // JSON格式的数据
+    @SerializedName("timestamp")
     val timestamp: Long
 )
 
@@ -124,10 +142,16 @@ data class SyncEntity(
  * 设备信息
  */
 data class DeviceInfo(
+    @SerializedName("deviceId")
     val deviceId: String,
+    @SerializedName("deviceName")
     val deviceName: String,
+    @SerializedName("deviceType")
     val deviceType: String, // "ANDROID", "IOS", "WEB"
+    @SerializedName("connectionType")
     val connectionType: String, // "LAN", "BLUETOOTH", "NFC"
+    @SerializedName("address")
     val address: String, // 设备地址
+    @SerializedName("signalStrength")
     val signalStrength: Int // 信号强度 (0-100)
 )

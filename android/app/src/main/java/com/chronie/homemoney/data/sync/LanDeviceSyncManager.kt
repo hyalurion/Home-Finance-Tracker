@@ -29,14 +29,20 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 import java.io.BufferedReader
+import java.io.DataInputStream
+import java.io.IOException
+import java.io.InputStream
 import java.io.InputStreamReader
+import java.io.OutputStream
 import java.io.PrintWriter
+import java.net.HttpURLConnection
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketException
+import java.net.URL
 import java.util.Collections
 import java.util.Enumeration
 import java.util.UUID
@@ -57,15 +63,17 @@ class LanDeviceSyncManager(
     companion object {
         private const val DISCOVERY_BROADCAST_PORT = 12345  // 发现广播端口（发送和监听发现请求）
         private const val DISCOVERY_RESPONSE_PORT = 12347   // 发现响应端口（接收响应）
-        private const val SYNC_PORT = 12346                 // TCP同步端口
+        private const val HTTP_SYNC_PORT = 8080             // HTTP同步端口
         private const val BROADCAST_INTERVAL = 500L
         private const val BROADCAST_COUNT = 10
         private const val DISCOVERY_TIMEOUT = 30000L
-        private const val TCP_CONNECTION_TIMEOUT = 8000
-        private const val TCP_CONNECTION_RETRIES = 3
+        private const val HTTP_CONNECTION_TIMEOUT = 8000
+        private const val HTTP_CONNECTION_RETRIES = 3
         private const val TAG = "LanDeviceSyncManager"
-        private const val SOCKET_TIMEOUT = 30000
+        private const val HTTP_TIMEOUT = 30000
         private const val MULTICAST_GROUP = "239.255.255.250"
+        private const val SYNC_ENDPOINT = "/sync"
+        private const val PING_ENDPOINT = "/ping"
     }
     
     private var socket: Socket? = null
@@ -151,6 +159,7 @@ class LanDeviceSyncManager(
      * 响应同步请求
      */
     override fun respondToSyncRequest(accepted: Boolean) {
+        Log.d(TAG, "respondToSyncRequest called with accepted: $accepted, pendingSyncResponse: ${pendingSyncResponse != null}")
         pendingSyncResponse?.resume(accepted)
         pendingSyncResponse = null
     }
@@ -396,11 +405,11 @@ class LanDeviceSyncManager(
 
         isServerRunning.set(true)
 
-        // 启动 TCP 服务器处理同步请求
+        // 启动 HTTP 服务器处理同步请求
         serverThread = Thread {
             try {
-                serverSocket = ServerSocket(SYNC_PORT)
-                Log.d(TAG, "Sync server started on port $SYNC_PORT")
+                serverSocket = ServerSocket(HTTP_SYNC_PORT)
+                Log.d(TAG, "HTTP sync server started on port $HTTP_SYNC_PORT")
 
                 while (isServerRunning.get()) {
                     try {
@@ -409,7 +418,7 @@ class LanDeviceSyncManager(
 
                         if (clientSocket != null) {
                             GlobalScope.launch(Dispatchers.IO) {
-                                handleClientConnection(clientSocket)
+                                handleHttpClientConnection(clientSocket)
                             }
                         }
                     } catch (e: java.net.SocketTimeoutException) {
@@ -515,188 +524,250 @@ class LanDeviceSyncManager(
     }
     
     /**
-     * 处理客户端连接
+     * 处理 HTTP 客户端连接
      */
-    private suspend fun handleClientConnection(clientSocket: Socket) {
+    private suspend fun handleHttpClientConnection(clientSocket: Socket) {
+        var inputStream: InputStream? = null
+        var outputStream: OutputStream? = null
         try {
-            Log.d(TAG, "Client connected: ${clientSocket.inetAddress.hostAddress}")
-            clientSocket.soTimeout = SOCKET_TIMEOUT
+            Log.d(TAG, "HTTP client connected: ${clientSocket.inetAddress.hostAddress}")
+            clientSocket.soTimeout = HTTP_TIMEOUT
 
-            val reader = BufferedReader(InputStreamReader(clientSocket.getInputStream()))
-            val writer = PrintWriter(clientSocket.getOutputStream(), true)
+            inputStream = clientSocket.getInputStream()
+            outputStream = clientSocket.getOutputStream()
 
-            // 读取客户端发送的数据
-            val request = reader.readLine()
-            if (request == null) {
+            // 读取 HTTP 请求行和请求头（使用原始 InputStream 避免缓冲问题）
+            val requestLine = readLine(inputStream!!)
+            if (requestLine == null) {
                 Log.w(TAG, "Empty request from client")
+                sendHttpResponse(outputStream, 400, "Bad Request", "Empty request")
                 return
             }
 
-            Log.d(TAG, "Received request: $request")
+            Log.d(TAG, "Received HTTP request: $requestLine")
 
-            when {
-                request.startsWith("SYNC|") -> {
-                    // 检查是否已经在进行同步
-                    if (isSyncing) {
-                        Log.w(TAG, "Already syncing, rejecting sync request from client")
-                        writer.println("ERROR|Device is busy syncing")
-                        clientSocket.close()
-                        return
-                    }
+            // 解析 HTTP 请求行
+            val requestParts = requestLine.split(" ")
+            if (requestParts.size < 3) {
+                Log.w(TAG, "Invalid request format: $requestLine")
+                sendHttpResponse(outputStream, 400, "Bad Request", "Invalid request format")
+                return
+            }
 
-                    // 解析客户端信息
-                    val parts = request.split("|")
-                    val clientDeviceId = if (parts.size >= 2) parts[1] else "unknown"
-                    val clientDeviceName = if (parts.size >= 3) parts[2] else "Unknown Device"
+            val method = requestParts[0]
+            val path = requestParts[1]
+            val protocol = requestParts[2]
 
-                    // 如果有回调，先询问用户是否接受同步
-                    val callback = syncRequestCallback
-                    if (callback != null) {
-                        Log.d(TAG, "Asking user to accept sync request from $clientDeviceName")
-
-                        // 通知UI显示确认对话框
-                        val requestInfo = com.chronie.homemoney.domain.sync.SyncRequestInfo(
-                            deviceId = clientDeviceId,
-                            deviceName = clientDeviceName,
-                            address = clientSocket.inetAddress.hostAddress
-                        )
-
-                        // 使用挂起函数等待用户响应
-                        val accepted = try {
-                            kotlinx.coroutines.withTimeout(30000L) { // 30秒超时
-                                kotlin.coroutines.suspendCoroutine<Boolean> { continuation ->
-                                    pendingSyncResponse = continuation
-                                    // 启动协程调用回调
-                                    kotlinx.coroutines.GlobalScope.launch {
-                                        val result = callback.onSyncRequest(requestInfo)
-                                        respondToSyncRequest(result)
-                                    }
-                                }
-                            }
-                        } catch (e: Exception) {
-                            Log.w(TAG, "Sync request timeout or error", e)
-                            false
-                        }
-
-                        if (!accepted) {
-                            Log.d(TAG, "User rejected sync request from $clientDeviceName")
-                            writer.println("ERROR|Sync request rejected")
-                            clientSocket.close()
-                            return
-                        }
-
-                        Log.d(TAG, "User accepted sync request from $clientDeviceName")
-                    }
-
-                    // 处理同步请求
-                    handleSyncRequest(request, reader, writer, clientSocket)
-                    // 注意：handleSyncRequest 内部会关闭 socket
-                    return
+            // 读取请求头
+            val headers = mutableMapOf<String, String>()
+            var line: String?
+            while (readLine(inputStream!!).also { line = it } != null && line!!.isNotEmpty()) {
+                val headerParts = line!!.split(": ", limit = 2)
+                if (headerParts.size == 2) {
+                    headers[headerParts[0]] = headerParts[1]
                 }
-                request.startsWith("PING|") -> {
-                    // 处理心跳请求
-                    writer.println("PONG|$deviceId|$deviceName")
+            }
+
+            // 处理不同的 HTTP 请求
+            when (path) {
+                SYNC_ENDPOINT -> {
+                    if (method == "POST") {
+                        handleHttpSyncRequest(clientSocket, inputStream!!, outputStream, headers)
+                    } else {
+                        sendHttpResponse(outputStream, 405, "Method Not Allowed", "Only POST method is allowed for /sync")
+                    }
+                }
+                PING_ENDPOINT -> {
+                    if (method == "GET") {
+                        handleHttpPingRequest(outputStream)
+                    } else {
+                        sendHttpResponse(outputStream, 405, "Method Not Allowed", "Only GET method is allowed for /ping")
+                    }
                 }
                 else -> {
-                    Log.w(TAG, "Unknown request type: $request")
+                    Log.w(TAG, "Unknown path: $path")
+                    sendHttpResponse(outputStream, 404, "Not Found", "Path not found")
                 }
             }
 
-            // 关闭连接
+        } catch (e: Exception) {
+            Log.e(TAG, "Error handling HTTP client connection", e)
             try {
+                outputStream?.let {
+                    sendHttpResponse(it, 500, "Internal Server Error", "Server error: ${e.message}")
+                }
+            } catch (e2: Exception) {
+                // 忽略发送错误
+            }
+        } finally {
+            try {
+                inputStream?.close()
+                outputStream?.close()
                 clientSocket.close()
             } catch (e: Exception) {
-                Log.w(TAG, "Error closing client socket", e)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error handling client connection", e)
-            try {
-                clientSocket.close()
-            } catch (e2: Exception) {
-                // 忽略关闭错误
+                Log.w(TAG, "Error closing resources", e)
             }
         }
     }
-    
+
     /**
-     * 处理同步请求
+     * 从 InputStream 中读取一行
      */
-    private suspend fun handleSyncRequest(
-        request: String,
-        reader: BufferedReader,
-        writer: PrintWriter,
-        clientSocket: Socket
+    private fun readLine(inputStream: InputStream): String? {
+        val buffer = StringBuilder()
+        var byte: Int
+        while (inputStream.read().also { byte = it } != -1) {
+            val char = byte.toChar()
+            if (char == '\r') {
+                // 读取下一个字符，如果是 \n 则返回
+                val nextByte = inputStream.read()
+                if (nextByte == -1) {
+                    break
+                }
+                val nextChar = nextByte.toChar()
+                if (nextChar == '\n') {
+                    return buffer.toString()
+                } else {
+                    // 不是 \n，将 \r 添加到缓冲区并继续
+                    buffer.append(char)
+                    buffer.append(nextChar)
+                }
+            } else if (char == '\n') {
+                return buffer.toString()
+            } else {
+                buffer.append(char)
+            }
+        }
+        return if (buffer.isNotEmpty()) buffer.toString() else null
+    }
+
+    /**
+     * 发送 HTTP 响应
+     */
+    private fun sendHttpResponse(outputStream: OutputStream, statusCode: Int, statusMessage: String, content: String) {
+        val response = "HTTP/1.1 $statusCode $statusMessage\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\nConnection: close\r\n\r\n$content"
+        outputStream.write(response.toByteArray(Charsets.UTF_8))
+        outputStream.flush()
+    }
+
+    /**
+     * 处理 HTTP 同步请求
+     */
+    private suspend fun handleHttpSyncRequest(
+        clientSocket: Socket,
+        inputStream: InputStream,
+        outputStream: OutputStream,
+        headers: Map<String, String>
     ) {
         // 使用同步锁防止并发同步
         synchronized(syncLock) {
             if (isSyncing) {
                 Log.w(TAG, "Already syncing, rejecting request")
-                writer.println("ERROR|Device is busy")
+                sendHttpResponse(outputStream, 429, "Too Many Requests", "Device is busy syncing")
                 return
             }
             isSyncing = true
         }
 
-        // 解析客户端设备信息
-        val parts = request.split("|")
-        val clientDeviceName = if (parts.size >= 3) parts[2] else "Unknown Device"
-
         try {
-            Log.d(TAG, "Starting sync as server with client: ${clientSocket.inetAddress.hostAddress}")
+            val clientAddress = clientSocket.inetAddress.hostAddress
+            Log.d(TAG, "Starting sync as server with client: $clientAddress")
+
+            // 从请求头中获取设备信息
+            val clientDeviceId = headers["X-Device-Id"] ?: "unknown"
+            val clientDeviceName = headers["X-Device-Name"] ?: "Unknown Device"
+
+            // 如果有回调，先询问用户是否接受同步
+            val callback = syncRequestCallback
+            if (callback != null) {
+                Log.d(TAG, "Asking user to accept sync request from $clientDeviceName")
+
+                // 通知UI显示确认对话框
+                val requestInfo = com.chronie.homemoney.domain.sync.SyncRequestInfo(
+                    deviceId = clientDeviceId,
+                    deviceName = clientDeviceName,
+                    address = clientAddress
+                )
+
+                // 使用挂起函数等待用户响应
+                val accepted = try {
+                    Log.d(TAG, "Starting to wait for user response...")
+                    kotlinx.coroutines.withTimeout(30000L) { // 30秒超时
+                        kotlin.coroutines.suspendCoroutine<Boolean> { continuation ->
+                            Log.d(TAG, "Setting pendingSyncResponse")
+                            pendingSyncResponse = continuation
+                            // 启动协程调用回调
+                            kotlinx.coroutines.GlobalScope.launch {
+                                Log.d(TAG, "Launching callback coroutine")
+                                val result = try {
+                                    Log.d(TAG, "Calling callback.onSyncRequest")
+                                    callback.onSyncRequest(requestInfo)
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "Error in sync request callback", e)
+                                    false
+                                }
+                                Log.d(TAG, "Callback returned result: $result")
+                                respondToSyncRequest(result)
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Sync request timeout or error", e)
+                    false
+                }
+
+                Log.d(TAG, "User response received: $accepted")
+
+                if (!accepted) {
+                    Log.d(TAG, "User rejected sync request from $clientDeviceName")
+                    sendHttpResponse(outputStream, 403, "Forbidden", "Sync request rejected")
+                    updateSyncProgress(1f, "同步请求被拒绝", false)
+                    return
+                }
+
+                Log.d(TAG, "User accepted sync request from $clientDeviceName")
+            }
 
             // 通知UI显示同步进度（服务器端作为被搜索方也需要显示）
-            updateSyncProgress(0.1f, "正在接收来自 $clientDeviceName 的数据...", true)
+            updateSyncProgress(0.1f, "正在接收来自 ${clientDeviceName} 的数据...", true)
 
-            // 读取客户端发送的 SYNC 头（已经在 handleClientConnection 中读取并传入 request 参数）
-            // 现在读取数据长度
-            Log.d(TAG, "Waiting for data length...")
-            val lengthLine = reader.readLine()
-            if (lengthLine == null) {
-                Log.w(TAG, "No length received from client")
-                writer.println("ERROR|No length received")
+            // 读取请求体长度
+            val contentLength = headers["Content-Length"]?.toIntOrNull()
+            if (contentLength == null || contentLength <= 0) {
+                Log.w(TAG, "Invalid content length")
+                sendHttpResponse(outputStream, 400, "Bad Request", "Invalid content length")
                 updateSyncProgress(1f, "接收失败：未收到数据长度", false)
                 return
             }
 
-            if (!lengthLine.startsWith("LENGTH|")) {
-                Log.w(TAG, "Invalid length format: $lengthLine")
-                writer.println("ERROR|Invalid length format")
-                updateSyncProgress(1f, "接收失败：数据格式错误", false)
-                return
-            }
+            Log.d(TAG, "Expecting $contentLength bytes of data")
+            updateSyncProgress(0.3f, "正在接收数据 (${contentLength} 字节)...", true)
 
-            val dataLength = lengthLine.substringAfter("LENGTH|").toIntOrNull()
-            if (dataLength == null || dataLength <= 0) {
-                Log.w(TAG, "Invalid data length: $dataLength")
-                writer.println("ERROR|Invalid data length")
-                updateSyncProgress(1f, "接收失败：数据长度无效", false)
-                return
-            }
-
-            Log.d(TAG, "Expecting $dataLength bytes of data")
-
-            updateSyncProgress(0.3f, "正在接收数据 (${dataLength} 字节)...", true)
-
-            // 重要：在读取字节数据前，需要清空BufferedReader的缓冲区
-            // 因为BufferedReader可能已经预读取了一些字节
-            // 我们使用DataInputStream来精确读取指定字节数
-            val inputStream = clientSocket.getInputStream()
-            val dataInputStream = java.io.DataInputStream(inputStream)
-            val dataBytes = ByteArray(dataLength)
-
+            // 读取请求体数据
+            val dataBytes = ByteArray(contentLength)
+            var bytesRead = 0
             try {
-                // 使用DataInputStream.readFully确保读取完整数据
-                dataInputStream.readFully(dataBytes)
-                Log.d(TAG, "Successfully read $dataLength bytes")
+                val startTime = System.currentTimeMillis()
+                while (bytesRead < contentLength) {
+                    // 检查超时（累计时间）
+                    val elapsed = System.currentTimeMillis() - startTime
+                    if (elapsed > HTTP_TIMEOUT * 2) {
+                        throw IOException("Read timeout after ${elapsed}ms")
+                    }
+                    val read = inputStream.read(dataBytes, bytesRead, contentLength - bytesRead)
+                    if (read == -1) {
+                        throw IOException("Unexpected end of stream")
+                    }
+                    bytesRead += read
+                }
+                Log.d(TAG, "Successfully read $bytesRead bytes")
                 updateSyncProgress(0.6f, "数据接收完成，正在处理...", true)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to read data", e)
-                writer.println("ERROR|Failed to read data: ${e.message}")
+                Log.e(TAG, "Failed to read request body", e)
+                sendHttpResponse(outputStream, 400, "Bad Request", "Failed to read request body: ${e.message}")
                 updateSyncProgress(1f, "接收失败：${e.message}", false)
                 return
             }
-
-            updateSyncProgress(0.6f, "正在处理接收到的数据...", true)
 
             val clientDataJson = String(dataBytes, Charsets.UTF_8)
             Log.d(TAG, "Received client data, length: ${clientDataJson.length}")
@@ -714,31 +785,37 @@ class LanDeviceSyncManager(
             val localDataBytes = localDataJson.toByteArray(Charsets.UTF_8)
             Log.d(TAG, "Prepared local data: ${localDataBytes.size} bytes")
 
-            updateSyncProgress(0.8f, "正在发送数据到 $clientDeviceName...", true)
+            updateSyncProgress(0.8f, "正在发送数据到 ${clientDeviceName}...", true)
 
-            // 发送响应（使用长度前缀协议）
-            writer.println("OK")
-            writer.println("LENGTH|${localDataBytes.size}")
-            writer.flush()
+            // 发送 HTTP 响应
+            val responseHeaders = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: ${localDataBytes.size}\r\nConnection: close\r\n\r\n"
+            try {
+                outputStream.write(responseHeaders.toByteArray(Charsets.UTF_8))
+                outputStream.write(localDataBytes)
+                outputStream.flush()
+                Log.d(TAG, "Sent response to client: ${localDataBytes.size} bytes")
 
-            // 发送数据
-            val outputStream = clientSocket.getOutputStream()
-            outputStream.write(localDataBytes)
-            outputStream.flush()
-            Log.d(TAG, "Sent response to client: ${localDataBytes.size} bytes")
+                updateSyncProgress(1f, "与 ${clientDeviceName} 同步完成！", false)
+                Log.d(TAG, "Sync completed with client")
 
-            updateSyncProgress(1f, "与 $clientDeviceName 同步完成！", false)
-            Log.d(TAG, "Sync completed with client")
-
-            // 等待一小段时间确保数据被发送
-            kotlinx.coroutines.delay(1500)
+                // 等待一小段时间确保数据被发送和显示
+                kotlinx.coroutines.delay(3000) // 增加等待时间，确保用户能看到完成状态
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to send response", e)
+                updateSyncProgress(1f, "发送失败：${e.message}", false)
+            } finally {
+                try {
+                    outputStream.close()
+                } catch (e: Exception) {
+                    Log.w(TAG, "Error closing output stream", e)
+                }
+            }
 
         } catch (e: Exception) {
             Log.e(TAG, "Error handling sync request", e)
             updateSyncProgress(1f, "同步失败：${e.message}", false)
             try {
-                writer.println("ERROR|${e.message}")
-                writer.flush()
+                sendHttpResponse(outputStream, 500, "Internal Server Error", "Sync error: ${e.message}")
             } catch (e2: Exception) {
                 // 忽略写入错误
             }
@@ -747,47 +824,59 @@ class LanDeviceSyncManager(
             // 延迟清除进度，让用户能看到完成状态
             kotlinx.coroutines.delay(2000)
             clearSyncProgress()
-            // 关闭连接
-            try {
-                clientSocket.close()
-                Log.d(TAG, "Client socket closed")
-            } catch (e: Exception) {
-                Log.w(TAG, "Error closing client socket in handleSyncRequest", e)
-            }
         }
     }
+
+    /**
+     * 处理 HTTP 心跳请求
+     */
+    private fun handleHttpPingRequest(outputStream: OutputStream) {
+        val responseBody = "{\"deviceId\":\"$deviceId\",\"deviceName\":\"$deviceName\"}"
+        val response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: ${responseBody.length}\r\nConnection: close\r\n\r\n$responseBody"
+        outputStream.write(response.toByteArray(Charsets.UTF_8))
+        outputStream.flush()
+        Log.d(TAG, "Sent ping response")
+    }
+    
+
     
     override suspend fun connect(device: DeviceInfo): Boolean {
-        Log.d(TAG, "Connecting to device: ${device.deviceName} at ${device.address}:$SYNC_PORT")
+        Log.d(TAG, "Connecting to device: ${device.deviceName} at ${device.address}:$HTTP_SYNC_PORT")
 
         var lastException: Exception? = null
 
-        for (attempt in 1..TCP_CONNECTION_RETRIES) {
+        for (attempt in 1..HTTP_CONNECTION_RETRIES) {
             try {
-                val socket = withContext(Dispatchers.IO) {
-                    val newSocket = Socket()
-                    newSocket.soTimeout = SOCKET_TIMEOUT
-                    newSocket.connect(InetSocketAddress(device.address, SYNC_PORT), TCP_CONNECTION_TIMEOUT)
-                    newSocket
+                val result = withContext(Dispatchers.IO) {
+                    // 发送 HTTP GET 请求到 /ping 端点来验证设备是否可达
+                    val url = URL("http://${device.address}:$HTTP_SYNC_PORT$PING_ENDPOINT")
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.connectTimeout = HTTP_CONNECTION_TIMEOUT
+                    connection.readTimeout = HTTP_TIMEOUT
+                    connection.requestMethod = "GET"
+
+                    val responseCode = connection.responseCode
+                    connection.disconnect()
+                    responseCode == HttpURLConnection.HTTP_OK
                 }
 
-                this.socket = socket
-                isConnected = true
-                currentDevice = device
-
-                Log.d(TAG, "Successfully connected to device ${device.deviceName}")
-                return true
+                if (result) {
+                    isConnected = true
+                    currentDevice = device
+                    Log.d(TAG, "Successfully connected to device ${device.deviceName}")
+                    return true
+                }
             } catch (e: Exception) {
                 lastException = e
                 Log.e(TAG, "Connection attempt $attempt failed: ${e.message}")
 
-                if (attempt < TCP_CONNECTION_RETRIES) {
+                if (attempt < HTTP_CONNECTION_RETRIES) {
                     delay(1000L * attempt)
                 }
             }
         }
 
-        Log.e(TAG, "Failed to connect after $TCP_CONNECTION_RETRIES attempts", lastException)
+        Log.e(TAG, "Failed to connect after $HTTP_CONNECTION_RETRIES attempts", lastException)
         return false
     }
     
@@ -796,8 +885,7 @@ class LanDeviceSyncManager(
 
         return try {
             withContext(Dispatchers.IO) {
-                socket?.close()
-                socket = null
+                // HTTP 是无状态的，不需要关闭连接，只需重置状态
                 isConnected = false
                 currentDevice = null
                 Log.d(TAG, "Disconnected successfully")
@@ -816,39 +904,46 @@ class LanDeviceSyncManager(
 
         return try {
             withContext(Dispatchers.IO) {
-                val socket = this@LanDeviceSyncManager.socket ?: run {
-                    Log.e(TAG, "Socket is null, cannot send data")
+                val device = currentDevice ?: run {
+                    Log.e(TAG, "Current device is null, cannot send data")
                     return@withContext false
                 }
-                val outputStream = socket.getOutputStream()
-                val writer = PrintWriter(outputStream, true)
 
-                // 发送同步请求头
-                val header = "SYNC|$deviceId|$deviceName"
-                writer.println(header)
-                writer.flush()
-                Log.d(TAG, "Sent header: $header")
+                // 发送 HTTP POST 请求到 /sync 端点
+                val url = URL("http://${device.address}:$HTTP_SYNC_PORT$SYNC_ENDPOINT")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = HTTP_CONNECTION_TIMEOUT
+                connection.readTimeout = HTTP_TIMEOUT
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.setRequestProperty("X-Device-Id", deviceId)
+                connection.setRequestProperty("X-Device-Name", deviceName)
+                connection.doOutput = true
 
-                // 发送数据（使用长度前缀协议）
+                // 准备数据
                 val dataJson = gson.toJson(data)
                 val dataBytes = dataJson.toByteArray(Charsets.UTF_8)
-                val length = dataBytes.size
+                connection.setRequestProperty("Content-Length", dataBytes.size.toString())
 
-                // 先发送数据长度
-                writer.println("LENGTH|$length")
-                writer.flush()
-                Log.d(TAG, "Sent length: $length bytes")
-
-                // 然后发送数据本身
+                // 发送数据
+                val outputStream = connection.outputStream
                 outputStream.write(dataBytes)
                 outputStream.flush()
+                outputStream.close()
+
                 Log.d(TAG, "Sent data: ${dataBytes.size} bytes")
 
-                // 等待一小段时间确保数据被发送
-                Thread.sleep(500)
+                // 获取响应
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Server response code: $responseCode")
 
-                Log.d(TAG, "Data sent successfully")
-                true
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    Log.d(TAG, "Data sent successfully")
+                    true
+                } else {
+                    Log.e(TAG, "Failed to send data, server returned: $responseCode")
+                    false
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to send data", e)
@@ -861,61 +956,54 @@ class LanDeviceSyncManager(
 
         return try {
             withContext(Dispatchers.IO) {
-                val socket = this@LanDeviceSyncManager.socket ?: return@withContext null
-                val reader = BufferedReader(InputStreamReader(socket.getInputStream()))
+                val device = currentDevice ?: return@withContext null
 
-                // 读取响应状态
-                Log.d(TAG, "Waiting for server response...")
-                val response = reader.readLine()
-                Log.d(TAG, "Server response: $response")
+                // 发送 HTTP POST 请求到 /sync 端点并接收响应
+                val url = URL("http://${device.address}:$HTTP_SYNC_PORT$SYNC_ENDPOINT")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = HTTP_CONNECTION_TIMEOUT
+                connection.readTimeout = HTTP_TIMEOUT
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.setRequestProperty("X-Device-Id", deviceId)
+                connection.setRequestProperty("X-Device-Name", deviceName)
+                connection.doOutput = true
 
-                if (response == null) {
-                    Log.e(TAG, "Server closed connection without response")
+                // 准备本地数据
+                val localData = prepareLocalData()
+                val dataJson = gson.toJson(localData)
+                val dataBytes = dataJson.toByteArray(Charsets.UTF_8)
+                connection.setRequestProperty("Content-Length", dataBytes.size.toString())
+
+                // 发送数据
+                val outputStream = connection.outputStream
+                outputStream.write(dataBytes)
+                outputStream.flush()
+                outputStream.close()
+
+                // 获取响应
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Server response code: $responseCode")
+
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    Log.e(TAG, "Server returned error: $responseCode")
                     return@withContext null
                 }
 
-                if (!response.startsWith("OK")) {
-                    Log.e(TAG, "Server returned error: $response")
-                    return@withContext null
+                // 读取响应数据
+                val inputStream = connection.inputStream
+                val reader = BufferedReader(InputStreamReader(inputStream))
+                val responseData = StringBuilder()
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    responseData.append(line)
                 }
+                reader.close()
+                inputStream.close()
 
-                // 读取数据长度
-                Log.d(TAG, "Waiting for data length...")
-                val lengthLine = reader.readLine()
-                if (lengthLine == null) {
-                    Log.e(TAG, "No length received from server")
-                    return@withContext null
-                }
-
-                if (!lengthLine.startsWith("LENGTH|")) {
-                    Log.e(TAG, "Invalid length format: $lengthLine")
-                    return@withContext null
-                }
-
-                val dataLength = lengthLine.substringAfter("LENGTH|").toIntOrNull()
-                if (dataLength == null || dataLength <= 0) {
-                    Log.e(TAG, "Invalid data length: $dataLength")
-                    return@withContext null
-                }
-
-                Log.d(TAG, "Expecting $dataLength bytes of data")
-
-                // 读取数据 - 使用DataInputStream确保读取完整数据
-                val inputStream = socket.getInputStream()
-                val dataInputStream = java.io.DataInputStream(inputStream)
-                val dataBytes = ByteArray(dataLength)
-
-                try {
-                    dataInputStream.readFully(dataBytes)
-                    Log.d(TAG, "Successfully read $dataLength bytes from server")
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to read data from server", e)
-                    return@withContext null
-                }
-
-                val dataJson = String(dataBytes, Charsets.UTF_8)
-                Log.d(TAG, "Received data, length: ${dataJson.length}, parsing...")
-                gson.fromJson(dataJson, DeviceSyncData::class.java)
+                val responseJson = responseData.toString()
+                Log.d(TAG, "Received data, length: ${responseJson.length}, parsing...")
+                gson.fromJson(responseJson, DeviceSyncData::class.java)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to receive data", e)
@@ -953,37 +1041,81 @@ class LanDeviceSyncManager(
                 val localData = prepareLocalData()
                 Log.d(TAG, "Local data prepared: ${localData.entities.size} entities")
 
-                // 3. 发送本地数据到设备
-                Log.d(TAG, "Step 3: Sending data to device...")
-                if (!sendData(localData)) {
-                    Log.e(TAG, "Failed to send data")
-                    disconnect()
-                    return@withContext createFailedSyncResult("Failed to send data to device")
-                }
-                Log.d(TAG, "Data sent successfully")
+                // 3. 发送本地数据到设备并接收设备数据（HTTP 一次请求完成双向同步）
+                Log.d(TAG, "Step 3: Sending data to device and receiving response...")
+                
+                // 发送 HTTP POST 请求到 /sync 端点
+                val url = URL("http://${device.address}:$HTTP_SYNC_PORT$SYNC_ENDPOINT")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = HTTP_CONNECTION_TIMEOUT * 2 // 增加超时时间以等待用户授权
+                connection.readTimeout = HTTP_TIMEOUT * 2 // 增加超时时间以等待用户授权
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.setRequestProperty("X-Device-Id", deviceId)
+                connection.setRequestProperty("X-Device-Name", deviceName)
+                connection.doOutput = true
 
-                // 4. 接收设备数据
-                Log.d(TAG, "Step 4: Receiving data from device...")
-                val deviceData = receiveData()
-                if (deviceData == null) {
-                    Log.e(TAG, "Failed to receive data")
+                // 准备数据
+                val dataJson = gson.toJson(localData)
+                val dataBytes = dataJson.toByteArray(Charsets.UTF_8)
+                connection.setRequestProperty("Content-Length", dataBytes.size.toString())
+
+                // 发送数据
+                val outputStream = connection.outputStream
+                outputStream.write(dataBytes)
+                outputStream.flush()
+                // 不要在这里关闭输出流，因为还需要读取响应
+                // outputStream.close()
+                
+                // 通知UI显示同步进度（发送数据后）
+                updateSyncProgress(0.1f, "正在等待 ${device.deviceName} 响应...", true)
+                
+                // 4. 获取响应
+                Log.d(TAG, "Step 4: Receiving response from device...")
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Server response code: $responseCode")
+
+                if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
+                    Log.e(TAG, "Sync request rejected by user")
                     disconnect()
-                    return@withContext createFailedSyncResult("Failed to receive data from device")
+                    return@withContext createFailedSyncResult("Sync request rejected by user")
+                } else if (responseCode != HttpURLConnection.HTTP_OK) {
+                    Log.e(TAG, "Failed to sync, server returned: $responseCode")
+                    disconnect()
+                    return@withContext createFailedSyncResult("Server returned error: $responseCode")
                 }
+
+                // 5. 读取响应数据
+                val inputStream = connection.inputStream
+                val reader = BufferedReader(InputStreamReader(inputStream))
+                val responseData = StringBuilder()
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    responseData.append(line)
+                }
+                reader.close()
+                inputStream.close()
+                connection.disconnect()
+
+                val responseJson = responseData.toString()
+                Log.d(TAG, "Received data, length: ${responseJson.length}, parsing...")
+                val deviceData = gson.fromJson(responseJson, DeviceSyncData::class.java)
                 Log.d(TAG, "Data received: ${deviceData.entities.size} entities")
 
-                // 5. 处理设备数据
+                // 6. 处理设备数据
                 Log.d(TAG, "Step 5: Processing device data...")
+                updateSyncProgress(0.3f, "正在处理 ${device.deviceName} 的数据...", true)
                 val downloadResult = processDeviceData(deviceData)
                 Log.d(TAG, "Data processed: ${downloadResult.newItems} new, ${downloadResult.updatedItems} updated")
 
-                // 6. 断开连接
+                // 7. 断开连接
                 Log.d(TAG, "Step 6: Disconnecting...")
                 disconnect()
                 Log.d(TAG, "Disconnected")
 
-                // 7. 返回同步结果
+                // 8. 返回同步结果
                 Log.d(TAG, "Sync completed successfully")
+                updateSyncProgress(1f, "同步完成！", false)
                 com.chronie.homemoney.domain.model.SyncResult(
                     success = true,
                     uploadResult = com.chronie.homemoney.domain.model.UploadResult(

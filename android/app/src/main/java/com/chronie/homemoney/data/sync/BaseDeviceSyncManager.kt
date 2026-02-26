@@ -144,10 +144,18 @@ abstract class BaseDeviceSyncManager(
         var newItems = 0
         var updatedItems = 0
         
+        Log.d(TAG, "Processing ${deviceData.entities.size} entities from device ${deviceData.deviceName}")
+        
+        val totalEntities = deviceData.entities.size
+        var processedCount = 0
+        
         for (entity in deviceData.entities) {
             if (entity.entityType == "expense") {
                 try {
+                    Log.d(TAG, "Processing expense entity: ${entity.entityId}, data type: ${entity.data?.javaClass?.simpleName}")
+                    Log.d(TAG, "Entity data (first 200 chars): ${entity.data?.take(200)}")
                     val expenseEntity = gson.fromJson(entity.data, ExpenseEntity::class.java)
+                    Log.d(TAG, "Parsed expense entity: ${expenseEntity.id}, type: ${expenseEntity.type}, amount: ${expenseEntity.amount}")
                     val localExpense = expenseDao.getExpenseById(entity.entityId)
                     
                     if (localExpense == null) {
@@ -179,7 +187,15 @@ abstract class BaseDeviceSyncManager(
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to process expense entity", e)
+                    Log.e(TAG, "Entity data: ${entity.data}")
                 }
+            }
+            
+            processedCount++
+            // 每100个实体更新一次进度
+            if (processedCount % 100 == 0 || processedCount == totalEntities) {
+                val progress = 0.3f + (processedCount.toFloat() / totalEntities * 0.5f)
+                updateSyncProgress(progress, "正在处理数据... ($processedCount/$totalEntities)", true)
             }
         }
         
