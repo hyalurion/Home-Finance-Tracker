@@ -36,10 +36,10 @@ export const useSpendingStore = defineStore('spending', {
   }),
 
   getters: {
-    // 计算消费百分比
+    // 计算消费百分比（不限制最大值，用于显示真实比例）
     spendingPercentage: (state) => {
       if (!state.monthlyLimit || state.monthlyLimit <= 0) return 0;
-      return Math.min((state.currentMonthSpending / state.monthlyLimit) * 100, 100);
+      return (state.currentMonthSpending / state.monthlyLimit) * 100;
     },
 
     // 剩余可消费金额
