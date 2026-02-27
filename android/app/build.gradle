@@ -126,6 +126,7 @@ dependencies {
     implementation("com.github.Kyant0:m3color:2025.4")
     // Enable Material 3 Experimental Features
     implementation 'androidx.compose.material3:material3:1.5.0-alpha13'
+    implementation 'androidx.compose.material3:material3-window-size-class:1.5.0-alpha13'
     implementation 'androidx.compose.material:material-icons-extended'
     implementation "androidx.activity:activity-compose:$androidxActivityVersion"
     implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.10.0'

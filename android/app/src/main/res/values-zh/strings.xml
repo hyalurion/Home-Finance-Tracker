@@ -160,12 +160,18 @@
     <string name="expense_stats_median">中位数</string>
     <string name="expense_stats_range">金额区间</string>
     
+    <!-- 支出表格 -->
+    <string name="expense_type">分类</string>
+    <string name="expense_remark">备注</string>
+    <string name="expense_amount">金额</string>
+    
     <!-- 通用 -->
     <string name="common_loading">加载中…</string>
     <string name="common_error">错误</string>
     <string name="common_retry">重试</string>
     <string name="common_refresh">刷新</string>
     <string name="common_more_functions">更多功能</string>
+    <string name="common_actions">操作</string>
     
     <!-- 添加支出 -->
     <string name="add_expense_title">记一笔</string>

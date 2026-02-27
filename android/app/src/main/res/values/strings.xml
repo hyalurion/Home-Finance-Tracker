@@ -161,12 +161,18 @@
     <string name="expense_stats_median">Median</string>
     <string name="expense_stats_range">Range</string>
     
+    <!-- Expense Table -->
+    <string name="expense_type">Category</string>
+    <string name="expense_remark">Notes</string>
+    <string name="expense_amount">Amount</string>
+    
     <!-- Common -->
     <string name="common_loading">Loading…</string>
     <string name="common_error">Error</string>
     <string name="common_retry">Retry</string>
     <string name="common_refresh">Refresh</string>
     <string name="common_more_functions">More</string>
+    <string name="common_actions">Actions</string>
     
     <!-- Add Expense -->
     <string name="add_expense_title">Add Expense</string>
