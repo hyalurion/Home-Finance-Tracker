@@ -36,7 +36,7 @@
     "node-schedule": "^2.1.1",
     "papaparse": "^5.5.3",
     "speakeasy": "^2.0.0",
-    "sqlite3": "^5.1.7",
+    "sqlite3": "^6.0.0",
     "vue-qrcode": "^2.2.2",
     "xlsx": "file:xlsx-latest.tgz"
   }
