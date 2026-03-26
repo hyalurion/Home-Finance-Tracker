@@ -27,14 +27,25 @@ export default defineConfig({
           photo: path.resolve(__dirname, 'photo.html'),
         },
         output: {
-          manualChunks: {
-            vendor: ['vue', 'vue-router', 'pinia'],
-            utils: ['axios', 'dayjs'],
-            // 拆分大型依赖包
-            excel: ['xlsx'],
-            csv: ['papaparse'],
-            markdown: ['marked'],
-            highlight: ['highlight.js']
+          manualChunks: (id) => {
+            if (id.includes('vue') || id.includes('vue-router') || id.includes('pinia')) {
+              return 'vendor';
+            }
+            if (id.includes('axios') || id.includes('dayjs')) {
+              return 'utils';
+            }
+            if (id.includes('xlsx')) {
+              return 'excel';
+            }
+            if (id.includes('papaparse')) {
+              return 'csv';
+            }
+            if (id.includes('marked')) {
+              return 'markdown';
+            }
+            if (id.includes('highlight.js')) {
+              return 'highlight';
+            }
           }
         }
     },

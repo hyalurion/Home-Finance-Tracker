@@ -154,7 +154,7 @@ onMounted(async () => {
 /* 标题样式 */
 .header h1 {
   font-size: 1.8rem; /* 标题字体大小 */
-  color: var(#303133); /* 标题文本颜色 */
+  color: #303133; /* 标题文本颜色 */
   margin: 0; /* 移除默认外边距 */
   flex-shrink: 0; /* 防止标题被压缩 */
   text-align: left; /* 文本左对齐 */
