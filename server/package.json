@@ -22,7 +22,7 @@
     "jest": "^30.2.0",
     "lru-cache": "^11.2.5",
     "rimraf": "^6.1.2",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.8"
   },
   "dependencies": {
     "axios": "^1.13.5",
@@ -32,7 +32,7 @@
     "dayjs": "^1.11.19",
     "express": "^5.2.1",
     "http-proxy-middleware": "^3.0.5",
-    "multer": "^2.0.2",
+    "multer": "^2.1.1",
     "node-schedule": "^2.1.1",
     "papaparse": "^5.5.3",
     "speakeasy": "^2.0.0",
