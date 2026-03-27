@@ -25,6 +25,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.TimeRange
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import com.chronie.homemoney.ui.expense.formatDateByLocale
+import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -514,7 +515,7 @@ private fun CategoryItem(
         
         Spacer(modifier = Modifier.height(4.dp))
         
-        LinearProgressIndicator(
+        ExpressiveLinearProgressIndicator(
             progress = category.percentage / 100f,
             modifier = Modifier
                 .fillMaxWidth()

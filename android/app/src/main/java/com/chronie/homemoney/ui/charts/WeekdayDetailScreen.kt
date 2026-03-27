@@ -15,6 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.text.NumberFormat
 
@@ -225,7 +226,7 @@ private fun CategoryDetailItem(
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            LinearProgressIndicator(
+            ExpressiveLinearProgressIndicator(
                 progress = category.percentage / 100f,
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.primary,

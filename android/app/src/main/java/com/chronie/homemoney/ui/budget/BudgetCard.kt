@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.BudgetStatus
+import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.expense.formatMonthLabelByLocale
 import java.util.Locale
@@ -274,7 +275,7 @@ fun BudgetUsageCard(
                     }
                     
                     // 进度条
-                    LinearProgressIndicator(
+                    ExpressiveLinearProgressIndicator(
                         progress = (usage.spendingPercentage / 100).toFloat().coerceIn(0f, 1f),
                         modifier = Modifier
                             .fillMaxWidth()

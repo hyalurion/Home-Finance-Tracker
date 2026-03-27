@@ -19,6 +19,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
+import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import java.text.NumberFormat
 import java.util.*
@@ -353,7 +354,7 @@ private fun CategoryDetailItem(
         
         Spacer(modifier = Modifier.height(4.dp))
         
-        LinearProgressIndicator(
+        ExpressiveLinearProgressIndicator(
             progress = category.percentage / 100f,
             modifier = Modifier
                 .fillMaxWidth()

@@ -135,7 +135,9 @@ class ExpenseListViewModel @Inject constructor(
                 
                 result.fold(
                     onSuccess = { expenses ->
-                        val newExpenses = currentState.expenses + expenses
+                        // Use distinctBy to prevent duplicate IDs causing key conflicts in LazyColumn
+                        val newExpenses = (currentState.expenses + expenses)
+                            .distinctBy { it.id }
                         val grouped = groupExpensesByDate(newExpenses, currentState.filters.sortBy)
                         
                         _uiState.update {

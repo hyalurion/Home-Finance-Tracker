@@ -30,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.sync.DeviceInfo
 import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.settings.SettingsViewModel
 import kotlinx.coroutines.delay
@@ -581,7 +582,7 @@ fun DeviceSearchDialog(
                 
                 // 搜索进度
                 if (isSearching) {
-                    LinearProgressIndicator(
+                    ExpressiveLinearProgressIndicator(
                         progress = { searchProgress },
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -803,7 +804,7 @@ fun SyncProgressBottomSheet(
             Spacer(modifier = Modifier.height(24.dp))
 
             // 进度条
-            LinearProgressIndicator(
+            ExpressiveLinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier.fillMaxWidth(),
             )
