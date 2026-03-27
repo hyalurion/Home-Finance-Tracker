@@ -83,10 +83,8 @@ class ExpenseRepositoryImpl @Inject constructor(
                             SortOption.AMOUNT_DESC -> expenses.sortedByDescending { it.amount }
                         }
                         
-                        if (page == 1) {
-                            expenses.forEach { expense ->
-                                expenseDao.upsertExpense(ExpenseMapper.toEntity(expense.copy(isSynced = true)))
-                            }
+                        expenses.forEach { expense ->
+                            expenseDao.upsertExpense(ExpenseMapper.toEntity(expense.copy(isSynced = true)))
                         }
                         
                         Result.success(expenses)

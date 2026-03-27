@@ -216,19 +216,25 @@ fun ExpenseListScreen(
                 else -> {
                     val listState = rememberLazyListState()
                     val groupedExpenses = uiState.groupedExpenses
+                    var lastLoadTime by remember { mutableLongStateOf(0L) }
                     
-                    // 计算总项数（日期标题 + 支出项 + 头部项）
-                    val totalItems = groupedExpenses.size + uiState.expenses.size + 2 // 2个头部项：预算卡片、统计卡片
-                    
-                    // 检测是否滚动到底部
-                    LaunchedEffect(listState) {
+                    // 改进的滚动检测：仅当真正接近底部时才加载更多
+                    LaunchedEffect(listState, uiState.hasMore, uiState.isLoading) {
                         snapshotFlow { 
-                            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index 
-                        }.collect { lastVisibleIndex ->
-                            if (lastVisibleIndex != null && 
-                                lastVisibleIndex >= totalItems - 3 && 
+                            val layoutInfo = listState.layoutInfo
+                            val totalItemsCount = layoutInfo.totalItemsCount
+                            val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                            Triple(totalItemsCount, lastVisibleIndex, layoutInfo.visibleItemsInfo.firstOrNull()?.index)
+                        }.collect { (totalItemsCount, lastVisibleIndex, firstVisibleIndex) ->
+                            val currentTime = System.currentTimeMillis()
+                            if (totalItemsCount > 0 && 
+                                lastVisibleIndex != null && 
+                                firstVisibleIndex != null &&
+                                lastVisibleIndex >= totalItemsCount - 1 && // 只在最后一项可见时才触发
                                 uiState.hasMore && 
-                                !uiState.isLoading) {
+                                !uiState.isLoading &&
+                                currentTime - lastLoadTime > 1000) { // 防抖，至少间隔1秒
+                                lastLoadTime = currentTime
                                 viewModel.loadMore()
                             }
                         }

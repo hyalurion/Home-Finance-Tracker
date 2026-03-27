@@ -66,7 +66,8 @@ class SyncManagerImpl @Inject constructor(
             Log.d(TAG, "Server changes: ${syncResponse.serverChanges.size}, Conflicts: ${syncResponse.conflicts.size}")
             
             for (serverChange in syncResponse.serverChanges) {
-                val entity = ExpenseMapper.toEntity(ExpenseMapper.toDomain(serverChange))
+                val domainModel = ExpenseMapper.toDomain(serverChange)
+                val entity = ExpenseMapper.toEntity(domainModel.copy(isSynced = true))
                 expenseDao.upsertExpense(entity)
             }
             
