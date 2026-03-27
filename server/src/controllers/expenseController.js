@@ -533,18 +533,43 @@ const getExpensesByDate = async (req, res) => {
 
 const syncExpenses = async (req, res) => {
   try {
-    const { lastSyncTime, changes } = req.body
+    const { lastSyncTime, changes, localIds } = req.body
     
-    // 查询服务器上更新的记录（包括已删除的）
-    const serverChanges = await Expense.findAll({
-      where: {
-        updatedAt: {
-          [Op.gt]: lastSyncTime || 0
-        }
-      },
-      order: [['updatedAt', 'ASC']],
-      raw: true
-    })
+    let serverChanges = []
+    
+    // If client provides localIds, return records that client is missing
+    if (localIds && Array.isArray(localIds)) {
+      // Get all records from server (including deleted ones for conflict detection)
+      const allServerRecords = await Expense.findAll({
+        attributes: ['id'],
+        raw: true
+      })
+      const allServerIds = new Set(allServerRecords.map(r => r.id))
+      const localIdSet = new Set(localIds)
+      
+      // Find IDs that exist on server but not on client
+      const missingIds = [...allServerIds].filter(id => !localIdSet.has(id))
+      
+      if (missingIds.length > 0) {
+        serverChanges = await Expense.findAll({
+          where: {
+            id: { [Op.in]: missingIds }
+          },
+          raw: true
+        })
+      }
+    } else {
+      // Fallback to old behavior: return records updated after lastSyncTime
+      serverChanges = await Expense.findAll({
+        where: {
+          updatedAt: {
+            [Op.gt]: lastSyncTime || 0
+          }
+        },
+        order: [['updatedAt', 'ASC']],
+        raw: true
+      })
+    }
 
     const conflicts = []
     if (changes && changes.length > 0) {

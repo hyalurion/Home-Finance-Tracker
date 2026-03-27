@@ -46,15 +46,17 @@ class SyncManagerImpl @Inject constructor(
             
             val lastSyncTime = getLastSyncTime()
             val pendingChanges = expenseDao.getPendingChanges()
+            val localIds = expenseDao.getAllIds()
             
-            Log.d(TAG, "Pending changes: ${pendingChanges.size}, lastSyncTime: $lastSyncTime")
+            Log.d(TAG, "Pending changes: ${pendingChanges.size}, lastSyncTime: $lastSyncTime, localIds: ${localIds.size}")
             
             val changesDto = pendingChanges.map { ExpenseMapper.toDto(ExpenseMapper.toDomain(it)) }
             
             val response = expenseApi.syncExpenses(
                 SyncRequestDto(
                     lastSyncTime = lastSyncTime,
-                    changes = changesDto.ifEmpty { null }
+                    changes = changesDto.ifEmpty { null },
+                    localIds = localIds.ifEmpty { null }
                 )
             )
             

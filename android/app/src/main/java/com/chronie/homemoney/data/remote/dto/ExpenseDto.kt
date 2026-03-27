@@ -92,7 +92,10 @@ data class SyncRequestDto(
     val lastSyncTime: Long?,
     
     @SerializedName("changes")
-    val changes: List<ExpenseDto>?
+    val changes: List<ExpenseDto>?,
+    
+    @SerializedName("localIds")
+    val localIds: List<String>?
 )
 
 data class SyncResponseDto(

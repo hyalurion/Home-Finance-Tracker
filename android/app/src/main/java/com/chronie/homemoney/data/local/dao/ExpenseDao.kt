@@ -28,6 +28,9 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses WHERE updated_at > :lastSyncTime ORDER BY updated_at ASC")
     suspend fun getChangesSince(lastSyncTime: Long): List<ExpenseEntity>
     
+    @Query("SELECT id FROM expenses")
+    suspend fun getAllIds(): List<String>
+    
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExpense(expense: ExpenseEntity)
     
