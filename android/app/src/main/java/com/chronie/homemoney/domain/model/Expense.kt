@@ -1,42 +1,39 @@
 package com.chronie.homemoney.domain.model
 
-/**
- * 支出领域模型
- */
 data class Expense(
     val id: String,
     val type: ExpenseType,
     val remark: String?,
     val amount: Double,
     val date: String,
+    val version: Int = 1,
+    val updatedAt: Long = System.currentTimeMillis(),
+    val deletedAt: Long? = null,
     val isSynced: Boolean = false
 )
 
-/**
- * 支出类型枚举
- */
 enum class ExpenseType(val displayNameKey: String) {
-    DAILY_GOODS("expense_type_daily_goods"),           // 日常用品
-    LUXURY("expense_type_luxury"),                     // 奢侈品
-    COMMUNICATION("expense_type_communication"),       // 通讯费用
-    FOOD("expense_type_food"),                         // 食品
-    SNACKS("expense_type_snacks"),                     // 零食糖果
-    COLD_DRINKS("expense_type_cold_drinks"),           // 冷饮
-    CONVENIENCE_FOOD("expense_type_convenience_food"), // 方便食品
-    TEXTILES("expense_type_textiles"),                 // 纺织品
-    BEVERAGES("expense_type_beverages"),               // 饮品
-    CONDIMENTS("expense_type_condiments"),             // 调味品
-    TRANSPORTATION("expense_type_transportation"),     // 交通出行
-    DINING("expense_type_dining"),                     // 餐饮
-    MEDICAL("expense_type_medical"),                   // 医疗费用
-    FRUITS("expense_type_fruits"),                     // 水果
-    OTHER("expense_type_other"),                       // 其他
-    SEAFOOD("expense_type_seafood"),                   // 水产品
-    DAIRY("expense_type_dairy"),                       // 乳制品
-    GIFTS("expense_type_gifts"),                       // 礼物人情
-    TRAVEL("expense_type_travel"),                     // 旅行度假
-    GOVERNMENT("expense_type_government"),             // 政务
-    UTILITIES("expense_type_utilities");               // 水电煤气
+    DAILY_GOODS("expense_type_daily_goods"),
+    LUXURY("expense_type_luxury"),
+    COMMUNICATION("expense_type_communication"),
+    FOOD("expense_type_food"),
+    SNACKS("expense_type_snacks"),
+    COLD_DRINKS("expense_type_cold_drinks"),
+    CONVENIENCE_FOOD("expense_type_convenience_food"),
+    TEXTILES("expense_type_textiles"),
+    BEVERAGES("expense_type_beverages"),
+    CONDIMENTS("expense_type_condiments"),
+    TRANSPORTATION("expense_type_transportation"),
+    DINING("expense_type_dining"),
+    MEDICAL("expense_type_medical"),
+    FRUITS("expense_type_fruits"),
+    OTHER("expense_type_other"),
+    SEAFOOD("expense_type_seafood"),
+    DAIRY("expense_type_dairy"),
+    GIFTS("expense_type_gifts"),
+    TRAVEL("expense_type_travel"),
+    GOVERNMENT("expense_type_government"),
+    UTILITIES("expense_type_utilities");
 
     companion object {
         fun fromString(value: String): ExpenseType {

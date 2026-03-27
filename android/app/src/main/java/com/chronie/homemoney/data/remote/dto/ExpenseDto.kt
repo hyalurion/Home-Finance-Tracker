@@ -2,12 +2,9 @@ package com.chronie.homemoney.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
-/**
- * 支出记录数据传输对象
- */
 data class ExpenseDto(
     @SerializedName("id")
-    val id: Long? = null,
+    val id: String? = null,
     
     @SerializedName("type")
     val type: String,
@@ -19,12 +16,18 @@ data class ExpenseDto(
     val amount: Double,
     
     @SerializedName("date")
-    val date: String, // 格式: "yyyy-MM-dd"
+    val date: String,
+    
+    @SerializedName("version")
+    val version: Int = 1,
+    
+    @SerializedName("updatedAt")
+    val updatedAt: Long = System.currentTimeMillis(),
+    
+    @SerializedName("deletedAt")
+    val deletedAt: Long? = null
 )
 
-/**
- * 支出列表响应
- */
 data class ExpenseListResponse(
     @SerializedName("data")
     val data: List<ExpenseDto>,
@@ -42,9 +45,6 @@ data class ExpenseListResponse(
     val meta: ExpenseMetaDto? = null
 )
 
-/**
- * 支出元数据
- */
 data class ExpenseMetaDto(
     @SerializedName("uniqueTypes")
     val uniqueTypes: List<String>,
@@ -53,9 +53,6 @@ data class ExpenseMetaDto(
     val availableMonths: List<String>
 )
 
-/**
- * 支出统计响应
- */
 data class ExpenseStatisticsDto(
     @SerializedName("count")
     val count: Int,
@@ -79,9 +76,6 @@ data class ExpenseStatisticsDto(
     val typeDistribution: Map<String, TypeDistributionDto>
 )
 
-/**
- * 类型分布统计
- */
 data class TypeDistributionDto(
     @SerializedName("count")
     val count: Int,
@@ -91,4 +85,43 @@ data class TypeDistributionDto(
     
     @SerializedName("percentage")
     val percentage: Int
+)
+
+data class SyncRequestDto(
+    @SerializedName("lastSyncTime")
+    val lastSyncTime: Long?,
+    
+    @SerializedName("changes")
+    val changes: List<ExpenseDto>?
+)
+
+data class SyncResponseDto(
+    @SerializedName("serverChanges")
+    val serverChanges: List<ExpenseDto>,
+    
+    @SerializedName("conflicts")
+    val conflicts: List<ConflictDto>,
+    
+    @SerializedName("syncTime")
+    val syncTime: Long
+)
+
+data class ConflictDto(
+    @SerializedName("id")
+    val id: String,
+    
+    @SerializedName("clientVersion")
+    val clientVersion: Int,
+    
+    @SerializedName("serverVersion")
+    val serverVersion: Int,
+    
+    @SerializedName("clientUpdatedAt")
+    val clientUpdatedAt: Long,
+    
+    @SerializedName("serverUpdatedAt")
+    val serverUpdatedAt: Long,
+    
+    @SerializedName("serverData")
+    val serverData: ExpenseDto?
 )

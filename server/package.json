@@ -7,7 +7,8 @@
     "test": "jest ./test/db.test.js",
     "start": "cross-env NODE_ENV=production node --max-old-space-size=256 src/app.js",
     "dev": "nodemon --max-old-space-size=256 src/app.js",
-    "lint": "eslint . --ext .js"
+    "lint": "eslint . --ext .js",
+    "migrate": "node src/migrations/add-sync-fields.js"
   },
   "jest": {
     "testEnvironment": "node"
@@ -37,6 +38,7 @@
     "papaparse": "^5.5.3",
     "speakeasy": "^2.0.0",
     "sqlite3": "^6.0.1",
+    "uuid": "^13.0.0",
     "vue-qrcode": "^2.2.2",
     "xlsx": "file:xlsx-latest.tgz"
   }

@@ -2,7 +2,6 @@ package com.chronie.homemoney.ui.expense
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.chronie.homemoney.core.common.LocalIdGenerator
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.repository.ExpenseRepository
@@ -13,25 +12,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.UUID
 import javax.inject.Inject
 
-/**
- * 添加支出 ViewModel
- */
 @HiltViewModel
 class AddExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     private val syncScheduler: com.chronie.homemoney.data.sync.SyncScheduler,
-    private val localIdGenerator: LocalIdGenerator,
     val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(AddExpenseUiState())
     val uiState: StateFlow<AddExpenseUiState> = _uiState.asStateFlow()
     
-    /**
-     * 设置支出类型
-     */
     fun setType(type: ExpenseType) {
         _uiState.update { it.copy(
             selectedType = type,
@@ -39,9 +32,6 @@ class AddExpenseViewModel @Inject constructor(
         ) }
     }
     
-    /**
-     * 设置金额
-     */
     fun setAmount(amount: String) {
         _uiState.update { it.copy(
             amount = amount,
@@ -49,9 +39,6 @@ class AddExpenseViewModel @Inject constructor(
         ) }
     }
     
-    /**
-     * 设置日期
-     */
     fun setDate(date: LocalDate) {
         _uiState.update { it.copy(
             selectedDate = date,
@@ -59,16 +46,10 @@ class AddExpenseViewModel @Inject constructor(
         ) }
     }
     
-    /**
-     * 设置备注
-     */
     fun setRemark(remark: String) {
         _uiState.update { it.copy(remark = remark) }
     }
     
-    /**
-     * 加载支出记录用于编辑
-     */
     fun loadExpenseForEdit(expenseId: String) {
         _uiState.update { it.copy(isSaving = true) }
         
@@ -107,11 +88,7 @@ class AddExpenseViewModel @Inject constructor(
         }
     }
     
-    /**
-     * 验证并保存支出
-     */
     fun saveExpense(onSuccess: () -> Unit, onError: (String) -> Unit) {
-        // 验证表单
         if (!validateForm()) {
             return
         }
@@ -122,10 +99,9 @@ class AddExpenseViewModel @Inject constructor(
         
         viewModelScope.launch {
             try {
-                // 用户选择的日期转换为字符串格式
                 val dateStr = state.selectedDate.toString()
                 
-                val expenseId = state.expenseId ?: localIdGenerator.generateNextLocalId()
+                val expenseId = state.expenseId ?: UUID.randomUUID().toString()
                 
                 val expense = Expense(
                     id = expenseId,
@@ -145,11 +121,9 @@ class AddExpenseViewModel @Inject constructor(
                 if (result.isSuccess) {
                     _uiState.update { it.copy(isSaving = false) }
                     
-                    // 触发云同步尝试（允许失败）
                     try {
                         syncScheduler.triggerImmediateSync()
                     } catch (e: Exception) {
-                        // 同步失败不影响添加记录的成功
                         android.util.Log.w("AddExpenseViewModel", "Failed to trigger sync after saving expense", e)
                     }
                     
@@ -173,20 +147,15 @@ class AddExpenseViewModel @Inject constructor(
         }
     }
     
-    /**
-     * 验证表单
-     */
     private fun validateForm(): Boolean {
         val state = _uiState.value
         var isValid = true
         
-        // 验证类型
         if (state.selectedType == null) {
             _uiState.update { it.copy(typeError = "TYPE_REQUIRED") }
             isValid = false
         }
         
-        // 验证金额
         if (state.amount.isBlank()) {
             _uiState.update { it.copy(amountError = "AMOUNT_REQUIRED") }
             isValid = false
@@ -200,20 +169,21 @@ class AddExpenseViewModel @Inject constructor(
         
         return isValid
     }
+    
+    fun resetState() {
+        _uiState.value = AddExpenseUiState()
+    }
 }
 
-/**
- * 添加支出 UI 状态
- */
 data class AddExpenseUiState(
     val expenseId: String? = null,
     val selectedType: ExpenseType? = null,
     val amount: String = "",
     val selectedDate: LocalDate = LocalDate.now(),
     val remark: String = "",
+    val isSaving: Boolean = false,
+    val saveError: String? = null,
     val typeError: String? = null,
     val amountError: String? = null,
-    val dateError: String? = null,
-    val isSaving: Boolean = false,
-    val saveError: String? = null
+    val dateError: String? = null
 )

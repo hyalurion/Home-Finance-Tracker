@@ -1,12 +1,23 @@
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 // 使用相对路径API基础URL，通过Vite代理转发请求
 export const API_BASE = '/api';
 
+// 生成UUID
+export const generateId = () => uuidv4();
+
 export const ExpenseAPI = {
   async addExpensesBatch (records) {
     try {
-      return await axios.post(`${API_BASE}/expenses/batch`, records, {
+      // 为每条记录添加UUID和版本信息
+      const recordsWithMeta = records.map(record => ({
+        id: record.id || generateId(),
+        ...record,
+        version: record.version || 1,
+        updatedAt: record.updatedAt || Date.now()
+      }));
+      return await axios.post(`${API_BASE}/expenses/batch`, recordsWithMeta, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -63,23 +74,42 @@ export const ExpenseAPI = {
 
   async addExpense (data) {
     try {
-      return await axios.post(`${API_BASE}/expenses`, data, {
+      const expenseData = {
+        id: data.id || generateId(),
+        ...data,
+        amount: parseFloat(data.amount),
+        date: data.date,
+        remark: data.remark || '',
+        version: data.version || 1,
+        updatedAt: data.updatedAt || Date.now()
+      };
+      return await axios.post(`${API_BASE}/expenses`, expenseData, {
         headers: {
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
-        },
-        transformRequest: [(data) => JSON.stringify({
-          ...data,
-          amount: parseFloat(data.amount),
-          // 确保使用date字段，不再需要time字段
-          date: data.date,
-          // 使用remark字段
-          remark: data.remark || ''
-        })]
+        }
       });
     } catch (error) {
       console.error('添加消费数据失败:', error);
       throw error; // 添加操作失败需要向上抛出错误
+    }
+  },
+
+  // 同步API - 用于离线同步
+  async syncExpenses (lastSyncTime, changes) {
+    try {
+      const response = await axios.post(`${API_BASE}/expenses/sync`, {
+        lastSyncTime,
+        changes
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('同步消费数据失败:', error);
+      throw error;
     }
   },
 
@@ -113,16 +143,17 @@ export const ExpenseAPI = {
   async updateExpense (id, data) {
     try {
       console.log(`[Expense API] 更新消费记录 ID: ${id}`, data);
-      const response = await axios.put(`${API_BASE}/expenses/${id}`, data, {
+      const updateData = {
+        ...data,
+        amount: parseFloat(data.amount),
+        date: data.date,
+        version: (data.version || 0) + 1,
+        updatedAt: Date.now()
+      };
+      const response = await axios.put(`${API_BASE}/expenses/${id}`, updateData, {
         headers: {
           'Content-Type': 'application/json'
-        },
-        transformRequest: [(data) => JSON.stringify({
-          ...data,
-          amount: parseFloat(data.amount),
-          // 确保使用date字段，不再需要time字段
-          date: data.date
-        })]
+        }
       });
       return response.data;
     } catch (error) {

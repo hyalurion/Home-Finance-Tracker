@@ -181,16 +181,9 @@ class AIRecordRepositoryImpl @Inject constructor(
                 return Result.success(Unit)
             }
             
-            val maxLocalId = expenseDao.getMaxLocalId()
-            val startId = if (maxLocalId == null) {
-                -1
-            } else {
-                maxLocalId - 1
-            }
-            
-            val expenses = validRecords.mapIndexed { index, aiRecord ->
-                val localId = (startId - index).toString()
-                aiRecord.copy(id = localId).toExpense()
+            val expenses = validRecords.map { aiRecord ->
+                val uuid = java.util.UUID.randomUUID().toString()
+                aiRecord.copy(id = uuid).toExpense()
             }
             
             val entities = expenses.map { ExpenseMapper.toEntity(it).copy(isSynced = false) }

@@ -1,6 +1,7 @@
 const { Expense, sequelize } = require('../db')
 const dayjs = require('dayjs')
 const { Op } = require('sequelize')
+const { v4: uuidv4 } = require('uuid')
 
 const getExpenses = async (req, res) => {
   try {
@@ -11,7 +12,10 @@ const getExpenses = async (req, res) => {
     const offset = (pageNum - 1) * pageSize
 
     // 构建查询条件
-    const where = {}
+    const where = {
+      // 默认只查询未删除的记录
+      deletedAt: null
+    }
     if (type) where.type = type
     if (month) {
       // 解析月份并构建日期范围
@@ -125,15 +129,12 @@ const getExpenses = async (req, res) => {
 
 const addExpense = async (req, res) => {
   try {
-    const { type, remark, amount, time, date } = req.body
+    const { id, type, remark, amount, time, date, version, updatedAt } = req.body
 
-    // 后端数据验证
     if (!type || !amount) {
       return res.status(400).json({ error: '消费类型和金额是必填项' })
     }
 
-    // 确保日期格式为YYYY-MM-DD字符串
-    // 优先使用date字段（前端现在使用的是date字段），如果date不存在再尝试使用time字段
     let dateStr = dayjs().format('YYYY-MM-DD')
     if (date) {
       dateStr = dayjs(date).format('YYYY-MM-DD')
@@ -141,11 +142,17 @@ const addExpense = async (req, res) => {
       dateStr = dayjs(time).format('YYYY-MM-DD')
     }
 
+    const expenseId = id || uuidv4()
+    const now = Date.now()
+
     const newExpense = await Expense.create({
+      id: expenseId,
       type,
       remark,
       amount: parseFloat(amount),
-      date: dateStr
+      date: dateStr,
+      version: version || 1,
+      updatedAt: updatedAt || now
     })
 
     res.status(201).json(newExpense)
@@ -158,15 +165,18 @@ const addExpense = async (req, res) => {
 const deleteExpense = async (req, res) => {
   try {
     const { id } = req.params
-    const deleted = await Expense.destroy({
-      where: { id: id }
-    })
-
-    if (deleted) {
-      res.status(204).send()
-    } else {
-      res.status(404).json({ error: '未找到要删除的记录' })
+    
+    const existingExpense = await Expense.findByPk(id)
+    if (!existingExpense) {
+      return res.status(404).json({ error: '未找到要删除的记录' })
     }
+
+    await Expense.update(
+      { deletedAt: Date.now() },
+      { where: { id: id } }
+    )
+
+    res.status(204).send()
   } catch (error) {
     console.error('删除消费记录失败:', error)
     res.status(500).json({ error: '无法删除记录' })
@@ -176,15 +186,13 @@ const deleteExpense = async (req, res) => {
 const updateExpense = async (req, res) => {
   try {
     const { id } = req.params
-    const { type, remark, amount, time, date } = req.body
+    const { type, remark, amount, time, date, version, updatedAt } = req.body
 
-    // 检查记录是否存在
     const existingExpense = await Expense.findByPk(id)
     if (!existingExpense) {
       return res.status(404).json({ error: '未找到要更新的记录' })
     }
 
-    // 后端数据验证
     if (type === undefined && amount === undefined && remark === undefined && time === undefined) {
       return res.status(400).json({ error: '至少需要提供一个要更新的字段' })
     }
@@ -193,24 +201,35 @@ const updateExpense = async (req, res) => {
       return res.status(400).json({ error: '金额必须是有效的正数' })
     }
 
-    // 构建更新数据对象
-    const updateData = {}
+    const clientVersion = version || existingExpense.version + 1
+    const clientUpdatedAt = updatedAt || Date.now()
+
+    if (clientUpdatedAt <= existingExpense.updatedAt) {
+      return res.status(409).json({ 
+        error: 'Conflict: server has newer version',
+        serverVersion: existingExpense.version,
+        serverUpdatedAt: existingExpense.updatedAt,
+        currentData: existingExpense
+      })
+    }
+
+    const updateData = {
+      version: clientVersion,
+      updatedAt: clientUpdatedAt
+    }
     if (type !== undefined) updateData.type = type
     if (remark !== undefined) updateData.remark = remark
     if (amount !== undefined) updateData.amount = parseFloat(amount)
-    // 优先使用date字段更新日期，如果date不存在再尝试使用time字段
     if (date !== undefined) {
       updateData.date = dayjs(date).format('YYYY-MM-DD')
     } else if (time !== undefined) {
       updateData.date = dayjs(time).format('YYYY-MM-DD')
     }
 
-    // 执行更新操作
     await Expense.update(updateData, {
       where: { id: id }
     })
 
-    // 获取更新后的记录
     const updatedExpense = await Expense.findByPk(id)
     res.json(updatedExpense)
   } catch (error) {
@@ -225,7 +244,9 @@ const getStatistics = async (req, res) => {
     const { type, month, keyword, minAmount, maxAmount } = req.query
 
     // 构建查询条件，与getExpenses相同
-    const where = {}
+    const where = {
+      deletedAt: null
+    }
     if (type) where.type = type
     if (month) {
       try {
@@ -339,7 +360,9 @@ const getExpensesByDate = async (req, res) => {
     const pageSize = parseInt(limit, 10)
 
     // 构建查询条件
-    const where = {}
+    const where = {
+      deletedAt: null
+    }
     if (type) where.type = type
     if (month) {
       try {
@@ -508,11 +531,111 @@ const getExpensesByDate = async (req, res) => {
   }
 }
 
+const syncExpenses = async (req, res) => {
+  try {
+    const { lastSyncTime, changes } = req.body
+    
+    // 查询服务器上更新的记录（包括已删除的）
+    const serverChanges = await Expense.findAll({
+      where: {
+        updatedAt: {
+          [Op.gt]: lastSyncTime || 0
+        }
+      },
+      order: [['updatedAt', 'ASC']],
+      raw: true
+    })
+
+    const conflicts = []
+    if (changes && changes.length > 0) {
+      for (const change of changes) {
+        try {
+          const serverRecord = await Expense.findByPk(change.id)
+          
+          if (change.deletedAt) {
+            if (serverRecord) {
+              await Expense.update(
+                { deletedAt: change.deletedAt, updatedAt: change.updatedAt },
+                { where: { id: change.id } }
+              )
+            }
+            continue
+          }
+
+          if (!serverRecord) {
+            await Expense.create({
+              id: change.id,
+              type: change.type,
+              remark: change.remark,
+              amount: change.amount,
+              date: change.date,
+              version: change.version || 1,
+              updatedAt: change.updatedAt || Date.now()
+            })
+          } else if (change.updatedAt > serverRecord.updatedAt) {
+            await Expense.update(
+              {
+                type: change.type,
+                remark: change.remark,
+                amount: change.amount,
+                date: change.date,
+                version: change.version,
+                updatedAt: change.updatedAt
+              },
+              { where: { id: change.id } }
+            )
+          } else if (change.updatedAt < serverRecord.updatedAt) {
+            conflicts.push({
+              id: change.id,
+              clientVersion: change.version,
+              serverVersion: serverRecord.version,
+              clientUpdatedAt: change.updatedAt,
+              serverUpdatedAt: serverRecord.updatedAt,
+              serverData: serverRecord
+            })
+          }
+        } catch (err) {
+          console.error('Error processing change:', change.id, err)
+        }
+      }
+    }
+
+    res.json({
+      serverChanges: serverChanges,
+      conflicts: conflicts,
+      syncTime: Date.now()
+    })
+  } catch (error) {
+    console.error('同步失败:', error)
+    res.status(500).json({ error: '同步失败' })
+  }
+}
+
+const hardDeleteExpense = async (req, res) => {
+  try {
+    const { id } = req.params
+    const deleted = await Expense.destroy({
+      where: { id: id }
+    })
+
+    if (deleted) {
+      res.status(204).send()
+    } else {
+      res.status(404).json({ error: '未找到要删除的记录' })
+    }
+  } catch (error) {
+    console.error('永久删除消费记录失败:', error)
+    res.status(500).json({ error: '无法删除记录' })
+  }
+}
+
 module.exports = {
   getExpenses,
   getExpensesByDate,
   addExpense,
   deleteExpense,
+  hardDeleteExpense,
   updateExpense,
-  getStatistics
+  getStatistics,
+  syncExpenses
 }

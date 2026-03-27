@@ -33,7 +33,6 @@ object SyncModule {
         expenseDao: ExpenseDao,
         syncQueueDao: SyncQueueDao,
         expenseApi: ExpenseApi,
-        gson: Gson,
         deviceSyncManagerFactory: DeviceSyncManagerFactory
     ): SyncManager {
         return SyncManagerImpl(
@@ -41,7 +40,6 @@ object SyncModule {
             expenseDao = expenseDao,
             syncQueueDao = syncQueueDao,
             expenseApi = expenseApi,
-            gson = gson,
             deviceSyncManagerFactory = deviceSyncManagerFactory
         )
     }

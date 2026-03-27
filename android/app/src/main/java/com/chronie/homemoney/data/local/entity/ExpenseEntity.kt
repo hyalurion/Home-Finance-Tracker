@@ -6,17 +6,13 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
-/**
- * 支出记录实体
- * 对应后端的 Expense 表
- */
 @Entity(
     tableName = "expenses",
     indices = [
         Index(value = ["date"]),
         Index(value = ["type"]),
         Index(value = ["is_synced"]),
-        Index(value = ["server_id"], unique = true)
+        Index(value = ["updated_at"])
     ]
 )
 data class ExpenseEntity(
@@ -41,11 +37,19 @@ data class ExpenseEntity(
     @SerializedName("date")
     val date: String,
     
+    @ColumnInfo(name = "version")
+    @SerializedName("version")
+    val version: Int = 1,
+    
+    @ColumnInfo(name = "updated_at")
+    @SerializedName("updatedAt")
+    val updatedAt: Long = System.currentTimeMillis(),
+    
+    @ColumnInfo(name = "deleted_at")
+    @SerializedName("deletedAt")
+    val deletedAt: Long? = null,
+    
     @ColumnInfo(name = "is_synced")
     @SerializedName("is_synced")
-    val isSynced: Boolean = false,
-    
-    @ColumnInfo(name = "server_id")
-    @SerializedName("server_id")
-    val serverId: String? = null
+    val isSynced: Boolean = false
 )

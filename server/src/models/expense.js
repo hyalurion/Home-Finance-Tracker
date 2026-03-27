@@ -1,7 +1,14 @@
 const { DataTypes } = require('sequelize')
+const { v4: uuidv4 } = require('uuid')
 
 module.exports = (sequelize) => {
   const Expense = sequelize.define('Expense', {
+    id: {
+      type: DataTypes.STRING(36),
+      primaryKey: true,
+      defaultValue: () => uuidv4(),
+      allowNull: false
+    },
     type: {
       type: DataTypes.STRING,
       allowNull: false
@@ -17,9 +24,23 @@ module.exports = (sequelize) => {
     date: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    version: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1
+    },
+    updatedAt: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      defaultValue: () => Date.now()
+    },
+    deletedAt: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      defaultValue: null
     }
   }, {
-    // 禁用自动时间戳功能
     timestamps: false
   })
 

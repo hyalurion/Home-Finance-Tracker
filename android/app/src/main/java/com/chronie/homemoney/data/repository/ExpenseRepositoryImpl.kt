@@ -6,33 +6,26 @@ import androidx.paging.PagingData
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
-import com.chronie.homemoney.data.local.entity.SyncQueueEntity
 import com.chronie.homemoney.data.mapper.ExpenseMapper
 import com.chronie.homemoney.data.remote.api.ExpenseApi
-import com.chronie.homemoney.data.remote.dto.ExpenseDto
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.ExpenseFilters
 import com.chronie.homemoney.domain.model.ExpenseStatistics
 import com.chronie.homemoney.domain.model.SortOption
 import com.chronie.homemoney.domain.repository.ExpenseRepository
-import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
+import java.time.LocalDate
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import java.time.LocalDate
 
-/**
- * 支出记录 Repository 实现
- */
 @Singleton
 class ExpenseRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
-    private val expenseApi: ExpenseApi,
-    private val syncQueueDao: SyncQueueDao,
-    private val gson: Gson
+    private val expenseApi: ExpenseApi
 ) : ExpenseRepository {
     
     override fun getExpenses(
@@ -46,7 +39,6 @@ class ExpenseRepositoryImpl @Inject constructor(
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
-                // TODO: 实现 PagingSource
                 throw NotImplementedError("PagingSource not implemented yet")
             }
         ).flow
@@ -93,21 +85,18 @@ class ExpenseRepositoryImpl @Inject constructor(
                         
                         if (page == 1) {
                             expenses.forEach { expense ->
-                                expenseDao.insertExpense(ExpenseMapper.toEntity(expense))
+                                expenseDao.upsertExpense(ExpenseMapper.toEntity(expense.copy(isSynced = true)))
                             }
                         }
                         
-                        android.util.Log.d("ExpenseRepository", "Filtered expenses from server: ${expenses.size} (startDate=${filters.startDate}, endDate=${filters.endDate})")
                         Result.success(expenses)
                     } else {
                         Result.failure(Exception("Server returned error: ${response.code()}"))
                     }
                 }
             } catch (timeoutException: kotlinx.coroutines.TimeoutCancellationException) {
-                android.util.Log.w("ExpenseRepository", "Network request timeout after ${networkTimeoutMillis}ms, falling back to local data")
                 null
             } catch (networkError: Exception) {
-                android.util.Log.w("ExpenseRepository", "Network error, falling back to local data", networkError)
                 null
             }
             
@@ -185,14 +174,20 @@ class ExpenseRepositoryImpl @Inject constructor(
     
     override suspend fun addExpense(expense: Expense): Result<Expense> {
         return try {
-            // 保存到本地数据库
-            val entity = ExpenseMapper.toEntity(expense).copy(isSynced = false)
+            val id = expense.id.ifEmpty { UUID.randomUUID().toString() }
+            val now = System.currentTimeMillis()
+            
+            val newExpense = expense.copy(
+                id = id,
+                version = 1,
+                updatedAt = now,
+                isSynced = false
+            )
+            
+            val entity = ExpenseMapper.toEntity(newExpense)
             expenseDao.insertExpense(entity)
             
-            // 添加到同步队列
-            addToSyncQueue("expense", expense.id, "CREATE", entity)
-            
-            Result.success(expense)
+            Result.success(newExpense)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -200,37 +195,20 @@ class ExpenseRepositoryImpl @Inject constructor(
     
     override suspend fun updateExpense(expense: Expense): Result<Expense> {
         return try {
-            // 先尝试同步到服务器
-            try {
-                // 注意：后端API接受Int类型的ID，但我们使用String类型
-                val expenseId = expense.id.toIntOrNull()
-                if (expenseId != null) {
-                    // 调用后端API更新支出记录 - 转换为正确的类型
-                    expenseApi.updateExpense(expenseId.toLong(), ExpenseMapper.toDto(expense))
-                    // 如果API调用成功，则标记为已同步
-                    val entity = ExpenseMapper.toEntity(expense).copy(
-                        isSynced = true
-                    )
-                    expenseDao.updateExpense(entity)
-                    return Result.success(expense)
-                } else {
-                    android.util.Log.w("ExpenseRepository", "Invalid expense ID format for server sync: ${expense.id}")
-                }
-            } catch (apiError: Exception) {
-                // API调用失败，继续本地更新和同步队列处理
-                android.util.Log.w("ExpenseRepository", "Failed to update expense on server, will retry later", apiError)
-            }
+            val existing = expenseDao.getExpenseById(expense.id)
+            val newVersion = (existing?.version ?: 0) + 1
+            val now = System.currentTimeMillis()
             
-            // 本地更新逻辑（服务器同步失败时）
-            val entity = ExpenseMapper.toEntity(expense).copy(
+            val updatedExpense = expense.copy(
+                version = newVersion,
+                updatedAt = now,
                 isSynced = false
             )
+            
+            val entity = ExpenseMapper.toEntity(updatedExpense)
             expenseDao.updateExpense(entity)
             
-            // 添加到同步队列
-            addToSyncQueue("expense", expense.id, "UPDATE", entity)
-            
-            Result.success(expense)
+            Result.success(updatedExpense)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -240,25 +218,14 @@ class ExpenseRepositoryImpl @Inject constructor(
         return try {
             val entity = expenseDao.getExpenseById(id)
             if (entity != null) {
-                // 添加到同步队列（在删除之前）
-                addToSyncQueue("expense", id, "DELETE", entity)
-                
-                // 尝试先同步到服务器
-                try {
-                    // 注意：后端API接受Int类型的ID，但我们使用String类型
-                    // 这里尝试转换，如果失败则跳过服务器同步，但仍保留本地删除和同步队列
-                    val expenseId = id.toIntOrNull()
-                    if (expenseId != null) {
-                        expenseApi.deleteExpense(expenseId)
-                        // 如果API调用成功，不需要做特殊处理，因为我们即将删除该记录
-                    }
-                } catch (apiError: Exception) {
-                    // API调用失败，不影响本地操作，继续保留在同步队列中
-                    android.util.Log.w("ExpenseRepository", "Failed to delete expense on server, will retry later", apiError)
-                }
-                
-                // 从本地数据库删除
-                expenseDao.deleteExpenseById(id)
+                val now = System.currentTimeMillis()
+                val deletedEntity = entity.copy(
+                    deletedAt = now,
+                    updatedAt = now,
+                    version = entity.version + 1,
+                    isSynced = false
+                )
+                expenseDao.updateExpense(deletedEntity)
             }
             
             Result.success(Unit)
@@ -269,35 +236,9 @@ class ExpenseRepositoryImpl @Inject constructor(
     
     override suspend fun getStatistics(filters: ExpenseFilters): Result<ExpenseStatistics> {
         return try {
-            val networkTimeoutMillis = 3000L
-            
-            try {
-                withTimeout(networkTimeoutMillis) {
-                    val response = expenseApi.getStatistics(
-                        keyword = filters.keyword,
-                        type = filters.type?.let { getChineseTypeName(it) },
-                        month = filters.month,
-                        minAmount = filters.minAmount,
-                        maxAmount = filters.maxAmount
-                    )
-                    
-                    if (response.isSuccessful && response.body() != null) {
-                        android.util.Log.d("ExpenseRepository", "Server stats available but using local calculation for date filtering")
-                    } else {
-                        android.util.Log.w("ExpenseRepository", "Server stats returned error: ${response.code()}")
-                    }
-                }
-            } catch (timeoutException: kotlinx.coroutines.TimeoutCancellationException) {
-                android.util.Log.w("ExpenseRepository", "Network request timeout after ${networkTimeoutMillis}ms, using local statistics")
-            } catch (networkError: Exception) {
-                android.util.Log.w("ExpenseRepository", "Network error, using local statistics", networkError)
-            }
-            
-            // 从本地数据库计算统计数据
             val allExpenses = expenseDao.getAllExpenses().first()
             var expenses = allExpenses.map { ExpenseMapper.toDomain(it) }
             
-            // 应用筛选条件
             if (filters.keyword != null) {
                 expenses = expenses.filter { expense ->
                     expense.remark?.contains(filters.keyword, ignoreCase = true) == true ||
@@ -320,7 +261,7 @@ class ExpenseRepositoryImpl @Inject constructor(
             if (filters.startDate != null) {
                 expenses = expenses.filter { expense ->
                     try {
-                        val expenseDate = java.time.LocalDate.parse(expense.date)
+                        val expenseDate = LocalDate.parse(expense.date)
                         expenseDate >= filters.startDate
                     } catch (e: Exception) {
                         false
@@ -331,7 +272,7 @@ class ExpenseRepositoryImpl @Inject constructor(
             if (filters.endDate != null) {
                 expenses = expenses.filter { expense ->
                     try {
-                        val expenseDate = java.time.LocalDate.parse(expense.date)
+                        val expenseDate = LocalDate.parse(expense.date)
                         expenseDate <= filters.endDate
                     } catch (e: Exception) {
                         false
@@ -377,7 +318,6 @@ class ExpenseRepositoryImpl @Inject constructor(
     }
     
     override suspend fun syncWithServer(): Result<Unit> {
-        // TODO: 实现同步逻辑
         return Result.success(Unit)
     }
     
@@ -414,30 +354,5 @@ class ExpenseRepositoryImpl @Inject constructor(
             SortOption.AMOUNT_ASC -> "amountAsc"
             SortOption.AMOUNT_DESC -> "amountDesc"
         }
-    }
-    
-    private suspend fun addToSyncQueue(
-        entityType: String,
-        entityId: String,
-        operation: String,
-        data: Any
-    ) {
-        // 先删除该实体的旧同步项
-        syncQueueDao.deleteSyncItemsByEntity(entityId, entityType)
-        
-        // 转换为 DTO 格式
-        val dto = when (data) {
-            is ExpenseEntity -> ExpenseMapper.toDto(ExpenseMapper.toDomain(data))
-            else -> data
-        }
-        
-        val jsonData = gson.toJson(dto)
-        val syncItem = SyncQueueEntity(
-            entityType = entityType,
-            entityId = entityId,
-            operation = operation,
-            data = jsonData
-        )
-        syncQueueDao.insertSyncItem(syncItem)
     }
 }

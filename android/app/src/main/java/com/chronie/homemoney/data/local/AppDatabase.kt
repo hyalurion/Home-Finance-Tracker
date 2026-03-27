@@ -11,12 +11,6 @@ import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.data.local.entity.MemberEntity
 import com.chronie.homemoney.data.local.entity.SyncQueueEntity
 
-/**
- * 应用数据库
- * 版本 2: 添加 budgets 表
- * 版本 3: 向 expenses 表添加 date 字段
- * 版本 4: 为 expenses 表的 server_id 字段添加唯一索引
- */
 @Database(
     entities = [
         ExpenseEntity::class,
@@ -24,7 +18,7 @@ import com.chronie.homemoney.data.local.entity.SyncQueueEntity
         SyncQueueEntity::class,
         BudgetEntity::class
     ],
-    version = 4,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

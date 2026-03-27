@@ -12,15 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
+import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.expense.formatDateByLocale
-import java.text.SimpleDateFormat
-import java.util.*
 
-/**
- * 本地数据库界面
- * 用于验证数据库
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseTestScreen(
@@ -55,7 +50,6 @@ fun DatabaseTestScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 操作按钮
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -78,7 +72,6 @@ fun DatabaseTestScreen(
                 }
             }
             
-            // 统计信息
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -95,8 +88,7 @@ fun DatabaseTestScreen(
                 }
             }
             
-            // 状态消息
-            if (uiState.message.isNotEmpty()) {
+            if (!uiState.message.isNullOrEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -108,13 +100,12 @@ fun DatabaseTestScreen(
                     )
                 ) {
                     Text(
-                        text = uiState.message,
+                        text = uiState.message ?: "",
                         modifier = Modifier.padding(16.dp)
                     )
                 }
             }
             
-            // 支出列表
             Text(
                 text = context.getString(R.string.expense_records),
                 style = MaterialTheme.typography.titleMedium
@@ -135,7 +126,10 @@ fun DatabaseTestScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(uiState.expenses) { expense ->
-                        ExpenseItem(context = context, expense = expense)
+                        ExpenseItem(
+                            context = context,
+                            expense = expense.toUiModel()
+                        )
                     }
                 }
             }
@@ -205,6 +199,17 @@ fun ExpenseItem(
             }
         }
     }
+}
+
+private fun ExpenseEntity.toUiModel(): ExpenseItemUiModel {
+    return ExpenseItemUiModel(
+        id = id,
+        type = type,
+        remark = remark ?: "",
+        amount = amount,
+        timeFormatted = date,
+        isSynced = isSynced
+    )
 }
 
 data class ExpenseItemUiModel(

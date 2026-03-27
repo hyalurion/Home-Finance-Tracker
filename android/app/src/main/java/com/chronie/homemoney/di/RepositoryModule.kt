@@ -2,7 +2,6 @@ package com.chronie.homemoney.di
 
 import com.chronie.homemoney.data.local.dao.BudgetDao
 import com.chronie.homemoney.data.local.dao.ExpenseDao
-import com.chronie.homemoney.data.local.dao.SyncQueueDao
 import com.chronie.homemoney.data.remote.api.ExpenseApi
 import com.chronie.homemoney.data.remote.api.MemberApi
 import com.chronie.homemoney.data.repository.BudgetRepositoryImpl
@@ -11,16 +10,12 @@ import com.chronie.homemoney.data.repository.MemberRepositoryImpl
 import com.chronie.homemoney.domain.repository.BudgetRepository
 import com.chronie.homemoney.domain.repository.ExpenseRepository
 import com.chronie.homemoney.domain.repository.MemberRepository
-import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-/**
- * Repository 依赖注入模块
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
@@ -29,11 +24,9 @@ object RepositoryModule {
     @Singleton
     fun provideExpenseRepository(
         expenseDao: ExpenseDao,
-        expenseApi: ExpenseApi,
-        syncQueueDao: SyncQueueDao,
-        gson: Gson
+        expenseApi: ExpenseApi
     ): ExpenseRepository {
-        return ExpenseRepositoryImpl(expenseDao, expenseApi, syncQueueDao, gson)
+        return ExpenseRepositoryImpl(expenseDao, expenseApi)
     }
     
     @Provides
