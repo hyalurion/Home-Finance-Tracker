@@ -38,27 +38,19 @@ fun ExpressiveSwitch(
             AnimatedContent(
                 targetState = checked,
                 transitionSpec = {
-                    (fadeIn(
-                        animationSpec = tween(150)
-                    ) + scaleIn(
-                        animationSpec = tween(150),
-                        initialScale = 0.8f
-                    ) + slideInVertically(
-                        animationSpec = tween(150),
-                        initialOffsetY = { if (checked) -it else it }
-                    )).togetherWith(
-                        fadeOut(
-                            animationSpec = tween(150)
-                        ) + scaleOut(
+                    (fadeIn(animationSpec = tween(150)) +
+                        scaleIn(animationSpec = tween(150), initialScale = 0.8f) +
+                        slideInVertically(
                             animationSpec = tween(150),
-                            targetScale = 0.8f
-                        ) + slideOutVertically(
-                            animationSpec = tween(150),
-                            targetOffsetY = { if (checked) it else -it }
-                        )
-                    ).using(
-                        SizeTransform(clip = false)
-                    )
+                            initialOffsetY = { if (checked) -it else it }
+                        )).togetherWith(
+                        fadeOut(animationSpec = tween(150)) +
+                            scaleOut(animationSpec = tween(150), targetScale = 0.8f) +
+                            slideOutVertically(
+                                animationSpec = tween(150),
+                                targetOffsetY = { if (checked) it else -it }
+                            )
+                    ).using(SizeTransform(clip = false))
                 },
                 label = "switch_icon"
             ) { isChecked ->
