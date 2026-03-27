@@ -2,6 +2,9 @@ package com.chronie.homemoney.ui.budget
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.Budget
 import com.chronie.homemoney.ui.components.ExpressiveSwitch
+import com.chronie.homemoney.ui.components.CircularIconButton
 
 /**
  * 预算设置对话框
@@ -63,39 +67,91 @@ fun BudgetSettingsDialog(
                 }
                 
                 // 月度预算输入
-                OutlinedTextField(
-                    value = monthlyLimit,
-                    onValueChange = { 
-                        monthlyLimit = it
-                        showError = false
-                    },
-                    label = { Text(context.getString(R.string.budget_monthly_limit)) },
-                    placeholder = { Text("0.00") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = isEnabled,
-                    isError = showError
-                )
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularIconButton(
+                        onClick = {
+                            val current = monthlyLimit.toDoubleOrNull() ?: 0.0
+                            monthlyLimit = (current - 1000.0).coerceAtLeast(0.0).toString()
+                            showError = false
+                        },
+                        enabled = isEnabled
+                    ) {
+                        Icon(Icons.Default.Remove, contentDescription = null)
+                    }
+                    OutlinedTextField(
+                        value = monthlyLimit,
+                        onValueChange = { 
+                            monthlyLimit = it
+                            showError = false
+                        },
+                        label = { Text(context.getString(R.string.budget_monthly_limit)) },
+                        placeholder = { Text("0.00") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        enabled = isEnabled,
+                        isError = showError
+                    )
+                    CircularIconButton(
+                        onClick = {
+                            val current = monthlyLimit.toDoubleOrNull() ?: 0.0
+                            monthlyLimit = (current + 1000.0).toString()
+                            showError = false
+                        },
+                        enabled = isEnabled
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null)
+                    }
+                }
                 
                 // 警告阈值输入
-                OutlinedTextField(
-                    value = warningThreshold,
-                    onValueChange = { 
-                        warningThreshold = it
-                        showError = false
-                    },
-                    label = { Text(context.getString(R.string.budget_warning_threshold)) },
-                    placeholder = { Text("80") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = isEnabled,
-                    isError = showError,
-                    supportingText = {
-                        Text(context.getString(R.string.budget_warning_threshold_hint))
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularIconButton(
+                        onClick = {
+                            val current = warningThreshold.toDoubleOrNull() ?: 80.0
+                            warningThreshold = (current - 10.0).coerceAtLeast(0.0).toString()
+                            showError = false
+                        },
+                        enabled = isEnabled
+                    ) {
+                        Icon(Icons.Default.Remove, contentDescription = null)
                     }
-                )
+                    OutlinedTextField(
+                        value = warningThreshold,
+                        onValueChange = { 
+                            warningThreshold = it
+                            showError = false
+                        },
+                        label = { Text(context.getString(R.string.budget_warning_threshold)) },
+                        placeholder = { Text("80") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        enabled = isEnabled,
+                        isError = showError,
+                        supportingText = {
+                            Text(context.getString(R.string.budget_warning_threshold_hint))
+                        }
+                    )
+                    CircularIconButton(
+                        onClick = {
+                            val current = warningThreshold.toDoubleOrNull() ?: 80.0
+                            warningThreshold = (current + 10.0).coerceAtMost(100.0).toString()
+                            showError = false
+                        },
+                        enabled = isEnabled
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null)
+                    }
+                }
                 
                 // 错误提示
                 if (showError) {
