@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is the native Android implementation of the Home Money financial tracking application. The app is built using modern Android development practices with Kotlin, Jetpack Compose, and follows Clean Architecture principles. It provides a hybrid architecture that allows gradual migration from WebView-based features to native implementations.
+This is the native Android implementation of the Home Money financial tracking application. The app is built using modern Android development practices with Kotlin, Jetpack Compose, and follows Clean Architecture principles. It provides a comprehensive set of features for expense tracking, budget management, data synchronization, and more.
 
 ## Features
 
@@ -12,14 +12,23 @@ This is the native Android implementation of the Home Money financial tracking a
 - **Budget Management**: Set monthly spending limits with warning thresholds and real-time usage tracking
 - **Data Synchronization**: Automatic background sync with server, offline support with local caching
 - **Search & Filtering**: Advanced filtering by date range, expense type, amount range, and keywords
-- **Multi-language Support**: Full internationalization support for English, Simplified Chinese, and Traditional Chinese
+- **Multi-language Support**: Full internationalization support for English, Simplified Chinese, Traditional Chinese, Hong Kong, Macau, and Singapore variants
+
+### New & Enhanced Features
+- **LAN Device Sync**: Peer-to-peer data synchronization between devices over local network using Bluetooth
+- **Data Visualization**: Interactive charts and radar charts for weekday spending analysis
+- **Membership Management**: User profile and membership features
+- **Excel Import/Export**: Import expenses from Excel files and export data for backup
+- **Image Cropping**: Built-in image cropping for AI expense recognition
+- **Error Reporting**: Automatic crash reporting and error logging for debugging
+- **Health Check Service**: Server health monitoring
 
 ### Technical Features
-- **Hybrid Architecture**: Seamless integration between native features and WebView content
 - **Encrypted Database**: SQLCipher-encrypted local storage for sensitive financial data
-- **Material Design 3**: Modern UI following Google's latest design guidelines
+- **Material Design 3 Expressive**: Modern UI following Google's latest design guidelines with expressive components
 - **Edge-to-Edge Display**: Immersive full-screen experience
 - **Developer Mode**: Built-in database testing and debugging tools
+- **Customizable Theme**: Color picker for personalizing the app appearance
 
 ## Architecture
 
@@ -48,40 +57,48 @@ This is the native Android implementation of the Home Money financial tracking a
 - **Retrofit**: RESTful API client for server communication
 - **Repository Pattern**: Abstraction layer for data sources
 - **Data Mappers**: Convert between Entity, Domain, and DTO models
+- **Excel Integration**: Apache POI for import/export functionality
 
 #### Domain Layer
 - **Use Cases**: Business logic encapsulation
 - **Domain Models**: Pure Kotlin data classes
 - **Repository Interfaces**: Contracts for data operations
+- **Sync Managers**: LAN and server synchronization
 
 #### Presentation Layer
 - **Jetpack Compose**: Modern declarative UI framework
 - **ViewModels**: UI state management with Kotlin Flow
 - **Navigation Component**: Type-safe navigation between screens
+- **Material 3 Expressive**: Enhanced UI components
 
 ## Tech Stack
 
 ### Core Technologies
-- **Language**: Kotlin 1.9.20
-- **UI Framework**: Jetpack Compose (BOM 2023.10.01)
-- **Dependency Injection**: Hilt 2.48.1
-- **Database**: Room 2.6.1 with SQLCipher 4.5.4
-- **Networking**: Retrofit 2.9.0 + OkHttp 4.12.0
-- **Async**: Kotlin Coroutines 1.7.3 + Flow
+- **Language**: Kotlin 2.3.20
+- **UI Framework**: Jetpack Compose (BOM 2026.03.01)
+- **Dependency Injection**: Hilt 2.59.2
+- **Database**: Room 2.8.4 with SQLCipher 4.14.0
+- **Networking**: Retrofit 3.0.0 + OkHttp 5.3.2
+- **Async**: Kotlin Coroutines 1.10.2 + Flow
 
 ### Key Libraries
-- **Material Design 3**: Modern UI components
-- **Navigation Compose**: Type-safe navigation
-- **Paging 3**: Efficient data loading
-- **WorkManager**: Background task scheduling
-- **Coil**: Image loading and caching
+- **Material Design 3**: Modern UI components (1.5.0-alpha16)
+- **Material Expressive**: Enhanced Material components (1.14.0-alpha10)
+- **Navigation Compose**: Type-safe navigation (2.9.7)
+- **Paging 3**: Efficient data loading (3.4.2)
+- **WorkManager**: Background task scheduling (2.11.2)
+- **Coil**: Image loading and caching (2.7.0)
 - **Gson**: JSON serialization
-- **DataStore**: Preferences storage
+- **DataStore**: Preferences storage (1.2.1)
+- **Apache POI**: Excel file handling (5.5.1)
+- **uCrop**: Image cropping (2.2.11)
+- **m3color**: Material 3 color utilities (2025.4)
 
 ### Security
 - **SQLCipher**: Database encryption
 - **EncryptedSharedPreferences**: Secure key storage
 - **Android Keystore**: Hardware-backed key management
+- **Error Reporting**: Secure error logging
 
 ## Project Structure
 
@@ -92,8 +109,8 @@ android/
 │   │   ├── main/
 │   │   │   ├── java/com/chronie/homemoney/
 │   │   │   │   ├── core/              # Core utilities
-│   │   │   │   │   ├── common/        # Common utilities
-│   │   │   │   │   ├── hybrid/        # Hybrid architecture
+│   │   │   │   │   ├── common/        # Common utilities (Language, DeveloperMode)
+│   │   │   │   │   ├── error/         # Error reporting system
 │   │   │   │   │   └── network/       # Network monitoring
 │   │   │   │   ├── data/              # Data layer
 │   │   │   │   │   ├── local/         # Room database
@@ -105,18 +122,23 @@ android/
 │   │   │   │   │   │   └── interceptor/ # HTTP interceptors
 │   │   │   │   │   ├── repository/    # Repository implementations
 │   │   │   │   │   ├── mapper/        # Data mappers
-│   │   │   │   │   └── sync/          # Sync management
+│   │   │   │   │   └── sync/          # Sync management (LAN + Server)
 │   │   │   │   ├── di/                # Dependency injection
 │   │   │   │   ├── domain/            # Domain layer
 │   │   │   │   │   ├── model/         # Domain models
 │   │   │   │   │   ├── repository/    # Repository interfaces
 │   │   │   │   │   ├── usecase/       # Use cases
 │   │   │   │   │   └── sync/          # Sync interfaces
+│   │   │   │   ├── service/           # Background services
 │   │   │   │   ├── ui/                # Presentation layer
 │   │   │   │   │   ├── budget/        # Budget management
+│   │   │   │   │   ├── charts/        # Data visualization
+│   │   │   │   │   ├── components/    # Reusable UI components
 │   │   │   │   │   ├── expense/       # Expense tracking
 │   │   │   │   │   ├── main/          # Main screen
+│   │   │   │   │   ├── membership/    # Membership features
 │   │   │   │   │   ├── settings/      # Settings
+│   │   │   │   │   ├── sync/          # LAN sync screen
 │   │   │   │   │   ├── test/          # Testing screens
 │   │   │   │   │   ├── theme/         # Material theme
 │   │   │   │   │   └── welcome/       # Welcome screen
@@ -125,6 +147,9 @@ android/
 │   │   │   ├── res/                   # Resources
 │   │   │   │   ├── values/            # English strings
 │   │   │   │   ├── values-zh/         # Simplified Chinese
+│   │   │   │   ├── values-zh-rHK/     # Hong Kong Chinese
+│   │   │   │   ├── values-zh-rMO/     # Macau Chinese
+│   │   │   │   ├── values-zh-rSG/     # Singapore Chinese
 │   │   │   │   └── values-zh-rTW/     # Traditional Chinese
 │   │   │   └── AndroidManifest.xml
 │   │   └── androidTest/               # Instrumented tests
@@ -132,6 +157,7 @@ android/
 ├── gradle/                            # Gradle wrapper
 ├── build.gradle                       # Project build config
 ├── settings.gradle                    # Project settings
+├── variables.gradle                   # Version variables
 └── README.md                          # This file
 ```
 
@@ -140,8 +166,8 @@ android/
 ### Prerequisites
 - Android Studio Hedgehog (2023.1.1) or later
 - JDK 17 or later
-- Android SDK 35 (Android 15)
-- Minimum SDK 23 (Android 6.0)
+- Android SDK36 (Android 16)
+- Minimum SDK 26 (Android 8.0)
 
 ### Building the Project
 
@@ -199,6 +225,11 @@ private const val BASE_URL = "http://YOUR_SERVER_IP:3010/"
 Configure API keys in the Settings screen:
 - **SiliconFlow API Key**: Required for AI expense recognition feature
 
+### Versioning
+The app uses dynamic versioning based on build date and time:
+- `versionCode`: Timestamp-based unique identifier
+- `versionName`: Format `1.YYYYMMDD.HHMM`
+
 ## Features Guide
 
 ### 1. Expense Management
@@ -211,6 +242,7 @@ Configure API keys in the Settings screen:
 #### AI Recognition
 - Tap the AI icon in the add expense screen
 - Select images or enter text description
+- Crop images if needed
 - Review and edit recognized expenses
 - Save all records at once
 
@@ -242,13 +274,28 @@ Configure API keys in the Settings screen:
   - Yellow: Warning (above threshold)
   - Red: Over budget
 
-### 3. Data Synchronization
+### 3. Data Visualization
 
-#### Automatic Sync
+#### Charts Screen
+- View weekly spending trends
+- Weekday radar chart for spending pattern analysis
+- Tap on weekdays to see detailed breakdown
+- Filter by date range for specific periods
+
+### 4. Data Synchronization
+
+#### Server Sync
 - Background sync runs every hour
 - Syncs when network becomes available
 - Uploads local changes to server
 - Downloads server updates
+
+#### LAN Device Sync
+- Go to Settings → LAN Sync
+- Enable Bluetooth and location permissions
+- Discover nearby devices
+- Pair and sync data directly without server
+- Conflict resolution based on timestamps
 
 #### Manual Sync
 - Go to Settings → Data Sync
@@ -261,17 +308,53 @@ Configure API keys in the Settings screen:
 - Newer version always wins
 - Conflicts are logged for review
 
-### 4. Language Settings
+### 5. Data Import/Export
+
+#### Export Expenses
+- Go to Settings → Import/Export
+- Select "Export to Excel"
+- Choose date range
+- Save Excel file to device storage
+
+#### Import Expenses
+- Go to Settings → Import/Export
+- Select "Import from Excel"
+- Choose Excel file from device
+- Review and confirm imported data
+- Save to database
+
+### 6. Membership Management
+
+#### User Profile
+- View and edit user profile
+- Upload avatar image
+- Update personal information
+
+#### Login/Logout
+- Secure login with server
+- Automatic token refresh
+- Persistent login state
+
+### 7. Language & Theme
+
+#### Language Settings
 - Go to Settings → Language
-- Choose from English, Simplified Chinese, or Traditional Chinese
+- Choose from English, Simplified Chinese, Traditional Chinese, Hong Kong, Macau, or Singapore variants
 - UI updates immediately without restart
 - Preference is saved and persists across app restarts
 
-### 5. Developer Mode
+#### Theme Customization
+- Go to Settings → Theme
+- Use color picker to select custom accent colors
+- Preview theme changes in real-time
+- Save custom theme preferences
+
+### 8. Developer Mode
 - Go to Settings → Developer Options
 - Enable Developer Mode
 - Access database testing screen from main menu
 - Add test data, view records, and clear database
+- View error logs and crash reports
 
 ## Database Schema
 
@@ -301,6 +384,20 @@ CREATE TABLE budgets (
 )
 ```
 
+### Members Table
+```sql
+CREATE TABLE members (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    email TEXT,
+    avatar TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    is_synced INTEGER NOT NULL DEFAULT 0,
+    server_id TEXT
+)
+```
+
 ### Sync Queue Table
 ```sql
 CREATE TABLE sync_queue (
@@ -322,6 +419,8 @@ CREATE TABLE sync_queue (
 - `PUT /api/expenses/:id` - Update expense
 - `DELETE /api/expenses/:id` - Delete expense
 - `GET /api/expenses/statistics` - Get expense statistics
+- `POST /api/expenses/export` - Export expenses to Excel
+- `POST /api/expenses/import` - Import expenses from Excel
 
 ### AI Recognition API
 - `POST /api/ai/parse` - Parse text or images to extract expense records
@@ -331,6 +430,15 @@ CREATE TABLE sync_queue (
 ### Member API
 - `GET /api/members/current` - Get current user info
 - `POST /api/members` - Create or update member
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+
+### Health Check API
+- `GET /api/health` - Check server health status
+
+### Error Report API
+- `POST /api/error-report` - Submit error reports
+- `GET /api/error-report/logs` - Get error logs
 
 ## Testing
 
@@ -348,8 +456,10 @@ CREATE TABLE sync_queue (
 1. Enable Developer Mode in Settings
 2. Access Database Test screen
 3. Add test data and verify operations
-4. Check sync functionality
+4. Check sync functionality (server and LAN)
 5. Test offline mode by disabling network
+6. Test Excel import/export
+7. Test LAN device sync between multiple devices
 
 ## Troubleshooting
 
@@ -372,17 +482,23 @@ CREATE TABLE sync_queue (
 - Check Logcat for error messages
 - Verify database migrations are correct
 - Clear app data and reinstall
+- Check error reports in Developer Mode
 
 #### Sync Not Working
 - Check network connection
 - Verify server is running and accessible
 - Check API key configuration
 - Review sync logs in Settings
+- For LAN sync: Ensure Bluetooth is enabled and devices are paired
 
 #### Language Not Changing
 - Ensure language is saved in Settings
-- Restart the app
 - Check that string resources exist for all languages
+
+#### Import/Export Issues
+- Verify storage permissions are granted
+- Check Excel file format is correct
+- Ensure file path is accessible
 
 ## Performance Optimization
 
@@ -408,11 +524,19 @@ CREATE TABLE sync_queue (
 - Encrypted SharedPreferences for sensitive data
 - HTTPS for all network communication
 - No sensitive data in logs (production builds)
+- Secure error reporting with anonymized data
 
 ### Authentication
 - JWT token-based authentication
 - Automatic token refresh
 - Secure token storage in EncryptedSharedPreferences
+
+### Permissions
+- Camera: For AI expense recognition
+- Bluetooth: For LAN device sync
+- Location: For Bluetooth scanning (Android 6.0+)
+- Storage: For Excel import/export
+- Images: For reading media files (Android 13+)
 
 ## Contributing
 
@@ -420,7 +544,7 @@ CREATE TABLE sync_queue (
 - Follow Kotlin coding conventions
 - Use ktlint for code formatting
 - Write meaningful commit messages
-- Add comments for complex logic
+- Add comments for complex logic (in English)
 
 ### Pull Request Process
 1. Create a feature branch
@@ -428,24 +552,6 @@ CREATE TABLE sync_queue (
 3. Write/update tests
 4. Update documentation
 5. Submit pull request with description
-
-## Version History
-
-### Current Version: 1.0.0
-
-#### Completed Features
-- ✅ Multi-language support (English, Simplified Chinese, Traditional Chinese)
-- ✅ Hybrid architecture with WebView integration
-- ✅ Encrypted Room database with SQLCipher
-- ✅ Expense list with pagination and filtering
-- ✅ Add/edit expense functionality
-- ✅ AI-powered expense recognition
-- ✅ Budget management with real-time tracking
-- ✅ Data synchronization with conflict resolution
-- ✅ Background sync with WorkManager
-- ✅ Network monitoring and auto-sync
-- ✅ Material Design 3 UI
-- ✅ Developer mode with database testing
 
 #### Known Issues
 - None currently reported
@@ -460,6 +566,8 @@ For issues, questions, or contributions, please refer to the main project reposi
 
 ## Acknowledgments
 
-- Built with Jetpack Compose and Material Design 3
+- Built with Jetpack Compose and Material Design 3 Expressive
 - Uses SiliconFlow API for AI features
 - Inspired by modern Android development best practices
+- Uses Apache POI for Excel handling
+- Uses uCrop for image cropping
