@@ -91,6 +91,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(16.dp)
+                .padding(bottom = 80.dp)
         ) {
             // 账户信息部分
             AccountSection(
@@ -423,8 +424,6 @@ fun SettingsScreen(
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
             // 开源许可证信息
             Spacer(modifier = Modifier.height(32.dp))
             
@@ -469,6 +468,8 @@ fun SettingsScreen(
                     )
                 }
             }
+            
+            Spacer(modifier = Modifier.height(16.dp))
             
             // 应用版本信息
             AppVersionInfo(context = context)

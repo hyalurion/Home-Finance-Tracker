@@ -151,6 +151,7 @@ private fun ChartsContent(
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(16.dp)
+            .padding(bottom = 80.dp)
     ) {
         // 时间范围显示
         TimeRangeCard(context, selectedTimeRange, state)
