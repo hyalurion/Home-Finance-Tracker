@@ -7,6 +7,7 @@
   "expense.aiAddRecord": "AI智能記錄",
   "expense.aiReport": "AI消費問答",
   "export.monthData": "匯出本月資料",
+  "export.failed": "匯出失敗，請稍後重試",
   "common.loadFailed": "資料載入失敗，請稍後重試",
   "common.edit": "編輯",
   "common.delete": "刪除",

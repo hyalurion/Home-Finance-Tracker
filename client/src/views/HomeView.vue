@@ -108,7 +108,7 @@
             </template>
           </CustomUpload>
           <ExportButton
-            @export-excel="() => exportToExcel(Expenses)"
+            @export-excel="exportToExcel"
           />
           <GlassButton type="primary" @click="exportMonthData">
             <template #icon><FontAwesomeIcon icon="download" /></template>
@@ -480,10 +480,10 @@ import { marked } from 'marked';
 
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import i18n from '@/locales/i18n';
 import CustomSelect from '@/components/CustomSelect.vue';
 
 import { useExpenseData } from '@/composables/useExpenseData';
-import { useExcelExport } from '@/composables/useExcelExport';
 import { fetchAllPages, createCancellationController } from '@/utils/pagination';
 import { ExpenseAPI } from '@/api/expenses';
 
@@ -1025,8 +1025,32 @@ const handleDataLoaded = (data) => {
   expenseListTotal.value = data.total || 0;
 };
 
-// 导出功能
-const { exportToExcel } = useExcelExport();
+// 导出功能 - 调用后端API下载Excel
+const exportToExcel = async () => {
+  try {
+    const currentLang = localStorage.getItem('appLang') || i18n.global.locale.value || 'zh-CN'
+    const response = await fetch(`/api/export/excel?lang=${currentLang}`)
+    
+    if (!response.ok) {
+      throw new Error(t('export.failed'))
+    }
+    
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    const now = new Date()
+    const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`
+    link.download = `expenses_${timestamp}.xlsx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Export failed:', error)
+    errorMessage.value = t('export.failed')
+  }
+}
 
 // 费用数据管理
 const {

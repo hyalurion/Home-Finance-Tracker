@@ -30,14 +30,24 @@ const upload = multer({ storage })
  * @api {get} /api/export/excel 导出Excel文件
  * @apiName ExportExcel
  * @apiGroup Export
+ * @apiParam {string} [lang] 语言代码 (zh-CN, en-US, zh-TW)
  * @apiSuccess {file} Excel文件 消费记录的Excel文件
  */
 router.get('/api/export/excel', async (req, res) => {
   try {
-    const filePath = exportService.generateExcel()
-    res.download(filePath)
+    const lang = req.query.lang || 'zh-CN'
+    const { filePath, timestamp } = await exportService.generateExcel(lang)
+    const filename = `expenses_${timestamp}.xlsx`
+    
+    res.download(filePath, filename, (err) => {
+      if (err) {
+        console.error('Download error:', err)
+      }
+      exportService.cleanupFile(filePath)
+    })
   } catch (error) {
-    res.status(500).send('生成Excel失败')
+    console.error('Export error:', error)
+    res.status(500).json({ success: false, message: 'Failed to generate Excel file' })
   }
 })
 
