@@ -39,6 +39,7 @@ fun MainScreen(
     onNavigateToMoreFunctions: () -> Unit = {},
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> },
     onNavigateToLanSync: () -> Unit = {},
+    onNavigateToOpenSourceLicenses: () -> Unit = {},
     onRequireLogin: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel()
 ) {
@@ -83,6 +84,7 @@ fun MainScreen(
                             onNavigateToSettings()
                         },
                         onNavigateToLanSync = onNavigateToLanSync,
+                        onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
                         onLogout = {
                             android.util.Log.d("MainScreen", "收到 onLogout 回调")
                             onRequireLogin()

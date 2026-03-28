@@ -56,6 +56,7 @@ fun SettingsScreen(
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToMembership: () -> Unit = {},
     onNavigateToLanSync: () -> Unit = {},
+    onNavigateToOpenSourceLicenses: () -> Unit = {},
     onLogout: () -> Unit = {},
     onRequireLogin: () -> Unit = {}
 ) {
@@ -423,6 +424,51 @@ fun SettingsScreen(
             }
             
             Spacer(modifier = Modifier.height(16.dp))
+            
+            // 开源许可证信息
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            Divider()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = context.getString(R.string.open_source_licenses),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateToOpenSourceLicenses() },
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = context.getString(R.string.open_source_licenses),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = context.getString(R.string.open_source_licenses_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Text(
+                        text = ">",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
             
             // 应用版本信息
             AppVersionInfo(context = context)

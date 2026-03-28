@@ -42,6 +42,7 @@ import com.chronie.homemoney.ui.expense.AddExpenseScreen
 import com.chronie.homemoney.ui.expense.AIExpenseScreen
 import com.chronie.homemoney.ui.main.MainScreen
 import com.chronie.homemoney.ui.settings.SettingsScreen
+import com.chronie.homemoney.ui.settings.OpenSourceLicensesScreen
 import com.chronie.homemoney.ui.sync.LanSyncScreen
 import com.chronie.homemoney.ui.test.DatabaseTestScreen
 import com.chronie.homemoney.ui.theme.HomeMoneyTheme
@@ -263,6 +264,9 @@ fun HomeMoneyApp(
                 onNavigateToLanSync = {
                     navController.navigate("lan_sync")
                 },
+                onNavigateToOpenSourceLicenses = {
+                    navController.navigate("open_source_licenses")
+                },
                 onLogout = {
                     // 退出登录后，清空整个导航栈并返回欢迎页
                     navController.navigate("welcome") {
@@ -321,6 +325,10 @@ fun HomeMoneyApp(
                     selectedTab = 2
                     navController.navigate("lan_sync")
                 },
+                onNavigateToOpenSourceLicenses = {
+                    selectedTab = 2
+                    navController.navigate("open_source_licenses")
+                },
                 onRequireLogin = {
                     // 未登录时，清空导航栈并返回欢迎页
                     navController.navigate("welcome") {
@@ -374,6 +382,15 @@ fun HomeMoneyApp(
 
         composable("database_test") {
             DatabaseTestScreen(
+                context = context,
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable("open_source_licenses") {
+            OpenSourceLicensesScreen(
                 context = context,
                 onNavigateBack = {
                     navController.popBackStack()

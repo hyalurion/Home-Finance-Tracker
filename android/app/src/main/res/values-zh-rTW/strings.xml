@@ -524,4 +524,8 @@
     <string name="reject">拒絕</string>
     <string name="incoming_sync_request_title">收到同步請求</string>
     <string name="incoming_sync_request_message">想要與您的裝置同步資料</string>
+    
+    <!-- 開源許可證 -->
+    <string name="open_source_licenses">開源許可證</string>
+    <string name="open_source_licenses_description">查看三方組件許可證</string>
 </resources>

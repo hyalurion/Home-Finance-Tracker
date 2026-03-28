@@ -525,4 +525,8 @@
     <string name="reject">Reject</string>
     <string name="incoming_sync_request_title">Incoming Sync Request</string>
     <string name="incoming_sync_request_message">wants to synchronize data with your device</string>
+    
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">Open Source Licenses</string>
+    <string name="open_source_licenses_description">View licenses of third-party components</string>
 </resources>
