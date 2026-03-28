@@ -49,6 +49,7 @@
   "import.title": "导入数据",
   "import.success": "数据导入成功",
   "import.failed": "数据导入失败",
+  "import.refreshNotice": "（3秒后自动刷新）",
   "expense.amountRequired": "请输入金额",
   "expense.categoryRequired": "请选择分类",
   "expense.dateRequired": "请选择日期",

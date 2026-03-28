@@ -837,14 +837,19 @@ const confirmDelete = async () => {
 };
 
 // 导入处理
-const handleImportSuccess = () => {
-  successMessage.value = t('import.success');
-};
+const handleImportSuccess = (response) => {
+  const message = response?.message || t('import.success')
+  successMessage.value = `${message}${t('import.refreshNotice')}`
+  setTimeout(() => {
+    refreshPage()
+  }, 3000)
+}
 
 const handleImportError = (error) => {
-  errorMessage.value = t('import.failed');
-  console.error('Import error:', error);
-};
+  const errorMessageText = error?.message || t('import.failed')
+  errorMessage.value = errorMessageText
+  console.error('Import error:', error)
+}
 
 // 导出本月数据图片
 const exportMonthData = () => {

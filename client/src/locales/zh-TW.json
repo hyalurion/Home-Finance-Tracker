@@ -49,6 +49,7 @@
   "import.title": "導入資料",
   "import.success": "資料導入成功",
   "import.failed": "資料導入失敗",
+  "import.refreshNotice": "（3秒後自動更新）",
   "expense.amountRequired": "請輸入金額",
   "expense.categoryRequired": "請選擇分類",
   "expense.dateRequired": "請選擇日期",

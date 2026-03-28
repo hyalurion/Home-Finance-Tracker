@@ -49,6 +49,7 @@
   "import.title": "Import Data",
   "import.success": "Data imported successfully",
   "import.failed": "Failed to import data",
+  "import.refreshNotice": "(Auto-refresh in 3 seconds)",
   "common.cancel": "Cancel",
   "common.save": "Save",
   "expense.addDialogTitle": "Add Expense",
