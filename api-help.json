@@ -1,7 +1,7 @@
 {
-  "apiVersion": "2.0.0",
-  "timestamp": "2025-11-03T14:12:06.781Z",
-  "projectName": "Household Finance Manager API",
+  "apiVersion": "2026.03.28",
+  "timestamp": "2026-03-28T00:00:00.000Z",
+  "projectName": "Home Finance Tracker API",
   "description": "家庭财务管理系统后端API文档",
   "availableAPIs": {
     "base": [
@@ -28,6 +28,18 @@
           "en": "Quick check of system and database status",
           "zh": "快速检查系统和数据库状态"
         }
+      },
+      {
+        "endpoint": "/api/healthcheck",
+        "method": "GET",
+        "description": {
+          "en": "Enhanced health check endpoint",
+          "zh": "增强版健康检查端点"
+        },
+        "usage": {
+          "en": "Returns service information, version, and memory usage",
+          "zh": "返回服务信息、版本和内存使用情况"
+        }
       }
     ],
     "expenses": [
@@ -44,6 +56,18 @@
         }
       },
       {
+        "endpoint": "/api/expenses/by-date",
+        "method": "GET",
+        "description": {
+          "en": "Get expenses by date range",
+          "zh": "按日期范围获取消费记录"
+        },
+        "usage": {
+          "en": "Retrieve expense records within a specific date range",
+          "zh": "获取特定日期范围内的消费记录"
+        }
+      },
+      {
         "endpoint": "/api/expenses",
         "method": "POST",
         "description": {
@@ -56,15 +80,51 @@
         }
       },
       {
+        "endpoint": "/api/expenses/sync",
+        "method": "POST",
+        "description": {
+          "en": "Sync expenses",
+          "zh": "同步消费记录"
+        },
+        "usage": {
+          "en": "Sync expense records between devices",
+          "zh": "在设备间同步消费记录"
+        }
+      },
+      {
+        "endpoint": "/api/expenses/:id",
+        "method": "PUT",
+        "description": {
+          "en": "Update expense record",
+          "zh": "更新消费记录"
+        },
+        "usage": {
+          "en": "Update an existing expense record by ID",
+          "zh": "通过ID更新现有的消费记录"
+        }
+      },
+      {
         "endpoint": "/api/expenses/:id",
         "method": "DELETE",
         "description": {
-          "en": "Delete expense record",
-          "zh": "删除消费记录"
+          "en": "Delete expense record (soft delete)",
+          "zh": "删除消费记录（软删除）"
         },
         "usage": {
-          "en": "Remove an expense record by its ID",
-          "zh": "通过ID删除消费记录"
+          "en": "Soft remove an expense record by its ID",
+          "zh": "通过ID软删除消费记录"
+        }
+      },
+      {
+        "endpoint": "/api/expenses/:id/hard",
+        "method": "DELETE",
+        "description": {
+          "en": "Hard delete expense record",
+          "zh": "硬删除消费记录"
+        },
+        "usage": {
+          "en": "Permanently remove an expense record by its ID",
+          "zh": "通过ID永久删除消费记录"
         }
       },
       {
@@ -80,7 +140,6 @@
         }
       }
     ],
-
     "jsonFiles": [
       {
         "endpoint": "/api/json-files",
@@ -181,6 +240,18 @@
           "en": "Retrieve detailed information about a specific member",
           "zh": "获取特定会员的详细信息"
         }
+      },
+      {
+        "endpoint": "/api/members/:username/avatar",
+        "method": "PUT",
+        "description": {
+          "en": "Update member avatar",
+          "zh": "更新会员头像"
+        },
+        "usage": {
+          "en": "Update the avatar for a specific member",
+          "zh": "更新特定会员的头像"
+        }
       }
     ],
     "logs": [
@@ -232,11 +303,61 @@
           "zh": "删除早于指定天数的日志"
         }
       }
+    ],
+    "errorReports": [
+      {
+        "endpoint": "/api/error/report",
+        "method": "POST",
+        "description": {
+          "en": "Submit error report",
+          "zh": "提交错误报告"
+        },
+        "usage": {
+          "en": "Submit error reports from mobile app",
+          "zh": "从移动应用提交错误报告"
+        }
+      },
+      {
+        "endpoint": "/api/errors",
+        "method": "GET",
+        "description": {
+          "en": "Get error reports list (admin function)",
+          "zh": "获取错误报告列表（管理员功能）"
+        },
+        "usage": {
+          "en": "Retrieve list of error reports",
+          "zh": "获取错误报告列表"
+        }
+      },
+      {
+        "endpoint": "/api/errors/stats",
+        "method": "GET",
+        "description": {
+          "en": "Get error statistics (admin function)",
+          "zh": "获取错误统计信息（管理员功能）"
+        },
+        "usage": {
+          "en": "Retrieve statistics about error reports",
+          "zh": "获取错误报告的统计信息"
+        }
+      },
+      {
+        "endpoint": "/api/errors/:reportId/process",
+        "method": "PUT",
+        "description": {
+          "en": "Mark error report as processed (admin function)",
+          "zh": "标记错误报告为已处理（管理员功能）"
+        },
+        "usage": {
+          "en": "Mark an error report as processed",
+          "zh": "将错误报告标记为已处理"
+        }
+      }
     ]
   },
   "usageGuide": {
-    "en": "This API provides endpoints for managing household finances including expense tracking and data import/export functionality.",
-    "zh": "本API提供了家庭财务管理的各种端点，包括消费记录跟踪和数据导入/导出功能。"
+    "en": "This API provides endpoints for managing household finances including expense tracking, member management, data import/export, and error reporting functionality.",
+    "zh": "本API提供了家庭财务管理的各种端点，包括消费记录跟踪、会员管理、数据导入/导出和错误报告功能。"
   },
-  "lastUpdated": "2026-02-20"
+  "lastUpdated": "2026-03-28"
 }
