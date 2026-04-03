@@ -252,6 +252,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun clearSkippedLogin() {
+        preferencesManager.setSkippedLogin(false)
+    }
+
     fun setLanguage(language: Language) {
         languageManager.setLanguage(language)
     }

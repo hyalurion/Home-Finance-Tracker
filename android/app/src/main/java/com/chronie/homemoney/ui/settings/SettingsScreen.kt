@@ -1761,7 +1761,10 @@ fun AccountSection(
                 } else {
                     // 登录按钮
                     androidx.compose.material3.Button(
-                        onClick = onRequireLogin,
+                        onClick = {
+                            viewModel.clearSkippedLogin()
+                            onRequireLogin()
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(

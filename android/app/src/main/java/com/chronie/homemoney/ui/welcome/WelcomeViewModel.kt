@@ -2,6 +2,7 @@ package com.chronie.homemoney.ui.welcome
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chronie.homemoney.data.local.PreferencesManager
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val checkLoginStatusUseCase: CheckLoginStatusUseCase
+    private val checkLoginStatusUseCase: CheckLoginStatusUseCase,
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<WelcomeUiState>(WelcomeUiState.CheckingLogin)
@@ -35,10 +37,14 @@ class WelcomeViewModel @Inject constructor(
 
     fun checkLoginStatus() {
         viewModelScope.launch {
-            val isLoggedIn = checkLoginStatusUseCase()
-            if (isLoggedIn) {
-                val username = checkLoginStatusUseCase.getUsername() ?: ""
-                _uiState.value = WelcomeUiState.LoggedIn(username)
+            val shouldSkipWelcome = checkLoginStatusUseCase()
+            if (shouldSkipWelcome) {
+                val username = checkLoginStatusUseCase.getUsername()
+                if (!username.isNullOrEmpty()) {
+                    _uiState.value = WelcomeUiState.LoggedIn(username)
+                } else {
+                    _skipLoginEvent.emit(Unit)
+                }
             } else {
                 _uiState.value = WelcomeUiState.NotLoggedIn
             }
@@ -74,6 +80,7 @@ class WelcomeViewModel @Inject constructor(
     }
 
     fun skipLogin() {
+        preferencesManager.setSkippedLogin(true)
         viewModelScope.launch {
             _skipLoginEvent.emit(Unit)
         }

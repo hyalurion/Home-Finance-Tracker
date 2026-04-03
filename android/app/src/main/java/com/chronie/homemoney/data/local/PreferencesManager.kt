@@ -30,6 +30,18 @@ class PreferencesManager @Inject constructor(
     fun isLoggedIn(): Boolean {
         return !getUsername().isNullOrEmpty()
     }
+
+    fun setSkippedLogin(skipped: Boolean) {
+        prefs.edit().putBoolean(KEY_SKIPPED_LOGIN, skipped).apply()
+    }
+
+    fun hasSkippedLogin(): Boolean {
+        return prefs.getBoolean(KEY_SKIPPED_LOGIN, false)
+    }
+
+    fun shouldSkipWelcome(): Boolean {
+        return isLoggedIn() || hasSkippedLogin()
+    }
     
     // 会员订阅信息缓存（用于离线模式）
     fun saveMembershipStatus(isActive: Boolean, planName: String?, endDate: Long?) {
@@ -94,6 +106,7 @@ class PreferencesManager @Inject constructor(
         private const val PREFS_NAME = "home_money_prefs"
         private const val KEY_USERNAME = "username"
         private const val KEY_AVATAR = "avatar"
+        private const val KEY_SKIPPED_LOGIN = "skipped_login"
         private const val KEY_MEMBERSHIP_ACTIVE = "membership_active"
         private const val KEY_MEMBERSHIP_PLAN = "membership_plan"
         private const val KEY_MEMBERSHIP_END_DATE = "membership_end_date"

@@ -7,6 +7,10 @@ class CheckLoginStatusUseCase @Inject constructor(
     private val preferencesManager: PreferencesManager
 ) {
     operator fun invoke(): Boolean {
+        return preferencesManager.shouldSkipWelcome()
+    }
+
+    fun isLoggedIn(): Boolean {
         return preferencesManager.isLoggedIn()
     }
 
