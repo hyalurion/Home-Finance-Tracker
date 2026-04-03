@@ -9,8 +9,7 @@ import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.repository.ExpenseRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.dhatim.fastexcel.Workbook
-import org.dhatim.fastexcel.Color
-import org.dhatim.fastexcel.FontStyle
+import org.dhatim.fastexcel.Worksheet
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate
@@ -58,43 +57,6 @@ class ExportExpensesUseCase @Inject constructor(
                 return Result.failure(Exception(context.getString(R.string.no_records_to_export)))
             }
             
-            val workbook = Workbook(true, "xlsx", null)
-            val sheet = workbook.newSheet(context.getString(R.string.expense_records))
-            
-            val headerStyle = workbook.newStyle {
-                font("Arial", 12)
-                bold()
-                fill(Color.GRAY25)
-                setHorizontalAlignment("center")
-            }
-            
-            val headerRow = sheet.row(0)
-            val headers = listOf(
-                context.getString(R.string.excel_header_date),
-                context.getString(R.string.excel_header_type),
-                context.getString(R.string.excel_header_amount),
-                context.getString(R.string.excel_header_remark)
-            )
-            
-            headers.forEachIndexed { index, header ->
-                headerRow.value(index, header)
-                headerRow.style(index, headerStyle)
-            }
-            
-            expenses.forEachIndexed { index, expense ->
-                val row = sheet.row(index + 1)
-                
-                row.value(0, expense.date)
-                row.value(1, getExpenseTypeName(expense.type))
-                row.value(2, expense.amount)
-                row.value(3, expense.remark ?: "")
-            }
-            
-            sheet.width(0, 5000)
-            sheet.width(1, 4000)
-            sheet.width(2, 3000)
-            sheet.width(3, 6000)
-            
             // 保存文件到 Downloads 目录
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             if (!downloadsDir.exists()) {
@@ -111,10 +73,36 @@ class ExportExpensesUseCase @Inject constructor(
             val file = File(downloadsDir, filename)
             
             FileOutputStream(file).use { outputStream ->
-                workbook.write(outputStream)
+                Workbook(outputStream, "HomeMoney", "1.0").use { workbook ->
+                    val sheet = workbook.newWorksheet(context.getString(R.string.expense_records))
+                    
+                    val headers = listOf(
+                        context.getString(R.string.excel_header_date),
+                        context.getString(R.string.excel_header_type),
+                        context.getString(R.string.excel_header_amount),
+                        context.getString(R.string.excel_header_remark)
+                    )
+                    
+                    headers.forEachIndexed { index, header ->
+                        sheet.value(0, index, header)
+                        sheet.style(0, index).bold().set()
+                    }
+                    
+                    expenses.forEachIndexed { index, expense ->
+                        val row = index + 1
+                        
+                        sheet.value(row, 0, expense.date)
+                        sheet.value(row, 1, getExpenseTypeName(expense.type))
+                        sheet.value(row, 2, expense.amount)
+                        sheet.value(row, 3, expense.remark ?: "")
+                    }
+                    
+                    sheet.width(0, 5000.0)
+                    sheet.width(1, 4000.0)
+                    sheet.width(2, 3000.0)
+                    sheet.width(3, 6000.0)
+                }
             }
-            
-            workbook.close()
             
             Result.success(file.absolutePath)
         } catch (e: Exception) {

@@ -7,10 +7,10 @@ import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.repository.ExpenseRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import org.dhatim.fastexcel.Workbook
-import org.dhatim.fastexcel.reader.Cell
 import org.dhatim.fastexcel.reader.ReadableWorkbook
+import org.dhatim.fastexcel.reader.Sheet
 import org.dhatim.fastexcel.reader.Row
+import org.dhatim.fastexcel.reader.Cell
 
 import java.util.*
 import javax.inject.Inject
@@ -62,71 +62,67 @@ class ImportExpensesUseCase @Inject constructor(
         val expenses = mutableListOf<Expense>()
         
         context.contentResolver.openInputStream(uri)?.use { inputStream ->
-            val workbook = ReadableWorkbook(inputStream)
-            val sheet = workbook.getFirstSheet()
-            
-            val rows = sheet.openStream().iterator()
-            
-            if (!rows.hasNext()) {
-                throw Exception("Empty file")
-            }
-            
-            val headerRow = rows.next()
-            val headers = mutableMapOf<String, Int>()
-            
-            headerRow.forEachIndexed { index, cell ->
-                val cellValue = cell.asString().trim()
-                if (cellValue.isNotEmpty()) {
-                    headers[cellValue] = index
-                }
-            }
-            
-            val dateColIndex = findColumnIndex(headers, "date")
-            val typeColIndex = findColumnIndex(headers, "type")
-            val amountColIndex = findColumnIndex(headers, "amount")
-            val remarkColIndex = findColumnIndex(headers, "remark")
-            
-            if (dateColIndex == -1 || typeColIndex == -1 || amountColIndex == -1) {
-                throw Exception(context.getString(R.string.import_validation_error, "Missing required columns"))
-            }
-            
-            var rowIndex = 1
-            while (rows.hasNext()) {
-                val row = rows.next()
-                rowIndex++
+            ReadableWorkbook(inputStream).use { workbook ->
+                val sheet = workbook.getFirstSheet()
                 
-                try {
-                    val dateCell = row.getCell(dateColIndex)
-                    val dateStr = parseDateCell(dateCell) ?: continue
+                val rows = sheet.read()
+                if (rows.isEmpty()) {
+                    throw Exception("Empty file")
+                }
+                
+                val headerRow = rows[0]
+                val headers = mutableMapOf<String, Int>()
+                
+                headerRow.forEachIndexed { index, cell ->
+                    val cellValue = cell.asString()
+                    if (cellValue.isNotEmpty()) {
+                        headers[cellValue.trim()] = index
+                    }
+                }
+                
+                val dateColIndex = findColumnIndex(headers, "date")
+                val typeColIndex = findColumnIndex(headers, "type")
+                val amountColIndex = findColumnIndex(headers, "amount")
+                val remarkColIndex = findColumnIndex(headers, "remark")
+                
+                if (dateColIndex == -1 || typeColIndex == -1 || amountColIndex == -1) {
+                    throw Exception(context.getString(R.string.import_validation_error, "Missing required columns"))
+                }
+                
+                for (i in 1 until rows.size) {
+                    val row = rows[i]
                     
-                    val typeCell = row.getCell(typeColIndex)
-                    val typeStr = typeCell?.asString() ?: continue
-                    val expenseType = parseExpenseType(typeStr)
-                    
-                    val amountCell = row.getCell(amountColIndex)
-                    val amount = parseAmountCell(amountCell) ?: continue
-                    
-                    if (amount <= 0) continue
-                    
-                    val remarkCell = row.getCell(remarkColIndex)
-                    val remark = remarkCell?.asString()
-                    
-                    val expense = Expense(
-                        id = UUID.randomUUID().toString(),
-                        type = expenseType,
-                        remark = remark,
-                        amount = amount,
-                        date = dateStr,
-                        isSynced = false
-                    )
-                    
-                    expenses.add(expense)
-                } catch (e: Exception) {
-                    android.util.Log.w("ImportExpenses", "Failed to parse row $rowIndex: ${e.message}")
+                    try {
+                        val dateCell = row.getCell(dateColIndex)
+                        val dateStr = parseDateCell(dateCell) ?: continue
+                        
+                        val typeCell = row.getCell(typeColIndex)
+                        val typeStr = typeCell?.asString() ?: continue
+                        val expenseType = parseExpenseType(typeStr)
+                        
+                        val amountCell = row.getCell(amountColIndex)
+                        val amount = parseAmountCell(amountCell) ?: continue
+                        
+                        if (amount <= 0) continue
+                        
+                        val remarkCell = row.getCell(remarkColIndex)
+                        val remark = remarkCell?.asString()
+                        
+                        val expense = Expense(
+                            id = UUID.randomUUID().toString(),
+                            type = expenseType,
+                            remark = remark,
+                            amount = amount,
+                            date = dateStr,
+                            isSynced = false
+                        )
+                        
+                        expenses.add(expense)
+                    } catch (e: Exception) {
+                        android.util.Log.w("ImportExpenses", "Failed to parse row ${i + 1}: ${e.message}")
+                    }
                 }
             }
-            
-            workbook.close()
         }
         
         return expenses

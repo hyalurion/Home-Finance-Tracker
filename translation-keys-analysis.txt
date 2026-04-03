@@ -1,22 +1,25 @@
 翻译键使用情况分析报告
-生成时间: 2026/2/1 22:22:36
+生成时间: 2026/4/3 23:46:50
 =====================================
 
 1. 总体统计
 -----------------
-总翻译键数量: 250
-已使用翻译键: 205
-未使用翻译键: 76
-使用率: 82.00%
+总翻译键数量: 229
+已使用翻译键: 169
+未使用翻译键: 86
+使用率: 73.80%
 
 2. 未使用的翻译键
 -----------------
 - app.page
 - app.record
+- app.recordList
 - app.statistics
 - avatar.error.sizeLimit
 - chart.mockData
+- chart.pie
 - common.back
+- common.date_days_ago
 - common.index
 - common.loadFailed
 - common.networkError
@@ -30,13 +33,17 @@
 - expense.addFailed
 - expense.addNewEntry
 - expense.categoryRequired
+- expense.columns.amount
+- expense.columns.date
 - expense.columns.name
+- expense.columns.remark
 - expense.columns.time
+- expense.columns.type
 - expense.common.requestTimeout
 - expense.descriptionRequired
 - expense.emptyText
+- expense.exportFilename
 - expense.inputValidContent
-- expense.loading
 - expense.note
 - expense.pasteSuccess
 - expense.record.title
@@ -48,6 +55,9 @@
 - expense.totalRecords
 - expense.type.food
 - expense.unknownError
+- feeNoticeContent
+- feeNoticeTitle
+- feedback.title
 - function.other
 - home.closeButton
 - home.dailyDescending
@@ -58,11 +68,11 @@
 - home.noData
 - home.prevMonth
 - home.viewExpenseAnalysisReport
-- membership.cancelSubscription
-- membership.currentPlan
-- membership.statusActive
-- membership.statusCanceled
-- membership.statusExpired
+- membership.error.createUserFailed
+- membership.error.fetchUserInfoFailed
+- membership.error.loginFirst
+- membership.success.cancelSubscription
+- membership.userInfo
 - membership.username
 - network.error
 - pagination.firstPage
@@ -91,20 +101,20 @@
 3. 各文件翻译键统计
 -----------------
 en-US.json:
-  总键数: 253
-  已使用: 182
-  未使用: 71
-  使用率: 71.94%
+  总键数: 231
+  已使用: 152
+  未使用: 79
+  使用率: 65.80%
 
 zh-CN.json:
-  总键数: 253
-  已使用: 183
-  未使用: 70
-  使用率: 72.33%
+  总键数: 229
+  已使用: 150
+  未使用: 79
+  使用率: 65.50%
 
 zh-TW.json:
-  总键数: 253
-  已使用: 183
-  未使用: 70
-  使用率: 72.33%
+  总键数: 229
+  已使用: 149
+  未使用: 80
+  使用率: 65.07%
 
