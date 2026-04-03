@@ -257,18 +257,11 @@ val libraries = listOf(
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/hilt"
     ),
     LibraryInfo(
-        name = "Apache POI",
-        version = "5.5.1",
+        name = "FastExcel",
+        version = "0.20.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://poi.apache.org/"
-    ),
-    LibraryInfo(
-        name = "Apache POI OOXML",
-        version = "5.5.1",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://poi.apache.org/"
+        projectUrl = "https://github.com/dhatim/fastexcel"
     ),
     LibraryInfo(
         name = "UCrop",

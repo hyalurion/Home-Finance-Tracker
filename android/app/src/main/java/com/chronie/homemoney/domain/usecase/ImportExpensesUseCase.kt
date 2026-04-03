@@ -7,8 +7,10 @@ import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.repository.ExpenseRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import org.apache.poi.ss.usermodel.CellType
-import org.apache.poi.ss.usermodel.WorkbookFactory
+import org.dhatim.fastexcel.Workbook
+import org.dhatim.fastexcel.reader.Cell
+import org.dhatim.fastexcel.reader.ReadableWorkbook
+import org.dhatim.fastexcel.reader.Row
 
 import java.util.*
 import javax.inject.Inject
@@ -60,21 +62,25 @@ class ImportExpensesUseCase @Inject constructor(
         val expenses = mutableListOf<Expense>()
         
         context.contentResolver.openInputStream(uri)?.use { inputStream ->
-            val workbook = WorkbookFactory.create(inputStream)
-            val sheet = workbook.getSheetAt(0)
+            val workbook = ReadableWorkbook(inputStream)
+            val sheet = workbook.getFirstSheet()
             
-            // 获取标题行以确定列的位置
-            val headerRow = sheet.getRow(0) ?: throw Exception("Empty file")
+            val rows = sheet.openStream().iterator()
+            
+            if (!rows.hasNext()) {
+                throw Exception("Empty file")
+            }
+            
+            val headerRow = rows.next()
             val headers = mutableMapOf<String, Int>()
             
-            for (i in 0 until headerRow.lastCellNum) {
-                val cell = headerRow.getCell(i)
-                if (cell != null) {
-                    headers[cell.stringCellValue.trim()] = i
+            headerRow.forEachIndexed { index, cell ->
+                val cellValue = cell.asString().trim()
+                if (cellValue.isNotEmpty()) {
+                    headers[cellValue] = index
                 }
             }
             
-            // 获取列索引（支持多语言）
             val dateColIndex = findColumnIndex(headers, "date")
             val typeColIndex = findColumnIndex(headers, "type")
             val amountColIndex = findColumnIndex(headers, "amount")
@@ -84,70 +90,26 @@ class ImportExpensesUseCase @Inject constructor(
                 throw Exception(context.getString(R.string.import_validation_error, "Missing required columns"))
             }
             
-            // 解析数据行
-            
-            for (i in 1..sheet.lastRowNum) {
-                val row = sheet.getRow(i) ?: continue
+            var rowIndex = 1
+            while (rows.hasNext()) {
+                val row = rows.next()
+                rowIndex++
                 
                 try {
-                    // 日期
                     val dateCell = row.getCell(dateColIndex)
-                    // 提取日期字符串，确保格式为YYYY-MM-DD
-                        val dateStr = when (dateCell?.cellType) {
-                            CellType.STRING -> {
-                                val cellValue = dateCell.stringCellValue
-                                // 如果包含时间部分，只取日期部分
-                                if (cellValue.contains('T') || cellValue.contains(' ')) {
-                                    val datePart = cellValue.substringBefore('T').substringBefore(' ')
-                                    // 验证是否是有效的YYYY-MM-DD格式
-                                    try {
-                                        java.time.LocalDate.parse(datePart)
-                                        datePart
-                                    } catch (e: Exception) {
-                                        continue
-                                    }
-                                } else {
-                                    // 尝试直接解析为日期
-                                    try {
-                                        java.time.LocalDate.parse(cellValue)
-                                        cellValue
-                                    } catch (e: Exception) {
-                                        continue
-                                    }
-                                }
-                            }
-                            CellType.NUMERIC -> {
-                                val date = dateCell.dateCellValue
-                                val calendar = Calendar.getInstance()
-                                calendar.time = date
-                                String.format(
-                                    "%04d-%02d-%02d",
-                                    calendar.get(Calendar.YEAR),
-                                    calendar.get(Calendar.MONTH) + 1,
-                                    calendar.get(Calendar.DAY_OF_MONTH)
-                                )
-                            }
-                            else -> continue
-                        }
+                    val dateStr = parseDateCell(dateCell) ?: continue
                     
-                    // 类型
                     val typeCell = row.getCell(typeColIndex)
-                    val typeStr = typeCell?.stringCellValue ?: continue
+                    val typeStr = typeCell?.asString() ?: continue
                     val expenseType = parseExpenseType(typeStr)
                     
-                    // 金额
                     val amountCell = row.getCell(amountColIndex)
-                    val amount = when (amountCell?.cellType) {
-                        CellType.NUMERIC -> amountCell.numericCellValue
-                        CellType.STRING -> amountCell.stringCellValue.toDoubleOrNull() ?: continue
-                        else -> continue
-                    }
+                    val amount = parseAmountCell(amountCell) ?: continue
                     
                     if (amount <= 0) continue
                     
-                    // 备注
                     val remarkCell = row.getCell(remarkColIndex)
-                    val remark = remarkCell?.stringCellValue
+                    val remark = remarkCell?.asString()
                     
                     val expense = Expense(
                         id = UUID.randomUUID().toString(),
@@ -160,8 +122,7 @@ class ImportExpensesUseCase @Inject constructor(
                     
                     expenses.add(expense)
                 } catch (e: Exception) {
-                    // 跳过无效行
-                    android.util.Log.w("ImportExpenses", "Failed to parse row $i: ${e.message}")
+                    android.util.Log.w("ImportExpenses", "Failed to parse row $rowIndex: ${e.message}")
                 }
             }
             
@@ -169,6 +130,33 @@ class ImportExpensesUseCase @Inject constructor(
         }
         
         return expenses
+    }
+    
+    private fun parseDateCell(cell: Cell?): String? {
+        if (cell == null) return null
+        
+        return try {
+            val cellValue = cell.asString()
+            val datePart = if (cellValue.contains('T') || cellValue.contains(' ')) {
+                cellValue.substringBefore('T').substringBefore(' ')
+            } else {
+                cellValue
+            }
+            
+            java.time.LocalDate.parse(datePart).toString()
+        } catch (e: Exception) {
+            null
+        }
+    }
+    
+    private fun parseAmountCell(cell: Cell?): Double? {
+        if (cell == null) return null
+        
+        return try {
+            cell.asNumber().toDouble()
+        } catch (e: Exception) {
+            cell.asString().toDoubleOrNull()
+        }
     }
     
     private fun findColumnIndex(headers: Map<String, Int>, columnKey: String): Int {

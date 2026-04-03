@@ -57,7 +57,7 @@ This is the native Android implementation of the Home Money financial tracking a
 - **Retrofit**: RESTful API client for server communication
 - **Repository Pattern**: Abstraction layer for data sources
 - **Data Mappers**: Convert between Entity, Domain, and DTO models
-- **Excel Integration**: Apache POI for import/export functionality
+- **Excel Integration**: fastExcel for import/export functionality
 
 #### Domain Layer
 - **Use Cases**: Business logic encapsulation
@@ -90,7 +90,7 @@ This is the native Android implementation of the Home Money financial tracking a
 - **Coil**: Image loading and caching (2.7.0)
 - **Gson**: JSON serialization
 - **DataStore**: Preferences storage (1.2.1)
-- **Apache POI**: Excel file handling (5.5.1)
+- **fastExcel**: Excel file handling (0.20.0)
 - **uCrop**: Image cropping (2.2.11)
 - **m3color**: Material 3 color utilities (2025.4)
 
@@ -569,5 +569,5 @@ For issues, questions, or contributions, please refer to the main project reposi
 - Built with Jetpack Compose and Material Design 3 Expressive
 - Uses SiliconFlow API for AI features
 - Inspired by modern Android development best practices
-- Uses Apache POI for Excel handling
+- Uses fastExcel for Excel handling
 - Uses uCrop for image cropping
