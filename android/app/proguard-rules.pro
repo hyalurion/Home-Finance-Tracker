@@ -46,6 +46,12 @@
 -dontwarn javax.xml.stream.Location
 -dontwarn javax.xml.stream.XMLStreamException
 -dontwarn javax.xml.stream.XMLStreamReader
+-dontwarn javax.xml.stream.XMLInputFactory
+-dontwarn javax.xml.stream.XMLOutputFactory
+-dontwarn javax.xml.stream.XMLEventFactory
+-dontwarn javax.xml.stream.XMLReporter
+-dontwarn javax.xml.stream.XMLResolver
+-dontwarn javax.xml.stream.util.XMLEventAllocator
 -dontwarn net.sf.saxon.Configuration
 -dontwarn net.sf.saxon.dom.DOMNodeWrapper
 -dontwarn net.sf.saxon.om.Item
@@ -67,6 +73,7 @@
 -dontwarn org.osgi.framework.FrameworkUtil
 -dontwarn org.osgi.framework.ServiceReference
 -dontwarn org.osgi.framework.wiring.BundleRevision
+-dontwarn org.tukaani.xz.**
 
 # Retrofit and DTO classes
 -keep class com.chronie.homemoney.data.remote.dto.** { *; }
