@@ -133,7 +133,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0'
     
     // Navigation
-    implementation 'androidx.navigation:navigation-compose:2.9.7'
+    implementation 'androidx.navigation:navigation-compose:2.9.8'
     
     // Hilt
     implementation 'com.google.dagger:hilt-android:2.59.2'
