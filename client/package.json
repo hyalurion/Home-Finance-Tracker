@@ -20,7 +20,7 @@
     "lunar-javascript": "^1.7.7",
     "mermaid": "^11.12.3",
     "papaparse": "^5.5.3",
-    "uuid": "^13.0.0",
+    "uuid": "^14.0.0",
     "vue": "^3.5.27",
     "vue-router": "^5.0.2",
     "xlsx": "file:xlsx-latest.tgz"
