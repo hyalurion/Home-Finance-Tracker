@@ -38,7 +38,7 @@
     "papaparse": "^5.5.3",
     "speakeasy": "^2.0.0",
     "sqlite3": "^6.0.1",
-    "uuid": "^13.0.0",
+    "uuid": "^14.0.0",
     "vue-qrcode": "^2.2.2",
     "xlsx": "file:xlsx-latest.tgz"
   }
