@@ -8,12 +8,6 @@ import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import path from 'path';
-import { VitePWA } from 'vite-plugin-pwa';
-
-/**
- * Vite配置对象
- * @type {import('vite').UserConfig}
- */
 
 import replace from '@rollup/plugin-replace';
 import pkg from './package.json' with { type: 'json' };
@@ -88,40 +82,6 @@ export default defineConfig({
       // 基本配置，确保插件能正常工作
       dts: 'components.d.ts'
     }),
-    VitePWA({
-      injectRegister: 'autoUpdate',
-      manifest: false,
-      workbox: {
-        runtimeCaching: [
-          {
-            urlPattern: /^https?:\/\/192.168.0.197:3010\/api\//,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              networkTimeoutSeconds: 10,
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /\.(?:js|css|html|png|jpg|jpeg|svg|ico)$/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'assets-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30
-              }
-            }
-          }
-        ]
-      }
-    })
   ],
   resolve: {
     alias: {

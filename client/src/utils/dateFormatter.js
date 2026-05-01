@@ -26,13 +26,13 @@ export const formatDateByLocale = (date, locale) => {
       return `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
     case 'zh-CN':
     case 'zh-TW':
-      return `${d.getFullYear()}年${padZero(d.getMonth() + 1)}月${padZero(d.getDate())}日`;
+      return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
     default:
-      return `${d.getFullYear()}-${padZero(d.getMonth() + 1)}-${padZero(d.getDate())}`;
+      return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     }
   } catch (error) {
     console.error('日期格式化错误:', error);
-    return `${d.getFullYear()}-${padZero(d.getMonth() + 1)}-${padZero(d.getDate())}`;
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
   }
 };
 
@@ -44,14 +44,14 @@ export const formatMonthLabelByLocale = (yearMonth, locale) => {
     switch (locale) {
     case 'zh-CN':
     case 'zh-TW':
-      return `${d.getFullYear()}年${padZero(d.getMonth() + 1)}月`;
+      return `${d.getFullYear()}年${d.getMonth() + 1}月`;
     case 'en-US':
       return `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
     default:
-      return `${d.getFullYear()}-${padZero(d.getMonth() + 1)}`;
+      return `${d.getFullYear()}-${d.getMonth() + 1}`;
     }
   } catch (error) {
     console.error('月份格式化错误:', error);
-    return `${d.getFullYear()}-${padZero(d.getMonth() + 1)}`;
+    return `${d.getFullYear()}-${d.getMonth() + 1}`;
   }
 };
