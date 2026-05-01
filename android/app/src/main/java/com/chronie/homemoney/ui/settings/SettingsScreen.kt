@@ -43,6 +43,7 @@ import com.chronie.homemoney.core.common.Language
 import com.chronie.homemoney.ui.components.ExpressiveSwitch
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.ColorPickerBottomSheet
+import com.chronie.homemoney.ui.components.LanguageSelectorBottomSheet
 import com.chronie.homemoney.ui.components.getColorGroups
 import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
@@ -62,6 +63,7 @@ fun SettingsScreen(
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
     val scrollState = androidx.compose.foundation.rememberScrollState()
+    var showLanguageBottomSheet by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -108,12 +110,53 @@ fun SettingsScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // 语言选择下拉菜单
-            LanguageDropdownSelector(
-                currentLanguage = currentLanguage,
-                onLanguageSelected = { viewModel.setLanguage(it) },
-                context = context
+            // 语言选择
+            Text(
+                text = context.getString(R.string.language_settings),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
+            
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showLanguageBottomSheet = true },
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = context.getString(R.string.select_language),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = currentLanguage.localName,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Text(
+                        text = ">",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
+            
+            if (showLanguageBottomSheet) {
+                LanguageSelectorBottomSheet(
+                    currentLanguage = currentLanguage,
+                    onLanguageSelected = { viewModel.setLanguage(it) },
+                    onDismiss = { showLanguageBottomSheet = false },
+                    context = context
+                )
+            }
             
             Spacer(modifier = Modifier.height(32.dp))
             
