@@ -284,6 +284,7 @@ fun ExpenseListScreen(
                                         count = expenses.size,
                                         totalAmount = expenses.sumOf { it.amount },
                                         context = context,
+                                        locale = context.resources.configuration.locale.toLanguageTag(),
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
                                 } else {
@@ -292,6 +293,7 @@ fun ExpenseListScreen(
                                         count = expenses.size,
                                         totalAmount = expenses.sumOf { it.amount },
                                         context = context,
+                                        locale = context.resources.configuration.locale.toLanguageTag(),
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
                                 }
@@ -384,9 +386,10 @@ fun ExpenseDateHeader(
     count: Int,
     totalAmount: Double,
     context: android.content.Context,
+    locale: String? = null,
     modifier: Modifier = Modifier
 ) {
-    val displayDate = formatRelativeDate(date, context)
+    val displayDate = formatRelativeDate(date, context, locale)
     
     Row(
         modifier = modifier
@@ -765,9 +768,10 @@ fun ExpenseTableDateHeader(
     count: Int,
     totalAmount: Double,
     context: android.content.Context,
+    locale: String? = null,
     modifier: Modifier = Modifier
 ) {
-    val displayDate = formatRelativeDate(date, context)
+    val displayDate = formatRelativeDate(date, context, locale)
     
     Surface(
         modifier = modifier.fillMaxWidth(),
