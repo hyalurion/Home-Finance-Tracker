@@ -108,7 +108,7 @@ dependencies {
     
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
     
     // Android Core
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
@@ -184,7 +184,7 @@ dependencies {
     // Testing
     testImplementation "junit:junit:$junitVersion"
     testImplementation 'io.mockk:mockk:1.14.9'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0'
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     androidTestImplementation platform('androidx.compose:compose-bom:2026.04.01')
