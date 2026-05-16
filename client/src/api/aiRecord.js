@@ -105,7 +105,7 @@ export const parseImageToRecord = async (imageFile) => {
 5. 只返回JSON数据，不要添加其他无关内容`;
 
     // 对于图片解析，使用支持多模态的模型
-    const imageModel = 'THUDM/GLM-4.1V-9B-Thinking'; // 使用支持图片的模型
+    const imageModel = 'Qwen/Qwen3.5-4B'; // 使用支持图片的模型
     
     const response = await aiApi.post('', {
       model: imageModel,
