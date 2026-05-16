@@ -42,6 +42,10 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+        
         def buildDate = getBuildDate()
         def defaultBuildNumber = getBuildTime()
         def buildNumber = project.hasProperty("buildNumber") ? project.buildNumber : defaultBuildNumber
