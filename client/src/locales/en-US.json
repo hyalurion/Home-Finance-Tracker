@@ -257,7 +257,7 @@
     }
   },
   "membership": {
-    "title": "Membership",
+    "title": "User Management",
     "username": "Username",
     "loginOrRegister": "Login / Register",
     "logout": "Logout",

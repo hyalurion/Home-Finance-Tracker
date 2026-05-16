@@ -256,7 +256,7 @@
     }
   },
   "membership": {
-    "title": "會員訂閱",
+    "title": "用戶管理",
     "userInfo": "帳戶信息",
     "username": "用戶名",
     "loginOrRegister": "登錄/註冊",

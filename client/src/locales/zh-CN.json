@@ -253,7 +253,7 @@
     }
   },
   "membership": {
-    "title": "会员订阅",
+    "title": "用户管理",
     "userInfo": "账户信息",
     "username": "用户名",
     "loginOrRegister": "登录/注册",
