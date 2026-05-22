@@ -120,13 +120,6 @@
     </Transition>
   </div>
 
-  <!-- 悬浮刷新按钮 -->
-  <div class="floating-refresh-btn">
-    <GlassButton type="primary" @click="refreshPage()" circle>
-      <template #icon><FontAwesomeIcon icon="sync-alt" /></template>
-    </GlassButton>
-  </div>
-
   <!-- 自定义添加记录弹窗 -->
   <transition name="dialog-fade">
     <div v-if="showAddDialog" class="custom-dialog-overlay" @click.self="closeAddDialog">
@@ -1748,14 +1741,6 @@ const refreshPage = () => {
   background: #f8f8f8;
   cursor: not-allowed;
   opacity: 0.7;
-}
-
-/* 悬浮刷新按钮样式 */
-.floating-refresh-btn {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  z-index: 1000;
 }
 
 /* AI报告内容的Markdown样式 */
