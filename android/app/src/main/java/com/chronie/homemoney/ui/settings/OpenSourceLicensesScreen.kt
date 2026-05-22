@@ -26,6 +26,20 @@ data class LibraryInfo(
 
 val libraries = listOf(
     LibraryInfo(
+        name = "Kotlin Stdlib",
+        version = "2.3.21",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://kotlinlang.org/"
+    ),
+    LibraryInfo(
+        name = "Kotlin Coroutines Android",
+        version = "1.11.0",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://github.com/Kotlin/kotlinx.coroutines"
+    ),
+    LibraryInfo(
         name = "AndroidX Core KTX",
         version = "1.18.0",
         license = "Apache License 2.0",
@@ -82,43 +96,36 @@ val libraries = listOf(
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/test"
     ),
     LibraryInfo(
-        name = "Kotlin Stdlib",
-        version = "2.3.20",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://kotlinlang.org/"
-    ),
-    LibraryInfo(
-        name = "Kotlin Coroutines Android",
-        version = "1.10.2",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/Kotlin/kotlinx.coroutines"
-    ),
-    LibraryInfo(
-        name = "AndroidX Compose BOM",
-        version = "2026.03.01",
+        name = "Jetpack Compose BOM",
+        version = "2026.05.01",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-bom"
     ),
     LibraryInfo(
         name = "M3Color",
-        version = "2025.4",
+        version = "2026.1",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/Kyant0/M3Color"
     ),
     LibraryInfo(
         name = "Google Material Components",
-        version = "1.14.0-alpha10",
+        version = "1.14.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/material-components/material-components-android"
     ),
     LibraryInfo(
         name = "AndroidX Material3",
-        version = "1.5.0-alpha16",
+        version = "1.5.0-alpha20",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
+    ),
+    LibraryInfo(
+        name = "AndroidX Material3 Window Size Class",
+        version = "1.5.0-alpha20",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
@@ -139,7 +146,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "AndroidX Navigation Compose",
-        version = "2.9.7",
+        version = "2.9.8",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/navigation"
@@ -202,14 +209,14 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "AndroidX Paging Runtime KTX",
-        version = "3.4.2",
+        version = "3.5.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/paging"
     ),
     LibraryInfo(
         name = "AndroidX Paging Compose",
-        version = "3.4.2",
+        version = "3.5.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/paging"
@@ -230,7 +237,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "SQLCipher Android",
-        version = "4.14.0",
+        version = "4.16.0",
         license = "BSD 3-Clause License",
         licenseUrl = "https://opensource.org/licenses/BSD-3-Clause",
         projectUrl = "https://www.zetetic.net/sqlcipher/"
@@ -258,10 +265,31 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "FastExcel",
-        version = "0.20.0",
+        version = "0.20.1",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/dhatim/fastexcel"
+    ),
+    LibraryInfo(
+        name = "FastExcel Reader",
+        version = "0.20.1",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://github.com/dhatim/fastexcel"
+    ),
+    LibraryInfo(
+        name = "Aalto XML",
+        version = "1.4.0",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://github.com/FasterXML/aalto-xml"
+    ),
+    LibraryInfo(
+        name = "XZ",
+        version = "1.12",
+        license = "Public Domain",
+        licenseUrl = "https://tukaani.org/xz/legal.html",
+        projectUrl = "https://tukaani.org/xz/"
     ),
     LibraryInfo(
         name = "UCrop",
@@ -279,7 +307,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "Kotlin Coroutines Test",
-        version = "1.10.2",
+        version = "1.11.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/Kotlin/kotlinx.coroutines"

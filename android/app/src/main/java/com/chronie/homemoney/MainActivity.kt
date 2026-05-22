@@ -136,6 +136,14 @@ class MainActivity : ComponentActivity() {
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(newBase)
+        if (::languageManager.isInitialized) {
+            languageManager.checkAndApplySystemLanguage()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        languageManager.checkAndApplySystemLanguage()
     }
 
     override fun onDestroy() {

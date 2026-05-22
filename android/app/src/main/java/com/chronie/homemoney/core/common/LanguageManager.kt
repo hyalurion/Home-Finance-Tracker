@@ -1,6 +1,9 @@
 package com.chronie.homemoney.core.common
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.core.content.edit
@@ -21,16 +24,42 @@ class LanguageManager @Inject constructor(
     private val _currentLanguage = MutableStateFlow(getSavedLanguage())
     val currentLanguage: StateFlow<Language> = _currentLanguage.asStateFlow()
 
+    private val localeChangeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Intent.ACTION_LOCALE_CHANGED) {
+                handleSystemLocaleChange()
+            }
+        }
+    }
+
     init {
         applyLanguage(_currentLanguage.value)
+        registerLocaleChangeReceiver()
     }
 
     fun setLanguage(language: Language) {
         prefs.edit {
             putString(KEY_LANGUAGE, language.code)
+            putBoolean(KEY_LANGUAGE_SET_BY_USER, true)
         }
         _currentLanguage.value = language
         applyLanguage(language)
+    }
+
+    fun getLanguageFromSystemSettings(): Language {
+        return Language.getSystemLanguage()
+    }
+
+    fun checkAndApplySystemLanguage() {
+        val userSetLanguage = prefs.getBoolean(KEY_LANGUAGE_SET_BY_USER, false)
+        
+        if (!userSetLanguage) {
+            val systemLanguage = getLanguageFromSystemSettings()
+            if (systemLanguage != _currentLanguage.value) {
+                _currentLanguage.value = systemLanguage
+                applyLanguage(systemLanguage)
+            }
+        }
     }
 
     private fun getSavedLanguage(): Language {
@@ -38,7 +67,7 @@ class LanguageManager @Inject constructor(
         return if (savedCode != null) {
             Language.fromCode(savedCode)
         } else {
-            Language.getSystemLanguage()
+            getLanguageFromSystemSettings()
         }
     }
 
@@ -52,6 +81,23 @@ class LanguageManager @Inject constructor(
         
         @Suppress("DEPRECATION")
         resources.updateConfiguration(config, resources.displayMetrics)
+    }
+
+    private fun handleSystemLocaleChange() {
+        val userSetLanguage = prefs.getBoolean(KEY_LANGUAGE_SET_BY_USER, false)
+        
+        if (!userSetLanguage) {
+            val systemLanguage = getLanguageFromSystemSettings()
+            if (systemLanguage != _currentLanguage.value) {
+                _currentLanguage.value = systemLanguage
+                applyLanguage(systemLanguage)
+            }
+        }
+    }
+
+    private fun registerLocaleChangeReceiver() {
+        val filter = IntentFilter(Intent.ACTION_LOCALE_CHANGED)
+        context.registerReceiver(localeChangeReceiver, filter)
     }
 
     fun migrateOldLanguageCode(oldCode: String?) {
@@ -78,5 +124,6 @@ class LanguageManager @Inject constructor(
 
     companion object {
         private const val KEY_LANGUAGE = "selected_language"
+        private const val KEY_LANGUAGE_SET_BY_USER = "language_set_by_user"
     }
 }
