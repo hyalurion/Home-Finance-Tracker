@@ -425,6 +425,13 @@
   <!-- AI消费问答对话框 -->
   <GlassDialog v-model:visible="showAiReportDialog" title="AI消费问答" width="90%" height="80vh">
     <div class="ai-report-container">
+      <!-- 数据筛选区域 -->
+      <div class="report-filter-section" style="margin-bottom: 15px;">
+        <AIReportFilter 
+          @filter-change="handleFilterChange"
+        />
+      </div>
+      
       <!-- 问题输入区域 -->
       <div class="report-question-section" style="margin-bottom: 10px;">
         <GlassForm label-position="top">
@@ -453,7 +460,7 @@
         <div v-if="!reportContent" class="no-report-content">
           请点击"生成"按钮开始分析您的消费数据
         </div>
-        <div v-else class="report-content" v-html="renderedReportContent" style="white-space: pre-wrap;">
+        <div v-else class="report-content" v-html="renderedReportContent">
         </div>
       </div>
     </div>
@@ -497,6 +504,7 @@ import GlassCard from '@/components/GlassCard.vue';
 import GlassButton from '@/components/GlassButton.vue';
 import GlassInput from '@/components/GlassInput.vue';
 import CustomUpload from '@/components/CustomUpload.vue';
+import AIReportFilter from '@/components/AIReportFilter.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -704,6 +712,21 @@ const selectAll = ref(false);
 const isGeneratingReport = ref(false);
 const reportContent = ref('');
 const reportQuestion = ref('');
+// 新增：筛选统计数据
+const filteredStats = ref({
+  totalCount: 0,
+  totalAmount: 0,
+  averageAmount: 0,
+  medianAmount: 0,
+  minAmount: 0,
+  maxAmount: 0,
+  filteredExpenses: []
+});
+
+// 获取传递给AI的消费数据
+const aiExpenses = computed(() => {
+  return filteredStats.value.filteredExpenses || [];
+});
 
 // 配置marked选项
 marked.setOptions({
@@ -1320,6 +1343,40 @@ const handleAiGenerate = async () => {
   }
 };
 
+// 处理筛选条件变化
+const handleFilterChange = (data) => {
+  filteredStats.value = data;
+  console.log('Filter stats updated:', data);
+};
+
+// 构建筛选条件描述
+const buildFilterDescription = (stats, year, month, types) => {
+  const conditions = [];
+  
+  // 时间范围描述
+  if (year && month) {
+    conditions.push(`- **时间范围**：${year}年${parseInt(month)}月`);
+  } else if (year) {
+    conditions.push(`- **时间范围**：${year}年全年度`);
+  } else if (month) {
+    conditions.push(`- **时间范围**：所有年份的${parseInt(month)}月`);
+  } else {
+    conditions.push(`- **时间范围**：所有时间`);
+  }
+  
+  // 消费类型描述
+  if (types && types.length > 0) {
+    conditions.push(`- **消费类型**：${types.join('、')}`);
+  } else {
+    conditions.push(`- **消费类型**：全部类型（共28种）`);
+  }
+  
+  // 记录数说明
+  conditions.push(`- **数据量**：共${stats?.totalCount || 0}条记录`);
+  
+  return conditions.join('\n');
+};
+
 // 处理AI报告生成
 const handleGenerateReport = async () => {
   try {
@@ -1329,24 +1386,101 @@ const handleGenerateReport = async () => {
       return;
     }
     
+    // 获取筛选后的数据
+    const targetExpenses = aiExpenses.value;
+    const stats = filteredStats.value;
+    
+    // 详细日志
+    console.log('=== AI Report Generation Debug ===');
+    console.log('filteredStats:', stats);
+    console.log('aiExpenses:', targetExpenses);
+    console.log('Expenses:', Expenses.value);
+    console.log('targetExpenses.length:', targetExpenses.length);
+    console.log('Expenses.value.length:', Expenses.value.length);
+    
     // 检查是否有消费数据
-    if (!Expenses || Expenses.length === 0) {
-      console.log('Report generation skipped: No expense data available');
-      errorMessage.value = '没有足够的消费数据来生成报告';
+    if (!targetExpenses || targetExpenses.length === 0) {
+      // 如果筛选后没有数据，尝试使用所有数据
+      if (Expenses.value && Expenses.value.length > 0) {
+        console.log('Using all expenses as no filter applied');
+        const allExpenses = Expenses.value;
+        
+        // 计算统计数据
+        const amounts = allExpenses.map(e => parseFloat(e.amount)).filter(a => !isNaN(a) && a > 0).sort((a, b) => a - b);
+        const totalAmount = amounts.reduce((sum, a) => sum + a, 0);
+        const avgAmount = allExpenses.length > 0 ? totalAmount / allExpenses.length : 0;
+        const medianAmount = amounts.length > 0 ? amounts[Math.floor(amounts.length / 2)] : 0;
+        const minAmount = amounts.length > 0 ? amounts[0] : 0;
+        const maxAmount = amounts.length > 0 ? amounts[amounts.length - 1] : 0;
+        const amountRange = `${minAmount.toFixed(2)} - ${maxAmount.toFixed(2)}`;
+        
+        const calculatedStats = {
+          totalCount: allExpenses.length,
+          totalAmount,
+          averageAmount: avgAmount,
+          medianAmount,
+          minAmount,
+          maxAmount,
+          amountRange,
+          typeDistribution: {},
+          monthlyTrend: {}
+        };
+        
+        console.log('Using all data with calculated stats:', calculatedStats);
+        
+        // 构建筛选条件描述
+        const filterDesc = buildFilterDescription(
+          calculatedStats,
+          filteredStats.value?.filterConditions?.year || '',
+          filteredStats.value?.filterConditions?.month || '',
+          filteredStats.value?.filterConditions?.types || []
+        );
+        
+        isGeneratingReport.value = true;
+        reportContent.value = '';
+        
+        const content = await generateExpenseReport(
+          allExpenses,
+          reportQuestion.value,
+          calculatedStats,
+          filterDesc
+        );
+        reportContent.value = content;
+        successMessage.value = 'AI已成功生成消费报告';
+      } else {
+        console.log('Report generation skipped: No expense data available');
+        errorMessage.value = '没有可用的消费数据来生成报告';
+      }
       return;
     }
     
+    // 从筛选条件构建描述
+    const filterConditions = filteredStats.value?.filterConditions || {};
+    const filterDescription = buildFilterDescription(
+      stats,
+      filterConditions.year || '',
+      filterConditions.month || '',
+      filterConditions.types || []
+    );
+    
     console.log('AI report generation started:', { 
       question: reportQuestion.value,
-      recordCount: Expenses.value.length 
+      recordCount: targetExpenses.length,
+      totalAmount: stats.totalAmount,
+      filterDescription
     });
 
     isGeneratingReport.value = true;
     reportContent.value = '';
     
-    // 生成报告
+    // 生成报告（传入筛选后的统计数据和筛选条件描述）
     console.log('Calling expense report generation API');
-    const content = await generateExpenseReport(Expenses.value, reportQuestion.value);
+    const content = await generateExpenseReport(
+      targetExpenses, 
+      reportQuestion.value, 
+      stats,
+      filterDescription
+    );
     reportContent.value = content;
     console.log('AI report generation successful:', { contentLength: content.length });
     
@@ -1628,59 +1762,61 @@ const refreshPage = () => {
 .report-content {
   line-height: 1.6;
   padding: 10px 0;
+  color: var(--text-primary, #333);
+  font-size: 14px;
 }
 
-.report-content h1,
-.report-content h2,
-.report-content h3,
-.report-content h4,
-.report-content h5,
-.report-content h6 {
+.report-content :deep(h1),
+.report-content :deep(h2),
+.report-content :deep(h3),
+.report-content :deep(h4),
+.report-content :deep(h5),
+.report-content :deep(h6) {
   margin-top: 1.5em;
   margin-bottom: 0.5em;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-primary, #333);
 }
 
-.report-content h1 {
+.report-content :deep(h1) {
   font-size: 1.8em;
   border-bottom: 1px solid #eee;
   padding-bottom: 0.3em;
 }
 
-.report-content h2 {
+.report-content :deep(h2) {
   font-size: 1.5em;
 }
 
-.report-content h3 {
+.report-content :deep(h3) {
   font-size: 1.2em;
 }
 
-.report-content p {
+.report-content :deep(p) {
   margin-bottom: 1em;
-  color: var(--text-primary);
+  color: var(--text-primary, #333);
 }
 
-.report-content ul,
-.report-content ol {
+.report-content :deep(ul),
+.report-content :deep(ol) {
   margin-left: 2em;
   margin-bottom: 1em;
-  color: var(--text-primary);
+  color: var(--text-primary, #333);
 }
 
-.report-content li {
+.report-content :deep(li) {
   margin-bottom: 0.5em;
 }
 
-.report-content strong {
+.report-content :deep(strong) {
   font-weight: 600;
 }
 
-.report-content em {
+.report-content :deep(em) {
   font-style: italic;
 }
 
-.report-content code {
+.report-content :deep(code) {
   background-color: #f5f5f5;
   padding: 0.2em 0.4em;
   border-radius: 3px;
@@ -1688,7 +1824,7 @@ const refreshPage = () => {
   font-size: 0.9em;
 }
 
-.report-content pre {
+.report-content :deep(pre) {
   background-color: #f5f5f5;
   padding: 1em;
   border-radius: 4px;
@@ -1697,12 +1833,12 @@ const refreshPage = () => {
   font-family: 'Courier New', Courier, monospace;
 }
 
-.report-content pre code {
+.report-content :deep(pre code) {
   background-color: transparent;
   padding: 0;
 }
 
-.report-content blockquote {
+.report-content :deep(blockquote) {
   border-left: 4px solid #ddd;
   padding-left: 1em;
   color: #666;
@@ -1711,63 +1847,104 @@ const refreshPage = () => {
   margin-bottom: 1em;
 }
 
-.report-content table {
+.report-content :deep(table) {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1em;
 }
 
-.report-content th,
-.report-content td {
-  padding: 8px 12px;
+.report-content :deep(table th),
+.report-content :deep(table td) {
   border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
 }
 
-.report-content th {
-  background-color: #f9f9f9;
+.report-content :deep(table th) {
+  background-color: #f5f5f5;
   font-weight: 600;
 }
 
-.report-content tr:nth-child(even) {
-  background-color: #f9f9f9;
+.report-content :deep(table tr:nth-child(even)) {
+  background-color: #fafafa;
+}
+
+.report-content :deep(hr) {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 2em 0;
+}
+
+.report-content :deep(a) {
+  color: var(--primary-color, #4CAF50);
+  text-decoration: none;
+}
+
+.report-content :deep(a:hover) {
+  text-decoration: underline;
 }
 
 /* 深色模式适配 */
 @media (prefers-color-scheme: dark) {
-  .report-content h1,
-  .report-content h2,
-  .report-content h3,
-  .report-content p,
-  .report-content ul,
-  .report-content ol {
+  .report-content :deep(h1),
+  .report-content :deep(h2),
+  .report-content :deep(h3),
+  .report-content :deep(p),
+  .report-content :deep(ul),
+  .report-content :deep(ol),
+  .report-content :deep(li),
+  .report-content :deep(strong),
+  .report-content :deep(em) {
     color: #e5e7eb;
   }
   
-  .report-content h1 {
+  .report-content :deep(h1) {
     border-bottom-color: rgba(255, 255, 255, 0.1);
   }
   
-  .report-content code,
-  .report-content pre {
+  .report-content :deep(code),
+  .report-content :deep(pre) {
     background-color: rgba(255, 255, 255, 0.1);
   }
   
-  .report-content blockquote {
+  .report-content :deep(blockquote) {
     border-left-color: rgba(255, 255, 255, 0.2);
     color: #9ca3af;
   }
   
-  .report-content th {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-  
-  .report-content tr:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-  
-  .report-content th,
-  .report-content td {
+  .report-content :deep(table) {
     border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .report-content :deep(table th) {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #e5e7eb;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  
+  .report-content :deep(table td) {
+    color: #d1d5db;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  
+  .report-content :deep(table tr:nth-child(even)) {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+  
+  .report-content :deep(table tr:hover) {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .report-content :deep(hr) {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .report-content :deep(a) {
+    color: #60a5fa;
+  }
+  
+  .report-content :deep(a:hover) {
+    color: #93c5fd;
   }
 }
 /* 自定义对话框样式 */

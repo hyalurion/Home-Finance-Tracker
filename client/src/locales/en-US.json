@@ -245,6 +245,19 @@
     "aiFeatures": "AI Features",
     "other": "Other"
   },
+  "ai": {
+    "report": {
+      "filterTitle": "Data Filter",
+      "statsPreview": "Data Statistics Preview",
+      "totalCount": "Total Records",
+      "totalAmount": "Total Amount",
+      "averageAmount": "Average",
+      "medianAmount": "Median",
+      "minAmount": "Min Amount",
+      "maxAmount": "Max Amount",
+      "loading": "Loading..."
+    }
+  },
   "avatar": {
     "cropTitle": "Crop Avatar",
     "cancel": "Cancel",

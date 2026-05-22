@@ -241,6 +241,19 @@
     "aiFeatures": "AI功能",
     "other": "其他"
   },
+  "ai": {
+    "report": {
+      "filterTitle": "数据筛选",
+      "statsPreview": "数据统计预览",
+      "totalCount": "总记录数",
+      "totalAmount": "总金额",
+      "averageAmount": "平均值",
+      "medianAmount": "中位数",
+      "minAmount": "最小金额",
+      "maxAmount": "最大金额",
+      "loading": "加载中..."
+    }
+  },
   "avatar": {
     "cropTitle": "裁剪头像",
     "cancel": "取消",

@@ -244,6 +244,19 @@
     "aiFeatures": "AI功能",
     "other": "其他"
   },
+  "ai": {
+    "report": {
+      "filterTitle": "資料篩選",
+      "statsPreview": "資料統計預覽",
+      "totalCount": "總記錄數",
+      "totalAmount": "總金額",
+      "averageAmount": "平均值",
+      "medianAmount": "中位數",
+      "minAmount": "最小金額",
+      "maxAmount": "最大金額",
+      "loading": "載入中..."
+    }
+  },
   "avatar": {
     "cropTitle": "裁剪頭像",
     "cancel": "取消",

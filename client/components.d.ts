@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AIReportFilter: typeof import('./src/components/AIReportFilter.vue')['default']
     AvatarUpload: typeof import('./src/components/AvatarUpload.vue')['default']
     CustomProgress: typeof import('./src/components/CustomProgress.vue')['default']
     CustomSelect: typeof import('./src/components/CustomSelect.vue')['default']
