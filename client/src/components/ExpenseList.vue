@@ -57,8 +57,9 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch, watchEffect } from 'vue';
+import { ref, computed, onMounted, watch, watchEffect, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter, useRoute } from 'vue-router';
 import ExpenseStats from './ExpenseStats.vue';
 import ExpenseSearch from './ExpenseSearch.vue';
 import ExpenseTable from './ExpenseTable.vue';
@@ -84,7 +85,9 @@ export default {
   emits: ['refreshCompleted', 'edit', 'delete', 'data-loaded'],
   
   setup (props, { emit }) {
-    const { t, locale } = useI18n(); // 解构出locale响应式对象
+    const { t, locale } = useI18n();
+    const router = useRouter();
+    const route = useRoute();
     const searchComponent = ref(null);
     
     // 处理编辑事件
@@ -414,6 +417,19 @@ export default {
       }
     };
 
+    // 监听状态变化并更新URL（使用防抖）
+    let updateURLTimer = null;
+    watch(
+      [currentPage, searchParams],
+      () => {
+        if (updateURLTimer) clearTimeout(updateURLTimer);
+        updateURLTimer = setTimeout(() => {
+          updateURL();
+        }, 200);
+      },
+      { deep: true }
+    );
+
     // 计算 sortField 和 sortOrder
     const sortField = computed(() => {
       const sortOption = searchParams.value.sortOption;
@@ -467,10 +483,94 @@ export default {
       fetchStatistics();
     };
 
+    // 标记是否正在从URL初始化，防止循环更新
+    let isInitializingFromURL = false;
+    // 路由监听器引用
+    let routeUnwatch = null;
+
+    // 从URL查询参数中读取状态
+    const initializeFromURL = () => {
+      isInitializingFromURL = true;
+      
+      // 读取分页参数
+      if (route.query.page) {
+        const page = parseInt(route.query.page);
+        if (!isNaN(page) && page > 0) {
+          currentPage.value = page;
+        }
+      }
+
+      // 读取筛选参数
+      searchParams.value = {
+        keyword: route.query.keyword || '',
+        type: route.query.type || '',
+        month: route.query.month || '',
+        minAmount: route.query.minAmount ? parseFloat(route.query.minAmount) : null,
+        maxAmount: route.query.maxAmount ? parseFloat(route.query.maxAmount) : null,
+        sortOption: route.query.sort || 'dateDesc'
+      };
+
+      isInitializingFromURL = false;
+    };
+
+    // 更新URL查询参数（使用原生History API避免触发Vue重新渲染）
+    const updateURL = () => {
+      if (isInitializingFromURL) return;
+
+      const query = {};
+
+      // 添加分页参数
+      if (currentPage.value !== 1) {
+        query.page = currentPage.value.toString();
+      }
+
+      // 添加筛选参数
+      if (searchParams.value.keyword) query.keyword = searchParams.value.keyword;
+      if (searchParams.value.type) query.type = searchParams.value.type;
+      if (searchParams.value.month) query.month = searchParams.value.month;
+      if (searchParams.value.minAmount !== null && !isNaN(searchParams.value.minAmount)) {
+        query.minAmount = searchParams.value.minAmount.toString();
+      }
+      if (searchParams.value.maxAmount !== null && !isNaN(searchParams.value.maxAmount)) {
+        query.maxAmount = searchParams.value.maxAmount.toString();
+      }
+      if (searchParams.value.sortOption && searchParams.value.sortOption !== 'dateDesc') {
+        query.sort = searchParams.value.sortOption;
+      }
+
+      // 使用原生History API更新URL，避免触发Vue重新渲染
+      const url = new URL(window.location.href);
+      
+      // 清除旧的查询参数
+      url.searchParams.delete('page');
+      url.searchParams.delete('keyword');
+      url.searchParams.delete('type');
+      url.searchParams.delete('month');
+      url.searchParams.delete('minAmount');
+      url.searchParams.delete('maxAmount');
+      url.searchParams.delete('sort');
+
+      // 添加新的查询参数
+      Object.entries(query).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+      });
+
+      // 替换URL但不触发页面刷新或组件重新渲染
+      window.history.replaceState({}, '', url.toString());
+    };
+
     // 初始化时加载数据
     onMounted(() => {
-      console.log('ExpenseList component mounted, initializing data fetch');
+      console.log('ExpenseList component mounted, initializing from URL');
+      initializeFromURL();
       fetchPaginatedData();
+    });
+
+    onUnmounted(() => {
+      if (routeUnwatch) {
+        routeUnwatch();
+      }
+      if (updateURLTimer) clearTimeout(updateURLTimer);
     });
 
     return {
