@@ -220,6 +220,10 @@
     <string name="ai_expense_select_type">카테고리 선택</string>
     <string name="ai_expense_amount">금액</string>
     <string name="ai_expense_remark">메모</string>
+    <string name="search_category">카테고리 검색…</string>
+    <string name="search_results_count">%d개 결과</string>
+    <string name="no_results_found">일치하는 결과가 없습니다</string>
+    <string name="clear">지우기</string>
     <string name="ai_expense_click_to_add">눌러서 이미지 추가</string>
     <string name="ai_expense_records_count">인식 결과 (%d건)</string>
     <string name="ai_expense_select_image_source">이미지 선택</string>

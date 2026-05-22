@@ -129,7 +129,7 @@
     <string name="expense_type_electronics">Electronics</string>
     <string name="expense_type_household_appliances">Home Appliances</string>
     <string name="expense_type_hardware">Hardware</string>
-    <string name="expense_type_clothing">Clothing & Accessories</string>
+    <string name="expense_type_clothing">Clothing &amp; Accessories</string>
     
     <!-- Expense List -->
     <string name="expense_list_title">Expenses</string>
@@ -221,6 +221,10 @@
     <string name="ai_expense_select_type">Category</string>
     <string name="ai_expense_amount">Amount</string>
     <string name="ai_expense_remark">Notes</string>
+    <string name="search_category">Search category…</string>
+    <string name="search_results_count">%d results</string>
+    <string name="no_results_found">No matching results</string>
+    <string name="clear">Clear</string>
     <string name="ai_expense_click_to_add">Tap to add photos</string>
     <string name="ai_expense_records_count">Results (%d)</string>
     <string name="ai_expense_select_image_source">Select Image Source</string>

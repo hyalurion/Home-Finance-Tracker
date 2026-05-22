@@ -32,6 +32,13 @@ object ExpenseTypeLocalizer {
             ExpenseType.TRAVEL -> R.string.expense_type_travel
             ExpenseType.GOVERNMENT -> R.string.expense_type_government
             ExpenseType.UTILITIES -> R.string.expense_type_utilities
+            ExpenseType.BEAUTY -> R.string.expense_type_beauty
+            ExpenseType.BEAN_PRODUCTS -> R.string.expense_type_bean_products
+            ExpenseType.COSMETICS -> R.string.expense_type_cosmetics
+            ExpenseType.ELECTRONICS -> R.string.expense_type_electronics
+            ExpenseType.HOUSEHOLD_APPLIANCES -> R.string.expense_type_household_appliances
+            ExpenseType.HARDWARE -> R.string.expense_type_hardware
+            ExpenseType.CLOTHING -> R.string.expense_type_clothing
         }
         return context.getString(resourceId)
     }

@@ -220,6 +220,10 @@
     <string name="ai_expense_select_type">カテゴリを選択</string>
     <string name="ai_expense_amount">金額</string>
     <string name="ai_expense_remark">メモ</string>
+    <string name="search_category">カテゴリを検索…</string>
+    <string name="search_results_count">%d 件の結果</string>
+    <string name="no_results_found">一致する結果がありません</string>
+    <string name="clear">クリア</string>
     <string name="ai_expense_click_to_add">タップして画像を追加</string>
     <string name="ai_expense_records_count">認識結果（%d 件）</string>
     <string name="ai_expense_select_image_source">画像の選択元</string>

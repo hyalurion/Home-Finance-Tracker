@@ -342,6 +342,13 @@ class ExpenseRepositoryImpl @Inject constructor(
             com.chronie.homemoney.domain.model.ExpenseType.TRAVEL -> "旅行度假"
             com.chronie.homemoney.domain.model.ExpenseType.GOVERNMENT -> "政务"
             com.chronie.homemoney.domain.model.ExpenseType.UTILITIES -> "水电煤气"
+            com.chronie.homemoney.domain.model.ExpenseType.BEAUTY -> "美容美发"
+            com.chronie.homemoney.domain.model.ExpenseType.BEAN_PRODUCTS -> "豆制品"
+            com.chronie.homemoney.domain.model.ExpenseType.COSMETICS -> "个护美妆"
+            com.chronie.homemoney.domain.model.ExpenseType.ELECTRONICS -> "电子产品"
+            com.chronie.homemoney.domain.model.ExpenseType.HOUSEHOLD_APPLIANCES -> "家用电器"
+            com.chronie.homemoney.domain.model.ExpenseType.HARDWARE -> "五金"
+            com.chronie.homemoney.domain.model.ExpenseType.CLOTHING -> "服装"
         }
     }
     

@@ -915,7 +915,7 @@ private fun RecordEditDialog(
 }
 
 /**
- * 支出类型选择对话框
+ * 支出类型选择对话框 - 支持搜索功能
  */
 @Composable
 private fun ExpenseTypePickerDialog(
@@ -924,25 +924,90 @@ private fun ExpenseTypePickerDialog(
     onDismiss: () -> Unit,
     onTypeSelected: (ExpenseType) -> Unit
 ) {
+    var searchQuery by remember { mutableStateOf("") }
+    
+    // Filter types based on search query
+    val filteredTypes = remember(searchQuery) {
+        if (searchQuery.isBlank()) {
+            ExpenseType.values().toList()
+        } else {
+            ExpenseType.values().filter { type ->
+                val displayName = ExpenseTypeLocalizer.getLocalizedName(context, type)
+                displayName.contains(searchQuery, ignoreCase = true) ||
+                    type.name.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
+    
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.ai_expense_select_type)) },
+        title = {
+            Column {
+                Text(context.getString(R.string.ai_expense_select_type))
+                if (filteredTypes.size != ExpenseType.values().size) {
+                    Text(
+                        text = "${context.getString(R.string.search_results_count, filteredTypes.size)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
         text = {
-            LazyColumn {
-                items(ExpenseType.values().size) { index ->
-                    val type = ExpenseType.values()[index]
-                    TextButton(
-                        onClick = { onTypeSelected(type) },
-                        modifier = Modifier.fillMaxWidth()
+            Column {
+                // Search field
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text(context.getString(R.string.search_category)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors()
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Category list
+                if (filteredTypes.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = ExpenseTypeLocalizer.getLocalizedName(context, type),
-                            modifier = Modifier.fillMaxWidth(),
-                            color = if (type == selectedType) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
-                                MaterialTheme.colorScheme.onSurface
+                            text = context.getString(R.string.no_results_found),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.heightIn(max = 400.dp)
+                    ) {
+                        items(filteredTypes.size) { index ->
+                            val type = filteredTypes[index]
+                            TextButton(
+                                onClick = { onTypeSelected(type) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = ExpenseTypeLocalizer.getLocalizedName(context, type),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = if (type == selectedType)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
                     }
                 }
             }

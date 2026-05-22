@@ -5,7 +5,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -313,7 +315,7 @@ fun ExpenseFilterDialog(
 }
 
 /**
- * 支出类型选择器
+ * 支出类型选择器 - 支持搜索功能
  */
 @Composable
 fun ExpenseTypeSelector(
@@ -323,35 +325,98 @@ fun ExpenseTypeSelector(
     onConfirm: (Set<ExpenseType>) -> Unit
 ) {
     var tempSelectedTypes by remember { mutableStateOf(selectedTypes) }
+    var searchQuery by remember { mutableStateOf("") }
+    
+    // Filter types based on search query
+    val filteredTypes = remember(searchQuery) {
+        if (searchQuery.isBlank()) {
+            ExpenseType.values().toList()
+        } else {
+            ExpenseType.values().filter { type ->
+                val displayName = ExpenseTypeLocalizer.getLocalizedName(context, type)
+                displayName.contains(searchQuery, ignoreCase = true) ||
+                    type.name.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.expense_list_filter_select_types)) },
+        title = { 
+            Column {
+                Text(context.getString(R.string.expense_list_filter_select_types))
+                if (filteredTypes.size != ExpenseType.values().size) {
+                    Text(
+                        text = "${context.getString(R.string.search_results_count, filteredTypes.size)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
         text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+                modifier = Modifier.fillMaxWidth()
             ) {
-                ExpenseType.values().forEach { type ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = tempSelectedTypes.contains(type),
-                            onCheckedChange = { checked ->
-                                tempSelectedTypes = if (checked) {
-                                    tempSelectedTypes + type
-                                } else {
-                                    tempSelectedTypes - type
-                                }
+                // Search field
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text(context.getString(R.string.search_category)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
                             }
-                        )
-                        Text(
-                            text = ExpenseTypeLocalizer.getLocalizedName(context, type),
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
+                        }
+                    },
+                    singleLine = true
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 300.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    if (filteredTypes.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = context.getString(R.string.no_results_found),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        filteredTypes.forEach { type ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = tempSelectedTypes.contains(type),
+                                    onCheckedChange = { checked ->
+                                        tempSelectedTypes = if (checked) {
+                                            tempSelectedTypes + type
+                                        } else {
+                                            tempSelectedTypes - type
+                                        }
+                                    }
+                                )
+                                Text(
+                                    text = ExpenseTypeLocalizer.getLocalizedName(context, type),
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }

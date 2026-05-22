@@ -220,6 +220,10 @@
     <string name="ai_expense_select_type">เลือกหมวดหมู่</string>
     <string name="ai_expense_amount">จำนวนเงิน</string>
     <string name="ai_expense_remark">หมายเหตุ</string>
+    <string name="search_category">ค้นหาหมวดหมู่…</string>
+    <string name="search_results_count">%d ผลลัพธ์</string>
+    <string name="no_results_found">ไม่พบผลลัพธ์ที่ตรงกัน</string>
+    <string name="clear">ล้าง</string>
     <string name="ai_expense_click_to_add">แตะเพื่อเพิ่มรูปภาพ</string>
     <string name="ai_expense_records_count">ผลการตรวจจับ (%d รายการ)</string>
     <string name="ai_expense_select_image_source">เลือกแหล่งที่มารูปภาพ</string>

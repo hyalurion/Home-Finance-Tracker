@@ -220,6 +220,10 @@
     <string name="ai_expense_select_type">Chọn danh mục</string>
     <string name="ai_expense_amount">Số tiền</string>
     <string name="ai_expense_remark">Ghi chú</string>
+    <string name="search_category">Tìm kiếm danh mục…</string>
+    <string name="search_results_count">%d kết quả</string>
+    <string name="no_results_found">Không tìm thấy kết quả phù hợp</string>
+    <string name="clear">Xóa</string>
     <string name="ai_expense_click_to_add">Chạm để thêm hình ảnh</string>
     <string name="ai_expense_records_count">Kết quả nhận diện (%d bản ghi)</string>
     <string name="ai_expense_select_image_source">Chọn nguồn hình ảnh</string>

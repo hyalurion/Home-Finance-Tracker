@@ -220,6 +220,10 @@
     <string name="ai_expense_select_type">選擇分類</string>
     <string name="ai_expense_amount">金額</string>
     <string name="ai_expense_remark">備註</string>
+    <string name="search_category">搜尋分類…</string>
+    <string name="search_results_count">%d 個結果</string>
+    <string name="no_results_found">未找到匹配項</string>
+    <string name="clear">清除</string>
     <string name="ai_expense_click_to_add">點選新增相片</string>
     <string name="ai_expense_records_count">辨識結果 (%d 項)</string>    
     <string name="ai_expense_select_image_source">選擇相片來源</string>

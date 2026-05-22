@@ -99,6 +99,13 @@ object ExpenseMapper {
             ExpenseType.TRAVEL -> "旅行度假"
             ExpenseType.GOVERNMENT -> "政务"
             ExpenseType.UTILITIES -> "水电煤气"
+            ExpenseType.BEAUTY -> "美容美发"
+            ExpenseType.BEAN_PRODUCTS -> "豆制品"
+            ExpenseType.COSMETICS -> "个护美妆"
+            ExpenseType.ELECTRONICS -> "电子产品"
+            ExpenseType.HOUSEHOLD_APPLIANCES -> "家用电器"
+            ExpenseType.HARDWARE -> "五金"
+            ExpenseType.CLOTHING -> "服装"
         }
     }
 }

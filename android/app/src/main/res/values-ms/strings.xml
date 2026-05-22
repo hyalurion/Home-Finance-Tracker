@@ -220,6 +220,10 @@
     <string name="ai_expense_select_type">Pilih Kategori</string>
     <string name="ai_expense_amount">Amaun</string>
     <string name="ai_expense_remark">Nota</string>
+    <string name="search_category">Cari kategori…</string>
+    <string name="search_results_count">%d hasil</string>
+    <string name="no_results_found">Tiada padanan</string>
+    <string name="clear">Padam</string>
     <string name="ai_expense_click_to_add">Klik untuk tambah gambar</string>
     <string name="ai_expense_records_count">Hasil Pengecaman (%d item)</string>
     <string name="ai_expense_select_image_source">Pilih Sumber Gambar</string>

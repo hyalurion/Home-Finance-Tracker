@@ -8,11 +8,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -211,7 +213,7 @@ fun AddExpenseScreen(
 }
 
 /**
- * 类型选择下拉菜单
+ * 类型选择下拉菜单 - 支持搜索功能
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -222,6 +224,27 @@ fun ExpenseTypeDropdown(
     onTypeSelected: (ExpenseType) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    
+    // Filter types based on search query
+    val filteredTypes = remember(searchQuery) {
+        if (searchQuery.isBlank()) {
+            ExpenseType.values().toList()
+        } else {
+            ExpenseType.values().filter { type ->
+                val displayName = ExpenseTypeLocalizer.getLocalizedName(context, type)
+                displayName.contains(searchQuery, ignoreCase = true) ||
+                    type.name.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
+    
+    // Reset search when dropdown closes
+    LaunchedEffect(expanded) {
+        if (!expanded) {
+            searchQuery = ""
+        }
+    }
 
     Column {
         Text(
@@ -235,35 +258,64 @@ fun ExpenseTypeDropdown(
             onExpandedChange = { expanded = it }
         ) {
             OutlinedTextField(
-                value = if (selectedType != null) {
+                value = if (selectedType != null && !expanded) {
+                    ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
+                } else if (expanded && searchQuery.isNotEmpty()) {
+                    searchQuery
+                } else if (selectedType != null) {
                     ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
                 } else {
                     ""
                 },
-                onValueChange = {},
-                readOnly = true,
+                onValueChange = { 
+                    searchQuery = it
+                    if (!expanded) expanded = true
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .menuAnchor(),
                 placeholder = { Text(context.getString(R.string.add_expense_type_hint)) },
+                leadingIcon = { 
+                    Icon(Icons.Default.Search, contentDescription = null) 
+                },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                isError = error != null
+                isError = error != null,
+                singleLine = true
             )
             
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                ExpenseType.values().forEach { type ->
+                if (filteredTypes.isEmpty()) {
                     DropdownMenuItem(
-                        text = { Text(ExpenseTypeLocalizer.getLocalizedName(context, type)) },
-                        onClick = {
-                            onTypeSelected(type)
-                            expanded = false
+                        text = { 
+                            Text(
+                                context.getString(R.string.no_results_found),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            ) 
                         },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                        onClick = { expanded = false },
+                        enabled = false
                     )
+                } else {
+                    filteredTypes.forEach { type ->
+                        DropdownMenuItem(
+                            text = { 
+                                Text(
+                                    ExpenseTypeLocalizer.getLocalizedName(context, type),
+                                    fontWeight = if (type == selectedType) FontWeight.Bold else FontWeight.Normal
+                                ) 
+                            },
+                            onClick = {
+                                onTypeSelected(type)
+                                searchQuery = ""
+                                expanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                        )
+                    }
                 }
             }
         }
