@@ -142,7 +142,7 @@ router.get('/api/health/lite', async (req, res) => {
 
 // API文档重定向到GitHub
 router.get('/api', (req, res) => {
-  res.redirect('https://github.com/chronie-shizutoki/Home-Finance-Tracker/blob/main/api-help.json')
+  res.redirect('https://github.com/hyalurion/Home-Finance-Tracker/blob/main/api-help.json')
 })
 
 module.exports = router
