@@ -122,6 +122,13 @@
     <string name="expense_type_travel">ท่องเที่ยว</string>
     <string name="expense_type_government">ภาษี/ค่าธรรมเนียม</string>
     <string name="expense_type_utilities">ค่าน้ำ/ค่าไฟ</string>
+    <string name="expense_type_beauty">ศัลยกรรม/เสริมสวย</string>
+    <string name="expense_type_bean_products">ผลิตภัณฑ์ถั่ว</string>
+    <string name="expense_type_cosmetics">เครื่องสำอาง</string>
+    <string name="expense_type_electronics">ผลิตภัณฑ์อิเล็กทรอนิกส์</string>
+    <string name="expense_type_household_appliances">เครื่องใช้ไฟฟ้าในบ้าน</string>
+    <string name="expense_type_hardware">อุปกรณ์โลหะ</string>
+    <string name="expense_type_clothing">เสื้อผ้า</string>
     
     <!-- รายการรายจ่าย (Expense List) -->
     <string name="expense_list_title">รายจ่าย</string>

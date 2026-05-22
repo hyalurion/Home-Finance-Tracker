@@ -122,6 +122,13 @@
     <string name="expense_type_travel">여행/휴가</string>
     <string name="expense_type_government">세금/공과금</string>
     <string name="expense_type_utilities">공과금(수도/전기/가스)</string>
+    <string name="expense_type_beauty">미용/헤어샵</string>
+    <string name="expense_type_bean_products">두부제품</string>
+    <string name="expense_type_cosmetics">화장품/미용</string>
+    <string name="expense_type_electronics">전자제품</string>
+    <string name="expense_type_household_appliances">가전제품</string>
+    <string name="expense_type_hardware">금속제품</string>
+    <string name="expense_type_clothing">의류</string>
     
     <!-- 지출 목록 -->
     <string name="expense_list_title">지출</string>

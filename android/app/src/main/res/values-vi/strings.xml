@@ -122,6 +122,13 @@
     <string name="expense_type_travel">Du lịch</string>
     <string name="expense_type_government">Dịch vụ công</string>
     <string name="expense_type_utilities">Điện nước</string>
+    <string name="expense_type_beauty">Làm đẹp/Tóc</string>
+    <string name="expense_type_bean_products">Sản phẩm đậu</string>
+    <string name="expense_type_cosmetics">Mỹ phẩm</string>
+    <string name="expense_type_electronics">Điện tử</string>
+    <string name="expense_type_household_appliances">Điện gia dụng</string>
+    <string name="expense_type_hardware">Đồ kim loại</string>
+    <string name="expense_type_clothing">Quần áo</string>
     
     <!-- Danh sách chi tiêu -->
     <string name="expense_list_title">Chi tiêu</string>

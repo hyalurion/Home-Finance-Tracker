@@ -122,6 +122,13 @@
     <string name="expense_type_travel">旅行・レジャー</string>
     <string name="expense_type_government">公金・税金</string>
     <string name="expense_type_utilities">水道光熱費</string>
+    <string name="expense_type_beauty">美容・ヘアサロン</string>
+    <string name="expense_type_bean_products">豆製品</string>
+    <string name="expense_type_cosmetics">コスメ・スキンケア</string>
+    <string name="expense_type_electronics">電子製品</string>
+    <string name="expense_type_household_appliances">家電製品</string>
+    <string name="expense_type_hardware">五金</string>
+    <string name="expense_type_clothing">衣類</string>
     
     <!-- 支出リスト -->
     <string name="expense_list_title">支出</string>

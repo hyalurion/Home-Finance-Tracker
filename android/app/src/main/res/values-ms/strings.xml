@@ -122,6 +122,13 @@
     <string name="expense_type_travel">Percutian &amp; Pelancongan</string>
     <string name="expense_type_government">Urusan Kerajaan</string>
     <string name="expense_type_utilities">Utiliti (Air/Elektrik)</string>
+    <string name="expense_type_beauty">Kecantikan &amp; Salon</string>
+    <string name="expense_type_bean_products">Produk Kacang</string>
+    <string name="expense_type_cosmetics">Kosmetik</string>
+    <string name="expense_type_electronics">Elektronik</string>
+    <string name="expense_type_household_appliances">Alatan Rumah</string>
+    <string name="expense_type_hardware">Bahan Keras</string>
+    <string name="expense_type_clothing">Pakaian</string>
     
     <!-- Senarai Perbelanjaan -->
     <string name="expense_list_title">Perbelanjaan</string>

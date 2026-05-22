@@ -33,7 +33,14 @@ enum class ExpenseType(val displayNameKey: String) {
     GIFTS("expense_type_gifts"),
     TRAVEL("expense_type_travel"),
     GOVERNMENT("expense_type_government"),
-    UTILITIES("expense_type_utilities");
+    UTILITIES("expense_type_utilities"),
+    BEAUTY("expense_type_beauty"),
+    BEAN_PRODUCTS("expense_type_bean_products"),
+    COSMETICS("expense_type_cosmetics"),
+    ELECTRONICS("expense_type_electronics"),
+    HOUSEHOLD_APPLIANCES("expense_type_household_appliances"),
+    HARDWARE("expense_type_hardware"),
+    CLOTHING("expense_type_clothing");
 
     companion object {
         fun fromString(value: String): ExpenseType {
@@ -59,6 +66,13 @@ enum class ExpenseType(val displayNameKey: String) {
                 "旅行度假" -> TRAVEL
                 "政务" -> GOVERNMENT
                 "水电煤气" -> UTILITIES
+                "美容美发" -> BEAUTY
+                "豆制品" -> BEAN_PRODUCTS
+                "个护美妆" -> COSMETICS
+                "电子产品" -> ELECTRONICS
+                "家用电器" -> HOUSEHOLD_APPLIANCES
+                "五金" -> HARDWARE
+                "服装" -> CLOTHING
                 else -> OTHER
             }
         }

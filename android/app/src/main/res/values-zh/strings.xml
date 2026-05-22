@@ -122,6 +122,13 @@
     <string name="expense_type_travel">旅行度假</string>
     <string name="expense_type_government">政务</string>
     <string name="expense_type_utilities">水电煤气</string>
+    <string name="expense_type_beauty">美容美发</string>
+    <string name="expense_type_bean_products">豆制品</string>
+    <string name="expense_type_cosmetics">个护美妆</string>
+    <string name="expense_type_electronics">电子产品</string>
+    <string name="expense_type_household_appliances">家用电器</string>
+    <string name="expense_type_hardware">五金</string>
+    <string name="expense_type_clothing">服装</string>
     
     <!-- 支出列表 -->
     <string name="expense_list_title">支出</string>

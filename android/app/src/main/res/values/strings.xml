@@ -123,6 +123,13 @@
     <string name="expense_type_travel">Travel</string>
     <string name="expense_type_government">Government Fees</string>
     <string name="expense_type_utilities">Utilities</string>
+    <string name="expense_type_beauty">Beauty Salon</string>
+    <string name="expense_type_bean_products">Bean Products</string>
+    <string name="expense_type_cosmetics">Cosmetics</string>
+    <string name="expense_type_electronics">Electronics</string>
+    <string name="expense_type_household_appliances">Home Appliances</string>
+    <string name="expense_type_hardware">Hardware</string>
+    <string name="expense_type_clothing">Clothing & Accessories</string>
     
     <!-- Expense List -->
     <string name="expense_list_title">Expenses</string>
