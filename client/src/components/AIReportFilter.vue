@@ -4,8 +4,9 @@
       <h4 class="filter-title">{{ t('ai.report.filterTitle') }}</h4>
       
       <!-- 年份和月份选择 -->
-      <div class="filter-row">
-        <GlassFormItem label="年份">
+      <div class="filter-row date-filter-row">
+        <div class="date-select-wrapper">
+          <span class="date-label">年份</span>
           <CustomSelect
             v-model="localYear"
             :options="availableYears"
@@ -13,9 +14,10 @@
             :include-empty-option="true"
             @change="handleYearChange"
           />
-        </GlassFormItem>
+        </div>
         
-        <GlassFormItem label="月份">
+        <div class="date-select-wrapper">
+          <span class="date-label">月份</span>
           <CustomSelect
             v-model="localMonth"
             :options="months"
@@ -23,21 +25,27 @@
             :include-empty-option="true"
             @change="handleMonthChange"
           />
-        </GlassFormItem>
+        </div>
       </div>
       
       <!-- 消费类型多选 -->
-      <div class="filter-row">
-        <GlassFormItem label="消费类型（可多选）">
-          <div class="type-checkboxes">
-            <label v-for="type in expenseTypes" :key="type" class="checkbox-label">
+      <div class="filter-row types-section">
+        <GlassFormItem label="消费类型（可多选）" class="filter-item types-label">
+          <div class="type-checkboxes" :class="{ 'has-active': localSelectedTypes.length > 0 }">
+            <label 
+              v-for="type in expenseTypes" 
+              :key="type" 
+              class="checkbox-label"
+              :class="{ active: localSelectedTypes.includes(type) }"
+            >
               <input 
                 type="checkbox" 
                 :value="type" 
                 v-model="localSelectedTypes"
                 class="checkbox-input"
               />
-              <span>{{ type }}</span>
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-text">{{ type }}</span>
             </label>
           </div>
         </GlassFormItem>
@@ -45,42 +53,58 @@
       
       <!-- 快捷选择按钮 -->
       <div class="quick-buttons">
-        <GlassButton size="small" @click="selectCurrentMonth">本月</GlassButton>
-        <GlassButton size="small" @click="selectLastMonth">上月</GlassButton>
-        <GlassButton size="small" @click="selectThisYear">本年</GlassButton>
-        <GlassButton size="small" @click="clearFilters">清空筛选</GlassButton>
+        <GlassButton size="small" variant="secondary" @click="selectCurrentMonth">
+          <span class="btn-icon">◉</span>本月
+        </GlassButton>
+        <GlassButton size="small" variant="secondary" @click="selectLastMonth">
+          <span class="btn-icon">◑</span>上月
+        </GlassButton>
+        <GlassButton size="small" variant="secondary" @click="selectThisYear">
+          <span class="btn-icon">⊙</span>本年
+        </GlassButton>
+        <GlassButton size="small" variant="outline" @click="clearFilters">
+          <span class="btn-icon">✕</span>清空筛选
+        </GlassButton>
       </div>
       
       <!-- 数据统计预览 -->
       <div class="stats-preview">
-        <h5>{{ t('ai.report.statsPreview') }}</h5>
-        <div v-if="isLoading" class="loading-text">
-          {{ t('ai.report.loading') }}
+        <div class="stats-header">
+          <h5>{{ t('ai.report.statsPreview') }}</h5>
+          <span class="stats-badge" v-if="filteredExpensesCount > 0">
+            {{ filteredExpensesCount }} 条记录
+          </span>
+        </div>
+        <div v-if="isLoading" class="loading-state">
+          <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+          </div>
+          <span class="loading-text">{{ t('ai.report.loading') }}</span>
         </div>
         <div v-else class="stats-grid">
-          <div class="stat-item">
+          <div class="stat-card">
             <span class="stat-label">{{ t('ai.report.totalCount') }}</span>
-            <span class="stat-value">{{ stats.totalCount }}</span>
+            <span class="stat-value primary">{{ stats.totalCount }}</span>
           </div>
-          <div class="stat-item">
+          <div class="stat-card">
             <span class="stat-label">{{ t('ai.report.totalAmount') }}</span>
-            <span class="stat-value">{{ stats.totalAmount.toFixed(2) }}</span>
+            <span class="stat-value success">¥{{ formatNumber(stats.totalAmount) }}</span>
           </div>
-          <div class="stat-item">
+          <div class="stat-card">
             <span class="stat-label">{{ t('ai.report.averageAmount') }}</span>
-            <span class="stat-value">{{ stats.averageAmount.toFixed(2) }}</span>
+            <span class="stat-value">¥{{ formatNumber(stats.averageAmount) }}</span>
           </div>
-          <div class="stat-item">
+          <div class="stat-card">
             <span class="stat-label">{{ t('ai.report.medianAmount') }}</span>
-            <span class="stat-value">{{ stats.medianAmount.toFixed(2) }}</span>
+            <span class="stat-value">¥{{ formatNumber(stats.medianAmount) }}</span>
           </div>
-          <div class="stat-item">
+          <div class="stat-card">
             <span class="stat-label">{{ t('ai.report.minAmount') }}</span>
-            <span class="stat-value">{{ stats.minAmount.toFixed(2) }}</span>
+            <span class="stat-value warning">¥{{ formatNumber(stats.minAmount) }}</span>
           </div>
-          <div class="stat-item">
+          <div class="stat-card">
             <span class="stat-label">{{ t('ai.report.maxAmount') }}</span>
-            <span class="stat-value">{{ stats.maxAmount.toFixed(2) }}</span>
+            <span class="stat-value danger">¥{{ formatNumber(stats.maxAmount) }}</span>
           </div>
         </div>
       </div>
@@ -270,6 +294,15 @@ const stats = computed(() => {
   };
 });
 
+// Filtered expenses count for badge display
+const filteredExpensesCount = computed(() => filteredExpenses.value.length);
+
+// Format number with thousand separators
+const formatNumber = (num) => {
+  if (num === 0) return '0.00';
+  return num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 // 监听筛选变化，通知父组件
 watch([localYear, localMonth, localSelectedTypes], () => {
   console.log('Filter changed:', {
@@ -340,46 +373,116 @@ defineExpose({
 
 <style scoped>
 .ai-report-filter {
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 8px;
-  backdrop-filter: blur(10px);
+  padding: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .filter-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .filter-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: #333;
-  margin: 0 0 8px 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #eee;
+  color: #1a1a2e;
+  margin: 0 0 4px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 .filter-row {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-items: start;
 }
 
-.filter-row .glass-form-item {
-  flex: 1;
-  min-width: 150px;
+.date-filter-row {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 8px 0;
+}
+
+.date-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.date-filter-row .custom-select {
+  min-width: 110px;
+  max-width: 140px;
+  width: 100%;
+}
+
+.filter-row:not(.types-section) {
+  gap: 12px;
+}
+
+.filter-item {
+  min-width: 0;
+}
+
+.types-section {
+  grid-template-columns: 1fr;
+}
+
+.types-label {
+  width: 100%;
 }
 
 .type-checkboxes {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  max-height: 120px;
+  gap: 8px;
+  max-height: 140px;
   overflow-y: auto;
-  padding-right: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.type-checkboxes::-webkit-scrollbar {
+  width: 6px;
+}
+
+.type-checkboxes::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.type-checkboxes::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+.type-checkboxes.has-active {
+  background: rgba(99, 179, 237, 0.15);
+  border-color: rgba(99, 179, 237, 0.3);
 }
 
 .checkbox-label {
@@ -387,83 +490,340 @@ defineExpose({
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  font-size: 14px;
-  color: #333;
+  font-size: 13px;
+  color: #374151;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.checkbox-label:hover {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.checkbox-label.active {
+  background: rgba(99, 179, 237, 0.25);
+  border-color: rgba(99, 179, 237, 0.5);
+  color: #1e40af;
 }
 
 .checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox-custom {
   width: 16px;
   height: 16px;
-  cursor: pointer;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.checkbox-label.active .checkbox-custom {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  border-color: #3b82f6;
+}
+
+.checkbox-label.active .checkbox-custom::after {
+  content: '✓';
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.checkbox-text {
+  white-space: nowrap;
 }
 
 .quick-buttons {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
+.quick-buttons .glass-button {
+  flex: 1;
+  min-width: fit-content;
+  justify-content: center;
+}
+
+.btn-icon {
+  margin-right: 4px;
+  font-size: 12px;
+}
+
 .stats-preview {
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 4px;
+  padding: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
 }
 
 .stats-preview h5 {
   font-size: 14px;
   font-weight: 600;
-  color: #333;
-  margin: 0 0 12px 0;
+  color: #1f2937;
+  margin: 0;
+}
+
+.stats-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  color: white;
+  border-radius: 20px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  gap: 12px;
+}
+
+.loading-spinner {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.spinner-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid rgba(99, 102, 241, 0.1);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-ring::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border: 3px solid transparent;
+  border-top-color: #818cf8;
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-text {
-  text-align: center;
-  padding: 20px;
-  color: #666;
+  font-size: 13px;
+  color: #6b7280;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
 
-.stat-item {
+.stat-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-  background: white;
-  border-radius: 4px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .stat-label {
-  font-size: 12px;
-  color: #666;
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .stat-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
 }
 
-@media (prefers-color-scheme: dark) {
+.stat-value.primary { color: #3b82f6; }
+.stat-value.success { color: #10b981; }
+.stat-value.warning { color: #f59e0b; }
+.stat-value.danger { color: #ef4444; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .ai-report-filter {
-    background: rgba(30, 30, 46, 0.8);
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .filter-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .quick-buttons .glass-button {
+    flex: 1 1 calc(50% - 5px);
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-report-filter {
+    padding: 12px;
   }
   
   .filter-title {
-    color: #e4e4e7;
-    border-bottom-color: #3f3f46;
+    font-size: 16px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .stat-card {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+  }
+  
+  .quick-buttons {
+    gap: 8px;
+  }
+  
+  .quick-buttons .glass-button {
+    flex: 1 1 100%;
+    padding: 8px 12px;
+  }
+  
+  .type-checkboxes {
+    max-height: 120px;
+    gap: 6px;
+    padding: 10px;
   }
   
   .checkbox-label {
-    color: #e4e4e7;
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .ai-report-filter {
+    background: linear-gradient(
+      135deg,
+      rgba(30, 30, 46, 0.6) 0%,
+      rgba(30, 30, 46, 0.4) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  
+  .filter-title {
+  color: #e4e4e7;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  text-shadow: none;
+}
+
+.date-label {
+  color: #9ca3af;
+}
+
+.type-checkboxes {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  
+  .type-checkboxes.has-active {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+  
+  .type-checkboxes::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+  }
+  
+  .type-checkboxes::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .checkbox-label {
+    color: #d1d5db;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .checkbox-label:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  
+  .checkbox-label.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #93c5fd;
+  }
+  
+  .checkbox-custom {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
   }
   
   .stats-preview {
-    background: #27272a;
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.25) 0%,
+      rgba(0, 0, 0, 0.15) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.08);
   }
   
   .stats-preview h5 {
@@ -471,19 +831,30 @@ defineExpose({
   }
   
   .loading-text {
-    color: #a1a1aa;
+    color: #9ca3af;
   }
   
-  .stat-item {
-    background: #1f1f2e;
+  .stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  
+  .stat-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
   
   .stat-label {
-    color: #a1a1aa;
+    color: #9ca3af;
   }
   
   .stat-value {
-    color: #e4e4e7;
+    color: #f3f4f6;
   }
+  
+  .stat-value.primary { color: #60a5fa; }
+  .stat-value.success { color: #34d399; }
+  .stat-value.warning { color: #fbbf24; }
+  .stat-value.danger { color: #f87171; }
 }
 </style>
