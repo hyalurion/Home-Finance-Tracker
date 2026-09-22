@@ -20,37 +20,37 @@
   {
     "group": "androidx.compose.ui",
     "name": "ui",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "fullName": "androidx.compose.ui:ui"
   },
   {
     "group": "androidx.compose.ui",
     "name": "ui-graphics",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "fullName": "androidx.compose.ui:ui-graphics"
   },
   {
     "group": "androidx.compose.ui",
     "name": "ui-test-manifest",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "fullName": "androidx.compose.ui:ui-test-manifest"
   },
   {
     "group": "androidx.compose.ui",
     "name": "ui-tooling",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "fullName": "androidx.compose.ui:ui-tooling"
   },
   {
     "group": "androidx.compose.ui",
     "name": "ui-tooling-preview",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "fullName": "androidx.compose.ui:ui-tooling-preview"
   },
   {
     "group": "androidx.compose",
     "name": "compose-bom",
-    "version": "2026.08.00",
+    "version": "2026.09.00",
     "fullName": "androidx.compose:compose-bom"
   },
   {
@@ -134,13 +134,13 @@
   {
     "group": "androidx.room",
     "name": "room-ktx",
-    "version": "2.8.4",
+    "version": "2.8.5",
     "fullName": "androidx.room:room-ktx"
   },
   {
     "group": "androidx.room",
     "name": "room-runtime",
-    "version": "2.8.4",
+    "version": "2.8.5",
     "fullName": "androidx.room:room-runtime"
   },
   {
@@ -152,7 +152,7 @@
   {
     "group": "androidx.sqlite",
     "name": "sqlite",
-    "version": "2.7.0",
+    "version": "2.7.1",
     "fullName": "androidx.sqlite:sqlite"
   },
   {
@@ -188,7 +188,7 @@
   {
     "group": "com.google.protobuf",
     "name": "protobuf-javalite",
-    "version": "4.36.1",
+    "version": "4.36.2",
     "fullName": "com.google.protobuf:protobuf-javalite"
   },
   {
@@ -218,13 +218,13 @@
   {
     "group": "io.coil-kt.coil3",
     "name": "coil-compose",
-    "version": "3.6.1",
+    "version": "3.6.3",
     "fullName": "io.coil-kt.coil3:coil-compose"
   },
   {
     "group": "io.coil-kt.coil3",
     "name": "coil-network-okhttp",
-    "version": "3.6.1",
+    "version": "3.6.3",
     "fullName": "io.coil-kt.coil3:coil-network-okhttp"
   },
   {
@@ -254,7 +254,7 @@
   {
     "group": "net.zetetic",
     "name": "sqlcipher-android",
-    "version": "4.18.0",
+    "version": "4.19.0",
     "fullName": "net.zetetic:sqlcipher-android"
   },
   {
@@ -272,7 +272,7 @@
   {
     "group": "org.jetbrains.kotlin",
     "name": "kotlin-stdlib",
-    "version": "2.4.10",
+    "version": "2.4.20",
     "fullName": "org.jetbrains.kotlin:kotlin-stdlib"
   },
   {
@@ -302,19 +302,19 @@
   {
     "group": "top.yukonga.miuix.kmp",
     "name": "miuix-blur-android",
-    "version": "0.9.4-rc01",
+    "version": "0.9.4",
     "fullName": "top.yukonga.miuix.kmp:miuix-blur-android"
   },
   {
     "group": "top.yukonga.miuix.kmp",
     "name": "miuix-preference-android",
-    "version": "0.9.4-rc01",
+    "version": "0.9.4",
     "fullName": "top.yukonga.miuix.kmp:miuix-preference-android"
   },
   {
     "group": "top.yukonga.miuix.kmp",
     "name": "miuix-ui-android",
-    "version": "0.9.4-rc01",
+    "version": "0.9.4",
     "fullName": "top.yukonga.miuix.kmp:miuix-ui-android"
   }
 ]

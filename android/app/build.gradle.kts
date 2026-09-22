@@ -114,7 +114,7 @@ android {
     // builds as a stub and the app still installs.
     sourceSets {
         getByName("main") {
-            jniLibs.srcDir("src/main/cpp/mnn/prebuilt")
+            jniLibs.directories.add("src/main/cpp/mnn/prebuilt")
         }
     }
 
