@@ -167,6 +167,7 @@
   },
   "ai": {
     "report": {
+      "title": "AI Hỏi đáp Chi tiêu",
       "filterTitle": "Bộ lọc dữ liệu",
       "statsPreview": "Xem trước thống kê dữ liệu",
       "totalCount": "Tổng số bản ghi",
@@ -175,7 +176,35 @@
       "medianAmount": "Trung vị",
       "minAmount": "Số tiền nhỏ nhất",
       "maxAmount": "Số tiền lớn nhất",
-      "loading": "Đang tải..."
+      "loading": "Đang tải...",
+      "downloadButton": "① Tải xuống bảng dữ liệu",
+      "downloading": "Đang tải xuống...",
+      "generateButton": "② Tạo prompt",
+      "defaultFileName": "expenses.xlsx",
+      "hint1": "Nhấn «Tải xuống bảng dữ liệu» để lưu {file} vào thiết bị.",
+      "hint2": "Nhấn «Tạo prompt» và sao chép prompt vào bất kỳ ứng dụng AI hoặc trang web nào.",
+      "hint3": "Trong ứng dụng AI, tải lên file xlsx vừa lưu, sau đó nhập câu hỏi của bạn trực tiếp trong trò chuyện (ví dụ: “Tháng này mình chi tiêu nhiều nhất ở đâu?”) rồi gửi.",
+      "hint4": "Bạn có thể hỏi tiếp trong ứng dụng AI, không cần quay lại trang này. Khi xong, sao chép câu trả lời của AI và dán vào bên dưới, sau đó nhấn «Dán câu trả lời» để hiển thị.",
+      "promptHint": "Prompt được tạo theo bộ lọc hiện tại; tệp dữ liệu là {file}. Tải tệp đó trong ứng dụng AI rồi trực tiếp nhập câu hỏi của bạn.",
+      "promptLabel": "Prompt (có thể sao chép)",
+      "copyButton": "Sao chép prompt",
+      "replyLabel": "Câu trả lời của AI (dán lại)",
+      "replyPlaceholder": "Dán câu trả lời của AI vào đây",
+      "clearButton": "Xóa trắng",
+      "pasteButton": "Dán câu trả lời",
+      "emptyContent": "Sau khi hoàn thành các bước trên, bản phân tích chi tiêu từ AI sẽ hiển thị ở đây"
+    },
+    "smartRecord": {
+      "title": "Ghi chép thông minh bằng AI",
+      "step1": "Nhấn «Sao chép prompt», sau đó mở bất kỳ ứng dụng hoặc trang web trò chuyện AI nào và dán prompt vào đó.",
+      "step2": "Trong ứng dụng AI, hãy nhập trực tiếp mô tả giao dịch của bạn; nếu cần, đính kèm ảnh hóa đơn hoặc biên lai.",
+      "step3": "Yêu cầu AI chỉ xuất JSON, sau đó sao chép lại và dán vào ô bên dưới.",
+      "promptLabel": "Prompt (đã sẵn sàng sao chép)",
+      "copyButton": "Sao chép prompt",
+      "replyLabel": "Câu trả lời của AI (dán lại)",
+      "replyPlaceholder": "Dán JSON AI trả về vào đây, ví dụ: [\\{\"type\":\"Ăn uống\",\"amount\":56.8,\"date\":\"2026-10-02\",\"remark\":\"Táo, sữa\"\\}]",
+      "parsing": "Đang phân tích...",
+      "submit": "Phân tích và gửi"
     }
   },
   "avatar": {

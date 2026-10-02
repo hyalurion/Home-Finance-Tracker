@@ -167,6 +167,7 @@
   },
   "ai": {
     "report": {
+      "title": "AI消费问答",
       "filterTitle": "资料筛选",
       "statsPreview": "资料统计预览",
       "totalCount": "总记录笔数",
@@ -175,7 +176,35 @@
       "medianAmount": "中位数",
       "minAmount": "最低金额",
       "maxAmount": "最高金额",
-      "loading": "载入中..."
+      "loading": "载入中...",
+      "downloadButton": "① 下载数据表格",
+      "downloading": "下载中...",
+      "generateButton": "② 生成提示词",
+      "defaultFileName": "expenses.xlsx",
+      "hint1": "点「下载数据表格」，把 {file} 存到本机。",
+      "hint2": "点「生成提示词」，把提示词复制到任意 AI 聊天应用或网页。",
+      "hint3": "在 AI 应用里上传刚才的 xlsx 作为附件，直接在对话里输入你自己的问题（比如「我本月主要花在哪」）再发送。",
+      "hint4": "想在 AI 应用里继续追问就直接问，不用回到本页；完成后把 AI 的回答复制回来粘贴到下方，点「粘贴回答」即可渲染。",
+      "promptHint": "已按当前筛选条件生成提示词，数据文件为 {file}。在 AI 应用里上传该文件，直接输入你的问题再发送即可。",
+      "promptLabel": "提示词（可复制）",
+      "copyButton": "复制提示词",
+      "replyLabel": "AI 回答（粘贴回来）",
+      "replyPlaceholder": "把 AI 返回的回答粘贴到这里",
+      "clearButton": "清空",
+      "pasteButton": "粘贴回答",
+      "emptyContent": "完成上面的步骤后，这里会显示 AI 生成的消费分析"
+    },
+    "smartRecord": {
+      "title": "AI智能记账",
+      "step1": "点击「复制提示词」，再打开任意 AI 聊天应用或网页，把提示词粘贴进去。",
+      "step2": "在 AI 应用里直接输入消费描述，需要的话再附上一张收据、小票或账单截图。",
+      "step3": "让 AI 只输出 JSON，然后完整复制回来粘贴到下面的输入框。",
+      "promptLabel": "提示词（已为你写好，直接复制）",
+      "copyButton": "复制提示词",
+      "replyLabel": "AI 返回内容（粘贴回来）",
+      "replyPlaceholder": "把 AI 返回的 JSON 粘贴到这里，例如：[\\{\"type\":\"食品\",\"amount\":56.8,\"date\":\"2026-10-02\",\"remark\":\"苹果、牛奶\"\\}]",
+      "parsing": "解析中...",
+      "submit": "解析并提交"
     }
   },
   "avatar": {

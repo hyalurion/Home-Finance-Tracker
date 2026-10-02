@@ -167,6 +167,7 @@
   },
   "ai": {
     "report": {
+      "title": "AI Perbelanjaan Tanya-Jawab",
       "filterTitle": "Penapis Data",
       "statsPreview": "Pratonton Statistik Data",
       "totalCount": "Jumlah Rekod",
@@ -175,7 +176,35 @@
       "medianAmount": "Median",
       "minAmount": "Amaun Minimum",
       "maxAmount": "Amaun Maksimum",
-      "loading": "Memuatkan..."
+      "loading": "Memuatkan...",
+      "downloadButton": "① Muat turun lembar data",
+      "downloading": "Memuat turun...",
+      "generateButton": "② Jana prompt",
+      "defaultFileName": "expenses.xlsx",
+      "hint1": "Klik «Muat turun lembar data» untuk menyimpan {file} pada peranti ini.",
+      "hint2": "Klik «Jana prompt» dan salin prompt ke mana-mana aplikasi atau laman web AI.",
+      "hint3": "Di aplikasi AI, muat naik xlsx yang baru disimpan, lalu taip soalan anda sendiri dalam medan sembang (misal: «Di mana saya paling banyak berbelanja bulan ini?») dan hantar.",
+      "hint4": "Soalan lanjutan boleh terus di aplikasi AI, tidak perlu kembali ke halaman ini. Setelah selesai, salin balasan AI dan tampalkan di bawah, lalu klik «Tampal balasan» untuk memaparkannya.",
+      "promptHint": "Prompt dijana mengikut penapis semasa; fail datanya ialah {file}. Muat naik fail tersebut di aplikasi AI lalu taip soalan anda terus.",
+      "promptLabel": "Prompt (boleh disalin)",
+      "copyButton": "Salin prompt",
+      "replyLabel": "Balasan AI (tampal di sini)",
+      "replyPlaceholder": "Tampalkan balasan AI di sini",
+      "clearButton": "Kosongkan",
+      "pasteButton": "Tampal balasan",
+      "emptyContent": "Selepas langkah di atas selesai, analisis perbelanjaan AI akan dipaparkan di sini"
+    },
+    "smartRecord": {
+      "title": "AI Rekod Pintar",
+      "step1": "Klik «Salin prompt», lalu buka mana-mana aplikasi atau laman web AI dan tampalkan prompt di sana.",
+      "step2": "Di aplikasi AI, taip terus penerangan perbelanjaan anda; jika perlu, lampirkan resit atau invois.",
+      "step3": "Suruh AI hanya mengeluarkan JSON, kemudian salin semula dan tampalkan ke medan di bawah.",
+      "promptLabel": "Prompt (sedia disalin)",
+      "copyButton": "Salin prompt",
+      "replyLabel": "Balasan AI (tampal di sini)",
+      "replyPlaceholder": "Tampalkan JSON yang dikembalikan AI di sini, contoh: [\\{\"type\":\"Makanan\",\"amount\":56.8,\"date\":\"2026-10-02\",\"remark\":\"Epal, susu\"\\}]",
+      "parsing": "Sedang menganalisis...",
+      "submit": "Analisis dan hantar"
     }
   },
   "avatar": {

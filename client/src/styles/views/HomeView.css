@@ -833,3 +833,161 @@
 .error-alert {
   color: #d32f2f;
 }
+
+/* ==========================================================================
+   AI hand-off flow (copy prompt -> ask a third-party AI -> paste the answer)
+   ========================================================================== */
+
+.ai-report-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.ai-handoff-hint {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color, #4caf50);
+  background: rgba(76, 175, 80, 0.08);
+  color: var(--text-primary, #212121);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.ai-handoff-hint ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.ai-handoff-hint li + li {
+  margin-top: 6px;
+}
+
+.ai-handoff-hint b {
+  font-weight: 600;
+}
+
+.ai-prompt-box {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: var(--bg-secondary, #fff);
+  color: var(--text-primary, #212121);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* >=16px keeps iOS Safari from zooming in when the field gains focus. */
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  resize: vertical;
+}
+
+.ai-prompt-box--readonly {
+  background: rgba(0, 0, 0, 0.03);
+  cursor: text;
+}
+
+.ai-prompt-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.prompt-box-wrap {
+  margin-bottom: 4px;
+}
+
+.report-prompt-section {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.report-content-section {
+  flex: 1;
+  min-height: 160px;
+  margin-top: 4px;
+}
+
+.no-report-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  padding: 20px;
+  border: 1px dashed rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  color: var(--text-muted, #616161);
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .ai-report-container {
+    gap: 12px;
+  }
+
+  .ai-handoff-hint {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .ai-prompt-box {
+    font-size: 16px; /* prevents the iOS focus zoom */
+  }
+
+  .report-prompt-section {
+    padding: 10px;
+  }
+
+  .no-report-content {
+    min-height: 120px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .ai-handoff-hint {
+    background: rgba(255, 255, 255, 0.06);
+    border-left-color: var(--primary-color, #66bb6a);
+  }
+
+  .ai-prompt-box {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: var(--bg-secondary, #2a2d35);
+    color: var(--text-primary, #e4e6eb);
+  }
+
+  .ai-prompt-box--readonly {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .report-prompt-section {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .no-report-content {
+    border-color: rgba(255, 255, 255, 0.18);
+    color: var(--text-muted, #9ea3ad);
+  }
+}
+
+/* Row of primary actions inside the AI Q&A dialog. */
+.ai-report-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.report-filter-section {
+  margin-bottom: 4px;
+}

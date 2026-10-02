@@ -22,6 +22,12 @@ func NewExpenseRepository(db *gorm.DB) *ExpenseRepository {
 	}
 }
 
+// DB exposes the underlying handle so callers can build ad-hoc queries
+// (currently only the AI data export, which needs the raw filtered set).
+func (r *ExpenseRepository) DB() *gorm.DB {
+	return r.db
+}
+
 // Create creates an expense record
 func (r *ExpenseRepository) Create(expense *models.Expense) error {
 	if err := expense.Validate(); err != nil {

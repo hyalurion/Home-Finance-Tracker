@@ -167,6 +167,7 @@
   },
   "ai": {
     "report": {
+      "title": "AI Spending Q&A",
       "filterTitle": "Data Filter",
       "statsPreview": "Data Statistics Preview",
       "totalCount": "Total Records",
@@ -175,7 +176,35 @@
       "medianAmount": "Median",
       "minAmount": "Min Amount",
       "maxAmount": "Max Amount",
-      "loading": "Loading..."
+      "loading": "Loading...",
+      "downloadButton": "① Download data sheet",
+      "downloading": "Downloading...",
+      "generateButton": "② Generate prompt",
+      "defaultFileName": "expenses.xlsx",
+      "hint1": "Tap “Download data sheet” to save {file} to this device.",
+      "hint2": "Tap “Generate prompt” and copy the prompt into any AI chat app or web page.",
+      "hint3": "In the AI app, upload the xlsx you just saved, then type your own question in the chat (for example “Where did I spend the most this month?”) and send it.",
+      "hint4": "Keep follow-up questions inside the AI app, you don’t need to come back here. When you’re done, copy the AI answer back and paste it below, then tap “Paste answer” to render it.",
+      "promptHint": "The prompt was generated from the current filters; the data file is {file}. Upload that file in the AI app and then just type your question.",
+      "promptLabel": "Prompt (copyable)",
+      "copyButton": "Copy prompt",
+      "replyLabel": "AI answer (paste back)",
+      "replyPlaceholder": "Paste the AI answer here",
+      "clearButton": "Clear",
+      "pasteButton": "Paste answer",
+      "emptyContent": "Once the steps above are done, the AI spending analysis appears here"
+    },
+    "smartRecord": {
+      "title": "AI Smart Record",
+      "step1": "Tap “Copy prompt”, then open any AI chat app or web page and paste it in.",
+      "step2": "Type your expense description directly in the AI app; attach a receipt, bill or screenshot if you need to.",
+      "step3": "Ask the AI to output JSON only, then copy the reply back and paste it into the box below.",
+      "promptLabel": "Prompt (ready to copy)",
+      "copyButton": "Copy prompt",
+      "replyLabel": "AI reply (paste back)",
+      "replyPlaceholder": "Paste the JSON the AI returned here, e.g. [\\{\"type\":\"Food\",\"amount\":56.8,\"date\":\"2026-10-02\",\"remark\":\"Apples, milk\"\\}]",
+      "parsing": "Parsing...",
+      "submit": "Parse and submit"
     }
   },
   "avatar": {

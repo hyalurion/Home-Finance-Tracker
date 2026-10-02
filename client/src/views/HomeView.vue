@@ -42,11 +42,11 @@
           <div class="card-content">
             <GlassButton type="primary" @click="showAiAddDialog = true">
               <template #icon><FontAwesomeIcon icon="microchip" /></template>
-              {{ t('expense.aiAddRecord') }}
+              {{ t('ai.smartRecord.title') }}
             </GlassButton>
             <GlassButton type="primary" @click="showAiReportDialog = true">
               <template #icon><FontAwesomeIcon icon="file-alt" /></template>
-              {{ t('expense.aiReport') }}
+              {{ t('ai.report.title') }}
             </GlassButton>
           </div>
         </GlassCard>
@@ -70,11 +70,11 @@
         <div v-else-if="selectedFunctionGroup === 'ai'" class="mobile-button-group">
           <GlassButton type="primary" @click="showAiAddDialog = true" size="large" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="microchip" /></template>
-            AI智能记录
+            {{ t('ai.smartRecord.title') }}
           </GlassButton>
           <GlassButton type="primary" @click="showAiReportDialog = true" size="large" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="file-alt" /></template>
-            AI消费问答
+            {{ t('ai.report.title') }}
           </GlassButton>
         </div>
       </div>
@@ -302,72 +302,46 @@
     </div>
   </transition>
 
-  <!-- API key settings dialog -->
-  <GlassDialog v-model:visible="showApiKeyDialog" title="设置硅基流动（SiliconFlow） API密钥" width="50%" :style="{ zIndex: 1000 }">
-    <GlassForm :model="apiKeyForm" ref="apiKeyFormRef">
-      <GlassFormItem :label="'API密钥'" prop="apiKey">
-        <GlassInput
-          v-model="apiKeyForm.apiKey"
-          placeholder="请输入您的硅基流动（SiliconFlow）API密钥"
-          type="password"
-          show-password
-        ></GlassInput>
-      </GlassFormItem>
-        <div style="margin-top: 10px; font-size: 12px;">
-          密钥获取: <a href="https://cloud.siliconflow.cn/me/account/ak" target="_blank">https://cloud.siliconflow.cn/me/account/ak</a>
-        </div>
-    </GlassForm>
-    <template #footer>
-      <GlassButton @click="showApiKeyDialog = false">取消</GlassButton>
-      <GlassButton type="primary" @click="handleApiKeySave">保存</GlassButton>
-    </template>
-  </GlassDialog>
-
-  <!-- AI smart-record dialog -->
-  <GlassDialog v-model:visible="showAiAddDialog" title="AI智能记录" width="80%">
-    <GlassForm :model="aiForm" ref="aiFormRef">
-      <GlassFormItem :label="'输入文本描述'">
-        <GlassInput
-          v-model="aiForm.text"
-          type="textarea"
-          :rows="4"
-          placeholder="请输入消费记录的详细描述，例如：今天上午在超市买了苹果和牛奶，共花费56.8元。"
-        ></GlassInput>
-      </GlassFormItem>
-      <GlassFormItem :label="'或上传图片'">
-        <GlassUpload
-          v-model:file-list="aiForm.image"
-          class="avatar-uploader"
-          action=""
-          :auto-upload="false"
-          :on-change="handleImageChange"
-          :show-file-list="true"
-          :multiple="true"
-          accept=".jpg,.jpeg,.png,.gif"
-        >
-          <GlassButton size="small" type="primary">点击上传</GlassButton>
-          <template #tip>
-            <div class="glass-upload__tip">
-              请上传包含消费信息的图片（如收据、账单截图等）
-            </div>
-          </template>
-        </GlassUpload>
-      </GlassFormItem>
-      <div :class="['api-key-prompt']">
-        <GlassButton 
-          type="info" 
-          @click="showApiKeyDialog = true" 
-          size="small"
-          style="margin: 0 auto; display: block;"
-        >
-          API密钥设置
-        </GlassButton>
+  <!-- AI smart-record dialog: the app only produces a prompt, the description
+       and the receipt image are typed/attached by the user inside the AI app -->
+  <GlassDialog v-model:visible="showAiAddDialog" :title="t('ai.smartRecord.title')" width="80%">
+    <div class="ai-step">
+      <div class="ai-handoff-hint">
+        <ol>
+          <li>{{ t('ai.smartRecord.step1') }}</li>
+          <li>{{ t('ai.smartRecord.step2') }}</li>
+          <li>{{ t('ai.smartRecord.step3') }}</li>
+        </ol>
       </div>
-    </GlassForm>
+      <GlassFormItem :label="t('ai.smartRecord.promptLabel')">
+        <textarea v-model="aiPrompt" class="ai-prompt-box ai-prompt-box--readonly" readonly rows="14"></textarea>
+        <div class="ai-prompt-actions">
+          <GlassButton
+            type="primary"
+            size="small"
+            @click="copyText(aiPrompt, t('ai.smartRecord.copyButton'))"
+          >{{ t('ai.smartRecord.copyButton') }}</GlassButton>
+        </div>
+      </GlassFormItem>
+      <GlassFormItem :label="t('ai.smartRecord.replyLabel')">
+        <!-- The sample JSON inside `ai.smartRecord.replyPlaceholder` keeps its
+             braces escaped as \{ \} in the locale files: vue-i18n parses a bare
+             `{name}` as an interpolation token and would refuse to compile. -->
+        <GlassInput
+          v-model="aiReply"
+          type="textarea"
+          :rows="8"
+          :placeholder="t('ai.smartRecord.replyPlaceholder')"
+        ></GlassInput>
+      </GlassFormItem>
+    </div>
+
+    <!-- A named slot template must stay a direct child of the dialog: nesting one
+         inside a v-if / v-else branch breaks the template compiler. -->
     <template #footer>
       <GlassButton @click="handleAiCancel">{{ t('common.cancel') }}</GlassButton>
       <GlassButton type="primary" @click="handleAiGenerate" :disabled="isParsing">
-        {{ isParsing ? '生成中...' : '生成记录' }}
+        {{ isParsing ? t('ai.smartRecord.parsing') : t('ai.smartRecord.submit') }}
       </GlassButton>
     </template>
   </GlassDialog>
@@ -420,43 +394,70 @@
     </template>
   </GlassDialog>
 
-  <!-- AI spending Q&A dialog -->
-  <GlassDialog v-model:visible="showAiReportDialog" title="AI消费问答" width="90%" height="80vh">
+  <!-- AI spending Q&A dialog: only the export + the prompt live here, the
+       question itself is typed by the user inside the third-party AI app -->
+  <GlassDialog v-model:visible="showAiReportDialog" :title="t('ai.report.title')" width="90%" height="80vh">
     <div class="ai-report-container">
       <!-- Data filter section -->
-      <div class="report-filter-section" style="margin-bottom: 15px;">
-        <AIReportFilter 
+      <div class="report-filter-section">
+        <AIReportFilter
           @filter-change="handleFilterChange"
         />
       </div>
-      
-      <!-- Question input section -->
-      <div class="report-question-section" style="margin-bottom: 10px;">
-        <GlassForm label-position="top">
-          <GlassFormItem label="输入您的问题">
-            <GlassButton 
-              @click="clearReportQuestion" 
-              style="position: absolute; top: 15px; right: 15px; width: 30px; height: 30px; padding: 0;"
-            >×</GlassButton>
-            <GlassInput
-              v-model="reportQuestion"
-              type="textarea"
-              :rows="3"
-              placeholder="您可以向AI提问关于您的消费情况，例如：'我本月的主要消费类别是什么？'或'如何减少我的日常开支？'"
-            />
-          </GlassFormItem>
-            <div style=" display: flex; justify-content: center; flex-wrap: wrap;">
-              <GlassButton type="primary" @click="handleGenerateReport" :disabled="isGeneratingReport">
-                {{ isGeneratingReport ? '生成中...' : '生成' }}
-              </GlassButton>
-            </div>
-        </GlassForm>
+
+      <!-- Export + prompt hand-off buttons -->
+      <div class="ai-report-actions">
+        <GlassButton @click="handleDownloadAIData" :disabled="isDownloadingData">
+          {{ isDownloadingData ? t('ai.report.downloading') : t('ai.report.downloadButton') }}
+        </GlassButton>
+        <GlassButton type="primary" @click="handleGenerateReport">
+          {{ t('ai.report.generateButton') }}
+        </GlassButton>
       </div>
-      
+
+      <!-- Hand-off instructions -->
+      <div v-if="!reportPrompt && !reportContent" class="ai-handoff-hint">
+        <ol>
+          <li>{{ t('ai.report.hint1', { file: aiXlsxFileName || t('ai.report.defaultFileName') }) }}</li>
+          <li>{{ t('ai.report.hint2') }}</li>
+          <li>{{ t('ai.report.hint3') }}</li>
+          <li>{{ t('ai.report.hint4') }}</li>
+        </ol>
+      </div>
+
+      <!-- Prompt + paste-back area -->
+      <div v-if="reportPrompt" class="report-prompt-section">
+        <div class="ai-handoff-hint">
+          {{ t('ai.report.promptHint', { file: aiXlsxFileName || '-' }) }}
+        </div>
+        <GlassFormItem :label="t('ai.report.promptLabel')">
+          <textarea v-model="reportPrompt" class="ai-prompt-box ai-prompt-box--readonly" readonly rows="14"></textarea>
+          <div class="ai-prompt-actions">
+            <GlassButton
+              type="primary"
+              size="small"
+              @click="copyText(reportPrompt, t('ai.report.copyButton'))"
+            >{{ t('ai.report.copyButton') }}</GlassButton>
+          </div>
+        </GlassFormItem>
+        <GlassFormItem :label="t('ai.report.replyLabel')">
+          <GlassInput
+            v-model="reportReply"
+            type="textarea"
+            :rows="8"
+            :placeholder="t('ai.report.replyPlaceholder')"
+          ></GlassInput>
+        </GlassFormItem>
+        <div class="ai-report-actions">
+          <GlassButton @click="clearReportHandoff">{{ t('ai.report.clearButton') }}</GlassButton>
+          <GlassButton type="primary" @click="handleRenderReport">{{ t('ai.report.pasteButton') }}</GlassButton>
+        </div>
+      </div>
+
       <!-- Report content display section -->
       <div class="report-content-section">
         <div v-if="!reportContent" class="no-report-content">
-          请点击"生成"按钮开始分析您的消费数据
+          {{ t('ai.report.emptyContent') }}
         </div>
         <div v-else class="report-content" v-html="renderedReportContent">
         </div>
@@ -476,11 +477,10 @@
 import GlassDialog from '@/components/GlassDialog.vue';
 import GlassForm from '@/components/GlassForm.vue';
 import GlassFormItem from '@/components/GlassFormItem.vue';
-import GlassUpload from '@/components/GlassUpload.vue';
 import GlassCheckbox from '@/components/GlassCheckbox.vue';
 
 import axios from 'axios';
-import { ref, computed, onMounted, reactive } from 'vue';
+import { ref, computed, onMounted, reactive, watch } from 'vue';
 import { marked } from 'marked';
 
 import { useRouter } from 'vue-router';
@@ -697,10 +697,6 @@ const functionGroups = computed(() => [
   { label: t('function.primary'), value: 'primary' },
   { label: t('function.aiFeatures'), value: 'ai' }
 ]);
-const aiForm = reactive({
-  text: '',
-  image: []
-});
 const isParsing = ref(false);
 // Added: data structure for storing multiple records
 const multiRecords = ref([]);
@@ -709,7 +705,11 @@ const selectAll = ref(false);
 // Added: report-related state
 const isGeneratingReport = ref(false);
 const reportContent = ref('');
-const reportQuestion = ref('');
+// Hand-off state for the AI Q&A flow. The question itself is never collected
+// here: the user types it inside the third-party AI app after pasting the
+// generated prompt.
+const reportPrompt = ref('');
+const reportReply = ref('');
 // Added: filtered statistics data
 const filteredStats = ref({
   totalCount: 0,
@@ -742,14 +742,38 @@ const selectedRecordsCount = computed(() => {
   return multiRecords.value.filter(record => record.selected).length;
 });
 
-// Import the AI API
-import { parseTextToRecord, parseImageToRecord, setApiKey, generateExpenseReport } from '@/api/aiRecord';
+// Import the AI helpers (prompt builders + lenient reply parser, no network)
+import { buildAddRecordPrompt, buildReportPrompt, parseAiReply } from '@/api/aiRecord';
 
-// API key related
-const showApiKeyDialog = ref(false);
-const apiKeyForm = reactive({
-  apiKey: localStorage.getItem('siliconflow_api_key') || ''
-});
+// AI hand-off state for the smart-record flow
+const aiPrompt = ref('');
+const aiReply = ref('');
+// The xlsx the user downloads before asking the AI (filename is echoed in the prompt)
+const aiXlsxFileName = ref('');
+const isDownloadingData = ref(false);
+
+// Copy an arbitrary string via the async clipboard API with a textarea fallback.
+const copyText = async (text, label = '内容') => {
+  if (!text) return;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    successMessage.value = `${label}已复制到剪贴板`;
+  } catch (error) {
+    console.error('Copy failed:', error);
+    errorMessage.value = `${label}复制失败，请手动选中后复制`;
+  }
+};
 
 // Navigate to the charts page
 const goToCharts = () => {
@@ -1166,17 +1190,17 @@ const loadExpenses = async () => {
   }
 };
 
-// Handle AI smart-record generation
-const handleImageChange = (file, fileList) => {
-  aiForm.image = fileList;
-};
+// Refresh the prompt every time the dialog opens so the embedded date is current.
+watch(showAiAddDialog, (visible) => {
+  if (visible) handleAiBuildPrompt();
+});
 
 // Handle cancellation of AI smart-record
 const handleAiCancel = () => {
   showAiAddDialog.value = false;
-  // Reset the AI form
-  aiForm.text = '';
-  aiForm.image = [];
+  // Reset the hand-off state
+  aiPrompt.value = '';
+  aiReply.value = '';
 };
 
 // Added: handle select-all / deselect-all
@@ -1276,74 +1300,49 @@ const handleMultiRecordsSubmit = async () => {
   }
 };
 
-const handleAiGenerate = async () => {
-  try {
-    // Check the API key
-    if (!checkApiKey()) {
-      console.log('AI generation skipped: API key not configured');
-      return;
-    }
-    
-    // Check whether there is any input
-    if (!aiForm.text && (!aiForm.image || aiForm.image.length === 0)) {
-      console.log('AI generation skipped: No input text or image provided');
-      errorMessage.value = '请输入文本描述或上传图片';
-      return;
-    }
-    
-    console.log('AI record generation started:', { hasText: !!aiForm.text, hasImage: !!aiForm.image.length });
+// Build the extraction prompt the user copies into a third-party AI app.
+const handleAiBuildPrompt = () => {
+  aiPrompt.value = buildAddRecordPrompt();
+  aiReply.value = '';
+};
 
-    isParsing.value = true;
-    let parsedDataList;
-
-    // Parse text or image
-    if (aiForm.text) {
-      console.log('Parsing text input for AI generation:', { textPreview: aiForm.text.substring(0, 50) + (aiForm.text.length > 50 ? '...' : '') });
-      parsedDataList = await parseTextToRecord(aiForm.text);
-    } else if (aiForm.image && aiForm.image.length > 0) {
-      console.log('Parsing image input for AI generation:', { fileName: aiForm.image[0].name, size: aiForm.image[0].size });
-      parsedDataList = await parseImageToRecord(aiForm.image[0].raw);
-    }
-
-    // Handle the parse result
-    if (parsedDataList && parsedDataList.length > 0) {
-      console.log('AI generation successful:', { recordCount: parsedDataList.length });
-      if (parsedDataList.length === 1) {
-        // Only one record, keep the original logic
-        const parsedData = parsedDataList[0];
-        console.log('Single record generated:', { type: parsedData.type, amount: parsedData.amount, date: parsedData.date });
-        form.type = parsedData.type || '';
-        form.amount = parsedData.amount || '';
-        form.date = parsedData.date || '';
-        form.remark = parsedData.remark || '';
-
-        // Close the AI dialog and open the normal edit dialog
-        showAiAddDialog.value = false;
-        showAddDialog.value = true;
-        successMessage.value = 'AI已成功生成记录，请检查并确认';
-      } else {
-        // Multiple records, show the multi-record dialog
-        console.log('Multiple records generated:', parsedDataList.map(r => ({ type: r.type, amount: r.amount })));
-        multiRecords.value = parsedDataList.map(record => ({
-          ...record,
-          date: record.date || '',
-          amount: record.amount || ''
-        }));
-        showAiAddDialog.value = false;
-        showMultiRecordsDialog.value = true;
-        successMessage.value = `AI已成功生成${parsedDataList.length}条记录，请检查并确认`;
-      }
-    }
-  } catch (error) {
-    console.error('AI生成记录失败:', error);
-    console.error('AI generation error details:', { message: error.message, stack: error.stack });
-    errorMessage.value = 'AI生成记录失败，请重试';
-  } finally {
-    isParsing.value = false;
-    // Reset the AI form
-    aiForm.text = '';
-    aiForm.image = [];
+// Parse the pasted AI answer and hand the records to the existing edit/multi flows.
+const handleAiGenerate = () => {
+  const result = parseAiReply(aiReply.value);
+  if (!result.ok) {
+    errorMessage.value = result.message;
+    return;
   }
+
+  const parsedDataList = result.records;
+  console.log('AI records parsed from pasted answer:', { recordCount: parsedDataList.length });
+
+  if (parsedDataList.length === 1) {
+    const parsedData = parsedDataList[0];
+    form.type = parsedData.type || '';
+    form.amount = parsedData.amount || '';
+    form.date = parsedData.date || '';
+    form.remark = parsedData.remark || '';
+
+    showAiAddDialog.value = false;
+    showAddDialog.value = true;
+    successMessage.value = 'AI已成功生成记录，请检查并确认';
+  } else {
+    multiRecords.value = parsedDataList.map(record => ({
+      type: record.type || '其他',
+      amount: record.amount,
+      date: record.date,
+      remark: record.remark || '',
+      selected: true,
+    }));
+    showAiAddDialog.value = false;
+    showMultiRecordsDialog.value = true;
+    successMessage.value = `AI已成功生成${parsedDataList.length}条记录，请检查并确认`;
+  }
+
+  // Reset the hand-off state so the next run starts clean.
+  aiPrompt.value = '';
+  aiReply.value = '';
 };
 
 // Handle filter condition changes
@@ -1371,7 +1370,7 @@ const buildFilterDescription = (stats, year, month, types) => {
   if (types && types.length > 0) {
     conditions.push(`- **消费类型**：${types.join('、')}`);
   } else {
-    conditions.push(`- **消费类型**：全部类型（共28种）`);
+    conditions.push(`- **消费类型**：全部类型（共不超过28种）`);
   }
   
   // Record-count note
@@ -1380,154 +1379,79 @@ const buildFilterDescription = (stats, year, month, types) => {
   return conditions.join('\n');
 };
 
-// Handle AI report generation
-const handleGenerateReport = async () => {
+
+// Build the AI hand-off prompt for the current filter. The question is left out
+// on purpose - it is asked inside the AI app straight after this prompt.
+const handleGenerateReport = () => {
+  const stats = filteredStats.value || {};
+  const conditions = filteredStats.value?.filterConditions || {};
+  reportPrompt.value = buildReportPrompt({
+    xlsxFileName: aiXlsxFileName.value,
+    stats,
+    filterDescription: buildFilterDescription(stats, conditions.year, conditions.month, conditions.types),
+  });
+};
+
+// Paste the AI answer back and render it as Markdown.
+const handleRenderReport = () => {
+  const text = reportReply.value.trim();
+  if (!text) {
+    errorMessage.value = '请先粘贴 AI 返回的回答';
+    return;
+  }
+  reportContent.value = text;
+  successMessage.value = 'AI 回答已渲染，请检查后关闭本窗口';
+};
+
+// Download the xlsx the AI should analyse (filename is echoed inside the prompt).
+const handleDownloadAIData = async () => {
+  const conditions = filteredStats.value?.filterConditions || {};
+  const currentLang = localStorage.getItem('appLang') || i18n.global.locale.value || 'zh-CN';
+
+  // Mirror the backend's deterministic filename rule.
+  aiXlsxFileName.value = buildAIDataFilename(conditions.year, conditions.month, conditions.types);
+
+  const params = new URLSearchParams({ lang: currentLang });
+  if (conditions.year) params.append('year', conditions.year);
+  if (conditions.month) params.append('month', conditions.month);
+  if (conditions.types && conditions.types.length) params.append('types', conditions.types.join(','));
+
+  isDownloadingData.value = true;
   try {
-    // Check the API key
-    if (!checkApiKey()) {
-      console.log('Report generation skipped: API key not configured');
-      return;
-    }
-    
-    // Get the filtered data
-    const targetExpenses = aiExpenses.value;
-    const stats = filteredStats.value;
-    
-    // Detailed logging
-    console.log('=== AI Report Generation Debug ===');
-    console.log('filteredStats:', stats);
-    console.log('aiExpenses:', targetExpenses);
-    console.log('Expenses:', Expenses.value);
-    console.log('targetExpenses.length:', targetExpenses.length);
-    console.log('Expenses.value.length:', Expenses.value.length);
-    
-    // Check whether there is expense data
-    if (!targetExpenses || targetExpenses.length === 0) {
-      // If no data after filtering, try using all data
-      if (Expenses.value && Expenses.value.length > 0) {
-        console.log('Using all expenses as no filter applied');
-        const allExpenses = Expenses.value;
-        
-        // Calculate statistics
-        const amounts = allExpenses.map(e => parseFloat(e.amount)).filter(a => !isNaN(a) && a > 0).sort((a, b) => a - b);
-        const totalAmount = amounts.reduce((sum, a) => sum + a, 0);
-        const avgAmount = allExpenses.length > 0 ? totalAmount / allExpenses.length : 0;
-        const medianAmount = amounts.length > 0 ? amounts[Math.floor(amounts.length / 2)] : 0;
-        const minAmount = amounts.length > 0 ? amounts[0] : 0;
-        const maxAmount = amounts.length > 0 ? amounts[amounts.length - 1] : 0;
-        const amountRange = `${minAmount.toFixed(2)} - ${maxAmount.toFixed(2)}`;
-        
-        const calculatedStats = {
-          totalCount: allExpenses.length,
-          totalAmount,
-          averageAmount: avgAmount,
-          medianAmount,
-          minAmount,
-          maxAmount,
-          amountRange,
-          typeDistribution: {},
-          monthlyTrend: {}
-        };
-        
-        console.log('Using all data with calculated stats:', calculatedStats);
-        
-        // Build the filter-condition description
-        const filterDesc = buildFilterDescription(
-          calculatedStats,
-          filteredStats.value?.filterConditions?.year || '',
-          filteredStats.value?.filterConditions?.month || '',
-          filteredStats.value?.filterConditions?.types || []
-        );
-        
-        isGeneratingReport.value = true;
-        reportContent.value = '';
-        
-        const content = await generateExpenseReport(
-          allExpenses,
-          reportQuestion.value,
-          calculatedStats,
-          filterDesc
-        );
-        reportContent.value = content;
-        successMessage.value = 'AI已成功生成消费报告';
-      } else {
-        console.log('Report generation skipped: No expense data available');
-        errorMessage.value = '没有可用的消费数据来生成报告';
-      }
-      return;
-    }
-    
-    // Build the description from the filter conditions
-    const filterConditions = filteredStats.value?.filterConditions || {};
-    const filterDescription = buildFilterDescription(
-      stats,
-      filterConditions.year || '',
-      filterConditions.month || '',
-      filterConditions.types || []
-    );
-    
-    console.log('AI report generation started:', { 
-      question: reportQuestion.value,
-      recordCount: targetExpenses.length,
-      totalAmount: stats.totalAmount,
-      filterDescription
-    });
-
-    isGeneratingReport.value = true;
-    reportContent.value = '';
-    
-    // Generate the report (pass in the filtered stats and filter-condition description)
-    console.log('Calling expense report generation API');
-    const content = await generateExpenseReport(
-      targetExpenses, 
-      reportQuestion.value, 
-      stats,
-      filterDescription
-    );
-    reportContent.value = content;
-    console.log('AI report generation successful:', { contentLength: content.length });
-    
-    successMessage.value = 'AI已成功生成消费报告';
+    const response = await fetch('/api/export/ai-data?' + params.toString());
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = aiXlsxFileName.value;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(link.href);
+    successMessage.value = '数据表格已下载，请记住文件名';
   } catch (error) {
-    console.error('AI生成报告失败:', error);
-    console.error('AI report generation error details:', { message: error.message, stack: error.stack });
-    errorMessage.value = 'AI生成报告失败，请重试';
+    console.error('AI data export failed:', error);
+    errorMessage.value = '数据表格下载失败，请稍后重试';
   } finally {
-    isGeneratingReport.value = false;
+    isDownloadingData.value = false;
   }
 };
 
-// Clear the report question
-const clearReportQuestion = () => {
-  reportQuestion.value = '';
+// Mirror the backend's deterministic filename rule.
+const buildAIDataFilename = (year, month, types) => {
+  let base = 'expenses';
+  if (year && month) base = 'expenses_' + year + '-' + month;
+  else if (year) base = 'expenses_' + year;
+  else if (types && types.length) base = 'expenses_types_' + types.length;
+  return base + '.xlsx';
 };
 
-// Handle API key settings
-const handleApiKeySave = () => {
-  if (apiKeyForm.apiKey) {
-    console.log('API key save requested');
-    localStorage.setItem('siliconflow_api_key', apiKeyForm.apiKey);
-    setApiKey(apiKeyForm.apiKey);
-    showApiKeyDialog.value = false;
-    successMessage.value = 'API密钥已保存';
-    console.log('API key saved successfully');
-  } else {
-    console.log('API key save failed: Empty key provided');
-    errorMessage.value = '请输入有效的API密钥';
-  }
+// Clear the AI Q&A hand-off state
+const clearReportHandoff = () => {
+  reportPrompt.value = '';
+  reportReply.value = '';
 };
 
-// Check whether the API key has been set
-const checkApiKey = () => {
-  const savedApiKey = localStorage.getItem('siliconflow_api_key');
-  if (!savedApiKey) {
-    errorMessage.value = '请先设置SiliconFlow API密钥';
-    showApiKeyDialog.value = true;
-    return false;
-  }
-  setApiKey(savedApiKey);
-  return true;
-};
 
 // Function to force the browser to re-fetch new frontend data
 const refreshPage = () => {

@@ -167,6 +167,7 @@
   },
   "ai": {
     "report": {
+      "title": "AI Pengeluaran Tanya-Jawab",
       "filterTitle": "Filter Data",
       "statsPreview": "Pratinjau Statistik Data",
       "totalCount": "Total Catatan",
@@ -175,7 +176,35 @@
       "medianAmount": "Median",
       "minAmount": "Jumlah Minimum",
       "maxAmount": "Jumlah Maksimum",
-      "loading": "Memuat..."
+      "loading": "Memuat...",
+      "downloadButton": "① Unduh lembar data",
+      "downloading": "Mengunduh...",
+      "generateButton": "② Buat prompt",
+      "defaultFileName": "expenses.xlsx",
+      "hint1": "Klik «Unduh lembar data» untuk menyimpan {file} ke perangkat ini.",
+      "hint2": "Klik «Buat prompt», lalu salin prompt ke aplikasi atau halaman web AI mana pun.",
+      "hint3": "Di aplikasi AI, unggah xlsx yang baru disimpan, lalu ketik pertanyaan Anda sendiri di obrolan (misal: «Di mana saya paling banyak mengeluarkan uang bulan ini?») dan kirim.",
+      "hint4": "Tanya lanjutan cukup di aplikasi AI, tidak perlu kembali ke halaman ini. Selesai, salin balasan AI dan tempel ke bawah, lalu klik «Tempel balasan» untuk menampilkannya.",
+      "promptHint": "Prompt dibuat berdasarkan filter saat ini; file datanya adalah {file}. Unggah file itu di aplikasi AI lalu ketik pertanyaan Anda langsung.",
+      "promptLabel": "Prompt (bisa disalin)",
+      "copyButton": "Salin prompt",
+      "replyLabel": "Balasan AI (tempel di sini)",
+      "replyPlaceholder": "Tempel balasan AI di sini",
+      "clearButton": "Kosongkan",
+      "pasteButton": "Tempel balasan",
+      "emptyContent": "Setelah langkah di atas selesai, analisis pengeluaran dari AI akan tampil di sini"
+    },
+    "smartRecord": {
+      "title": "AI Catatan Pintar",
+      "step1": "Klik «Salin prompt», lalu buka aplikasi atau halaman web AI mana pun dan tempel prompt di sana.",
+      "step2": "Di aplikasi AI, tuliskan deskripsi pengeluarannya langsung; jika perlu, lampirkan foto struk atau tagihan.",
+      "step3": "Suruh AI hanya mengeluarkan JSON, lalu salin balas dan tempel ke kolom di bawah.",
+      "promptLabel": "Prompt (siap disalin)",
+      "copyButton": "Salin prompt",
+      "replyLabel": "Balasan AI (tempel di sini)",
+      "replyPlaceholder": "Tempel JSON dari AI di sini, mis. [\\{\"type\":\"Makanan\",\"amount\":56.8,\"date\":\"2026-10-02\",\"remark\":\"Apel, susu\"\\}]",
+      "parsing": "Mengurai...",
+      "submit": "Urai dan kirim"
     }
   },
   "avatar": {
