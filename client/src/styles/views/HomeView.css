@@ -879,7 +879,7 @@
   border-radius: 8px;
   background: var(--bg-secondary, #fff);
   color: var(--text-primary, #212121);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas;
   /* >=16px keeps iOS Safari from zooming in when the field gains focus. */
   font-size: 14px;
   line-height: 1.6;
