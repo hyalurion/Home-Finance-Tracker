@@ -21,8 +21,8 @@
   --header-offset-tablet:  88px;
   --header-offset-mobile:  80px;
   
-  /* Backgrounds and effects. CSS glass uses these values directly; the
-     liquid-glass engine reads them as tint colours when it is active. */
+  /* Backgrounds and effects. These values are read directly by the CSS
+     glass surfaces. */
   --glass-bg: rgba(255, 255, 255, 0.92); /* Opaque enough to stay readable in light mode */
   --highlight-color: rgba(76, 175, 80, 0.08); /* Highlight background colour */
 
@@ -88,7 +88,7 @@
   --bg-secondary: #2a2d35;
   --bg-card: rgba(42, 45, 53, 0.72);
 
-  /* Liquid-glass engine tint — slate, not pure black */
+  /* Glass tint — slate, not pure black */
   --glass-rgb: 42 45 53;
   --glass-bg-alpha: 0.72;
 

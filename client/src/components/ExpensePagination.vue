@@ -1,8 +1,7 @@
 <!-- ExpensePagination.vue -->
 <!-- Pagination buttons keep a static glass look via CSS and stay fully
-     clickable; they no longer use v-liquid-glass because the engine's
-     overlay/lens lifecycle can interfere with click targets on small,
-     densely packed controls. -->
+     clickable; they use their own class rather than v-liquid-glass so small,
+     densely packed controls keep predictable click targets. -->
 <template>
     <div class="pagination-container">
       <div class="pagination">

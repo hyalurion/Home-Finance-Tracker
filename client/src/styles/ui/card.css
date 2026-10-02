@@ -14,8 +14,8 @@
   color: var(--text-primary);
 }
 
-/* Static card highlight — no sweeping shine animation; the liquid-glass
-   engine now provides the surface refraction. */
+/* Static card highlight — no sweeping shine animation; the surface tint
+   comes from the v-liquid-glass rule. */
 .form-section::before,
 .data-section::before,
 .chart-section::before {

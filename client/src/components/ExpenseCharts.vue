@@ -528,8 +528,8 @@ const debounce = (func, wait) => {
             radius: window.innerWidth < 480 ? 3 : 4
           }
         },
-        // Shared chart plugin config. The liquid-glass look is rendered by the
-        // WebGL engine on the chart container, not by a CSS backdrop filter.
+        // Shared chart plugin config. The chart area stays opaque so the
+        // glass container behind it reads as a panel, not a smeared canvas.
         plugins: {
           tooltip: {
             backgroundColor: 'rgba(255, 255, 255, 0.9)',

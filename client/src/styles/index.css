@@ -15,7 +15,7 @@
      9  base/utilities.css             spacing / flex / text helpers
      10 ui/liquid-glass-utilities.css  shared .lg-* helpers
      11 fonts/typography.css           @font-face + font stack
-     12 effects/liquid-glass.css       WebGL glass engine host rules
+     12 effects/liquid-glass.css       CSS liquid-glass host rules
      13 layout/app-shell.css           #app shell (kept last on purpose)
 
    Per-component styles are NOT imported here: each SFC pulls its own

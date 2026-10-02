@@ -1,5 +1,5 @@
-/* Frosted glass surface. The refraction itself is rendered by the WebGL
-   engine via the v-liquid-glass directive; this rule only keeps the tint
+/* Frosted glass surface. The blur comes from the v-liquid-glass directive
+   (styles/effects/liquid-glass.css); this rule only keeps the tint
    colour and the border. */
 .glass-effect {
   background: var(--glass-bg);

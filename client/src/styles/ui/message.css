@@ -1,5 +1,6 @@
-/* Shared message-tip styles. The glass refraction comes from the WebGL
-   engine (v-liquid-glass), so no backdrop-filter is declared here. */
+/* Shared message-tip styles. The frost is applied by the v-liquid-glass
+   directive (styles/effects/liquid-glass.css), so no backdrop-filter is
+   declared here. */
 .message-tip {
   padding: 1rem 1.5rem;
   margin: 1rem 0;

@@ -2,8 +2,8 @@
  * Consumed by <style scoped src="...">, so Vue still applies scope
  * attributes, :deep() handling and @keyframes renaming.
  */
-/* Base message-tip styles. The glass blur is produced by the WebGL engine
-   via v-liquid-glass; only the tint colour and framing live here. */
+/* Base message-tip styles. The glass blur is produced by v-liquid-glass;
+   only the tint colour and framing live here. */
 .message-tip {
   position: fixed; /* Floats above the page; offsets come from the position classes */
   padding: 14px 24px;

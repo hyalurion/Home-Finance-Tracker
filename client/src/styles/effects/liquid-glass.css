@@ -1,52 +1,46 @@
 /* ============================================================
-   Engine-driven liquid glass (v-liquid-glass directive)
+   Liquid glass (v-liquid-glass directive)
    ------------------------------------------------------------
-   The liquidGL WebGL engine paints refraction on a shared,
-   pointer-events:none overlay canvas and neutralises the lens
-   host's own backdrop-filter. We therefore:
-   - keep the host positioned (relative),
-   - re-enable the host as interactive (the engine sets inline
-     pointer-events:none, which !important overrides so buttons,
-     inputs and switches stay clickable),
-   - hide the component's flat ::before tint, because the engine
-     already tints from the captured background colour.
-   This is the ONLY place that defines the liquid-glass look now;
-   all hand-written backdrop-filter glass CSS has been removed.
+   The WebGL liquidGL engine has been removed from the project.
+   The glass look is now produced purely by CSS:
+
+   - `.v-liquid-glass` blurs whatever sits behind the element with
+     `backdrop-filter`. This creates the frost/frosted-glass read.
+   - The tint itself stays with each component's own background
+     colour (component styles are loaded after this file, so a
+     component that declares a background wins the cascade).
+   - Hosts must stay interactive, so pointer-events is left on.
+
+   No border is forced here on purpose: the project has no global
+   `box-sizing: border-box`, so adding one would shift every host by
+   2px. Components that want a frame declare their own border.
+
+   Tuning knobs (set on any ancestor or on the host itself):
+     --liquid-glass-blur     blur radius,         default 14px
+     --liquid-glass-saturate backdrop saturation, default 160%
+
+   No global overlay canvas exists any more, so there is no z-index
+   coordination to do between hosts and a shared render layer.
    ============================================================ */
 
 .v-liquid-glass {
   position: relative;
-  /* The engine forces pointer-events:none on the host; re-enable it so
-     interactive surfaces stay usable. */
-  pointer-events: auto !important;
+  /* Hosts stay interactive: buttons, inputs and switches inside a
+     glass surface must remain clickable. */
+  pointer-events: auto;
+  backdrop-filter: blur(var(--liquid-glass-blur, 14px))
+    saturate(var(--liquid-glass-saturate, 160%));
+  -webkit-backdrop-filter: blur(var(--liquid-glass-blur, 14px))
+    saturate(var(--liquid-glass-saturate, 160%));
 }
 
-/* The shared WebGL overlay must sit behind every glass host so the
-   refraction shows through the host's transparent background instead of
-   covering the host's own content. The engine updates this inline, so
-   !important keeps the layer order stable. */
-canvas[data-liquid-ignore] {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  pointer-events: none !important;
-  z-index: 0 !important;
-}
-
-/* The Vue mount root creates a stacking context that traps glass children
-   behind a root z-index of 1. Release that trap so glass hosts can live in
-   the same root context as the overlay canvas. Doubled selector raises
-   specificity above App.vue's own #app rule. */
-#app#app {
-  z-index: auto !important;
-}
-
-/* The engine supplies its own tint from the element's captured background
-   colour, so the component's extra flat ::before overlay is redundant. */
-.v-liquid-glass::before {
-  display: none !important;
+/* Fall back to a flat translucent panel where backdrop-filter is
+   unsupported (older Firefox, some WebViews) instead of losing the
+   surface entirely. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .v-liquid-glass {
+    background: rgba(255, 255, 255, 0.85);
+  }
 }
 
 /* Respect users who prefer reduced motion. */

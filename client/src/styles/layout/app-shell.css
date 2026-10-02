@@ -3,10 +3,7 @@
    these base rules win cascade ties without needing !important. */
 
 #app {
-  /* Ensure application content is not forced by popups.
-     NOTE: liquid-glass.css intentionally overrides z-index back to `auto`
-     with a higher-specificity `#app#app` rule to release the stacking
-     context for the WebGL glass overlay. */
+  /* Ensure application content is not forced by popups. */
   position: relative;
   z-index: 1;
   -webkit-font-smoothing: antialiased;

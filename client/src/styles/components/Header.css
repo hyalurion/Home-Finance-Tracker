@@ -2,8 +2,8 @@
  * Consumed by <style scoped src="...">, so Vue still applies scope
  * attributes, :deep() handling and @keyframes renaming.
  */
-/* Header container. The glass blur is rendered by the WebGL engine through
-   the v-liquid-glass directive on the .header element.
+/* Header container. The glass blur is rendered by the v-liquid-glass
+   directive on the .header element.
 
    Clip strategy (why NOT overflow:hidden):
      - Language dropdown menu is position:absolute below the header
@@ -11,7 +11,7 @@
      - `overflow:hidden` would clip it → dropdown not visible.
      - Instead we use `clip-path: inset(... round R R)` — this clips the
        element's own background, box-shadow, border AND any child painted
-       inside the normal flow (including WebGL liquid-glass lens rect)
+       inside the normal flow (including the glass host rect)
        to rounded bottom corners. Absolutely-positioned descendants are
        still clipped by `clip-path`, so we move the dropdown to be a
        sibling (via Vue Teleport) OR wrap the background clip on an INNER
@@ -47,7 +47,7 @@
 /* Inner layer that carries the rounded glass background + shadow.
    It is clipped with `clip-path: inset(... round ...)` so the two bottom
    corners are cleanly rounded (no stray corner artifacts from the solid
-   bottom border / CSS gradient) AND the WebGL lens paints within bounds. */
+   bottom border / CSS gradient) AND the glass host paints within bounds. */
 .header::before {
   content: '';
   position: absolute;

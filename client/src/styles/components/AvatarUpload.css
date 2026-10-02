@@ -108,8 +108,8 @@
 }
 
 .cropper-container {
-  /* CSS glass surface — the WebGL lens overlay previously hid the crop canvas
-     and intercepted the buttons, so this dialog uses CSS glass instead. */
+  /* CSS glass surface — the blur is applied by the v-liquid-glass rule so
+     the crop canvas stays visible and the buttons stay clickable. */
   background: rgba(255, 255, 255, 0.96);
   border-radius: var(--border-radius-lg, 20px);
   width: 90%;

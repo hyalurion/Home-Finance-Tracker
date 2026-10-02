@@ -1,43 +1,42 @@
 /**
  * useLiquidGlass — Vue composable that turns a component root element into a
- * real WebGL liquid-glass surface via the liquidGL engine.
+ * frosted-glass surface.
  *
- * The engine keeps a single shared renderer (window.__liquidGLRenderer__); the
- * first call creates it and later calls only add a lens. This composable wires
- * the lens lifecycle to the Vue component it is called from (onMounted /
- * onBeforeUnmount) and exposes setOptions() for live tuning.
+ * The WebGL liquidGL engine has been removed from the project. The glass look is
+ * now produced entirely by CSS (`backdrop-filter` on the `.v-liquid-glass`
+ * host, see styles/effects/liquid-glass.css), so this composable only wires the
+ * host class to the component lifecycle and keeps the same public API as before
+ * so callers do not need to change.
+ *
+ * `setOptions()` is kept for API compatibility: the props that used to drive
+ * the lens (preset, refraction, tilt, ...) are globals now and cannot be tuned
+ * per instance, so it is intentionally a no-op.
  */
 
-import { onMounted, onBeforeUnmount } from 'vue'
-import { createLens, removeLens, tuneLens, nextLensId, ensureHostLayer } from '@/lib/liquidgl/engine.js'
+import { onMounted } from 'vue'
 
-export { LIQUID_GLASS_PRESETS } from '@/lib/liquidgl/engine.js'
+let _uid = 0
+function nextLensId() {
+  _uid += 1
+  return `lg-${_uid}-${Math.random().toString(36).slice(2, 7)}`
+}
 
 /**
  * @param {import('vue').Ref<HTMLElement|null>} targetRef  the pane root element
- * @param {object} config  bag of lens options (getters are fine for reactivity)
+ * @param {object} [config]  accepted for API compatibility; only `disabled` is used
  */
 export function useLiquidGlass(targetRef, config) {
   const id = nextLensId()
-  let lens = null
 
   onMounted(() => {
     const el = targetRef.value
-    if (!el || !config || config.disabled || config.effect !== 'webgl') return
+    if (!el || (config && config.disabled)) return
+    // The global rule in effects/liquid-glass.css paints the frost.
     el.classList.add('v-liquid-glass')
-    ensureHostLayer(el)
-    lens = createLens(el, config)
   })
 
-  onBeforeUnmount(() => {
-    if (lens) removeLens(lens)
-    lens = null
-  })
-
-  // Live-tune the active lens (mirrors the engine's demo control panel).
-  function setOptions(patch) {
-    tuneLens(lens, patch)
-  }
+  // No-op: lens parameters are global (CSS custom properties) now.
+  function setOptions() {}
 
   return { id, setOptions }
 }

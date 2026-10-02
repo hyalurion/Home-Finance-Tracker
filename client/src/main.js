@@ -70,7 +70,7 @@ app.use(pinia); // Apply Pinia instance
 
 // Register Font Awesome components
 app.component('FontAwesomeIcon', FontAwesomeIcon)
-// Register the liquid-glass directive: enables containers like cards/dialogs/tooltips to render as real WebGL liquid glass
+// Register the liquid-glass directive: enables containers like cards/dialogs/tooltips to render as frosted glass
 app.directive('liquid-glass', liquidGlassDirective)
 app.use(router);
 app.use(i18n);

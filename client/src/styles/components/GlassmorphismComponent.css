@@ -10,13 +10,9 @@
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
 }
 
-/* ---- WebGL mode ----
- * The liquidGL engine paints the refraction on a shared overlay canvas and
- * forces pointer-events:none on this pane, so interactive children must opt
- * back in. The engine captures the pane's background-color as the tint. */
-.glassmorphism-component.is-webgl > * {
-  pointer-events: auto;
-}
+/* The frost comes from the global .v-liquid-glass rule in
+   styles/effects/liquid-glass.css (backdrop-filter on the host). The pane
+   already sets its own tint per variant below. */
 
 /* Base styles */
 .glassmorphism-component.base {

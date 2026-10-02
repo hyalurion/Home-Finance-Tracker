@@ -46,7 +46,7 @@
 }
 
 /* Static liquid sheen — the moving light flow is disabled so the glass
-   surface stays calm while the liquid-glass engine handles the refraction. */
+   surface stays calm while the host blur (v-liquid-glass) does the frosting. */
 .liquid-effect {
   position: absolute;
   inset: 0;
