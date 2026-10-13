@@ -23,3 +23,6 @@ server-go/server.exe
 database.sqlite
 android.artifacts/*
 android/.mnn-build/*
+client-desktop/.gradle/*
+client-desktop/build/*
+server-go/client/dist/*
