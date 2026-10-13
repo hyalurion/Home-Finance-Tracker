@@ -584,4 +584,9 @@
     <string name="model_download_eta_hours_minutes">%1$d giờ %2$d phút</string>
     <string name="model_download_eta_minutes">%1$d phút</string>
     <string name="model_download_eta_seconds">%1$d giây</string>
+
+    <string name="remark_translate_button">Dịch ghi chú bằng AI trên thiết bị</string>
+    <string name="remark_translate_ai_result">Bản dịch AI</string>
+    <string name="remark_translate_already_current_language">Ghi chú đã ở ngôn ngữ hiện tại</string>
+    <string name="remark_translate_failed">Dịch thất bại</string>
 </resources>

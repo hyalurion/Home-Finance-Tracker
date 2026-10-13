@@ -585,4 +585,9 @@
     <string name="recycle_bin_delete_selected_title">删除选中项目？</string>
     <string name="recycle_bin_delete_selected_message">%d 个选中项目将被永久移除且无法恢复。</string>
 
+
+    <string name="remark_translate_button">使用端侧AI翻译备注</string>
+    <string name="remark_translate_ai_result">AI 译文</string>
+    <string name="remark_translate_already_current_language">备注已是当前语言</string>
+    <string name="remark_translate_failed">翻译失败</string>
 </resources>

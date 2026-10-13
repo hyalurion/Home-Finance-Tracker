@@ -628,4 +628,9 @@
     <string name="image_editor_brush_size">Brush Size</string>
     <string name="image_editor_load_failed">Failed to load image</string>
 
+
+    <string name="remark_translate_button">Translate note with on-device AI</string>
+    <string name="remark_translate_ai_result">AI translation</string>
+    <string name="remark_translate_already_current_language">Already in your language</string>
+    <string name="remark_translate_failed">Translation failed</string>
 </resources>

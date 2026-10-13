@@ -584,4 +584,9 @@
     <string name="model_download_eta_hours_minutes">%1$d jam %2$d minit</string>
     <string name="model_download_eta_minutes">%1$d minit</string>
     <string name="model_download_eta_seconds">%1$d saat</string>
+
+    <string name="remark_translate_button">Terjemah nota dengan AI pada peranti</string>
+    <string name="remark_translate_ai_result">Terjemahan AI</string>
+    <string name="remark_translate_already_current_language">Nota sudah dalam bahasa semasa</string>
+    <string name="remark_translate_failed">Terjemahan gagal</string>
 </resources>

@@ -62,7 +62,7 @@
   {
     "group": "androidx.core",
     "name": "core-ktx",
-    "version": "1.19.0",
+    "version": "1.19.1",
     "fullName": "androidx.core:core-ktx"
   },
   {
@@ -110,25 +110,25 @@
   {
     "group": "androidx.navigation3",
     "name": "navigation3-runtime",
-    "version": "1.1.7",
+    "version": "1.2.0",
     "fullName": "androidx.navigation3:navigation3-runtime"
   },
   {
     "group": "androidx.navigation3",
     "name": "navigation3-ui",
-    "version": "1.1.7",
+    "version": "1.2.0",
     "fullName": "androidx.navigation3:navigation3-ui"
   },
   {
     "group": "androidx.paging",
     "name": "paging-compose",
-    "version": "3.5.1",
+    "version": "3.5.3",
     "fullName": "androidx.paging:paging-compose"
   },
   {
     "group": "androidx.paging",
     "name": "paging-runtime-ktx",
-    "version": "3.5.1",
+    "version": "3.5.3",
     "fullName": "androidx.paging:paging-runtime-ktx"
   },
   {
@@ -158,7 +158,7 @@
   {
     "group": "androidx.work",
     "name": "work-runtime-ktx",
-    "version": "2.11.2",
+    "version": "2.12.0",
     "fullName": "androidx.work:work-runtime-ktx"
   },
   {
@@ -230,19 +230,19 @@
   {
     "group": "io.grpc",
     "name": "grpc-okhttp",
-    "version": "1.84.0",
+    "version": "1.84.3",
     "fullName": "io.grpc:grpc-okhttp"
   },
   {
     "group": "io.grpc",
     "name": "grpc-protobuf-lite",
-    "version": "1.84.0",
+    "version": "1.84.3",
     "fullName": "io.grpc:grpc-protobuf-lite"
   },
   {
     "group": "io.grpc",
     "name": "grpc-stub",
-    "version": "1.84.0",
+    "version": "1.84.3",
     "fullName": "io.grpc:grpc-stub"
   },
   {
@@ -254,7 +254,7 @@
   {
     "group": "net.zetetic",
     "name": "sqlcipher-android",
-    "version": "4.19.0",
+    "version": "4.19.1",
     "fullName": "net.zetetic:sqlcipher-android"
   },
   {
@@ -272,7 +272,7 @@
   {
     "group": "org.jetbrains.kotlin",
     "name": "kotlin-stdlib",
-    "version": "2.4.20",
+    "version": "2.4.21",
     "fullName": "org.jetbrains.kotlin:kotlin-stdlib"
   },
   {

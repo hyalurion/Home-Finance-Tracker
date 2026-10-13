@@ -584,4 +584,9 @@
     <string name="model_download_eta_hours_minutes">%1$d ชม. %2$d นาที</string>
     <string name="model_download_eta_minutes">%1$d นาที</string>
     <string name="model_download_eta_seconds">%1$d วินาที</string>
+
+    <string name="remark_translate_button">แปลบันทึกด้วย AI บนอุปกรณ์</string>
+    <string name="remark_translate_ai_result">คำแปล AI</string>
+    <string name="remark_translate_already_current_language">บันทึกอยู่ในภาษาปัจจุบันแล้ว</string>
+    <string name="remark_translate_failed">แปลไม่สำเร็จ</string>
 </resources>

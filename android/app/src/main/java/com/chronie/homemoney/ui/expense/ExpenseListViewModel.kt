@@ -1,15 +1,20 @@
 package com.chronie.homemoney.ui.expense
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chronie.homemoney.core.common.Language
 import com.chronie.homemoney.data.sync.SyncScheduler
+import com.chronie.homemoney.data.vlm.OnDeviceModelManager
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.ExpenseFilters
 import com.chronie.homemoney.domain.model.ExpenseStatistics
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.model.SortOption
 import com.chronie.homemoney.domain.repository.ExpenseRepository
+import com.chronie.homemoney.domain.usecase.TranslateRemarkUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,19 +32,42 @@ import javax.inject.Inject
  *
  * The UI observes [uiState] which contains both the flat and
  * date-grouped expense lists suitable for a grouped LazyColumn.
+ *
+ * When the on-device AI model is downloaded, remarks can be translated
+ * into the current app language via the local model — see
+ * [remarkTranslations] and [translateRemark]. All inference runs offline.
  */
 @HiltViewModel
 class ExpenseListViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
-    private val syncScheduler: SyncScheduler
+    private val syncScheduler: SyncScheduler,
+    private val modelManager: OnDeviceModelManager,
+    private val translateRemarkUseCase: TranslateRemarkUseCase,
+    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(ExpenseListUiState())
     val uiState: StateFlow<ExpenseListUiState> = _uiState.asStateFlow()
-    
 
-    
+    /**
+     * Per-expense remark translation state, keyed by expense id.
+     * Only populated while the on-device AI model is downloaded.
+     */
+    private val _remarkTranslations = MutableStateFlow<Map<String, RemarkTranslationState>>(emptyMap())
+    val remarkTranslations: StateFlow<Map<String, RemarkTranslationState>> = _remarkTranslations.asStateFlow()
+
+    /** True once the on-device model package has been verified on disk. */
+    private val _isModelDownloaded = MutableStateFlow(modelManager.isModelReady())
+    val isModelDownloaded: StateFlow<Boolean> = _isModelDownloaded.asStateFlow()
+
     init {
+        // Pick up a model downloaded/verified in a previous session.
+        modelManager.refreshState()
+        viewModelScope.launch {
+            modelManager.state.collect { state ->
+                _isModelDownloaded.value = state is OnDeviceModelManager.ModelState.Ready
+            }
+        }
         loadExpenses()
         loadStatistics()
     }
@@ -296,6 +324,9 @@ class ExpenseListViewModel @Inject constructor(
                             groupedExpenses = grouped
                         )
                     }
+
+                    // Drop any cached translation for the deleted record.
+                    _remarkTranslations.update { it - expense.id }
                     
                     // Reload statistics after delete
                     loadStatistics()
@@ -319,6 +350,58 @@ class ExpenseListViewModel @Inject constructor(
                         it.copy(
                             error = error.message ?: "Failed to delete expense"
                         )
+                    }
+                }
+            )
+        }
+    }
+
+    /**
+     * Translates the remark of [expense] into the current app language
+     * using the on-device AI model (offline, no network access).
+     *
+     * Tapping the button cycles through: Translating -> Success
+     * (showing translated) -> toggles back to the original remark ->
+     * toggles to the translated remark again. A blank remark is a no-op;
+     * the UI never shows the button for empty remarks anyway.
+     */
+    fun translateRemark(expense: Expense) {
+        val remark = expense.remark?.trim().orEmpty()
+        if (remark.isBlank()) return
+
+        val current = _remarkTranslations.value[expense.id]
+        if (current is RemarkTranslationState.Translating) return // debounce double taps
+
+        // Existing translation toggles between original and translated.
+        if (current is RemarkTranslationState.Success) {
+            _remarkTranslations.update {
+                it + (expense.id to current.copy(showingTranslated = !current.showingTranslated))
+            }
+            return
+        }
+
+        _remarkTranslations.update { it + (expense.id to RemarkTranslationState.Translating) }
+
+        viewModelScope.launch {
+            val targetLanguage = Language.fromLocale(
+                context.resources.configuration.locales[0]
+            )
+            translateRemarkUseCase(remark, targetLanguage).fold(
+                onSuccess = { translated ->
+                    // The model returns the text verbatim when it is already
+                    // in the target language or has no translatable content.
+                    val unchanged = translated.trim().equals(remark, ignoreCase = true)
+                    _remarkTranslations.update {
+                        it + (expense.id to RemarkTranslationState.Success(
+                            translatedText = translated,
+                            unchanged = unchanged,
+                            showingTranslated = true
+                        ))
+                    }
+                },
+                onFailure = { error ->
+                    _remarkTranslations.update {
+                        it + (expense.id to RemarkTranslationState.Error(error.message))
                     }
                 }
             )
@@ -374,3 +457,34 @@ data class ExpenseDateGroup(
     val totalAmount: Double,
     val count: Int
 )
+
+/**
+ * Translation lifecycle for a single expense remark, driven by the
+ * on-device AI model. Keyed by expense id in
+ * [ExpenseListViewModel.remarkTranslations].
+ */
+sealed interface RemarkTranslationState {
+    /** Inference is running; the button shows a spinner. */
+    data object Translating : RemarkTranslationState
+
+    /**
+     * Translation finished.
+     *
+     * @param translatedText the model output (may equal the original
+     *   remark when it was already in the target language).
+     * @param unchanged true when the translated text is effectively the
+     *   original — the UI surfaces an "already in your language" hint
+     *   instead of a duplicate translation.
+     * @param showingTranslated whether the remark row currently displays
+     *   the translation (true) or the original text (false). Tapping the
+     *   button again toggles this flag without re-running the model.
+     */
+    data class Success(
+        val translatedText: String,
+        val unchanged: Boolean,
+        val showingTranslated: Boolean
+    ) : RemarkTranslationState
+
+    /** Model not ready, engine crash, or empty output. */
+    data class Error(val message: String?) : RemarkTranslationState
+}

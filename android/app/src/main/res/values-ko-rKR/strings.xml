@@ -584,4 +584,9 @@
     <string name="model_download_eta_hours_minutes">%1$d시간 %2$d분</string>
     <string name="model_download_eta_minutes">%1$d분</string>
     <string name="model_download_eta_seconds">%1$d초</string>
+
+    <string name="remark_translate_button">기기 내 AI로 메모 번역</string>
+    <string name="remark_translate_ai_result">AI 번역</string>
+    <string name="remark_translate_already_current_language">메모가 이미 현재 언어입니다</string>
+    <string name="remark_translate_failed">번역 실패</string>
 </resources>

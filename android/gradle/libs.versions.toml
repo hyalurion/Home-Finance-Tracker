@@ -4,8 +4,8 @@ compileSdk = "37"
 targetSdk = "37"
 
 agp = "9.4.1"
-kotlin = "2.4.20"
-kotlin-compose = "2.4.20"
+kotlin = "2.4.21"
+kotlin-compose = "2.4.21"
 hilt = "2.60.1"
 google-services = "4.5.0"
 ksp = "2.3.11"
@@ -16,7 +16,7 @@ coroutines = "1.11.0"
 androidx-activity = "1.13.0"
 androidx-appcompat = "1.8.0"
 androidx-coordinatorlayout = "1.3.0"
-androidx-core = "1.19.0"
+androidx-core = "1.19.1"
 androidx-splashscreen = "1.2.0"
 
 compose-bom = "2026.09.00"
@@ -24,8 +24,8 @@ m3color = "2026.1"
 material = "1.14.0"
 miuix = "0.9.4"
 lifecycle = "2.11.0"
-nav3 = "1.1.7"
-kotlinxSerialization = "2.4.20"
+nav3 = "1.2.0"
+kotlinxSerialization = "2.4.21"
 kotlinxSerializationCore = "1.11.0"
 
 hilt-navigation = "1.4.0"
@@ -38,15 +38,15 @@ room = "2.8.5"
 retrofit = "3.0.0"
 okhttp-logging = "5.5.0"
 
-paging = "3.5.1"
+paging = "3.5.3"
 
 coil = "3.6.3"
 
 security-crypto = "1.1.0"
-sqlcipher = "4.19.0"
+sqlcipher = "4.19.1"
 sqlite = "2.7.1"
 
-work-runtime = "2.11.2"
+work-runtime = "2.12.0"
 
 fastexcel = "0.20.2"
 aalto-xml = "1.4.0"
@@ -56,7 +56,7 @@ charty = "3.2.0"
 
 opencv = "5.0.0.1"
 
-grpc = "1.84.0"
+grpc = "1.84.3"
 protobuf = "4.36.2"
 
 javax-annotation = "1.3.2"

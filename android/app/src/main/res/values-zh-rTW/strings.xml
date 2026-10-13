@@ -586,4 +586,9 @@
     <string name="model_download_eta_hours_minutes">%1$d小時%2$d分</string>
     <string name="model_download_eta_minutes">%1$d分鐘</string>
     <string name="model_download_eta_seconds">%1$d秒</string>
+
+    <string name="remark_translate_button">使用端側AI翻譯備註</string>
+    <string name="remark_translate_ai_result">AI 譯文</string>
+    <string name="remark_translate_already_current_language">備註已是目前語言</string>
+    <string name="remark_translate_failed">翻譯失敗</string>
 </resources>

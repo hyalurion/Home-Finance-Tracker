@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FilterListOff
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -59,6 +60,7 @@ import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.DropdownEntry
 import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
@@ -90,6 +92,8 @@ fun ExpenseListScreen(
     onNavigateToEditExpense: (expenseId: String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isAiModelDownloaded by viewModel.isModelDownloaded.collectAsState()
+    val remarkTranslations by viewModel.remarkTranslations.collectAsState()
     var showFilterDialog by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
     var budgetRefreshTrigger by remember { mutableIntStateOf(0) }
@@ -375,6 +379,9 @@ fun ExpenseListScreen(
                                             context = context,
                                             onEdit = { expense -> onNavigateToEditExpense(expense.id) },
                                             onDelete = { expense -> viewModel.deleteExpense(expense) },
+                                            isAiModelDownloaded = isAiModelDownloaded,
+                                            remarkTranslations = remarkTranslations,
+                                            onTranslateRemark = { expense -> viewModel.translateRemark(expense) },
                                             modifier = Modifier.padding(horizontal = 16.dp)
                                         )
                                     }
@@ -388,6 +395,9 @@ fun ExpenseListScreen(
                                             context = context,
                                             onEdit = { onNavigateToEditExpense(expense.id) },
                                             onDelete = { viewModel.deleteExpense(expense) },
+                                            isAiModelDownloaded = isAiModelDownloaded,
+                                            remarkTranslationState = remarkTranslations[expense.id],
+                                            onTranslateRemark = { viewModel.translateRemark(expense) },
                                             modifier = Modifier.padding(horizontal = 16.dp)
                                         )
                                     }
@@ -584,6 +594,9 @@ fun LongPressExpenseItem(
     context: android.content.Context,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    isAiModelDownloaded: Boolean = false,
+    remarkTranslationState: RemarkTranslationState? = null,
+    onTranslateRemark: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Bottom Sheet Menu Display State
@@ -622,11 +635,20 @@ fun LongPressExpenseItem(
     // Localized Expense Type Name
     val typeDisplayName = ExpenseTypeLocalizer.getLocalizedName(context, expense.type)
 
+    // Remark currently shown: the AI translation when it is active, else the original.
+    val sheetRemark = (remarkTranslationState as? RemarkTranslationState.Success)
+        ?.takeIf { it.showingTranslated }
+        ?.translatedText
+        ?: expense.remark
+
     Box(modifier = modifier.fillMaxWidth()) {
         // Expense List Item
         ExpenseListItem(
             expense = expense,
             context = context,
+            isAiModelDownloaded = isAiModelDownloaded,
+            remarkTranslationState = remarkTranslationState,
+            onTranslateRemark = onTranslateRemark,
             modifier = Modifier
                 .pointerInput(Unit) {
                     detectTapGestures(
@@ -654,9 +676,9 @@ fun LongPressExpenseItem(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    if (!expense.remark.isNullOrBlank()) {
+                    if (!sheetRemark.isNullOrBlank()) {
                         Text(
-                            text = expense.remark,
+                            text = sheetRemark,
                             style = MiuixTheme.textStyles.body2,
                             color = MiuixTheme.colorScheme.onSurfaceSecondary
                         )
@@ -799,6 +821,9 @@ fun LongPressExpenseItem(
 fun ExpenseListItem(
     expense: Expense,
     context: android.content.Context,
+    isAiModelDownloaded: Boolean = false,
+    remarkTranslationState: RemarkTranslationState? = null,
+    onTranslateRemark: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Localized Expense Type Name Display
@@ -826,11 +851,55 @@ fun ExpenseListItem(
                     fontWeight = FontWeight.Medium
                 )
                 if (!expense.remark.isNullOrBlank()) {
-                    Text(
-                        text = expense.remark,
-                        style = MiuixTheme.textStyles.body2,
-                        color = MiuixTheme.colorScheme.onSurfaceSecondary
-                    )
+                    val translationSuccess = remarkTranslationState as? RemarkTranslationState.Success
+                    val showTranslation = translationSuccess != null && translationSuccess.showingTranslated
+                    val displayRemark = translationSuccess
+                        ?.takeIf { it.showingTranslated }
+                        ?.translatedText
+                        ?: expense.remark
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = displayRemark,
+                                style = MiuixTheme.textStyles.body2,
+                                color = MiuixTheme.colorScheme.onSurfaceSecondary
+                            )
+                            if (showTranslation) {
+                                // Caption distinguishes a real translation from
+                                // the "already in your language" passthrough.
+                                Text(
+                                    text = context.getString(
+                                        if (translationSuccess.unchanged)
+                                            R.string.remark_translate_already_current_language
+                                        else
+                                            R.string.remark_translate_ai_result
+                                    ),
+                                    style = MiuixTheme.textStyles.footnote1,
+                                    color = MiuixTheme.colorScheme.primary
+                                )
+                            }
+                            if (remarkTranslationState is RemarkTranslationState.Error) {
+                                Text(
+                                    text = context.getString(R.string.remark_translate_failed),
+                                    style = MiuixTheme.textStyles.footnote1,
+                                    color = MiuixTheme.colorScheme.error
+                                )
+                            }
+                        }
+                        // Only offered when the on-device model package is verified.
+                        if (isAiModelDownloaded) {
+                            RemarkTranslateButton(
+                                state = remarkTranslationState,
+                                onClick = onTranslateRemark,
+                                context = context
+                            )
+                        }
+                    }
                 }
                 Text(
                     text = formatDateByLocale(expense.date, context.resources.configuration.locales[0].toLanguageTag()),
@@ -843,6 +912,47 @@ fun ExpenseListItem(
                 style = MiuixTheme.textStyles.title3,
                 fontWeight = FontWeight.Bold,
                 color = MiuixTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+/**
+ * Compact icon button shown right after a remark text that translates
+ * the remark with the on-device AI model.
+ *
+ * While inference runs, a small spinner replaces the icon. Once a
+ * translation exists, the icon turns primary-colored to signal that
+ * tapping it toggles back to the original remark.
+ */
+@Composable
+fun RemarkTranslateButton(
+    state: RemarkTranslationState?,
+    onClick: () -> Unit,
+    context: android.content.Context,
+    modifier: Modifier = Modifier
+) {
+    if (state is RemarkTranslationState.Translating) {
+        Box(
+            modifier = modifier.size(28.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(modifier = Modifier.size(18.dp))
+        }
+    } else {
+        val isActive = state is RemarkTranslationState.Success && state.showingTranslated
+        IconButton(
+            onClick = onClick,
+            modifier = modifier.size(28.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Translate,
+                contentDescription = context.getString(R.string.remark_translate_button),
+                tint = if (isActive)
+                    MiuixTheme.colorScheme.primary
+                else
+                    MiuixTheme.colorScheme.onSurfaceSecondary,
+                modifier = Modifier.size(18.dp)
             )
         }
     }
@@ -909,6 +1019,9 @@ fun ExpenseTableItems(
     context: android.content.Context,
     onEdit: (Expense) -> Unit,
     onDelete: (Expense) -> Unit,
+    isAiModelDownloaded: Boolean = false,
+    remarkTranslations: Map<String, RemarkTranslationState> = emptyMap(),
+    onTranslateRemark: (Expense) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var pendingDeleteExpense by remember { mutableStateOf<Expense?>(null) }
@@ -964,7 +1077,14 @@ fun ExpenseTableItems(
             // Table rows
             expenses.forEachIndexed { index, expense ->
                 val typeDisplayName = ExpenseTypeLocalizer.getLocalizedName(context, expense.type)
-                
+                val remarkTranslation = remarkTranslations[expense.id]
+                val remarkSuccess = remarkTranslation as? RemarkTranslationState.Success
+                val showRemarkTranslation = remarkSuccess != null && remarkSuccess.showingTranslated
+                val displayRemark = remarkSuccess
+                    ?.takeIf { it.showingTranslated }
+                    ?.translatedText
+                    ?: expense.remark.orEmpty()
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -977,17 +1097,59 @@ fun ExpenseTableItems(
                         modifier = Modifier.weight(1f),
                         fontWeight = FontWeight.Medium
                     )
-                    Text(
-                        text = expense.remark ?: "-",
-                        style = MiuixTheme.textStyles.body2,
-                        modifier = Modifier.weight(1.5f),
-                        color = if (expense.remark.isNullOrBlank()) 
-                            MiuixTheme.colorScheme.onSurfaceSecondary.copy(alpha = 0.5f) 
-                        else 
-                            MiuixTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                    )
+                    if (expense.remark.isNullOrBlank()) {
+                        Text(
+                            text = "-",
+                            style = MiuixTheme.textStyles.body2,
+                            modifier = Modifier.weight(1.5f),
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary.copy(alpha = 0.5f),
+                            maxLines = 2,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                    } else {
+                        Row(
+                            modifier = Modifier.weight(1.5f),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = displayRemark,
+                                    style = MiuixTheme.textStyles.body2,
+                                    color = MiuixTheme.colorScheme.onSurface,
+                                    maxLines = 2,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                )
+                                if (showRemarkTranslation) {
+                                    Text(
+                                        text = context.getString(
+                                            if (remarkSuccess.unchanged)
+                                                R.string.remark_translate_already_current_language
+                                            else
+                                                R.string.remark_translate_ai_result
+                                        ),
+                                        style = MiuixTheme.textStyles.footnote1,
+                                        color = MiuixTheme.colorScheme.primary
+                                    )
+                                }
+                                if (remarkTranslation is RemarkTranslationState.Error) {
+                                    Text(
+                                        text = context.getString(R.string.remark_translate_failed),
+                                        style = MiuixTheme.textStyles.footnote1,
+                                        color = MiuixTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                            // Only offered when the on-device model package is verified.
+                            if (isAiModelDownloaded) {
+                                RemarkTranslateButton(
+                                    state = remarkTranslation,
+                                    onClick = { onTranslateRemark(expense) },
+                                    context = context
+                                )
+                            }
+                        }
+                    }
                     Text(
                         text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
                         style = MiuixTheme.textStyles.body1,

@@ -199,36 +199,36 @@ class AIRecordRepositoryImpl @Inject constructor(
     /**
      * Builds the instruction prompt for the multimodal model.
      * When [hasImages] is true, the C++ bridge will prepend <img> tags
-     * automatically; the prompt just needs to reference "上方账单图片".
+     * automatically; the prompt just needs to reference "the bill images above".
      */
     private fun buildPrompt(text: String?, hasImages: Boolean): String {
         val today = java.time.LocalDate.now()
         val dayOfWeek = today.dayOfWeek.getDisplayName(
             java.time.format.TextStyle.FULL,
-            java.util.Locale.SIMPLIFIED_CHINESE
+            java.util.Locale.ENGLISH
         )
         val dateStr = today.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
-        val contentPart = text?.let { "文本内容：$text" }
-            ?: if (hasImages) "请阅读上方账单图片。" else ""
+        val contentPart = text?.let { "Text content: $text" }
+            ?: if (hasImages) "Please read the bill images above." else ""
 
         return """
-今天是 $dateStr，星期$dayOfWeek。$contentPart 请提取其中的所有消费信息。
+Today is $dateStr, $dayOfWeek. $contentPart Please extract all expense information from it.
 
-如果有多个消费记录，请以JSON数组的形式输出。每个记录应包含：
+If there are multiple expense records, output them as a JSON array. Each record must contain:
 {
-  "type": "消费类型", // 必须从以下中文列表中选择：日常用品、奢侈品、通讯费用、食品、零食糖果、冷饮、方便食品、纺织品、饮品、调味品、交通出行、餐饮、医疗费用、水果、其他、水产品、乳制品、礼物人情、旅行度假、政务、水电煤气、美容美发、豆制品、个护美妆、电子产品、家用电器、五金、服装
-  "amount": 金额, // 数字类型
-  "date": "日期", // 日期格式 YYYY-MM-DD
-  "remark": "备注" // 消费物品/服务的名称和说明，保留原始语言均可
+  "type": "expense category", // must be chosen from the following Chinese list: 日常用品、奢侈品、通讯费用、食品、零食糖果、冷饮、方便食品、纺织品、饮品、调味品、交通出行、餐饮、医疗费用、水果、其他、水产品、乳制品、礼物人情、旅行度假、政务、水电煤气、美容美发、豆制品、个护美妆、电子产品、家用电器、五金、服装
+  "amount": amount, // numeric value
+  "date": "date", // date format YYYY-MM-DD
+  "remark": "remark" // name and description of the purchased item/service; keep the original language
 }
 
-请注意：
-1. 如果有多个消费记录，请返回JSON数组格式
-2. 如果只有一个消费记录，请返回单个JSON对象或只有一个元素的数组
-3. 消费类型字段必须是上面列出的中文类型之一，不要使用其他语言或自定义类型
-4. 如果没有明确的日期，请使用今天日期（$dateStr）
-5. 只返回JSON数据，不要添加其他无关内容，不要使用markdown代码块
+Notes:
+1. If there are multiple expense records, return a JSON array
+2. If there is only one expense record, return a single JSON object or an array with one element
+3. The "type" field must be exactly one of the Chinese categories listed above; do not use any other language or custom types
+4. If no explicit date is found, use today's date ($dateStr)
+5. Return only JSON data, with no extra content and no markdown code blocks
         """.trimIndent()
     }
 

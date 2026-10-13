@@ -584,4 +584,9 @@
     <string name="model_download_eta_hours_minutes">%1$d時間%2$d分</string>
     <string name="model_download_eta_minutes">%1$d分</string>
     <string name="model_download_eta_seconds">%1$d秒</string>
+
+    <string name="remark_translate_button">端末AIでメモを翻訳</string>
+    <string name="remark_translate_ai_result">AI翻訳</string>
+    <string name="remark_translate_already_current_language">このメモはすでに現在の言語です</string>
+    <string name="remark_translate_failed">翻訳に失敗しました</string>
 </resources>
