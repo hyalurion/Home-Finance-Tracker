@@ -74,7 +74,7 @@
   {
     "group": "androidx.datastore",
     "name": "datastore-preferences",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "fullName": "androidx.datastore:datastore-preferences"
   },
   {
@@ -200,7 +200,7 @@
   {
     "group": "com.squareup.okhttp3",
     "name": "logging-interceptor",
-    "version": "5.5.0",
+    "version": "5.5.1",
     "fullName": "com.squareup.okhttp3:logging-interceptor"
   },
   {
@@ -230,19 +230,19 @@
   {
     "group": "io.grpc",
     "name": "grpc-okhttp",
-    "version": "1.84.3",
+    "version": "1.85.1",
     "fullName": "io.grpc:grpc-okhttp"
   },
   {
     "group": "io.grpc",
     "name": "grpc-protobuf-lite",
-    "version": "1.84.3",
+    "version": "1.85.1",
     "fullName": "io.grpc:grpc-protobuf-lite"
   },
   {
     "group": "io.grpc",
     "name": "grpc-stub",
-    "version": "1.84.3",
+    "version": "1.85.1",
     "fullName": "io.grpc:grpc-stub"
   },
   {
@@ -254,7 +254,7 @@
   {
     "group": "net.zetetic",
     "name": "sqlcipher-android",
-    "version": "4.19.1",
+    "version": "4.20.0",
     "fullName": "net.zetetic:sqlcipher-android"
   },
   {
@@ -284,7 +284,7 @@
   {
     "group": "org.jetbrains.kotlinx",
     "name": "kotlinx-serialization-core",
-    "version": "1.11.0",
+    "version": "1.12.0",
     "fullName": "org.jetbrains.kotlinx:kotlinx-serialization-core"
   },
   {
