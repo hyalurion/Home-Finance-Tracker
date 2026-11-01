@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
+import com.chronie.homemoney.core.common.rememberCurrencyNumberFormat
 import com.chronie.homemoney.domain.model.TimeRange
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
@@ -287,7 +288,7 @@ private fun ChartsContent(
 ) {
     val listState = rememberLazyListState()
     RegisterScrollToTop(listState)
-    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.getDefault()) }
+    val currencyFormat = rememberCurrencyNumberFormat(context)
     
     LazyColumn(
         state = listState,

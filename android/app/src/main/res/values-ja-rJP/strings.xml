@@ -9,6 +9,8 @@
     <string name="language_settings">言語設定</string>
     <string name="update_avatar_failed">アバターの更新に失敗しました</string>
     <string name="select_language">言語を選択</string>
+    <string name="settings_currency">通貨単位</string>
+    <string name="currency_follow_language">言語に従う</string>
     <string name="api_key_set">設定済み：%s</string>
     <string name="developer_tools">開発者ツール</string>
     <string name="theme_settings">テーマ設定</string>
@@ -573,6 +575,12 @@
     <string name="settings_ai_model_delete_hint">削除するとモデルのストレージが解放されます</string>
     <string name="settings_ai_model_cancel_hint">一部のデータは保持され、ダウンロードを再開できます</string>
     <string name="settings_ai_model_deleted">オンデバイスAIモデルを削除しました</string>
+    <string name="settings_ai_model_delete_confirm_title">オンデバイスAIモデルを削除しますか？</string>
+    <string name="settings_ai_model_delete_confirm_message">約5.5 GBのストレージが解放されます。いつでも再ダウンロードできます。</string>
+    <string name="settings_ai_model_source">ダウンロード元</string>
+    <string name="settings_ai_model_source_auto">自動（最速ミラー）</string>
+    <string name="settings_ai_model_source_modelscope">ModelScope（中国本土で高速）</string>
+    <string name="settings_ai_model_source_huggingface">Hugging Face（中国本土外で高速）</string>
     <string name="model_download_channel_name">モデルダウンロード</string>
     <string name="model_download_channel_description">オンデバイスAIモデルのダウンロード進捗を表示</string>
     <string name="model_download_notification_title">AIモデルをダウンロード中…</string>

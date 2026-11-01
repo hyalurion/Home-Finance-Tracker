@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
+import com.chronie.homemoney.core.common.rememberCurrencySymbol
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.SortOption
 import com.chronie.homemoney.ui.budget.BudgetCard
@@ -455,7 +456,8 @@ fun ExpenseDateHeader(
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val displayDate = formatRelativeDate(date, context, locale)
-    
+    val currencySymbol = rememberCurrencySymbol(context)
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -477,7 +479,7 @@ fun ExpenseDateHeader(
             )
         }
         Text(
-            text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), totalAmount),
+            text = "-" + context.getString(R.string.currency_format, currencySymbol, totalAmount),
             style = MiuixTheme.textStyles.body1,
             fontWeight = FontWeight.Bold,
             color = MiuixTheme.colorScheme.error
@@ -495,6 +497,8 @@ fun ExpenseStatisticsCard(
     modifier: Modifier = Modifier,
     useSingleRow: Boolean = false
 ) {
+    val currencySymbol = rememberCurrencySymbol(context)
+
     Card(
         modifier = modifier,
         colors = CardDefaults.defaultColors(
@@ -514,15 +518,15 @@ fun ExpenseStatisticsCard(
                 )
                 StatisticItem(
                     label = context.getString(R.string.expense_stats_total),
-                    value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.totalAmount)
+                    value = context.getString(R.string.currency_format, currencySymbol, statistics.totalAmount)
                 )
                 StatisticItem(
                     label = context.getString(R.string.expense_stats_average),
-                    value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.averageAmount)
+                    value = context.getString(R.string.currency_format, currencySymbol, statistics.averageAmount)
                 )
                 StatisticItem(
                     label = context.getString(R.string.expense_stats_median),
-                    value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.medianAmount)
+                    value = context.getString(R.string.currency_format, currencySymbol, statistics.medianAmount)
                 )
             }
         } else {
@@ -540,7 +544,7 @@ fun ExpenseStatisticsCard(
                     )
                     StatisticItem(
                         label = context.getString(R.string.expense_stats_total),
-                        value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.totalAmount)
+                        value = context.getString(R.string.currency_format, currencySymbol, statistics.totalAmount)
                     )
                 }
                 Row(
@@ -549,11 +553,11 @@ fun ExpenseStatisticsCard(
                 ) {
                     StatisticItem(
                         label = context.getString(R.string.expense_stats_average),
-                        value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.averageAmount)
+                        value = context.getString(R.string.currency_format, currencySymbol, statistics.averageAmount)
                     )
                     StatisticItem(
                         label = context.getString(R.string.expense_stats_median),
-                        value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.medianAmount)
+                        value = context.getString(R.string.currency_format, currencySymbol, statistics.medianAmount)
                     )
                 }
             }
@@ -634,6 +638,7 @@ fun LongPressExpenseItem(
 
     // Localized Expense Type Name
     val typeDisplayName = ExpenseTypeLocalizer.getLocalizedName(context, expense.type)
+    val currencySymbol = rememberCurrencySymbol(context)
 
     // Remark currently shown: the AI translation when it is active, else the original.
     val sheetRemark = (remarkTranslationState as? RemarkTranslationState.Success)
@@ -693,7 +698,7 @@ fun LongPressExpenseItem(
                             color = MiuixTheme.colorScheme.onSurfaceSecondary
                         )
                         Text(
-                            text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
+                            text = "-" + context.getString(R.string.currency_format, currencySymbol, expense.amount),
                             style = MiuixTheme.textStyles.title3,
                             fontWeight = FontWeight.Bold,
                             color = MiuixTheme.colorScheme.error
@@ -828,8 +833,9 @@ fun ExpenseListItem(
 ) {
     // Localized Expense Type Name Display
     val typeDisplayName = ExpenseTypeLocalizer.getLocalizedName(context, expense.type)
-    
-    
+    val currencySymbol = rememberCurrencySymbol(context)
+
+
     Card(
         modifier = modifier.fillMaxWidth(),
         pressFeedbackType = PressFeedbackType.Sink
@@ -908,7 +914,7 @@ fun ExpenseListItem(
                 )
             }
             Text(
-                text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
+                text = "-" + context.getString(R.string.currency_format, currencySymbol, expense.amount),
                 style = MiuixTheme.textStyles.title3,
                 fontWeight = FontWeight.Bold,
                 color = MiuixTheme.colorScheme.error
@@ -971,7 +977,8 @@ fun ExpenseTableDateHeader(
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val displayDate = formatRelativeDate(date, context, locale)
-    
+    val currencySymbol = rememberCurrencySymbol(context)
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = MiuixTheme.colorScheme.surfaceVariant,
@@ -1000,7 +1007,7 @@ fun ExpenseTableDateHeader(
                     color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
                 Text(
-                    text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), totalAmount),
+                    text = "-" + context.getString(R.string.currency_format, currencySymbol, totalAmount),
                     style = MiuixTheme.textStyles.body1,
                     fontWeight = FontWeight.Bold,
                     color = MiuixTheme.colorScheme.error
@@ -1027,6 +1034,7 @@ fun ExpenseTableItems(
     var pendingDeleteExpense by remember { mutableStateOf<Expense?>(null) }
     val showFirstConfirm = remember { mutableStateOf(false) }
     val showSecondConfirm = remember { mutableStateOf(false) }
+    val currencySymbol = rememberCurrencySymbol(context)
 
     Card(
         modifier = modifier.fillMaxWidth()
@@ -1151,7 +1159,7 @@ fun ExpenseTableItems(
                         }
                     }
                     Text(
-                        text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
+                        text = "-" + context.getString(R.string.currency_format, currencySymbol, expense.amount),
                         style = MiuixTheme.textStyles.body1,
                         modifier = Modifier.width(120.dp),
                         textAlign = androidx.compose.ui.text.style.TextAlign.End,

@@ -9,6 +9,8 @@
     <string name="language_settings">Cài đặt ngôn ngữ</string>
     <string name="update_avatar_failed">Cập nhật ảnh đại diện thất bại</string>
     <string name="select_language">Chọn ngôn ngữ</string>
+    <string name="settings_currency">Đơn vị tiền tệ</string>
+    <string name="currency_follow_language">Theo ngôn ngữ</string>
     <string name="api_key_set">Đã cài đặt: %s</string>
     <string name="developer_tools">Công cụ nhà phát triển</string>
     <string name="theme_settings">Cài đặt chủ đề</string>
@@ -573,6 +575,12 @@
     <string name="settings_ai_model_delete_hint">Xóa sẽ giải phóng bộ nhớ mà mô hình đang sử dụng</string>
     <string name="settings_ai_model_cancel_hint">Dữ liệu đã tải một phần được giữ lại để tiếp tục sau</string>
     <string name="settings_ai_model_deleted">Đã xóa mô hình AI trên thiết bị</string>
+    <string name="settings_ai_model_delete_confirm_title">Xóa mô hình AI trên thiết bị?</string>
+    <string name="settings_ai_model_delete_confirm_message">Thao tác này giải phóng khoảng 5,5 GB dung lượng. Bạn có thể tải lại bất cứ lúc nào.</string>
+    <string name="settings_ai_model_source">Nguồn tải xuống</string>
+    <string name="settings_ai_model_source_auto">Tự động (máy chủ nhanh nhất)</string>
+    <string name="settings_ai_model_source_modelscope">ModelScope (nhanh hơn tại Trung Quốc đại lục)</string>
+    <string name="settings_ai_model_source_huggingface">Hugging Face (nhanh hơn ngoài Trung Quốc đại lục)</string>
     <string name="model_download_channel_name">Tải mô hình</string>
     <string name="model_download_channel_description">Hiển thị tiến trình tải mô hình AI trên thiết bị</string>
     <string name="model_download_notification_title">Đang tải mô hình AI…</string>

@@ -9,6 +9,8 @@
     <string name="language_settings">語言設定</string>
     <string name="update_avatar_failed">更新頭像失敗</string>
     <string name="select_language">選擇語言</string>
+    <string name="settings_currency">貨幣單位</string>
+    <string name="currency_follow_language">跟隨語言</string>
     <string name="api_key_set">已設定：%s…</string>
     <string name="developer_tools">開發人員工具</string>
     <string name="theme_settings">主題設定</string>
@@ -573,6 +575,12 @@
     <string name="settings_ai_model_delete_hint">刪除後將釋放模型佔用的儲存空間</string>
     <string name="settings_ai_model_cancel_hint">已下載的部分會保留，可隨時繼續</string>
     <string name="settings_ai_model_deleted">裝置端AI模型已刪除</string>
+    <string name="settings_ai_model_delete_confirm_title">刪除裝置端AI模型？</string>
+    <string name="settings_ai_model_delete_confirm_message">刪除後將釋放約 5.5 GB 儲存空間，可隨時重新下載。</string>
+    <string name="settings_ai_model_source">下載來源</string>
+    <string name="settings_ai_model_source_auto">自動（選擇最快鏡像）</string>
+    <string name="settings_ai_model_source_modelscope">ModelScope（中國大陸更快）</string>
+    <string name="settings_ai_model_source_huggingface">Hugging Face（中國大陸以外更快）</string>
     <string name="model_download_channel_name">模型下載</string>
     <string name="model_download_channel_description">顯示裝置端AI模型下載進度</string>
     <string name="model_download_notification_title">正在下載AI模型…</string>

@@ -48,6 +48,7 @@ import androidx.core.content.edit
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val languageManager: LanguageManager,
+    private val currencyManager: com.chronie.homemoney.core.common.CurrencyManager,
     private val developerMode: DeveloperMode,
     private val syncManager: SyncManager,
     private val syncScheduler: SyncScheduler,
@@ -74,6 +75,15 @@ class SettingsViewModel @Inject constructor(
     private val _paletteStyle = MutableStateFlow(PaletteStyle.Expressive)
 
     val currentLanguage: StateFlow<Language> = languageManager.currentLanguage
+
+    /** Pinned display currency (`null` = follow the app language). */
+    val selectedCurrency: StateFlow<com.chronie.homemoney.core.common.CurrencyManager.CurrencyOption?> =
+        currencyManager.selectedOption
+
+    /** Pins [option] as the display currency, or `null` to follow the language. */
+    fun setCurrency(option: com.chronie.homemoney.core.common.CurrencyManager.CurrencyOption?) {
+        currencyManager.setCurrency(option)
+    }
 
     val isDeveloperMode: Flow<Boolean> = developerMode.isDeveloperModeEnabled
 
@@ -545,6 +555,20 @@ class SettingsViewModel @Inject constructor(
             aiModelManager.deleteModel()
             _syncMessage.value = context.getString(R.string.settings_ai_model_deleted)
         }
+    }
+
+    /** Selected mirror used for AI model downloads (auto / pinned). */
+    val aiModelSourcePreference: StateFlow<com.chronie.homemoney.data.vlm.OnDeviceModelManager.SourcePreference> =
+        aiModelManager.sourcePreference
+
+    /**
+     * Updates the download-source preference. Takes effect on the next
+     * download start; an in-flight download keeps its current mirror.
+     */
+    fun setAiModelSourcePreference(
+        pref: com.chronie.homemoney.data.vlm.OnDeviceModelManager.SourcePreference
+    ) {
+        aiModelManager.setSourcePreference(pref)
     }
 
     private fun loadSyncInfo() {

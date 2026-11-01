@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
+import com.chronie.homemoney.core.common.rememberCurrencySymbol
 import com.chronie.homemoney.domain.model.BudgetStatus
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.expense.formatMonthLabelByLocale
@@ -192,7 +193,7 @@ fun BudgetUsageCard(
         BudgetStatus.NORMAL -> MiuixTheme.colorScheme.primary
     }
 
-    val currencySymbol = context.getString(R.string.currency_symbol)
+    val currencySymbol = rememberCurrencySymbol(context)
     val overAmount = (usage.currentSpending - usage.monthlyLimit).coerceAtLeast(0.0)
 
     Card(modifier = modifier.fillMaxWidth()) {
@@ -494,6 +495,8 @@ private fun BudgetCardTitleRow(
     onSettingsClick: () -> Unit,
     compact: Boolean
 ) {
+    val currencySymbol = rememberCurrencySymbol(context)
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -521,7 +524,7 @@ private fun BudgetCardTitleRow(
                     Text(
                         text = context.getString(
                             R.string.currency_format_no_decimal,
-                            context.getString(R.string.currency_symbol),
+                            currencySymbol,
                             usage.currentSpending
                         ),
                         style = MiuixTheme.textStyles.body2,
@@ -531,7 +534,7 @@ private fun BudgetCardTitleRow(
                     Text(
                         text = "/ " + context.getString(
                             R.string.currency_format_no_decimal,
-                            context.getString(R.string.currency_symbol),
+                            currencySymbol,
                             usage.monthlyLimit
                         ),
                         style = MiuixTheme.textStyles.body2,
@@ -579,7 +582,7 @@ private fun BudgetCardTitleRow(
                     Text(
                         text = context.getString(
                             R.string.currency_format_no_decimal,
-                            context.getString(R.string.currency_symbol),
+                            currencySymbol,
                             usage.currentSpending
                         ),
                         style = MiuixTheme.textStyles.body1,
@@ -589,7 +592,7 @@ private fun BudgetCardTitleRow(
                     Text(
                         text = "/ " + context.getString(
                             R.string.currency_format_no_decimal,
-                            context.getString(R.string.currency_symbol),
+                            currencySymbol,
                             usage.monthlyLimit
                         ),
                         style = MiuixTheme.textStyles.body2,
@@ -740,6 +743,8 @@ private fun CompactStatusAlert(
     usage: com.chronie.homemoney.domain.model.BudgetUsage,
     overAmount: Double
 ) {
+    val currencySymbol = rememberCurrencySymbol(context)
+
     when (status) {
         BudgetStatus.OVER_LIMIT -> {
             val containerColor = MiuixTheme.colorScheme.errorContainer
@@ -766,7 +771,7 @@ private fun CompactStatusAlert(
                             R.string.budget_alert_over_message,
                             context.getString(
                                 R.string.currency_format,
-                                context.getString(R.string.currency_symbol),
+                                currencySymbol,
                                 overAmount
                             )
                         ),
@@ -802,7 +807,7 @@ private fun CompactStatusAlert(
                             R.string.budget_alert_warning_message,
                             context.getString(
                                 R.string.currency_format,
-                                context.getString(R.string.currency_symbol),
+                                currencySymbol,
                                 usage.remainingAmount
                             ),
                             usage.spendingPercentage
@@ -839,7 +844,7 @@ private fun CompactStatusAlert(
                             R.string.budget_alert_normal_message,
                             context.getString(
                                 R.string.currency_format,
-                                context.getString(R.string.currency_symbol),
+                                currencySymbol,
                                 usage.remainingAmount
                             ),
                             100 - usage.spendingPercentage

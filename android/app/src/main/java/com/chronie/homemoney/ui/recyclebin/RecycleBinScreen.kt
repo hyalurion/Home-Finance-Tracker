@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
+import com.chronie.homemoney.core.common.rememberCurrencySymbol
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.expense.formatDateByLocale
@@ -265,6 +266,7 @@ private fun RecycleBinItem(
     val daysLeft = remember(expense.deletedAt) { daysUntilPurge(expense.deletedAt) }
     val remark = expense.remark
     val deletedTimeLabel = remember(expense.deletedAt) { deletedAtToTimeString(expense.deletedAt) }
+    val currencySymbol = rememberCurrencySymbol(context)
 
     val backgroundColor by animateColorAsState(
         targetValue = if (isSelected) {
@@ -323,7 +325,7 @@ private fun RecycleBinItem(
                     Text(
                         text = "-" + context.getString(
                             R.string.currency_format,
-                            context.getString(R.string.currency_symbol),
+                            currencySymbol,
                             expense.amount
                         ),
                         style = MiuixTheme.textStyles.body1,

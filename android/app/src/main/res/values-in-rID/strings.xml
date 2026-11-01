@@ -9,6 +9,8 @@
     <string name="language_settings">Pengaturan Bahasa</string>
     <string name="update_avatar_failed">Gagal memperbarui avatar</string>
     <string name="select_language">Pilih Bahasa</string>
+    <string name="settings_currency">Satuan mata uang</string>
+    <string name="currency_follow_language">Mengikuti bahasa</string>
     <string name="api_key_set">Telah diatur: %s</string>
     <string name="developer_tools">Alat Pengembang</string>
     <string name="theme_settings">Pengaturan Tema</string>
@@ -573,6 +575,12 @@
     <string name="settings_ai_model_delete_hint">Menghapus akan membebaskan penyimpanan yang digunakan model</string>
     <string name="settings_ai_model_cancel_hint">Data parsial disimpan sehingga unduhan dapat dilanjutkan</string>
     <string name="settings_ai_model_deleted">Model AI on-device dihapus</string>
+    <string name="settings_ai_model_delete_confirm_title">Hapus model AI di perangkat?</string>
+    <string name="settings_ai_model_delete_confirm_message">Tindakan ini mengosongkan sekitar 5,5 GB penyimpanan. Anda dapat mengunduhnya lagi kapan saja.</string>
+    <string name="settings_ai_model_source">Sumber unduhan</string>
+    <string name="settings_ai_model_source_auto">Otomatis (mirror tercepat)</string>
+    <string name="settings_ai_model_source_modelscope">ModelScope (lebih cepat di Tiongkok daratan)</string>
+    <string name="settings_ai_model_source_huggingface">Hugging Face (lebih cepat di luar Tiongkok daratan)</string>
     <string name="model_download_channel_name">Unduhan Model</string>
     <string name="model_download_channel_description">Menampilkan progres unduhan model AI on-device</string>
     <string name="model_download_notification_title">Mengunduh model AI…</string>

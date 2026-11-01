@@ -59,6 +59,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.chronie.homemoney.R
+import com.chronie.homemoney.core.common.rememberCurrencySymbol
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.ui.components.CircularIconButton
@@ -614,7 +615,8 @@ private fun RecordEditCard(
     onDelete: () -> Unit
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
-    
+    val currencySymbol = rememberCurrencySymbol(context)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.defaultColors(
@@ -639,7 +641,7 @@ private fun RecordEditCard(
                         style = MiuixTheme.textStyles.body1
                     )
                     Text(
-                        text = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), record.amount),
+                        text = context.getString(R.string.currency_format, currencySymbol, record.amount),
                         style = MiuixTheme.textStyles.title2,
                         color = MiuixTheme.colorScheme.primary
                     )

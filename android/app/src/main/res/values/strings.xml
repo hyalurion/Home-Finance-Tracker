@@ -10,6 +10,8 @@
     <string name="language_settings">Language</string>
     <string name="update_avatar_failed">Failed to update avatar</string>
     <string name="select_language">Select Language</string>
+    <string name="settings_currency">Currency</string>
+    <string name="currency_follow_language">Follow language</string>
     <string name="api_key_set">Set: %s…</string>
     <string name="developer_tools">Developer Tools</string>
     <string name="theme_settings">Theme</string>
@@ -261,6 +263,12 @@
     <string name="settings_ai_model_delete_hint">Deleting frees the storage used by the model</string>
     <string name="settings_ai_model_cancel_hint">Partial data is kept so the download can resume</string>
     <string name="settings_ai_model_deleted">On-device AI model deleted</string>
+    <string name="settings_ai_model_delete_confirm_title">Delete on-device AI model?</string>
+    <string name="settings_ai_model_delete_confirm_message">This frees about 5.5 GB of storage. You can download it again at any time.</string>
+    <string name="settings_ai_model_source">Download source</string>
+    <string name="settings_ai_model_source_auto">Auto (fastest mirror)</string>
+    <string name="settings_ai_model_source_modelscope">ModelScope (faster in mainland China)</string>
+    <string name="settings_ai_model_source_huggingface">Hugging Face (faster outside mainland China)</string>
 
     <!-- Model Download Notification -->
     <string name="model_download_channel_name">Model Download</string>

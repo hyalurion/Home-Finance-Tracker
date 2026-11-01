@@ -20,14 +20,33 @@ import java.io.RandomAccessFile
 import java.net.SocketException
 import java.security.MessageDigest
 import java.util.Collections
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLongArray
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.concurrent.thread
 
 /**
  * Downloads and manages the on-device multimodal model
- * (MNN/Qwen3-VL-8B-Instruct-MNN, ~5.45 GB) from ModelScope.
+ * (MNN/Qwen3-VL-8B-Instruct-MNN, ~5.45 GB).
+ *
+ * The model is mirrored on two endpoints:
+ *  * **ModelScope** (`www.modelscope.cn`) — fastest inside mainland China.
+ *  * **Hugging Face** (`huggingface.co`, repo `taobao-mnn/...`) — fastest
+ *    elsewhere. All manifest files are byte-identical except the 46-byte
+ *    `configuration.json`, which only exists on ModelScope.
+ *
+ * Which mirror to use is controlled by [SourcePreference]:
+ *  * [SourcePreference.AUTO] races a tiny probe request against both
+ *    endpoints at download start and picks the first that answers, so
+ *    users outside mainland China don't get stuck on the slow mirror.
+ *    The probe result is cached for [PROBE_CACHE_TTL_MS].
+ *  * The other two pin the download to a specific mirror.
+ * Any object the mirror doesn't have (404) transparently falls back to
+ * ModelScope for that request.
  *
  * Key design decisions:
  *  * **Accept-Encoding: identity** — OkHttp's default gzip handling
@@ -65,8 +84,27 @@ class OnDeviceModelManager @Inject constructor(
     companion object {
         private const val TAG = "OnDeviceModelManager"
 
-        private const val MODEL_HOST = "https://www.modelscope.cn"
-        private const val MODEL_REPO = "MNN/Qwen3-VL-8B-Instruct-MNN"
+        /** Local directory name — keep stable regardless of mirror used. */
+        private const val MODEL_REPO_DIR = "MNN/Qwen3-VL-8B-Instruct-MNN"
+
+        /** SharedPreferences file + keys for the download-source preference. */
+        private const val PREFS_NAME = "ai_model_download"
+        private const val KEY_SOURCE_PREF = "source_preference"
+        private const val KEY_PROBE_RESULT = "probe_result"
+        private const val KEY_PROBE_TIME = "probe_time"
+
+        /**
+         * How long a cached AUTO probe result stays valid. A device's
+         * network region rarely changes; re-probing daily keeps travellers
+         * correct without paying a probe request on every download start.
+         */
+        private const val PROBE_CACHE_TTL_MS = 24L * 60 * 60 * 1000 // 24 h
+
+        /** Hard cap for the whole probe race, independent of HTTP timeouts. */
+        private const val PROBE_TIMEOUT_MS = 8_000L
+
+        /** Tiny file used for the mirror speed probe (605 bytes). */
+        private const val PROBE_FILE = "config.json"
 
         /** Manifest of files that make up a runnable model (from ModelScope). */
         private val MODEL_FILES = listOf(
@@ -164,6 +202,33 @@ class OnDeviceModelManager @Inject constructor(
     /** One file of the model package. */
     private data class ModelFile(val name: String, val size: Long, val sha256: String)
 
+    /** A mirror that serves the model package. */
+    enum class ModelSource {
+        MODELSCOPE,
+        HUGGINGFACE;
+
+        fun resolveUrl(fileName: String): String = when (this) {
+            MODELSCOPE ->
+                "https://www.modelscope.cn/models/MNN/Qwen3-VL-8B-Instruct-MNN/resolve/master/$fileName"
+            HUGGINGFACE ->
+                "https://huggingface.co/taobao-mnn/Qwen3-VL-8B-Instruct-MNN/resolve/main/$fileName"
+        }
+    }
+
+    /** User-facing download-source preference (persisted). */
+    enum class SourcePreference {
+        /** Probe both mirrors at download start and use the fastest. */
+        AUTO,
+        MODELSCOPE,
+        HUGGINGFACE;
+
+        fun toSourceOrNull(): ModelSource? = when (this) {
+            AUTO -> null
+            MODELSCOPE -> ModelSource.MODELSCOPE
+            HUGGINGFACE -> ModelSource.HUGGINGFACE
+        }
+    }
+
     /**
      * Thrown when the endpoint answers a `Range` request with the full
      * entity (no `Content-Range`), meaning partial transfers are
@@ -198,6 +263,32 @@ class OnDeviceModelManager @Inject constructor(
 
     private val _state = MutableStateFlow<ModelState>(ModelState.NotDownloaded)
     val state: StateFlow<ModelState> = _state.asStateFlow()
+
+    // ---- Download-source preference --------------------------------------
+
+    private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    private val _sourcePreference = MutableStateFlow(loadSourcePreference())
+
+    /** Currently selected download-source preference, surfaced to the UI. */
+    val sourcePreference: StateFlow<SourcePreference> = _sourcePreference.asStateFlow()
+
+    private fun loadSourcePreference(): SourcePreference {
+        val name = prefs.getString(KEY_SOURCE_PREF, null)
+        return SourcePreference.entries.firstOrNull { it.name == name }
+            ?: SourcePreference.AUTO
+    }
+
+    /** Persists [pref]; takes effect on the next download start. */
+    fun setSourcePreference(pref: SourcePreference) {
+        prefs.edit().putString(KEY_SOURCE_PREF, pref.name).apply()
+        _sourcePreference.value = pref
+        // Invalidate the probe cache when switching back to AUTO so the
+        // next download re-measures instead of reusing a stale winner.
+        if (pref == SourcePreference.AUTO) {
+            prefs.edit().remove(KEY_PROBE_RESULT).remove(KEY_PROBE_TIME).apply()
+        }
+    }
 
     /** Guards download/delete against concurrent invocations. */
     private val downloadMutex = Mutex()
@@ -260,10 +351,100 @@ class OnDeviceModelManager @Inject constructor(
         .connectionPool(okhttp3.ConnectionPool(PARALLEL_CHUNKS + 2, 5, TimeUnit.MINUTES))
         .build()
 
+    /**
+     * Short-timeout client used only for the mirror speed probe — the
+     * probe must fail fast so a dead endpoint doesn't stall the race.
+     * Shares the dispatcher/pool with [downloadClient].
+     */
+    private val probeClient = downloadClient.newBuilder()
+        .connectTimeout(5, TimeUnit.SECONDS)
+        .readTimeout(5, TimeUnit.SECONDS)
+        .writeTimeout(5, TimeUnit.SECONDS)
+        .build()
+
+    // ---- Mirror selection -------------------------------------------------
+
+    /**
+     * Resolves which mirror the next download should use.
+     * A pinned preference is returned as-is; [SourcePreference.AUTO] runs
+     * (or reuses) a probe race between both endpoints.
+     */
+    private fun resolveDownloadSource(): ModelSource {
+        _sourcePreference.value.toSourceOrNull()?.let { return it }
+
+        // AUTO: reuse a fresh cached probe result when available.
+        val cached = prefs.getString(KEY_PROBE_RESULT, null)
+        val probedAt = prefs.getLong(KEY_PROBE_TIME, 0L)
+        val cacheValid = System.currentTimeMillis() - probedAt < PROBE_CACHE_TTL_MS
+        if (cacheValid) {
+            ModelSource.entries.firstOrNull { it.name == cached }?.let {
+                Log.d(TAG, "AUTO source: reusing cached probe result $it")
+                return it
+            }
+        }
+
+        val winner = probeFastestSource()
+        prefs.edit()
+            .putString(KEY_PROBE_RESULT, winner.name)
+            .putLong(KEY_PROBE_TIME, System.currentTimeMillis())
+            .apply()
+        return winner
+    }
+
+    /**
+     * Races a 1-byte range request for [PROBE_FILE] against every mirror
+     * and returns the first endpoint that answers successfully. If none
+     * answers within [PROBE_TIMEOUT_MS], defaults to [ModelSource.MODELSCOPE]
+     * (historical behaviour).
+     */
+    private fun probeFastestSource(): ModelSource {
+        val winner = AtomicReference<ModelSource?>(null)
+        val latch = CountDownLatch(1)
+        val calls = CopyOnWriteArrayList<okhttp3.Call>()
+
+        val threads = ModelSource.entries.map { source ->
+            thread(name = "model-probe-${source.name}", isDaemon = true) {
+                try {
+                    val call = probeClient.newCall(
+                        Request.Builder()
+                            .url(source.resolveUrl(PROBE_FILE))
+                            .header("Accept-Encoding", "identity")
+                            .header("Range", "bytes=0-0")
+                            .build()
+                    )
+                    calls.add(call)
+                    call.execute().use { response ->
+                        if (response.isSuccessful &&
+                            winner.compareAndSet(null, source)
+                        ) {
+                            Log.d(TAG, "Probe winner: $source")
+                            latch.countDown()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.d(TAG, "Probe failed for $source: ${e.message}")
+                }
+            }
+        }
+
+        try {
+            latch.await(PROBE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        } catch (_: InterruptedException) {
+            Thread.currentThread().interrupt()
+        }
+        // Abandon whichever probes are still in flight.
+        calls.forEach { it.cancel() }
+        threads.forEach { it.join(500) }
+
+        return winner.get() ?: ModelSource.MODELSCOPE.also {
+            Log.w(TAG, "Probe inconclusive — defaulting to MODELSCOPE")
+        }
+    }
+
     // ---- Public API -----------------------------------------------------
 
     /** Directory where the model package lives (app-private storage). */
-    fun modelDir(): File = File(context.filesDir, "models/$MODEL_REPO")
+    fun modelDir(): File = File(context.filesDir, "models/$MODEL_REPO_DIR")
 
     fun isModelReady(): Boolean = missingFiles().isEmpty()
 
@@ -324,6 +505,11 @@ class OnDeviceModelManager @Inject constructor(
 
         if (!dir.exists()) dir.mkdirs()
 
+        // Pick the mirror once for the whole run — pinned by preference,
+        // or measured by a probe race when set to AUTO.
+        val source = withContext(Dispatchers.IO) { resolveDownloadSource() }
+        Log.i(TAG, "Downloading model from $source")
+
         return try {
             withContext(Dispatchers.IO) {
                 var downloaded = MODEL_FILES.sumOf { mf ->
@@ -371,7 +557,7 @@ class OnDeviceModelManager @Inject constructor(
 
                     if (mf.size >= CHUNK_THRESHOLD) {
                         try {
-                            downloadParallelChunks(mf, dir, emitProgress)
+                            downloadParallelChunks(mf, source, dir, emitProgress)
                         } catch (e: RangeNotSupportedException) {
                             // CDN refuses ranges — degrade gracefully to a
                             // single full-length connection instead of failing.
@@ -381,10 +567,10 @@ class OnDeviceModelManager @Inject constructor(
                             // length lies about real progress — start clean.
                             partFile.delete()
                             resetSpeedTracker()
-                            downloadSmallFile(mf, partFile, emitProgress)
+                            downloadSmallFile(mf, source, partFile, emitProgress)
                         }
                     } else {
-                        downloadSmallFile(mf, partFile, emitProgress)
+                        downloadSmallFile(mf, source, partFile, emitProgress)
                     }
 
                     // Verify then atomically promote.
@@ -446,6 +632,7 @@ class OnDeviceModelManager @Inject constructor(
      */
     private fun downloadSmallFile(
         mf: ModelFile,
+        source: ModelSource,
         partFile: File,
         onProgress: (bytesSoFar: Long) -> Unit
     ) {
@@ -465,7 +652,7 @@ class OnDeviceModelManager @Inject constructor(
                     val sink: (ByteArray, Int) -> Unit = { buffer, count ->
                         output.write(buffer, 0, count)
                     }
-                    downloadRange(mf, startByte, mf.size, { read ->
+                    downloadRange(mf, source, startByte, mf.size, { read ->
                         cumulative += read
                         if (cumulative - lastTick >= DOWNLOAD_CHUNK_BYTES) {
                             lastTick = cumulative
@@ -513,6 +700,7 @@ class OnDeviceModelManager @Inject constructor(
      */
     private fun downloadParallelChunks(
         mf: ModelFile,
+        source: ModelSource,
         dir: File,
         onProgress: (bytesSoFar: Long) -> Unit
     ) {
@@ -536,7 +724,7 @@ class OnDeviceModelManager @Inject constructor(
         val threads = chunks.map { chunk ->
             Thread {
                 try {
-                    downloadChunkWithRetry(mf, partFile, chunk, chunkProgress, onProgress)
+                    downloadChunkWithRetry(mf, source, partFile, chunk, chunkProgress, onProgress)
                 } catch (e: Exception) {
                     errors.add(e)
                 }
@@ -582,6 +770,7 @@ class OnDeviceModelManager @Inject constructor(
      */
     private fun downloadChunkWithRetry(
         mf: ModelFile,
+        source: ModelSource,
         partFile: File,
         chunk: ChunkDesc,
         chunkProgress: AtomicLongArray,
@@ -601,7 +790,7 @@ class OnDeviceModelManager @Inject constructor(
                     val sink: (ByteArray, Int) -> Unit = { buffer, count ->
                         raf.write(buffer, 0, count)
                     }
-                    downloadRange(mf, chunk.start, chunk.end, { read ->
+                    downloadRange(mf, source, chunk.start, chunk.end, { read ->
                         written += read
                         chunkProgress.set(chunk.index, written)
                         val overall = sumChunkProgress(chunkProgress)
@@ -667,6 +856,10 @@ class OnDeviceModelManager @Inject constructor(
      * entire multi-GB file, fail the size check below, and burn every
      * retry re-downloading gigabytes.
      *
+     * When [source] answers 404 the object simply doesn't exist on that
+     * mirror (e.g. `configuration.json` is absent from Hugging Face), so
+     * the request transparently falls back to ModelScope.
+     *
      * @param startByte    First byte of the range (inclusive).
      * @param endByte      Last byte of the range (exclusive).
      * @param onBytesRead  Incremental byte counter — bytes just read from
@@ -681,12 +874,13 @@ class OnDeviceModelManager @Inject constructor(
      */
     private fun downloadRange(
         mf: ModelFile,
+        source: ModelSource,
         startByte: Long,
         endByte: Long,
         onBytesRead: (bytesRead: Int) -> Unit,
         write: (buffer: ByteArray, count: Int) -> Unit
     ) {
-        val url = "$MODEL_HOST/models/$MODEL_REPO/resolve/master/${mf.name}"
+        val url = source.resolveUrl(mf.name)
         val partial = startByte > 0 || endByte < mf.size
 
         val requestBuilder = Request.Builder()
@@ -699,8 +893,16 @@ class OnDeviceModelManager @Inject constructor(
         }
 
         downloadClient.newCall(requestBuilder.build()).execute().use { response ->
+            // Mirror lacks this object — fall back to the primary repo.
+            if (response.code == 404 && source != ModelSource.MODELSCOPE) {
+                Log.w(TAG, "$source has no ${mf.name} (404) — retrying via MODELSCOPE")
+                response.close()
+                downloadRange(mf, ModelSource.MODELSCOPE, startByte, endByte, onBytesRead, write)
+                return
+            }
+
             if (response.code !in 200..299) {
-                throw IOException("HTTP ${response.code} while downloading ${mf.name}")
+                throw IOException("HTTP ${response.code} while downloading ${mf.name} from $source")
             }
 
             // ModelScope answers Range requests on non-LFS files with **200 +

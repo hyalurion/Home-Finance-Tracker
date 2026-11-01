@@ -9,6 +9,8 @@
     <string name="language_settings">언어 설정</string>
     <string name="update_avatar_failed">프로필 사진 업데이트 실패</string>
     <string name="select_language">언어 선택</string>
+    <string name="settings_currency">통화 단위</string>
+    <string name="currency_follow_language">언어 따르기</string>
     <string name="api_key_set">설정 완료：%s</string>
     <string name="developer_tools">개발자 도구</string>
     <string name="theme_settings">테마 설정</string>
@@ -573,6 +575,12 @@
     <string name="settings_ai_model_delete_hint">삭제하면 모델이 사용한 저장 공간이 해제됩니다</string>
     <string name="settings_ai_model_cancel_hint">부분 데이터는 보존되어 다운로드를 이어서 진행할 수 있습니다</string>
     <string name="settings_ai_model_deleted">온디바이스 AI 모델이 삭제되었습니다</string>
+    <string name="settings_ai_model_delete_confirm_title">온디바이스 AI 모델을 삭제하시겠습니까?</string>
+    <string name="settings_ai_model_delete_confirm_message">약 5.5GB의 저장 공간이 확보됩니다. 언제든지 다시 다운로드할 수 있습니다.</string>
+    <string name="settings_ai_model_source">다운로드 소스</string>
+    <string name="settings_ai_model_source_auto">자동(가장 빠른 미러)</string>
+    <string name="settings_ai_model_source_modelscope">ModelScope(중국 본토에서 더 빠름)</string>
+    <string name="settings_ai_model_source_huggingface">Hugging Face(중국 본토 외 지역에서 더 빠름)</string>
     <string name="model_download_channel_name">모델 다운로드</string>
     <string name="model_download_channel_description">온디바이스 AI 모델 다운로드 진행 상태 표시</string>
     <string name="model_download_notification_title">AI 모델 다운로드 중…</string>

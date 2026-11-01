@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
+import com.chronie.homemoney.core.common.rememberCurrencySymbol
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
@@ -209,6 +210,7 @@ fun ExpenseItem(
     expense: ExpenseItemUiModel
 ) {
     val isDeleted = expense.deletedAt != null
+    val currencySymbol = rememberCurrencySymbol(context)
     Card(
         modifier = Modifier.fillMaxWidth().alpha(if (isDeleted) 0.55f else 1f)
     ) {
@@ -238,7 +240,7 @@ fun ExpenseItem(
                     }
                 }
                 Text(
-                        text = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
+                        text = context.getString(R.string.currency_format, currencySymbol, expense.amount),
                         style = MiuixTheme.textStyles.body1,
                         color = MiuixTheme.colorScheme.error
                     )

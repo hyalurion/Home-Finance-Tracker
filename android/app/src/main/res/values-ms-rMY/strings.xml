@@ -9,6 +9,8 @@
     <string name="language_settings">Tetapan Bahasa</string>
     <string name="update_avatar_failed">Gagal mengemas kini avatar</string>
     <string name="select_language">Pilih Bahasa</string>
+    <string name="settings_currency">Unit mata wang</string>
+    <string name="currency_follow_language">Ikut bahasa</string>
     <string name="api_key_set">Telah ditetapkan: %s</string>
     <string name="developer_tools">Alatan Pembangun</string>
     <string name="theme_settings">Tetapan Tema</string>
@@ -573,6 +575,12 @@
     <string name="settings_ai_model_delete_hint">Memadam akan membebaskan storan yang digunakan oleh model</string>
     <string name="settings_ai_model_cancel_hint">Data separuh disimpan supaya muat turun boleh disambung</string>
     <string name="settings_ai_model_deleted">Model AI pada peranti dipadam</string>
+    <string name="settings_ai_model_delete_confirm_title">Padam model AI pada peranti?</string>
+    <string name="settings_ai_model_delete_confirm_message">Ini mengosongkan kira-kira 5.5 GB storan. Anda boleh memuat turunnya semula pada bila-bila masa.</string>
+    <string name="settings_ai_model_source">Sumber muat turun</string>
+    <string name="settings_ai_model_source_auto">Auto (cermin terpantas)</string>
+    <string name="settings_ai_model_source_modelscope">ModelScope (lebih pantas di tanah besar China)</string>
+    <string name="settings_ai_model_source_huggingface">Hugging Face (lebih pantas di luar tanah besar China)</string>
     <string name="model_download_channel_name">Muat Turun Model</string>
     <string name="model_download_channel_description">Menunjukkan kemajuan muat turun model AI pada peranti</string>
     <string name="model_download_notification_title">Memuat turun model AI…</string>

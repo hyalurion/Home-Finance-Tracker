@@ -9,6 +9,8 @@
     <string name="language_settings">ตั้งค่าภาษา</string>
     <string name="update_avatar_failed">อัปเดตรูปโปรไฟล์ไม่สำเร็จ</string>
     <string name="select_language">เลือกภาษา</string>
+    <string name="settings_currency">สกุลเงิน</string>
+    <string name="currency_follow_language">ตามภาษา</string>
     <string name="api_key_set">ตั้งค่าแล้ว: %s</string>
     <string name="developer_tools">เครื่องมือสำหรับนักพัฒนา</string>
     <string name="theme_settings">ตั้งค่าธีม</string>
@@ -573,6 +575,12 @@
     <string name="settings_ai_model_delete_hint">การลบจะปลดปล่อยพื้นที่จัดเก็บที่โมเดลใช้</string>
     <string name="settings_ai_model_cancel_hint">ข้อมูลบางส่วนจะถูกเก็บไว้เพื่อดาวน์โหลดต่อได้</string>
     <string name="settings_ai_model_deleted">ลบโมเดล AI บนอุปกรณ์แล้ว</string>
+    <string name="settings_ai_model_delete_confirm_title">ลบโมเดล AI บนอุปกรณ์?</string>
+    <string name="settings_ai_model_delete_confirm_message">การลบจะเพิ่มพื้นที่จัดเก็บประมาณ 5.5 GB คุณสามารถดาวน์โหลดใหม่ได้ทุกเมื่อ</string>
+    <string name="settings_ai_model_source">แหล่งดาวน์โหลด</string>
+    <string name="settings_ai_model_source_auto">อัตโนมัติ (มิเรอร์ที่เร็วที่สุด)</string>
+    <string name="settings_ai_model_source_modelscope">ModelScope (เร็วกว่าในจีนแผ่นดินใหญ่)</string>
+    <string name="settings_ai_model_source_huggingface">Hugging Face (เร็วกว่านอกจีนแผ่นดินใหญ่)</string>
     <string name="model_download_channel_name">ดาวน์โหลดโมเดล</string>
     <string name="model_download_channel_description">แสดงความคืบหน้าการดาวน์โหลดโมเดล AI บนอุปกรณ์</string>
     <string name="model_download_notification_title">กำลังดาวน์โหลดโมเดล AI…</string>

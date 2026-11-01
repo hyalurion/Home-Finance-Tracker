@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
+import com.chronie.homemoney.core.common.rememberCurrencyNumberFormat
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
@@ -56,7 +57,7 @@ fun WeekdayDetailScreen(
     viewModel: WeekdayDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val currencyFormat = remember { NumberFormat.getCurrencyInstance(java.util.Locale.getDefault()) }
+    val currencyFormat = rememberCurrencyNumberFormat(context)
     
     Scaffold(
         topBar = {

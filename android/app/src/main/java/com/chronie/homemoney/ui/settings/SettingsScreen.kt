@@ -83,6 +83,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import coil3.compose.AsyncImage
 import com.chronie.homemoney.R
+import com.chronie.homemoney.core.common.rememberCurrencySymbol
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ColorPickerBottomSheet
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
@@ -118,6 +119,7 @@ import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
 import top.yukonga.miuix.kmp.preference.ArrowPreference
+import top.yukonga.miuix.kmp.preference.WindowDropdownPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowDialog
 import java.time.LocalDate
@@ -1070,9 +1072,15 @@ fun AppearanceSettingsPage(
     paddingValues: PaddingValues
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
+    val selectedCurrency by viewModel.selectedCurrency.collectAsState()
     val useDynamicColor by viewModel.useDynamicColor.collectAsState()
     var showLanguageBottomSheet by remember { mutableStateOf(false) }
     var showColorPicker by remember { mutableStateOf(false) }
+
+    // Index 0 = follow language; the rest map to CurrencyOption.entries.
+    val currencyItems = listOf(context.getString(R.string.currency_follow_language)) +
+            com.chronie.homemoney.core.common.CurrencyManager.CurrencyOption.entries
+                .map { it.label }
     val themeSettings = LocalThemeSettings.current
 
     val listState = rememberLazyListState()
@@ -1097,6 +1105,20 @@ fun AppearanceSettingsPage(
                 summary = currentLanguage.localName,
                 onClick = {
                     showLanguageBottomSheet = true
+                }
+            )
+
+            WindowDropdownPreference(
+                items = currencyItems,
+                selectedIndex = (selectedCurrency?.ordinal ?: -1) + 1,
+                title = context.getString(R.string.settings_currency),
+                maxHeight = 480.dp,
+                onSelectedIndexChange = { index ->
+                    viewModel.setCurrency(
+                        if (index == 0) null
+                        else com.chronie.homemoney.core.common.CurrencyManager
+                            .CurrencyOption.entries[index - 1]
+                    )
                 }
             )
         }
@@ -1390,6 +1412,15 @@ fun AISettingsSection(
     context: Context
 ) {
     val modelState by viewModel.aiModelState.collectAsState()
+    val sourcePref by viewModel.aiModelSourcePreference.collectAsState()
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+
+    // Dropdown options, ordered to match SourcePreference.entries.
+    val sourceItems = listOf(
+        context.getString(R.string.settings_ai_model_source_auto),
+        context.getString(R.string.settings_ai_model_source_modelscope),
+        context.getString(R.string.settings_ai_model_source_huggingface)
+    )
 
     Column {
         Text(
@@ -1406,7 +1437,7 @@ fun AISettingsSection(
                         R.string.settings_ai_model_status_ready,
                         formatGigabytes(state.totalBytes)
                     ),
-                    onClick = { viewModel.deleteAiModel() }
+                    onClick = { showDeleteConfirmDialog = true }
                 )
                 Text(
                     text = context.getString(R.string.settings_ai_model_delete_hint),
@@ -1444,6 +1475,17 @@ fun AISettingsSection(
                     ),
                     onClick = { viewModel.downloadAiModel() }
                 )
+                WindowDropdownPreference(
+                    items = sourceItems,
+                    selectedIndex = sourcePref.ordinal,
+                    title = context.getString(R.string.settings_ai_model_source),
+                    onSelectedIndexChange = { index ->
+                        viewModel.setAiModelSourcePreference(
+                            com.chronie.homemoney.data.vlm.OnDeviceModelManager
+                                .SourcePreference.entries[index]
+                        )
+                    }
+                )
             }
 
             else -> {
@@ -1452,6 +1494,17 @@ fun AISettingsSection(
                     title = context.getString(R.string.settings_ai_model),
                     summary = context.getString(R.string.settings_ai_model_status_not_downloaded),
                     onClick = { viewModel.downloadAiModel() }
+                )
+                WindowDropdownPreference(
+                    items = sourceItems,
+                    selectedIndex = sourcePref.ordinal,
+                    title = context.getString(R.string.settings_ai_model_source),
+                    onSelectedIndexChange = { index ->
+                        viewModel.setAiModelSourcePreference(
+                            com.chronie.homemoney.data.vlm.OnDeviceModelManager
+                                .SourcePreference.entries[index]
+                        )
+                    }
                 )
                 Text(
                     text = context.getString(R.string.settings_ai_model_description),
@@ -1462,6 +1515,42 @@ fun AISettingsSection(
             }
         }
     }
+
+    // Delete confirmation — model files are gigabytes, so deletion is
+    // gated behind an explicit confirm instead of a single tap.
+    WindowDialog(
+        show = showDeleteConfirmDialog,
+        title = context.getString(R.string.settings_ai_model_delete_confirm_title),
+        summary = context.getString(R.string.settings_ai_model_delete_confirm_message),
+        onDismissRequest = { showDeleteConfirmDialog = false }
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularIconButton(onClick = { showDeleteConfirmDialog = false }) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = context.getString(R.string.cancel),
+                    tint = MiuixTheme.colorScheme.onBackground
+                )
+            }
+            CircularIconButton(
+                onClick = {
+                    showDeleteConfirmDialog = false
+                    viewModel.deleteAiModel()
+                }
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = context.getString(R.string.confirm),
+                    tint = MiuixTheme.colorScheme.error
+                )
+            }
+        }
+    }
+
 }
 
 /** Formats a byte count as a compact GB figure for settings summaries. */
@@ -1476,6 +1565,7 @@ fun BudgetSettingsSection(
 ) {
     val uiState by budgetViewModel.uiState.collectAsState()
     var showBudgetDialog by remember { mutableStateOf(false) }
+    val currencySymbol = rememberCurrencySymbol(context)
 
     Column {
         Text(
@@ -1487,7 +1577,7 @@ fun BudgetSettingsSection(
         ArrowPreference(
             title = context.getString(R.string.budget_monthly_limit),
             summary = if (uiState.budget?.isEnabled == true) {
-                "${context.getString(R.string.budget_enable_feature)}: " + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), uiState.budget?.monthlyLimit ?: 0.0)
+                "${context.getString(R.string.budget_enable_feature)}: " + context.getString(R.string.currency_format, currencySymbol, uiState.budget?.monthlyLimit ?: 0.0)
             } else {
                 context.getString(R.string.budget_enable_title)
             },
