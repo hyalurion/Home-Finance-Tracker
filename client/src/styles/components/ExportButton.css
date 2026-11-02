@@ -1,8 +1,0 @@
-/* Styles for components/ExportButton.vue
- * Consumed by <style scoped src="...">, so Vue still applies scope
- * attributes, :deep() handling and @keyframes renaming.
- */
-.export-section {
-  display: flex;
-  justify-content: center;
-}
