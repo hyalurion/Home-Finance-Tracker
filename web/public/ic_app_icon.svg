@@ -1,0 +1,99 @@
+<svg width="150" height="150" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- 定义渐变和阴影 -->
+    <defs>
+        <!-- 高级感渐变色系 -->
+        <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#2c3e50" />
+            <stop offset="30%" stop-color="#34495e" />
+            <stop offset="100%" stop-color="#2c3e50" />
+        </linearGradient>
+        
+        <linearGradient id="spineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#1a2530" />
+            <stop offset="50%" stop-color="#2c3e50" />
+            <stop offset="100%" stop-color="#1a2530" />
+        </linearGradient>
+        
+        <linearGradient id="pageGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f8f9fa" />
+            <stop offset="50%" stop-color="#ffffff" />
+            <stop offset="100%" stop-color="#f8f9fa" />
+        </linearGradient>
+        
+        <!-- 金色渐变 -->
+        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f7ef8a" />
+            <stop offset="50%" stop-color="#d4af37" />
+            <stop offset="100%" stop-color="#b8941f" />
+        </linearGradient>
+        
+        <!-- 柔和阴影 -->
+        <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="2" dy="3" stdDeviation="2.5" flood-color="rgba(0,0,0,0.4)" flood-opacity="0.3"/>
+        </filter>
+        
+        <!-- 内阴影 -->
+        <filter id="subtleInnerShadow">
+            <feDropShadow dx="1" dy="1" stdDeviation="0.8" flood-color="rgba(0,0,0,0.15)"/>
+        </filter>
+        
+        <!-- 光泽效果 -->
+        <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.2)" />
+            <stop offset="50%" stop-color="rgba(255,255,255,0.05)" />
+            <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+        </linearGradient>
+    </defs>
+    
+    <!-- 书籍阴影 - 更柔和 -->
+    <rect x="16" y="16" width="78" height="78" rx="6" ry="6" fill="rgba(0,0,0,0.15)" filter="url(#softShadow)"/>
+    
+    <!-- 书籍主体 - 深色系提升质感 -->
+    <rect x="10" y="10" width="80" height="80" rx="6" ry="6" fill="url(#bookGradient)" stroke="#1a2530" stroke-width="1"/>
+    
+    <!-- 光泽效果 -->
+    <rect x="10" y="10" width="80" height="80" rx="6" ry="6" fill="url(#shine)" stroke="none"/>
+    
+    <!-- 书脊 - 更深的对比色 -->
+    <rect x="10" y="10" width="18" height="80" fill="url(#spineGradient)"/>
+    
+    <!-- 书脊装饰线条 - 精简为2条 -->
+    <line x1="14" y1="20" x2="14" y2="80" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+    <line x1="22" y1="20" x2="22" y2="80" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+    
+    <!-- 书页区域 - 更干净的白色 -->
+    <rect x="28" y="15" width="57" height="70" fill="url(#pageGradient)" stroke="#e8e8e8" stroke-width="0.5" filter="url(#subtleInnerShadow)"/>
+    
+    <!-- 页面线条 - 更简洁，5条线 -->
+    <line x1="33" y1="28" x2="78" y2="28" stroke="#eaeaea" stroke-width="0.7"/>
+    <line x1="33" y1="38" x2="78" y2="38" stroke="#eaeaea" stroke-width="0.7"/>
+    <line x1="33" y1="48" x2="78" y2="48" stroke="#eaeaea" stroke-width="0.7"/>
+    <line x1="33" y1="58" x2="78" y2="58" stroke="#eaeaea" stroke-width="0.7"/>
+    <line x1="33" y1="68" x2="78" y2="68" stroke="#eaeaea" stroke-width="0.7"/>
+    
+    <!-- 金色美元符号徽章 -->
+    <g transform="translate(72, 72)">
+        <!-- 外圈 -->
+        <circle cx="0" cy="0" r="14" fill="none" stroke="url(#goldGradient)" stroke-width="2"/>
+        
+        <!-- 内圈 -->
+        <circle cx="0" cy="0" r="11" fill="rgba(212, 175, 55, 0.1)" stroke="url(#goldGradient)" stroke-width="1"/>
+        
+        <!-- 美元符号 - 更优雅的字体效果 -->
+        <text x="0" y="4" font-family="Georgia, serif" font-size="16" font-weight="bold" text-anchor="middle" fill="url(#goldGradient)">$</text>
+        
+        <!-- 徽章高光 -->
+        <circle cx="-3" cy="-3" r="4" fill="rgba(255,255,255,0.3)" stroke="none"/>
+    </g>
+    
+    <!-- 精致装饰元素 -->
+    <!-- 书角装饰 -->
+    <circle cx="16" cy="16" r="1.5" fill="rgba(212, 175, 55, 0.6)"/>
+    <circle cx="84" cy="16" r="1.5" fill="rgba(212, 175, 55, 0.6)"/>
+    <circle cx="16" cy="84" r="1.5" fill="rgba(212, 175, 55, 0.6)"/>
+    <circle cx="84" cy="84" r="1.5" fill="rgba(212, 175, 55, 0.6)"/>
+    
+    <!-- 页面装饰线 -->
+    <path d="M33,22 Q40,20 47,22" stroke="rgba(212, 175, 55, 0.4)" stroke-width="0.8" fill="none"/>
+    <path d="M33,76 Q40,78 47,76" stroke="rgba(212, 175, 55, 0.4)" stroke-width="0.8" fill="none"/>
+</svg>

@@ -16,8 +16,12 @@ func SetupExpenseRoutes(router *gin.Engine, expenseRepo *repository.ExpenseRepos
 		// Expense record route group
 		expenses := api.Group("/expenses")
 		{
-			// Get expense record list (supports pagination, filtering, sorting)
-			expenses.GET("/", expenseHandler.GetExpenses)
+		// Get expense record list (supports pagination, filtering, sorting)
+		// Register both the trailing-slash ("/") and no-slash ("") variants so
+		// the client can call /api/expenses without a 301/307 redirect loop
+		// when proxied behind Next.js (which strips trailing slashes by default).
+		expenses.GET("", expenseHandler.GetExpenses)
+		expenses.GET("/", expenseHandler.GetExpenses)
 
 			// Get expense records grouped by date
 			expenses.GET("/by-date", expenseHandler.GetExpensesByDate)
@@ -44,8 +48,10 @@ func SetupExpenseRoutes(router *gin.Engine, expenseRepo *repository.ExpenseRepos
 			// Batch permanently delete selected soft-deleted expenses
 			expenses.DELETE("/deleted/batch", expenseHandler.PermanentDeleteExpensesBatch)
 
-			// Create new expense record
-			expenses.POST("/", expenseHandler.CreateExpense)
+		// Create new expense record
+		// Same trailing-slash handling as above.
+		expenses.POST("", expenseHandler.CreateExpense)
+		expenses.POST("/", expenseHandler.CreateExpense)
 
 			// Sync expense records
 			expenses.POST("/sync", expenseHandler.SyncExpenses)

@@ -2,6 +2,6 @@ files:
   - source: /android/app/src/main/res/values/strings.xml
     translation: /android/app/src/main/res/values-%android_code%/strings.xml
     type: android
-  - source: client/src/locales/en-US.json
-    translation: /client/src/locales/%locale%.json
+  - source: /web/src/i18n/locales/en-US.json
+    translation: /web/src/i18n/locales/%locale%.json
     multilingual: json

@@ -39,25 +39,26 @@ go build -o server.exe cmd/server/main.go
 ./server.exe
 ```
 
-The Go server automatically serves the frontend static files from `client/dist` when available, and uses `database.sqlite` in the project root directory.
+The Go server automatically serves the exported web frontend from `web/out` when available, and uses `database.sqlite` in the project root directory.
 
 ## Project Structure
-- `client/`: Vue.js frontend application
+- `web/`: Next.js 16 frontend application (App Router, React 19, TypeScript)
   - `public/`: Static assets
-  - `src/`: Source code
-    - `api/`: API service calls
-    - `components/`: Reusable UI components (Glass design system)
-    - `composables/`: Vue composition API utilities
-    - `views/`: Application views/pages
-    - `router/`: Vue Router configuration
-    - `stores/`: Pinia state management
-    - `utils/`: Utility functions
-    - `assets/`: Static assets
-    - `styles/`: CSS stylesheets
-    - `locales/`: Internationalization files (en-US, zh-CN, zh-TW)
-  - `vite.config.js`: Vite build configuration with PWA support
-  - `data/`: Database files
-- `server-go/`: Go/Gin backend server (alternative implementation)
+  - `src/app/`: App Router pages and layouts
+    - `layout.tsx`: Root layout, providers, shared header
+    - `page.tsx`: Home page (expense list, budget, AI tools)
+    - `charts/`, `membership/`, `recycle-bin/`: Feature routes
+    - `globals.css`: Monochrome design system (tokens, components, responsive)
+  - `src/components/`: Reusable UI components
+    - `expense/`: Expense list, search, stats, table, forms, AI dialogs
+    - `ui/`: Dialog, Select, Toast, ConfirmDialog
+    - `avatar/`: Avatar cropper
+    - `charts/`: Chart.js based visualisation
+  - `src/i18n/`: Internationalization provider + locale files (12 languages)
+  - `src/lib/`: API clients, formatters, URL state helpers
+  - `next.config.mjs`: Build config (static export + dev API proxy)
+  - `out/`: Static export consumed by the Go server
+- `server-go/`: Go/Gin backend server
   - `cmd/server/`: Application entry point
   - `internal/`: Core application code
     - `handler/`: HTTP request handlers
@@ -79,18 +80,12 @@ The Go server automatically serves the frontend static files from `client/dist` 
 - `start.bat` / `start-dev.bat`: Windows startup scripts
 
 ## Available Scripts
-### Root Directory
-- `npm run dev`: Start backend server
-- `npm run dev:client`: Start frontend in development mode (port 5173)
-- `npm run dev:server`: Start backend with nodemon for development (port 3010)
-- `npm run build`: Build the frontend for production
-- `npm run start`: Start backend in production mode
-
-### Client Directory
-- `npm run dev`: Start Vite development server (http://localhost:5173)
-- `npm run build`: Build the frontend for production
-- `npm run lint`: Run ESLint on the client codebase
-
+### Web Directory (`web/`)
+- `npm run dev`: Start the Next.js dev server (http://localhost:3000) — proxies `/api` to the Go backend on :3010
+- `npm run build`: Build the Next.js app as a standalone server
+- `npm run build:static`: Static export into `web/out/` — this is what the Go server serves
+- `npm run start`: Start the built Next.js server
+- `npm run lint`: Run ESLint on the web codebase
 
 ### Server-Go Directory
 - `go run cmd/server/main.go`: Start Go server in development mode (port 3010)
@@ -98,21 +93,28 @@ The Go server automatically serves the frontend static files from `client/dist` 
 - `go mod download`: Download Go module dependencies
 - `go mod tidy`: Clean up Go module dependencies
 
+### Building the frontend for the backend
+```bash
+cd web
+npm ci
+npm run build:static   # exports to web/out/
+cd ../server-go
+go build -o server.exe ./cmd/server
+./server.exe           # serves the API and web/out on :3010
+```
+`WEB_DIST` can be set to serve the frontend from a different directory.
+
 ## Tech Stack
-- **Frontend**:
-  - Vue 3.5 (JavaScript framework)
-  - Vite 8 (build tool)
-  - Vue Router 5 (client-side routing)
-  - Pinia 3 (state management)
-  - Vue I18n 11 (internationalization)
-  - Chart.js 4 (data visualization)
-  - Font Awesome 7 (icons)
-  - Day.js (date handling)
-  - Papa Parse (CSV parsing)
-  - XLSX (Excel export/import)
-  - Marked + Highlight.js (Markdown rendering)
-  - Lunar JavaScript (Chinese lunar calendar)
-  - vite-plugin-pwa (PWA support)
+- **Frontend** (`web/`):
+  - Next.js 16 (App Router, React 19, TypeScript)
+  - Turbopack (build tool) + static export for the Go server
+  - React 19 (UI runtime)
+  - Custom lightweight i18n provider (12 languages)
+  - Chart.js 4 + react-chartjs-2 (data visualization)
+  - Marked (Markdown rendering)
+  - Intl.DateTimeFormat (locale-aware date formatting)
+  - Native fetch (no HTTP client dependency)
+  - Monochrome design system driven by CSS custom properties
 - **Backend**:
   - Go 1.26
   - Gin (web framework)
@@ -129,9 +131,8 @@ The Go server automatically serves the frontend static files from `client/dist` 
   - C++23 via NDK — [native sync engine](android/app/src/main/cpp/README.md)
 - **Dev Tools**:
   - ESLint (code quality)
-  - Jest (testing)
-  - nodemon (development auto-reload)
-  - unplugin-auto-import / unplugin-vue-components (auto import)
+  - cross-env (cross-platform environment variables for npm scripts)
+  - cloc (code statistics in CI)
 
 ## API Documentation
 The application provides a comprehensive API documentation endpoint that returns all available endpoints with descriptions in both English and Chinese.

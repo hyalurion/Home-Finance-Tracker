@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -70,15 +70,14 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time, db *sql.DB) {
 			dbError = err.Error()
 		}
 
-		// Check file system paths
-		clientDistPath := "client/dist"
-
-		// Check if file/directory exists
-		clientDistExists := true
-
-		// Use Go os package to check path
-		if _, err := os.Stat(clientDistPath); os.IsNotExist(err) {
-			clientDistExists = false
+		// Check file system paths — the exported web frontend directory.
+		// The JSON field names are kept for API compatibility.
+		clientDistPath := ResolveStaticDir()
+		clientDistExists := clientDistPath != ""
+		if clientDistExists {
+			clientDistPath = filepath.ToSlash(clientDistPath)
+		} else {
+			clientDistPath = "web/out"
 		}
 
 		// Build CPU info - use gopsutil data

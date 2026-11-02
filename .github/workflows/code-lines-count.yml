@@ -17,7 +17,7 @@ jobs:
         run: sudo apt-get install -y cloc
       - name: Count lines in android
         run: cloc android
-      - name: Count lines in client/src
-        run: cloc client/src
+      - name: Count lines in web/src
+        run: cloc web/src
       - name: Count lines in server-go
         run: cloc server-go

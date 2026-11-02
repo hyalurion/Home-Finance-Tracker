@@ -1,9 +1,7 @@
-/client/node_modules/
 /server/node_modules/
 /node_modules/
 *.log
 .DS_Store
-/client/dist/
 /server/exports/
 startup_logs/
 .trae/
@@ -25,4 +23,6 @@ android.artifacts/*
 android/.mnn-build/*
 client-desktop/.gradle/*
 client-desktop/build/*
-server-go/client/dist/*
+web/node_modules/
+web/.next/
+web/out/

@@ -1,0 +1,312 @@
+{
+  "app": {
+    "title": "家庭记账本",
+    "export": "导出数据",
+    "notFound": "页面不存在",
+    "pageNotFound": "您访问的页面不存在",
+    "backToHome": "返回首页",
+    "browserUnsupported": "浏览器不兼容",
+    "browserUnsupportedMessage": "本应用需要现代浏览器。您当前的浏览器版本过旧，无法正常显示应用。",
+    "upgradeBrowser": "升级您的浏览器",
+    "firstPage": "首页",
+    "previousPage": "上一页",
+    "page": "第 {page} 页",
+    "nextPage": "下一页",
+    "lastPage": "末页",
+    "loading": "加载中..."
+  },
+  "home": {
+    "noDataForExport": "暂无数据可导出"
+  },
+  "expense": {
+    "noRecords": "暂无支出记录",
+    "record": "支出记录",
+    "unknownError": "发生未知错误",
+    "selectType": "选择分类",
+    "inputAmount": "输入金额",
+    "selectDate": "选择日期",
+    "enterRemark": "添加备注（可选）",
+    "confirm": "确认",
+    "serverError": "服务器错误",
+    "type": "分类",
+    "amount": "金额",
+    "date": "日期",
+    "remark": "备注",
+    "addSuccess": "成功添加{count}条记录",
+    "aiAddRecord": "AI智能记录",
+    "aiReport": "AI消费问答",
+    "edit": "编辑支出",
+    "updateFailed": "更新支出失败，请稍后重试",
+    "updateSuccess": "更新支出成功",
+    "deleteConfirm": "删除支出",
+    "deleteMessage": "确认删除此支出吗？",
+    "deleteSuccess": "删除支出成功",
+    "deleteFailed": "删除支出失败，请稍后重试",
+    "dailyExpense": "每日支出",
+    "addDialogTitle": "添加记录",
+    "addRecord": "添加记录",
+    "amountRequired": "请输入金额",
+    "empty": {
+      "title": "暂无支出",
+      "description": "添加新记录或调整筛选条件",
+      "reset": "重置筛选"
+    },
+    "search": {
+      "title": "搜索支出",
+      "minAmountPlaceholder": "最小金额",
+      "maxAmountPlaceholder": "最大金额",
+      "keywordPlaceholder": "搜索备注...",
+      "month": "月份",
+      "allMonth": "所有",
+      "type": "分类",
+      "allType": "全部分类",
+      "sort": "排序方式",
+      "amountRange": "金额范围",
+      "keyword": "搜索",
+      "reset": "重置",
+      "year": "年份",
+      "allYear": "全部年份"
+    },
+    "noDataTitle": "无结果",
+    "noDataMessage": "请调整筛选条件或添加新记录",
+    "sort": {
+      "dateAsc": "日期（早）",
+      "dateDesc": "日期（晚）",
+      "amountAsc": "金额（低）",
+      "amountDesc": "金额（高）"
+    },
+    "stats": {
+      "rowCount": "总记录数",
+      "totalAmount": "总金额",
+      "averageAmount": "平均值",
+      "medianAmount": "中位数",
+      "amountRange": "金额范围"
+    },
+    "largeExpense": {
+      "warning": "检测到大额支出，请确认是否准确",
+      "confirm": "确认"
+    },
+    "common": {
+      "requestCanceled": "请求已取消",
+      "networkError": "网络错误，请检查网络连接"
+    },
+    "columns": {
+      "time": "日期",
+      "name": "分类"
+    }
+  },
+  "common": {
+    "action": "操作",
+    "cancel": "取消",
+    "confirm": "好",
+    "submit": "提交",
+    "loadFailed": "数据加载失败，请稍后重试",
+    "edit": "编辑",
+    "delete": "删除",
+    "trash": "回收站",
+    "to": "至",
+    "currency": "CNY",
+    "currencySymbol": "¥",
+    "sunday": "周日",
+    "monday": "周一",
+    "tuesday": "周二",
+    "wednesday": "周三",
+    "thursday": "周四",
+    "friday": "周五",
+    "saturday": "周六",
+    "date": "日期",
+    "date_today": "今天",
+    "date_yesterday": "昨天",
+    "date_days_ago": "{days}天前",
+    "retry": "重试"
+  },
+  "spending": {
+    "monthlyProgress": "月度支出进度",
+    "exceeded": "超出预算",
+    "dailyAverage": "日均支出",
+    "recommendedDaily": "建议日均",
+    "settings": {
+      "title": "预算设置",
+      "on": "启用预算",
+      "enabled": "已启用",
+      "disabled": "已停用",
+      "monthlyLimit": "月度预算",
+      "enterLimit": "输入月度预算",
+      "warningThreshold": "预警阈值",
+      "enterThreshold": "输入预警阈值",
+      "disabledNotice": "启用预算功能来追踪月度支出",
+      "pleaseSetLimit": "请设置您的月度预算"
+    },
+    "status": {
+      "disabled": "预算未启用",
+      "normal": "预算正常",
+      "nearLimit": "接近预算",
+      "overLimit": "超出预算"
+    },
+    "alert": {
+      "normal": {
+        "title": "预算正常",
+        "description": "剩余预算：{remaining}（已使用{percentage}%）"
+      },
+      "nearLimit": {
+        "title": "接近预算",
+        "description": "剩余预算：{remaining}（已使用{percentage}%）。请注意控制支出"
+      },
+      "overLimit": {
+        "title": "超出预算",
+        "description": "已超出预算{amount}，请检查您的支出"
+      }
+    },
+    "enablePrompt": {
+      "title": "启用预算追踪",
+      "description": "设置月度预算来追踪支出，并在接近预算时收到提醒",
+      "button": "启用预算",
+      "enabled": "预算功能已启用"
+    },
+    "remainingQuota": "可用额度",
+    "usedPercentage": "已用比例"
+  },
+  "function": {
+    "primary": "主要功能",
+    "aiFeatures": "AI功能"
+  },
+  "ai": {
+    "report": {
+      "title": "AI消费问答",
+      "filterTitle": "数据筛选",
+      "statsPreview": "数据统计预览",
+      "totalCount": "总记录数",
+      "totalAmount": "总金额",
+      "averageAmount": "平均值",
+      "medianAmount": "中位数",
+      "minAmount": "最小金额",
+      "maxAmount": "最大金额",
+      "loading": "加载中...",
+      "downloadButton": "① 下载数据表格",
+      "downloading": "下载中...",
+      "generateButton": "② 生成提示词",
+      "defaultFileName": "expenses.xlsx",
+      "hint1": "点「下载数据表格」，把 {file} 存到本机。",
+      "hint2": "点「生成提示词」，把提示词复制到任意 AI 聊天应用或网页。",
+      "hint3": "在 AI 应用里上传刚才的 xlsx 作为附件，直接在对话里输入你自己的问题（比如「我本月主要花在哪」）再发送。",
+      "hint4": "想在 AI 应用里继续追问就直接问，不用回到本页；完成后把 AI 的回答复制回来粘贴到下方，点「粘贴回答」即可渲染。",
+      "promptHint": "已按当前筛选条件生成提示词，数据文件为 {file}。在 AI 应用里上传该文件，直接输入你的问题再发送即可。",
+      "promptLabel": "提示词（可复制）",
+      "copyButton": "复制提示词",
+      "replyLabel": "AI 回答（粘贴回来）",
+      "replyPlaceholder": "把 AI 返回的回答粘贴到这里",
+      "clearButton": "清空",
+      "pasteButton": "粘贴回答",
+      "emptyContent": "完成上面的步骤后，这里会显示 AI 生成的消费分析",
+      "types": "消费类型（可多选）",
+      "recordsCount": "{count} 条记录",
+      "currentMonth": "本月",
+      "lastMonth": "上月",
+      "thisYear": "本年",
+      "clearFilters": "清空筛选"
+    },
+    "smartRecord": {
+      "title": "AI智能记录",
+      "step1": "点击「复制提示词」，再打开任意 AI 聊天应用或网页，把提示词粘贴进去。",
+      "step2": "在 AI 应用里直接输入消费描述，需要的话再附上一张收据、小票或账单截图。",
+      "step3": "让 AI 只输出 JSON，然后完整复制回来粘贴到下面的输入框。",
+      "promptLabel": "提示词（已为你写好，直接复制）",
+      "copyButton": "复制提示词",
+      "replyLabel": "AI 返回内容（粘贴回来）",
+      "replyPlaceholder": "把 AI 返回的 JSON 粘贴到这里，例如：[\\{\"type\":\"食品\",\"amount\":56.8,\"date\":\"2026-10-02\",\"remark\":\"苹果、牛奶\"\\}]",
+      "parsing": "解析中...",
+      "submit": "解析并提交"
+    }
+  },
+  "avatar": {
+    "cropTitle": "裁剪头像",
+    "cancel": "取消",
+    "confirm": "确认",
+    "placeholder": "点击上传头像",
+    "error": {
+      "sizeLimit": "头像大小不能超过{maxSize}MB",
+      "invalidType": "请选择有效的图片文件",
+      "uploadFailed": "头像上传失败，请稍后重试"
+    },
+    "zoom": "缩放"
+  },
+  "membership": {
+    "title": "用户管理",
+    "username": "用户名",
+    "loginOrRegister": "登录/注册",
+    "logout": "退出登录",
+    "usernamePlaceholder": "请输入用户名",
+    "error": {
+      "requiredUsername": "请输入用户名",
+      "usernameFormat": "用户名只能包含大小写英文字母",
+      "usernameLength": "用户名长度应在1-20个字符之间",
+      "loginFailed": "登录失败，请稍后重试"
+    },
+    "success": {
+      "login": "登录成功",
+      "logout": "已登出",
+      "avatarUploaded": "头像上传成功"
+    }
+  },
+  "export": {
+    "allData": "导出数据",
+    "failed": "导出失败，请稍后重试"
+  },
+  "error": {
+    "dataInitializationFailed": "数据初始化失败，请稍后重试"
+  },
+  "chart": {
+    "title": "支出分析",
+    "bar": "柱状图",
+    "line": "折线图",
+    "doughnut": "环形图",
+    "radar": "雷达图",
+    "categoryAnalysis": "支出分类分析",
+    "categoryPercentage": "分类支出占比",
+    "trendAnalysis": "支出趋势",
+    "weekdayAnalysis": "每周支出分析"
+  },
+  "import": {
+    "title": "导入数据",
+    "success": "数据导入成功",
+    "failed": "数据导入失败",
+    "refreshNotice": "（3秒后自动刷新）"
+  },
+  "recycleBin": {
+    "title": "回收站",
+    "empty": "回收站为空",
+    "emptyHint": "删除的记录会在这里保留30天，之后会自动永久删除",
+    "deletedAt": "删除时间",
+    "expiresIn": "剩余 {days} 天自动永久删除",
+    "expiresHours": "约 {hours} 小时后自动永久删除",
+    "expiredToday": "今日将被自动永久删除",
+    "restore": "恢复",
+    "permanentDelete": "永久删除",
+    "restoreAll": "全部恢复",
+    "emptyBin": "清空回收站",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "cancelSelection": "取消选择",
+    "selectedCount": "已选 {count} 项",
+    "totalCount": "共 {count} 条",
+    "restoreSelected": "恢复所选",
+    "deleteSelected": "永久删除所选",
+    "permanentDeleteTitle": "确认永久删除？",
+    "permanentDeleteMessage": "此操作无法撤销。确认要永久删除这条记录吗？",
+    "restoreAllTitle": "恢复全部？",
+    "restoreAllMessage": "确认将回收站中的 {count} 条记录全部恢复吗？",
+    "deleteAllTitle": "清空回收站？",
+    "deleteAllMessage": "确认永久删除回收站中的 {count} 条记录吗？此操作无法撤销。",
+    "restoreSelectedTitle": "恢复所选？",
+    "restoreSelectedMessage": "确认恢复所选的 {count} 条记录吗？",
+    "deleteSelectedTitle": "永久删除所选？",
+    "deleteSelectedMessage": "确认永久删除所选的 {count} 条记录吗？此操作无法撤销。",
+    "restoreSuccess": "恢复成功",
+    "restoreAllSuccess": "已全部恢复",
+    "deleteSuccess": "已永久删除",
+    "deleteAllSuccess": "回收站已清空",
+    "operationFailed": "操作失败，请稍后重试",
+    "backToHome": "返回首页",
+    "loading": "加载中..."
+  }
+}

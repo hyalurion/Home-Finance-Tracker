@@ -1,0 +1,312 @@
+{
+  "app": {
+    "title": "Buku Kira-Kira Keluarga",
+    "export": "Eksport Data",
+    "notFound": "Halaman Tidak Ditemui",
+    "pageNotFound": "Halaman yang anda cari tidak wujud",
+    "backToHome": "Kembali ke Laman Utama",
+    "browserUnsupported": "Pelayar Tidak Disokong",
+    "browserUnsupportedMessage": "Home Finance Tracker memerlukan pelayar moden. Pelayar semasa anda sudah lama dan tidak dapat memaparkan aplikasi dengan betul.",
+    "upgradeBrowser": "Kemas Kini Pelayar Anda",
+    "firstPage": "Halaman Pertama",
+    "previousPage": "Halaman Sebelumnya",
+    "page": "Halaman {page}",
+    "nextPage": "Halaman Seterusnya",
+    "lastPage": "Halaman Terakhir",
+    "loading": "Memuatkan..."
+  },
+  "home": {
+    "noDataForExport": "Tiada data tersedia untuk dieksport"
+  },
+  "expense": {
+    "noRecords": "Tiada perbelanjaan ditemui",
+    "record": "Rekod Perbelanjaan",
+    "unknownError": "Berlaku ralat",
+    "selectType": "Pilih Kategori",
+    "inputAmount": "Masukkan Amaun",
+    "selectDate": "Pilih Tarikh",
+    "enterRemark": "Tambah nota (pilihan)",
+    "confirm": "Sahkan",
+    "serverError": "Ralat pelayan",
+    "type": "Kategori",
+    "amount": "Amaun",
+    "date": "Tarikh",
+    "remark": "Nota",
+    "addSuccess": "Berjaya menambah {count} perbelanjaan",
+    "aiAddRecord": "Rekod AI",
+    "aiReport": "Soal Jawab AI",
+    "edit": "Edit Perbelanjaan",
+    "updateFailed": "Gagal mengemas kini perbelanjaan, sila cuba lagi nanti",
+    "updateSuccess": "Perbelanjaan berjaya dikemas kini",
+    "deleteConfirm": "Padam Perbelanjaan",
+    "deleteMessage": "Adakah anda pasti mahu memadam perbelanjaan ini?",
+    "deleteSuccess": "Perbelanjaan berjaya dipadam",
+    "deleteFailed": "Gagal memadam perbelanjaan, sila cuba lagi nanti",
+    "dailyExpense": "Perbelanjaan Harian",
+    "addDialogTitle": "Tambah Perbelanjaan",
+    "addRecord": "Tambah Rekod Baru",
+    "amountRequired": "Amaun diperlukan",
+    "empty": {
+      "title": "Tiada Perbelanjaan",
+      "description": "Tambah perbelanjaan baru atau laraskan penapis anda",
+      "reset": "Set Semula Penapis"
+    },
+    "search": {
+      "title": "Cari Perbelanjaan",
+      "minAmountPlaceholder": "Amaun minimum",
+      "maxAmountPlaceholder": "Amaun maksimum",
+      "keywordPlaceholder": "Cari nota...",
+      "month": "Bulan",
+      "allMonth": "Semua Bulan",
+      "type": "Kategori",
+      "allType": "Semua Kategori",
+      "sort": "Isih Mengikut",
+      "amountRange": "Julat Amaun",
+      "keyword": "Cari",
+      "reset": "Set Semula",
+      "year": "Tahun",
+      "allYear": "Semua Tahun"
+    },
+    "noDataTitle": "Tiada Keputusan",
+    "noDataMessage": "Cuba laraskan penapis atau tambah perbelanjaan baru",
+    "sort": {
+      "dateAsc": "Tarikh ↑",
+      "dateDesc": "Tarikh ↓",
+      "amountAsc": "Amaun ↑",
+      "amountDesc": "Amaun ↓"
+    },
+    "stats": {
+      "rowCount": "Jumlah Rekod",
+      "totalAmount": "Jumlah Keseluruhan",
+      "averageAmount": "Purata",
+      "medianAmount": "Median",
+      "amountRange": "Julat Amaun"
+    },
+    "largeExpense": {
+      "warning": "Perbelanjaan besar dikesan. Sila sahkan bahawa ini betul.",
+      "confirm": "Saya Faham"
+    },
+    "common": {
+      "requestCanceled": "Permintaan dibatalkan",
+      "networkError": "Ralat rangkaian. Sila periksa sambungan anda"
+    },
+    "columns": {
+      "time": "Masa",
+      "name": "Kategori"
+    }
+  },
+  "common": {
+    "action": "Tindakan",
+    "cancel": "Batal",
+    "confirm": "OK",
+    "submit": "Hantar",
+    "loadFailed": "Gagal memuatkan data, sila cuba lagi nanti",
+    "edit": "Edit",
+    "delete": "Padam",
+    "trash": "Tong Sampah Kitar Semula",
+    "to": "hingga",
+    "currency": "RM",
+    "currencySymbol": "RM",
+    "sunday": "Ahad",
+    "monday": "Isnin",
+    "tuesday": "Selasa",
+    "wednesday": "Rabu",
+    "thursday": "Khamis",
+    "friday": "Jumaat",
+    "saturday": "Sabtu",
+    "date": "Tarikh",
+    "date_today": "Hari Ini",
+    "date_yesterday": "Semalam",
+    "date_days_ago": "{days} hari lalu",
+    "retry": "Cuba Lagi"
+  },
+  "spending": {
+    "monthlyProgress": "Progres Perbelanjaan Bulanan",
+    "exceeded": "Melebihi Bajet",
+    "dailyAverage": "Purata Harian",
+    "recommendedDaily": "Saranan Harian",
+    "settings": {
+      "title": "Tetapan Bajet",
+      "on": "Aktifkan Bajet",
+      "enabled": "Diaktifkan",
+      "disabled": "Dinyahaktifkan",
+      "monthlyLimit": "Bajet Bulanan",
+      "enterLimit": "Masukkan bajet bulanan",
+      "warningThreshold": "Ambang Amaran",
+      "enterThreshold": "Masukkan ambang amaran",
+      "disabledNotice": "Aktifkan bajet untuk menjejaki perbelanjaan bulanan anda",
+      "pleaseSetLimit": "Sila tetapkan bajet bulanan anda"
+    },
+    "status": {
+      "disabled": "Bajet dinyahaktifkan",
+      "normal": "Pada landasan",
+      "nearLimit": "Menghampiri bajet",
+      "overLimit": "Melebihi bajet"
+    },
+    "alert": {
+      "normal": {
+        "title": "Pada Landasan",
+        "description": "Baki: {remaining} ({percentage}% digunakan)"
+      },
+      "nearLimit": {
+        "title": "Menghampiri Bajet",
+        "description": "Baki: {remaining} ({percentage}% digunakan). Pertimbangkan untuk mengurangkan perbelanjaan."
+      },
+      "overLimit": {
+        "title": "Melebihi Bajet",
+        "description": "Melebihi bajet sebanyak {amount}. Sila semak perbelanjaan anda."
+      }
+    },
+    "enablePrompt": {
+      "title": "Jejaki Perbelanjaan Bulanan",
+      "description": "Tetapkan bajet bulanan untuk menjejaki perbelanjaan dan dapatkan amaran apabila hampir mencapai had.",
+      "button": "Aktifkan Bajet",
+      "enabled": "Bajet berjaya diaktifkan"
+    },
+    "remainingQuota": "Baki bajet",
+    "usedPercentage": "Digunakan"
+  },
+  "function": {
+    "primary": "Fungsi Utama",
+    "aiFeatures": "Fungsi AI"
+  },
+  "ai": {
+    "report": {
+      "title": "AI Perbelanjaan Tanya-Jawab",
+      "filterTitle": "Penapis Data",
+      "statsPreview": "Pratonton Statistik Data",
+      "totalCount": "Jumlah Rekod",
+      "totalAmount": "Jumlah Keseluruhan",
+      "averageAmount": "Purata",
+      "medianAmount": "Median",
+      "minAmount": "Amaun Minimum",
+      "maxAmount": "Amaun Maksimum",
+      "loading": "Memuatkan...",
+      "downloadButton": "① Muat turun lembar data",
+      "downloading": "Memuat turun...",
+      "generateButton": "② Jana prompt",
+      "defaultFileName": "expenses.xlsx",
+      "hint1": "Klik «Muat turun lembar data» untuk menyimpan {file} pada peranti ini.",
+      "hint2": "Klik «Jana prompt» dan salin prompt ke mana-mana aplikasi atau laman web AI.",
+      "hint3": "Di aplikasi AI, muat naik xlsx yang baru disimpan, lalu taip soalan anda sendiri dalam medan sembang (misal: «Di mana saya paling banyak berbelanja bulan ini?») dan hantar.",
+      "hint4": "Soalan lanjutan boleh terus di aplikasi AI, tidak perlu kembali ke halaman ini. Setelah selesai, salin balasan AI dan tampalkan di bawah, lalu klik «Tampal balasan» untuk memaparkannya.",
+      "promptHint": "Prompt dijana mengikut penapis semasa; fail datanya ialah {file}. Muat naik fail tersebut di aplikasi AI lalu taip soalan anda terus.",
+      "promptLabel": "Prompt (boleh disalin)",
+      "copyButton": "Salin prompt",
+      "replyLabel": "Balasan AI (tampal di sini)",
+      "replyPlaceholder": "Tampalkan balasan AI di sini",
+      "clearButton": "Kosongkan",
+      "pasteButton": "Tampal balasan",
+      "emptyContent": "Selepas langkah di atas selesai, analisis perbelanjaan AI akan dipaparkan di sini",
+      "types": "Kategori (boleh pilih berbilang)",
+      "recordsCount": "{count} rekod",
+      "currentMonth": "Bulan ini",
+      "lastMonth": "Bulan lalu",
+      "thisYear": "Tahun ini",
+      "clearFilters": "Kosongkan penapis"
+    },
+    "smartRecord": {
+      "title": "AI Rekod Pintar",
+      "step1": "Klik «Salin prompt», lalu buka mana-mana aplikasi atau laman web AI dan tampalkan prompt di sana.",
+      "step2": "Di aplikasi AI, taip terus penerangan perbelanjaan anda; jika perlu, lampirkan resit atau invois.",
+      "step3": "Suruh AI hanya mengeluarkan JSON, kemudian salin semula dan tampalkan ke medan di bawah.",
+      "promptLabel": "Prompt (sedia disalin)",
+      "copyButton": "Salin prompt",
+      "replyLabel": "Balasan AI (tampal di sini)",
+      "replyPlaceholder": "Tampalkan JSON yang dikembalikan AI di sini, contoh: [\\{\"type\":\"Makanan\",\"amount\":56.8,\"date\":\"2026-10-02\",\"remark\":\"Epal, susu\"\\}]",
+      "parsing": "Sedang menganalisis...",
+      "submit": "Analisis dan hantar"
+    }
+  },
+  "avatar": {
+    "cropTitle": "Potong Avatar",
+    "cancel": "Batal",
+    "confirm": "Sahkan",
+    "placeholder": "Klik untuk muat naik avatar",
+    "error": {
+      "sizeLimit": "Saiz avatar tidak boleh melebihi {maxSize}MB",
+      "invalidType": "Sila pilih fail imej yang sah",
+      "uploadFailed": "Muat naik avatar gagal, sila cuba lagi nanti"
+    },
+    "zoom": "Zum"
+  },
+  "membership": {
+    "title": "Pengurusan Pengguna",
+    "username": "Nama Pengguna",
+    "loginOrRegister": "Log Masuk / Daftar",
+    "logout": "Log Keluar",
+    "usernamePlaceholder": "Masukkan nama pengguna anda",
+    "error": {
+      "requiredUsername": "Sila masukkan nama pengguna",
+      "usernameFormat": "Nama pengguna hanya boleh mengandungi huruf besar dan kecil",
+      "usernameLength": "Panjang nama pengguna hendaklah antara 1-20 aksara",
+      "loginFailed": "Log masuk gagal, sila cuba lagi nanti"
+    },
+    "success": {
+      "login": "Log masuk berjaya",
+      "logout": "Telah log keluar",
+      "avatarUploaded": "Avatar berjaya dimuat naik"
+    }
+  },
+  "export": {
+    "allData": "Eksport Data",
+    "failed": "Eksport gagal, sila cuba lagi nanti"
+  },
+  "error": {
+    "dataInitializationFailed": "Gagal memulakan data, sila cuba lagi"
+  },
+  "chart": {
+    "title": "Analisis Perbelanjaan",
+    "bar": "Carta Bar",
+    "line": "Carta Garisan",
+    "doughnut": "Carta Donat",
+    "radar": "Carta Radar",
+    "categoryAnalysis": "Perbelanjaan mengikut Kategori",
+    "categoryPercentage": "Pecahan Kategori",
+    "trendAnalysis": "Aliran Perbelanjaan",
+    "weekdayAnalysis": "Perbelanjaan mengikut Hari"
+  },
+  "import": {
+    "title": "Import Data",
+    "success": "Data berjaya diimport",
+    "failed": "Gagal mengimport data",
+    "refreshNotice": "(Segaran semula automatik dalam 3 saat)"
+  },
+  "recycleBin": {
+    "title": "Tong Sampah Kitar Semula",
+    "empty": "Tong sampah kitar semula kosong",
+    "emptyHint": "Rekod yang dipadam akan disimpan di sini selama 30 hari, selepas itu ia akan dipadam secara kekal secara automatik",
+    "deletedAt": "Masa Dipadam",
+    "expiresIn": "Akan dipadam secara kekal secara automatik dalam {days} hari lagi",
+    "expiresHours": "Akan dipadam secara kekal secara automatik dalam lebih kurang {hours} jam lagi",
+    "expiredToday": "Akan dipadam secara kekal secara automatik hari ini",
+    "restore": "Pulihkan",
+    "permanentDelete": "Padam Secara Kekal",
+    "restoreAll": "Pulihkan Semua",
+    "emptyBin": "Kosongkan Tong Sampah",
+    "selectAll": "Pilih Semua",
+    "deselectAll": "Nyahpilih Semua",
+    "cancelSelection": "Batalkan Pilihan",
+    "selectedCount": "{count} dipilih",
+    "totalCount": "Jumlah {count} rekod",
+    "restoreSelected": "Pulihkan Yang Dipilih",
+    "deleteSelected": "Padam Secara Kekal Yang Dipilih",
+    "permanentDeleteTitle": "Sahkan padam secara kekal?",
+    "permanentDeleteMessage": "Tindakan ini tidak dapat dibatalkan. Adakah anda pasti mahu memadamkan rekod ini secara kekal?",
+    "restoreAllTitle": "Pulihkan semua?",
+    "restoreAllMessage": "Adakah anda pasti mahu memulihkan {count} rekod daripada tong sampah kitar semula?",
+    "deleteAllTitle": "Kosongkan tong sampah?",
+    "deleteAllMessage": "Adakah anda pasti mahu memadam secara kekal {count} rekod di dalam tong sampah? Tindakan ini tidak dapat dibatalkan.",
+    "restoreSelectedTitle": "Pulihkan yang dipilih?",
+    "restoreSelectedMessage": "Adakah anda pasti mahu memulihkan {count} rekod yang dipilih?",
+    "deleteSelectedTitle": "Padam secara kekal yang dipilih?",
+    "deleteSelectedMessage": "Adakah anda pasti mahu memadam secara kekal {count} rekod yang dipilih? Tindakan ini tidak dapat dibatalkan.",
+    "restoreSuccess": "Berjaya dipulihkan",
+    "restoreAllSuccess": "Semua berjaya dipulihkan",
+    "deleteSuccess": "Berjaya dipadam secara kekal",
+    "deleteAllSuccess": "Tong sampah telah dikosongkan",
+    "operationFailed": "Operasi gagal. Sila cuba lagi sebentar lagi.",
+    "backToHome": "Kembali ke Laman Utama",
+    "loading": "Memuatkan..."
+  }
+}

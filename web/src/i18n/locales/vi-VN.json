@@ -1,0 +1,312 @@
+{
+  "app": {
+    "title": "Sổ thu chi gia đình",
+    "export": "Xuất dữ liệu",
+    "notFound": "Không tìm thấy trang",
+    "pageNotFound": "Trang bạn đang tìm không tồn tại",
+    "backToHome": "Quay lại trang chủ",
+    "browserUnsupported": "Trình duyệt không được hỗ trợ",
+    "browserUnsupportedMessage": "Home Finance Tracker yêu cầu trình duyệt hiện đại. Trình duyệt hiện tại của bạn đã quá cũ và không thể hiển thị ứng dụng đúng cách.",
+    "upgradeBrowser": "Cập nhật trình duyệt",
+    "firstPage": "Trang đầu",
+    "previousPage": "Trang trước",
+    "page": "Trang {page}",
+    "nextPage": "Trang sau",
+    "lastPage": "Trang cuối",
+    "loading": "Đang tải..."
+  },
+  "home": {
+    "noDataForExport": "Không có dữ liệu để xuất"
+  },
+  "expense": {
+    "noRecords": "Không tìm thấy khoản chi nào",
+    "record": "Bản ghi chi tiêu",
+    "unknownError": "Đã xảy ra lỗi",
+    "selectType": "Chọn danh mục",
+    "inputAmount": "Nhập số tiền",
+    "selectDate": "Chọn ngày",
+    "enterRemark": "Thêm ghi chú (không bắt buộc)",
+    "confirm": "Xác nhận",
+    "serverError": "Lỗi máy chủ",
+    "type": "Danh mục",
+    "amount": "Số tiền",
+    "date": "Ngày",
+    "remark": "Ghi chú",
+    "addSuccess": "Đã thêm thành công {count} khoản chi",
+    "aiAddRecord": "Ghi chép AI",
+    "aiReport": "Hỏi đáp AI",
+    "edit": "Chỉnh sửa khoản chi",
+    "updateFailed": "Cập nhật khoản chi thất bại, vui lòng thử lại sau",
+    "updateSuccess": "Cập nhật khoản chi thành công",
+    "deleteConfirm": "Xóa khoản chi",
+    "deleteMessage": "Bạn có chắc chắn muốn xóa khoản chi này không?",
+    "deleteSuccess": "Xóa khoản chi thành công",
+    "deleteFailed": "Xóa khoản chi thất bại, vui lòng thử lại sau",
+    "dailyExpense": "Chi tiêu hàng ngày",
+    "addDialogTitle": "Thêm khoản chi",
+    "addRecord": "Thêm bản ghi mới",
+    "amountRequired": "Số tiền là bắt buộc",
+    "empty": {
+      "title": "Không có khoản chi",
+      "description": "Thêm khoản chi mới hoặc điều chỉnh bộ lọc",
+      "reset": "Đặt lại bộ lọc"
+    },
+    "search": {
+      "title": "Tìm kiếm khoản chi",
+      "minAmountPlaceholder": "Số tiền tối thiểu",
+      "maxAmountPlaceholder": "Số tiền tối đa",
+      "keywordPlaceholder": "Tìm kiếm ghi chú...",
+      "month": "Tháng",
+      "allMonth": "Tất cả các tháng",
+      "type": "Danh mục",
+      "allType": "Tất cả danh mục",
+      "sort": "Sắp xếp theo",
+      "amountRange": "Khoảng tiền",
+      "keyword": "Tìm kiếm",
+      "reset": "Đặt lại",
+      "year": "Năm",
+      "allYear": "Tất cả các năm"
+    },
+    "noDataTitle": "Không có kết quả",
+    "noDataMessage": "Hãy thử điều chỉnh bộ lọc hoặc thêm khoản chi mới",
+    "sort": {
+      "dateAsc": "Ngày ↑",
+      "dateDesc": "Ngày ↓",
+      "amountAsc": "Số tiền ↑",
+      "amountDesc": "Số tiền ↓"
+    },
+    "stats": {
+      "rowCount": "Tổng số bản ghi",
+      "totalAmount": "Tổng số tiền",
+      "averageAmount": "Trung bình",
+      "medianAmount": "Trung vị",
+      "amountRange": "Khoảng tiền"
+    },
+    "largeExpense": {
+      "warning": "Phát hiện khoản chi lớn. Vui lòng xác nhận thông tin này đúng.",
+      "confirm": "Tôi hiểu"
+    },
+    "common": {
+      "requestCanceled": "Yêu cầu bị hủy",
+      "networkError": "Lỗi mạng. Vui lòng kiểm tra kết nối"
+    },
+    "columns": {
+      "time": "Thời gian",
+      "name": "Danh mục"
+    }
+  },
+  "common": {
+    "action": "Thao tác",
+    "cancel": "Hủy",
+    "confirm": "OK",
+    "submit": "Gửi",
+    "loadFailed": "Tải dữ liệu thất bại, vui lòng thử lại sau",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "trash": "Thùng rác",
+    "to": "đến",
+    "currency": "VND",
+    "currencySymbol": "₫",
+    "sunday": "Chủ Nhật",
+    "monday": "Thứ Hai",
+    "tuesday": "Thứ Ba",
+    "wednesday": "Thứ Tư",
+    "thursday": "Thứ Năm",
+    "friday": "Thứ Sáu",
+    "saturday": "Thứ Bảy",
+    "date": "Ngày",
+    "date_today": "Hôm nay",
+    "date_yesterday": "Hôm qua",
+    "date_days_ago": "{days} ngày trước",
+    "retry": "Thử lại"
+  },
+  "spending": {
+    "monthlyProgress": "Tiến độ chi tiêu tháng",
+    "exceeded": "Vượt ngân sách",
+    "dailyAverage": "Trung bình ngày",
+    "recommendedDaily": "Đề xuất chi tiêu hàng ngày",
+    "settings": {
+      "title": "Cài đặt ngân sách",
+      "on": "Bật ngân sách",
+      "enabled": "Đã bật",
+      "disabled": "Đã tắt",
+      "monthlyLimit": "Ngân sách tháng",
+      "enterLimit": "Nhập ngân sách tháng",
+      "warningThreshold": "Ngưỡng cảnh báo",
+      "enterThreshold": "Nhập ngưỡng cảnh báo",
+      "disabledNotice": "Bật ngân sách để theo dõi chi tiêu hàng tháng của bạn",
+      "pleaseSetLimit": "Vui lòng thiết lập ngân sách tháng của bạn"
+    },
+    "status": {
+      "disabled": "Ngân sách tắt",
+      "normal": "Đúng tiến độ",
+      "nearLimit": "Sắp đạt ngân sách",
+      "overLimit": "Vượt ngân sách"
+    },
+    "alert": {
+      "normal": {
+        "title": "Đúng tiến độ",
+        "description": "Còn lại: {remaining} (đã dùng {percentage}%)"
+      },
+      "nearLimit": {
+        "title": "Sắp đạt ngân sách",
+        "description": "Còn lại: {remaining} (đã dùng {percentage}%). Hãy cân nhắc giảm chi tiêu."
+      },
+      "overLimit": {
+        "title": "Vượt ngân sách",
+        "description": "Vượt ngân sách {amount}. Vui lòng xem lại chi tiêu của bạn."
+      }
+    },
+    "enablePrompt": {
+      "title": "Theo dõi chi tiêu hàng tháng",
+      "description": "Thiết lập ngân sách hàng tháng để theo dõi chi tiêu và nhận cảnh báo khi bạn sắp đạt đến giới hạn.",
+      "button": "Bật ngân sách",
+      "enabled": "Đã bật ngân sách thành công"
+    },
+    "remainingQuota": "Hạn ngạch còn lại",
+    "usedPercentage": "Đã dùng"
+  },
+  "function": {
+    "primary": "Tính năng chính",
+    "aiFeatures": "Tính năng AI"
+  },
+  "ai": {
+    "report": {
+      "title": "AI Hỏi đáp Chi tiêu",
+      "filterTitle": "Bộ lọc dữ liệu",
+      "statsPreview": "Xem trước thống kê dữ liệu",
+      "totalCount": "Tổng số bản ghi",
+      "totalAmount": "Tổng số tiền",
+      "averageAmount": "Trung bình",
+      "medianAmount": "Trung vị",
+      "minAmount": "Số tiền nhỏ nhất",
+      "maxAmount": "Số tiền lớn nhất",
+      "loading": "Đang tải...",
+      "downloadButton": "① Tải xuống bảng dữ liệu",
+      "downloading": "Đang tải xuống...",
+      "generateButton": "② Tạo prompt",
+      "defaultFileName": "expenses.xlsx",
+      "hint1": "Nhấn «Tải xuống bảng dữ liệu» để lưu {file} vào thiết bị.",
+      "hint2": "Nhấn «Tạo prompt» và sao chép prompt vào bất kỳ ứng dụng AI hoặc trang web nào.",
+      "hint3": "Trong ứng dụng AI, tải lên file xlsx vừa lưu, sau đó nhập câu hỏi của bạn trực tiếp trong trò chuyện (ví dụ: “Tháng này mình chi tiêu nhiều nhất ở đâu?”) rồi gửi.",
+      "hint4": "Bạn có thể hỏi tiếp trong ứng dụng AI, không cần quay lại trang này. Khi xong, sao chép câu trả lời của AI và dán vào bên dưới, sau đó nhấn «Dán câu trả lời» để hiển thị.",
+      "promptHint": "Prompt được tạo theo bộ lọc hiện tại; tệp dữ liệu là {file}. Tải tệp đó trong ứng dụng AI rồi trực tiếp nhập câu hỏi của bạn.",
+      "promptLabel": "Prompt (có thể sao chép)",
+      "copyButton": "Sao chép prompt",
+      "replyLabel": "Câu trả lời của AI (dán lại)",
+      "replyPlaceholder": "Dán câu trả lời của AI vào đây",
+      "clearButton": "Xóa trắng",
+      "pasteButton": "Dán câu trả lời",
+      "emptyContent": "Sau khi hoàn thành các bước trên, bản phân tích chi tiêu từ AI sẽ hiển thị ở đây",
+      "types": "Danh mục (có thể chọn nhiều)",
+      "recordsCount": "{count} bản ghi",
+      "currentMonth": "Tháng này",
+      "lastMonth": "Tháng trước",
+      "thisYear": "Năm nay",
+      "clearFilters": "Xóa bộ lọc"
+    },
+    "smartRecord": {
+      "title": "Ghi chép thông minh bằng AI",
+      "step1": "Nhấn «Sao chép prompt», sau đó mở bất kỳ ứng dụng hoặc trang web trò chuyện AI nào và dán prompt vào đó.",
+      "step2": "Trong ứng dụng AI, hãy nhập trực tiếp mô tả giao dịch của bạn; nếu cần, đính kèm ảnh hóa đơn hoặc biên lai.",
+      "step3": "Yêu cầu AI chỉ xuất JSON, sau đó sao chép lại và dán vào ô bên dưới.",
+      "promptLabel": "Prompt (đã sẵn sàng sao chép)",
+      "copyButton": "Sao chép prompt",
+      "replyLabel": "Câu trả lời của AI (dán lại)",
+      "replyPlaceholder": "Dán JSON AI trả về vào đây, ví dụ: [\\{\"type\":\"Ăn uống\",\"amount\":56.8,\"date\":\"2026-10-02\",\"remark\":\"Táo, sữa\"\\}]",
+      "parsing": "Đang phân tích...",
+      "submit": "Phân tích và gửi"
+    }
+  },
+  "avatar": {
+    "cropTitle": "Cắt ảnh đại diện",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "placeholder": "Nhấn để tải ảnh đại diện",
+    "error": {
+      "sizeLimit": "Kích thước ảnh đại diện không được vượt quá {maxSize}MB",
+      "invalidType": "Vui lòng chọn tệp hình ảnh hợp lệ",
+      "uploadFailed": "Tải ảnh đại diện thất bại, vui lòng thử lại sau"
+    },
+    "zoom": "Thu phóng"
+  },
+  "membership": {
+    "title": "Quản lý người dùng",
+    "username": "Tên đăng nhập",
+    "loginOrRegister": "Đăng nhập / Đăng ký",
+    "logout": "Đăng xuất",
+    "usernamePlaceholder": "Nhập tên đăng nhập của bạn",
+    "error": {
+      "requiredUsername": "Vui lòng nhập tên đăng nhập",
+      "usernameFormat": "Tên đăng nhập chỉ có thể chứa chữ cái hoa và thường",
+      "usernameLength": "Tên đăng nhập phải có độ dài từ 1-20 ký tự",
+      "loginFailed": "Đăng nhập thất bại, vui lòng thử lại sau"
+    },
+    "success": {
+      "login": "Đăng nhập thành công",
+      "logout": "Đã đăng xuất",
+      "avatarUploaded": "Tải ảnh đại diện thành công"
+    }
+  },
+  "export": {
+    "allData": "Xuất dữ liệu",
+    "failed": "Xuất thất bại, vui lòng thử lại sau"
+  },
+  "error": {
+    "dataInitializationFailed": "Khởi tạo dữ liệu thất bại, vui lòng thử lại"
+  },
+  "chart": {
+    "title": "Phân tích chi tiêu",
+    "bar": "Biểu đồ cột",
+    "line": "Biểu đồ đường",
+    "doughnut": "Biểu đồ vòng",
+    "radar": "Biểu đồ radar",
+    "categoryAnalysis": "Chi tiêu theo danh mục",
+    "categoryPercentage": "Tỷ lệ danh mục",
+    "trendAnalysis": "Xu hướng chi tiêu",
+    "weekdayAnalysis": "Chi tiêu theo ngày trong tuần"
+  },
+  "import": {
+    "title": "Nhập dữ liệu",
+    "success": "Nhập dữ liệu thành công",
+    "failed": "Nhập dữ liệu thất bại",
+    "refreshNotice": "(Tự động làm mới sau 3 giây)"
+  },
+  "recycleBin": {
+    "title": "Thùng rác",
+    "empty": "Thùng rác trống",
+    "emptyHint": "Các bản ghi đã xóa sẽ được giữ lại trong 30 ngày, sau đó sẽ tự động bị xóa vĩnh viễn",
+    "deletedAt": "Thời gian xóa",
+    "expiresIn": "Sẽ tự động xóa vĩnh viễn sau {days} ngày",
+    "expiresHours": "Sẽ tự động xóa vĩnh viễn sau khoảng {hours} giờ",
+    "expiredToday": "Sẽ tự động bị xóa vĩnh viễn vào hôm nay",
+    "restore": "Khôi phục",
+    "permanentDelete": "Xóa vĩnh viễn",
+    "restoreAll": "Khôi phục tất cả",
+    "emptyBin": "Dọn dẹp thùng rác",
+    "selectAll": "Chọn tất cả",
+    "deselectAll": "Bỏ chọn tất cả",
+    "cancelSelection": "Hủy chọn",
+    "selectedCount": "Đã chọn {count} mục",
+    "totalCount": "Tổng cộng {count} mục",
+    "restoreSelected": "Khôi phục mục đã chọn",
+    "deleteSelected": "Xóa vĩnh viễn mục đã chọn",
+    "permanentDeleteTitle": "Xác nhận xóa vĩnh viễn?",
+    "permanentDeleteMessage": "Thao tác này không thể hoàn tác. Bạn có chắc muốn xóa vĩnh viễn bản ghi này không?",
+    "restoreAllTitle": "Khôi phục tất cả?",
+    "restoreAllMessage": "Bạn có chắc muốn khôi phục {count} bản ghi từ thùng rác không?",
+    "deleteAllTitle": "Dọn dẹp thùng rác?",
+    "deleteAllMessage": "Bạn có chắc muốn xóa vĩnh viễn {count} bản ghi trong thùng rác không? Thao tác này không thể hoàn tác.",
+    "restoreSelectedTitle": "Khôi phục mục đã chọn?",
+    "restoreSelectedMessage": "Bạn có chắc muốn khôi phục {count} bản ghi đã chọn không?",
+    "deleteSelectedTitle": "Xóa vĩnh viễn mục đã chọn?",
+    "deleteSelectedMessage": "Bạn có chắc muốn xóa vĩnh viễn {count} bản ghi đã chọn không? Thao tác này không thể hoàn tác.",
+    "restoreSuccess": "Khôi phục thành công",
+    "restoreAllSuccess": "Đã khôi phục tất cả",
+    "deleteSuccess": "Đã xóa vĩnh viễn",
+    "deleteAllSuccess": "Thùng rác đã được dọn dẹp",
+    "operationFailed": "Thao tác không thành công. Vui lòng thử lại sau.",
+    "backToHome": "Về trang chủ",
+    "loading": "Đang tải..."
+  }
+}

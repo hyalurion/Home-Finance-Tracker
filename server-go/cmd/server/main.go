@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
 
@@ -52,6 +50,11 @@ func main() {
 
 	// Create router engine
 	router := gin.New()
+	// Serve exact paths without auto-redirecting trailing slashes. The web
+	// client calls /api/expenses (no trailing slash); letting Gin redirect it
+	// to /api/expenses/ caused an infinite 301/308 loop behind the Next.js
+	// proxy (which strips trailing slashes by default).
+	router.RedirectTrailingSlash = false
 
 	// Add middleware
 	router.Use(
@@ -123,29 +126,13 @@ func main() {
 	routes.SetupJsonFileRoutes(router.Group("/api"), jsonFileService)
 	routes.SetupLogRoutes(router.Group("/api"), logService)
 
-	// Serve frontend static files (auto-enabled when client/dist exists)
-	distPath := filepath.Join(".", "client", "dist")
-	if _, err := os.Stat(filepath.Join(distPath, "index.html")); err == nil {
-		log.Printf("Serving static files from: %s", distPath)
-		router.Static("/assets", filepath.Join(distPath, "assets"))
-		router.StaticFile("/favicon.ico", filepath.Join(distPath, "favicon.ico"))
-		router.StaticFile("/photo.html", filepath.Join(distPath, "photo.html"))
-		router.GET("/", func(c *gin.Context) {
-			c.File(filepath.Join(distPath, "index.html"))
-		})
-		// SPA fallback - return index.html for page routes only, 404 for static asset requests
-		// Avoid returning index.html for JS/CSS static asset requests which causes MIME type errors
-		router.NoRoute(func(c *gin.Context) {
-			path := c.Request.URL.Path
-			// API paths return 404 (API routes should already be registered)
-			// Static asset requests with extensions (.js/.css/.png etc.) return 404 instead of index.html
-			if strings.HasPrefix(path, "/api/") || isStaticAsset(path) {
-				c.Status(http.StatusNotFound)
-				return
-			}
-			// Page routes return index.html for SPA
-			c.File(filepath.Join(distPath, "index.html"))
-		})
+	// Serve the exported web frontend (web/out) next to the API. The export is
+	// produced by "npm run build:static" inside the web/ directory.
+	if distPath := routes.ResolveStaticDir(); distPath != "" {
+		log.Printf("Serving frontend static files from: %s", distPath)
+		routes.SetupStaticRoutes(router, distPath)
+	} else {
+		log.Printf("Frontend static files not found (expected web/out) - serving the API only")
 	}
 
 	// Create HTTP server
@@ -197,20 +184,6 @@ func SetupLogLevel(level string) {
 	}
 }
 
-// isStaticAsset checks if the request path is a static asset request
-// Static assets typically have file extensions (.js/.css/.png/.woff2 etc.)
-func isStaticAsset(path string) bool {
-	// Known static asset extensions
-	staticExtensions := []string{
-		".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg",
-		".ico", ".woff", ".woff2", ".ttf", ".eot",
-		".json", ".xml", ".txt", ".map",
-	}
-	lowerPath := strings.ToLower(path)
-	for _, ext := range staticExtensions {
-		if strings.HasSuffix(lowerPath, ext) {
-			return true
-		}
-	}
-	return false
-}
+// The static asset detection that used to live here is now part of
+// routes.SetupStaticRoutes, which resolves every request against the exported
+// frontend directory.

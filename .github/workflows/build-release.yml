@@ -15,21 +15,21 @@ jobs:
         with:
           node-version: '24.21.0'
           cache: 'npm'
-          cache-dependency-path: client/package-lock.json
+          cache-dependency-path: web/package-lock.json
 
       - name: Install dependencies
         run: npm ci
-        working-directory: client
+        working-directory: web
 
-      - name: Build frontend
-        run: npm run build
-        working-directory: client
+      - name: Build frontend (static export)
+        run: npm run build:static
+        working-directory: web
 
       - name: Upload frontend dist artifact
         uses: actions/upload-artifact@v7
         with:
           name: frontend-dist
-          path: client/dist/
+          path: web/out/
           retention-days: 1
 
   # ========== Go Build ==========
@@ -74,7 +74,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: frontend-dist
-          path: client/dist/
+          path: web/out/
 
       - name: Go mod tidy
         run: go mod tidy
@@ -98,7 +98,9 @@ jobs:
         run: |
           PKG="home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
           PKG_DIR="build/${PKG}"
-          mkdir -p "${PKG_DIR}/client/dist"
+          # The server serves the exported frontend from "web/out", resolved
+          # relative to the working directory (the package root).
+          mkdir -p "${PKG_DIR}/web/out"
           # Copy binary to package dir
           BIN_NAME="server"
           if [ "${{ matrix.goos }}" = "windows" ]; then
@@ -106,7 +108,7 @@ jobs:
           fi
           cp "build/${BIN_NAME}" "${PKG_DIR}/"
           # Copy frontend dist to package dir
-          cp -r ../client/dist/* "${PKG_DIR}/client/dist/"
+          cp -r ../web/out/* "${PKG_DIR}/web/out/"
         working-directory: server-go
 
       - name: Create archive
@@ -290,7 +292,7 @@ jobs:
             - **Tag**: ${{ steps.tag.outputs.tag }}
 
             ### Assets
-            - Go server binaries (Linux / Windows / macOS × amd64 / arm64) bundled with the frontend `client/dist/`
+            - Go server binaries (Linux / Windows / macOS × amd64 / arm64) bundled with the exported web frontend (`web/out/`)
             - Android release APK (`arm64-v8a`) + `output-meta.json`
           files: |
             artifacts/home-finance-tracker-*/*
