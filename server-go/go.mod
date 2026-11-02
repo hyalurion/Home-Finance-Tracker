@@ -7,8 +7,7 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/shirou/gopsutil/v4 v4.26.8
-	github.com/xuri/excelize/v2 v2.11.0
-	gorm.io/driver/sqlite v1.6.0
+	github.com/xuri/excelize/v2 v2.11.1-0.20261003002531-6258dcebc4e2
 	gorm.io/gorm v1.31.2
 )
 
