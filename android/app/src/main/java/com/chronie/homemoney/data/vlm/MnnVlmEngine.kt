@@ -1,7 +1,9 @@
 package com.chronie.homemoney.data.vlm
 
 import android.util.Log
+import androidx.annotation.Keep
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -27,6 +29,7 @@ import javax.inject.Singleton
  *    <img>path</img> markers before the text prompt, which MNN's visual
  *    model processes.
  */
+@Keep
 @Singleton
 class MnnVlmEngine @Inject constructor() {
 
@@ -50,9 +53,38 @@ class MnnVlmEngine @Inject constructor() {
         fun buildImageTag(imagePath: String): String = "<img>$imagePath</img>"
     }
 
-    /** Receives incrementally generated text (called on the caller's thread). */
+    /**
+     * Receives incrementally generated text (called on the caller's thread).
+     *
+     * The fully qualified name and the [onToken] method name are part of the
+     * native ABI: mnn_bridge.cpp resolves them with FindClass/GetMethodID.
+     * @Keep plus the matching ProGuard rules stop R8 from rewriting them.
+     */
+    @Keep
     fun interface TokenListener {
+        @Keep
         fun onToken(token: String)
+    }
+
+    /**
+     * Explicit listener implementation instead of a SAM lambda.
+     *
+     * R8 rewrites Kotlin SAM lambdas into obfuscated classes (e.g. "wj1")
+     * whose bridge method may no longer be called `onToken`, which made
+     * GetMethodID fail at runtime. A named, kept class keeps the JNI lookup
+     * deterministic in release builds.
+     */
+    @Keep
+    private class TokenRelay(
+        private val sink: suspend (String) -> Unit
+    ) : TokenListener {
+        @Keep
+        override fun onToken(token: String) {
+            // The callback arrives on the native generation thread; the sink
+            // only does a non-suspending channel trySend, so runBlocking is
+            // cheap and preserves token ordering.
+            runBlocking { sink(token) }
+        }
     }
 
     // Native entry points implemented in cpp/mnn/mnn_bridge(.cpp|_stub.cpp).
@@ -133,15 +165,7 @@ class MnnVlmEngine @Inject constructor() {
         }
 
         // Bridge the synchronous Java callback into the coroutine world.
-        val listener = if (onToken != null) {
-            TokenListener { token ->
-                // The callback arrives on this same (Default dispatcher) thread.
-                // Launch-free direct call keeps ordering and avoids allocation.
-                kotlinx.coroutines.runBlocking { onToken(token) }
-            }
-        } else {
-            null
-        }
+        val listener: TokenListener? = if (onToken == null) null else TokenRelay(onToken)
 
         val output = try {
             nativeChat(prompt, imagePathsStr, listener)

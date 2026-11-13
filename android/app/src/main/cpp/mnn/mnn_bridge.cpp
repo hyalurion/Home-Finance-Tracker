@@ -5,22 +5,27 @@
 // The bridge is intentionally thin: one process-wide Llm instance is created
 // from a model config.json on disk, response() is invoked with a plain prompt
 // or MultimodalPrompt, and generated text is streamed back to Java through a
-// custom ostream that forwards each chunk to a TokenListener callback.
+// custom streambuf that forwards every write to a TokenListener callback.
 //
 // Threading contract:
 //   * All native entry points take a global mutex, so Kotlin may call them
 //     from any thread, but response() blocks until generation finishes.
-//   * response() must be called from a thread that is already attached to
-//     the JVM (i.e. a normal Java/Kotlin thread), which holds because the
-//     Kotlin wrapper always dispatches to Dispatchers.Default.
+//   * The callback may arrive on a worker thread that was never attached to
+//     the JVM, so tokens are delivered through AttachCurrentThread when needed.
+//
+// JNI naming contract:
+//   * MnnVlmEngine, MnnVlmEngine$TokenListener and onToken(String) are kept
+//     by @Keep / proguard-rules.pro. See resolveTokenMethod() below.
 
 #include <jni.h>
 #include <android/log.h>
 
+#include <cstddef>
 #include <mutex>
 #include <sstream>
 #include <string>
 #include <streambuf>
+#include <vector>
 
 #include "llm/llm.hpp"  // MNN::Transformer::Llm, MultimodalPrompt
 
@@ -42,58 +47,148 @@ jmethodID g_on_token_mid = nullptr;
 JavaVM* g_vm = nullptr;
 
 /**
- * Custom streambuf that forwards each flushed chunk to the Java TokenListener.
- * MNN's response() writes generated text into an ostream; by installing this
- * streambuf we intercept the output incrementally and relay it to Kotlin
- * without waiting for the full generation to complete.
+ * Resolves TokenListener.onToken(String) for the current call.
  *
- * The streambuf accumulates text in its internal buffer and flushes it to the
- * Java listener whenever sync() is called (typically on each newline or when
- * MNN internally flushes). For token-level granularity we also flush on
- * overflow when the buffer is full.
+ * R8 may rename a SAM implementation class (e.g. "wj1") together with its
+ * bridge method, so try the concrete class first and fall back to the kept
+ * interface class. A failed lookup must be cleared: leaving a pending JNI
+ * exception here aborts the whole generation when the next JNI call runs.
+ * Returning null degrades the call to non-streaming generation, never a crash.
+ */
+jmethodID resolveTokenMethod(JNIEnv* env, jobject listener) {
+    jmethodID mid = nullptr;
+
+    jclass concrete = env->GetObjectClass(listener);
+    if (concrete != nullptr) {
+        mid = env->GetMethodID(concrete, "onToken", "(Ljava/lang/String;)V");
+        if (env->ExceptionCheck()) {
+            env->ExceptionClear();
+            mid = nullptr;
+        }
+        env->DeleteLocalRef(concrete);
+    }
+
+    if (mid == nullptr) {
+        jclass iface = env->FindClass(
+            "com/chronie/homemoney/data/vlm/MnnVlmEngine$TokenListener");
+        if (iface != nullptr) {
+            mid = env->GetMethodID(iface, "onToken", "(Ljava/lang/String;)V");
+            if (env->ExceptionCheck()) {
+                env->ExceptionClear();
+                mid = nullptr;
+            }
+            env->DeleteLocalRef(iface);
+        } else if (env->ExceptionCheck()) {
+            env->ExceptionClear();
+        }
+    }
+
+    if (mid == nullptr) {
+        LOGE("TokenListener.onToken(String) not found; token streaming disabled");
+    }
+    return mid;
+}
+
+/**
+ * Zero-buffering streambuf: every write from MNN's response() is forwarded
+ * to the Kotlin TokenListener immediately, which is what makes tokens show up
+ * on screen while the model is still generating. The previous 256-byte buffer
+ * only flushed on overflow or explicit sync(), so short token writes were
+ * delivered in large late bursts (or only at the very end).
+ *
+ * A tiny UTF-8 tail buffer keeps multi-byte characters intact when MNN splits
+ * a token in the middle of a CJK character. Complete prefixes are emitted at
+ * once; the incomplete tail is flushed by sync().
  */
 class ListenerStreambuf : public std::streambuf {
 public:
-    explicit ListenerStreambuf(size_t bufSize = 256) {
-        buffer_.resize(bufSize);
-        setp(buffer_.data(), buffer_.data() + bufSize - 1);
-    }
-
-    ~ListenerStreambuf() override = default;
+    ListenerStreambuf() = default;
+    ~ListenerStreambuf() override { sync(); }
 
     // Non-copyable
     ListenerStreambuf(const ListenerStreambuf&) = delete;
     ListenerStreambuf& operator=(const ListenerStreambuf&) = delete;
 
+    /** Full text seen so far; used when LlmContext.generate_str is empty. */
+    const std::string& text() const { return full_; }
+
 protected:
-    // Called when the put area is full; flush and reset.
     int_type overflow(int_type ch) override {
         if (ch != traits_type::eof()) {
-            *pptr() = static_cast<char>(ch);
-            pbump(1);
+            const char c = static_cast<char>(ch);
+            pushBytes(&c, 1);
         }
-        return sync() == 0 ? ch : traits_type::eof();
+        return traits_type::not_eof(ch);
     }
 
-    // Flush accumulated text to the Java listener.
-    int sync() override {
-        auto len = static_cast<std::ptrdiff_t>(pptr() - pbase());
-        if (len > 0 && g_listener_ref != nullptr && g_on_token_mid != nullptr) {
-            JNIEnv* env = nullptr;
-            if (g_vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) == JNI_OK) {
-                jstring jChunk = env->NewStringUTF(std::string(pbase(), len).c_str());
-                if (jChunk != nullptr) {
-                    env->CallVoidMethod(g_listener_ref, g_on_token_mid, jChunk);
-                    env->DeleteLocalRef(jChunk);
-                }
-            }
+    std::streamsize xsputn(const char* data, std::streamsize count) override {
+        if (count > 0 && data != nullptr) {
+            pushBytes(data, static_cast<size_t>(count));
         }
-        setp(buffer_.data(), buffer_.data() + buffer_.size() - 1);
+        return count;
+    }
+
+    int sync() override {
+        if (!pending_.empty()) {
+            emit(pending_.data(), pending_.size());
+            pending_.clear();
+        }
         return 0;
     }
 
 private:
-    std::vector<char> buffer_;
+    /** Appends bytes and emits the longest complete UTF-8 prefix. */
+    void pushBytes(const char* data, size_t len) {
+        pending_.append(data, len);
+        size_t safe = 0;
+        while (safe < pending_.size()) {
+            const auto lead = static_cast<unsigned char>(pending_[safe]);
+            const size_t width = (lead < 0x80) ? 1
+                               : (lead >= 0xF0) ? 4
+                               : (lead >= 0xE0) ? 3
+                               : (lead >= 0xC0) ? 2
+                               : 1;
+            if (safe + width > pending_.size()) break;
+            safe += width;
+        }
+        if (safe > 0) {
+            emit(pending_.data(), safe);
+            pending_.erase(0, safe);
+        }
+    }
+
+    /** Delivers one chunk to Java, tolerating unattached threads and throws. */
+    void emit(const char* data, size_t len) {
+        if (len == 0) return;
+        full_.append(data, len);
+        if (g_listener_ref == nullptr || g_on_token_mid == nullptr || g_vm == nullptr) return;
+
+        JNIEnv* env = nullptr;
+        bool attached = false;
+        if (g_vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
+            env = nullptr;
+            if (g_vm->AttachCurrentThread(&env, nullptr) != JNI_OK || env == nullptr) {
+                LOGE("Cannot attach token callback thread to the JVM");
+                return;
+            }
+            attached = true;
+        }
+
+        jstring chunk = env->NewStringUTF(std::string(data, len).c_str());
+        if (chunk != nullptr) {
+            env->CallVoidMethod(g_listener_ref, g_on_token_mid, chunk);
+            env->DeleteLocalRef(chunk);
+        }
+        if (env->ExceptionCheck()) {
+            // A throwing listener must not poison the native generation loop.
+            env->ExceptionDescribe();
+            env->ExceptionClear();
+        }
+        if (attached) g_vm->DetachCurrentThread();
+    }
+
+    std::string pending_;
+    std::string full_;
 };
 
 }  // namespace
@@ -200,10 +295,8 @@ Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeDestroy(JNIEnv*, jobject)
  * Runs one-shot generation. Two modes:
  *
  * 1) Multimodal (imagePaths non-empty):
- *    Images are passed via MultimodalPrompt with keys "img0", "img1", etc.
- *    The prompt template may reference them as {{image:img0}}.
- *    If the prompt contains no {{image:...}} markers, the bridge appends
- *    them automatically before the text.
+ *    Images are embedded as <img>path</img> markers, matching MNN's visual
+ *    model prompt convention (LLM_SUPPORT_VISION).
  *
  * 2) Text-only (imagePaths empty):
  *    Calls response(user_content, ...) directly.
@@ -211,8 +304,8 @@ Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeDestroy(JNIEnv*, jobject)
  * @param prompt      user prompt text
  * @param imagePaths  comma-separated absolute paths to pre-processed images
  * @param listener    optional TokenListener whose onToken(String) receives
- *                    the generated text incrementally (may be null)
- * @return the complete generated text, or nullptr on failure.
+ *                    every generated chunk (may be null)
+ * @return the complete generated text, or an empty string on failure.
  */
 JNIEXPORT jstring JNICALL
 Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeChat(
@@ -246,12 +339,16 @@ Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeChat(
         }
     }
 
-    // Register the listener for the duration of this call.
+    // Register the listener for the duration of this call. Resolution is
+    // best-effort: failure degrades to a one-shot answer instead of leaving a
+    // pending JNI exception that would abort response() on its first token.
     if (listener != nullptr) {
         g_listener_ref = env->NewGlobalRef(listener);
-        jclass cls = env->GetObjectClass(listener);
-        g_on_token_mid = env->GetMethodID(cls, "onToken", "(Ljava/lang/String;)V");
-        env->DeleteLocalRef(cls);
+        g_on_token_mid = resolveTokenMethod(env, listener);
+        if (g_on_token_mid == nullptr && g_listener_ref != nullptr) {
+            env->DeleteGlobalRef(g_listener_ref);
+            g_listener_ref = nullptr;
+        }
     } else {
         g_listener_ref = nullptr;
         g_on_token_mid = nullptr;
@@ -259,42 +356,14 @@ Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeChat(
 
     std::string result;
     bool failed = false;
+    ListenerStreambuf streambuf;
+    std::ostream outputStream(&streambuf);
 
     try {
-        ListenerStreambuf streambuf;
-        std::ostream outputStream(&streambuf);
-
         if (!images.empty()) {
-            // Multimodal mode: build MultimodalPrompt with image placeholders.
-            MNN::Transformer::MultimodalPrompt mmPrompt;
-            std::string templateText = promptStr;
-
-            for (size_t i = 0; i < images.size(); ++i) {
-                std::string key = "img" + std::to_string(i);
-                // Insert image placeholder at the beginning of the prompt if
-                // the user did not include {{image:...}} markers themselves.
-                if (templateText.find("{{image:" + key + "}}") == std::string::npos) {
-                    templateText = "{{image:" + key + "}}\n" + templateText;
-                }
-
-                MNN::Transformer::PromptImagePart imgPart;
-                // MNN can load images from file paths when using MNNOpenCV.
-                // We create a placeholder VARP; MNN's visual model will
-                // load from the path referenced in the config if image_data
-                // is empty and the key maps to a file.
-                imgPart.image_data = nullptr;
-                imgPart.width = 0;
-                imgPart.height = 0;
-                mmPrompt.images[key] = imgPart;
-            }
-            mmPrompt.prompt_template = templateText;
-
-            // For file-based image loading, set config with image paths.
-            // MNN's Llm with LLM_SUPPORT_VISION processes <img>path</img>
-            // tags in the prompt via the visual model. We use the legacy
-            // <img> tag format as a fallback if MultimodalPrompt doesn't
-            // auto-load files.
-            // Build the prompt with <img> tags for vision model processing.
+            // <img>path</img> markers are what LLM_SUPPORT_VISION resolves.
+            // They are prepended so the visual encoder sees the images before
+            // the textual instruction, matching MNN's chat template.
             std::string imgPrompt;
             for (size_t i = 0; i < images.size(); ++i) {
                 imgPrompt += "<img>" + images[i] + "</img>\n";
@@ -307,14 +376,18 @@ Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeChat(
             g_llm->response(promptStr, &outputStream, nullptr, -1);
         }
 
-        // Final flush of the streambuf.
+        // Flush any incomplete UTF-8 tail still held by the streambuf.
         outputStream.flush();
         streambuf.pubsync();
 
-        // Collect the full generated text from LlmContext.
+        // Prefer the runtime's accumulated text, but fall back to what was
+        // actually written to the stream: some MNN builds leave generate_str
+        // empty even though response() streamed the whole answer.
         auto ctx = g_llm->getContext();
-        if (ctx != nullptr) {
+        if (ctx != nullptr && !ctx->generate_str.empty()) {
             result = ctx->generate_str;
+        } else {
+            result = streambuf.text();
         }
     } catch (const std::exception& e) {
         LOGE("response() threw: %s", e.what());

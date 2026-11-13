@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  * - "membership"         -> [Membership]
  * - "settings"           -> [Settings]
  * - "lan_sync"           -> [LanSync]
- * - "ai_expense"         -> [AIExpense]
+ * - "ai_expense"         -> [AIChat] (former one-shot scan, now a full chat)
  * - "database_test"      -> [DatabaseTest]
  * - "open_source_licenses" -> [OpenSourceLicenses]
  * - "add_expense?expenseId=..." -> [AddExpense]
@@ -38,8 +38,9 @@ sealed interface AppRoute : NavKey {
     @Serializable
     data object LanSync : AppRoute
 
+    /** Streaming AI chat with tool calling, attachments and resumable history. */
     @Serializable
-    data object AIExpense : AppRoute
+    data object AIChat : AppRoute
 
     @Serializable
     data object DatabaseTest : AppRoute

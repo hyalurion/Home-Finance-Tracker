@@ -41,7 +41,7 @@ import androidx.compose.material.icons.filled.Settings
  * @param onTabChange callback when the user switches tabs via the bottom bar.
  * @param onNavigateToDatabaseTest navigates to the database debug screen.
  * @param onNavigateToAddExpense navigates to the add-expense form.
- * @param onNavigateToAIExpense navigates to the AI-assisted expense entry.
+ * @param onNavigateToAIChat navigates to the streaming AI chat screen.
  * @param onNavigateToEditExpense navigates to the edit-expense form for a given [expenseId].
  * @param onNavigateToWeekdayDetail navigates to the weekday detail breakdown screen.
  * @param onNavigateToLanSync navigates to the LAN sync screen.
@@ -57,7 +57,7 @@ fun MainScreen(
     onTabChange: (Int) -> Unit = {},
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToAddExpense: () -> Unit = {},
-    onNavigateToAIExpense: () -> Unit = {},
+    onNavigateToAIChat: () -> Unit = {},
     onNavigateToEditExpense: (expenseId: String) -> Unit = {},
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> },
     onNavigateToLanSync: () -> Unit = {},
@@ -94,7 +94,7 @@ fun MainScreen(
                             shouldRefresh = shouldRefreshExpenses,
                             onRefreshHandled = onRefreshHandled,
                             onNavigateToAddExpense = onNavigateToAddExpense,
-                            onNavigateToAIExpense = onNavigateToAIExpense,
+                            onNavigateToAIChat = onNavigateToAIChat,
                             onNavigateToEditExpense = onNavigateToEditExpense
                         )
                     }

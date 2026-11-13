@@ -37,6 +37,9 @@ room = "2.8.5"
 
 retrofit = "3.0.0"
 okhttp-logging = "5.5.1"
+# OkHttp's official Server-Sent Events extension must match the OkHttp core version.
+# The AI chat feature uses it for streaming OpenAI/Anthropic-compatible responses.
+markdownRenderer = "0.46.0"
 
 paging = "3.5.3"
 
@@ -121,6 +124,10 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp-logging" }
+okhttp-sse = { group = "com.squareup.okhttp3", name = "okhttp-sse", version.ref = "okhttp-logging" }
+# Apache-2.0 Compose Multiplatform Markdown renderer (github.com/mikepenz/multiplatform-markdown-renderer).
+# The -m3 module provides the themed `Markdown` composable; Gradle resolves its Android variant.
+markdown-renderer = { group = "com.mikepenz", name = "multiplatform-markdown-renderer-m3", version.ref = "markdownRenderer" }
 
 paging-runtime = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "paging" }
 paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }

@@ -198,10 +198,22 @@
     "fullName": "com.himanshoe:charty"
   },
   {
+    "group": "com.mikepenz",
+    "name": "multiplatform-markdown-renderer-m3",
+    "version": "0.46.0",
+    "fullName": "com.mikepenz:multiplatform-markdown-renderer-m3"
+  },
+  {
     "group": "com.squareup.okhttp3",
     "name": "logging-interceptor",
     "version": "5.5.1",
     "fullName": "com.squareup.okhttp3:logging-interceptor"
+  },
+  {
+    "group": "com.squareup.okhttp3",
+    "name": "okhttp-sse",
+    "version": "5.5.1",
+    "fullName": "com.squareup.okhttp3:okhttp-sse"
   },
   {
     "group": "com.squareup.retrofit2",

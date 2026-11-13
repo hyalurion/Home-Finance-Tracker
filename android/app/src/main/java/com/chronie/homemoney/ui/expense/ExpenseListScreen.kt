@@ -71,7 +71,6 @@ import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.menu.WindowIconCascadingDropdownMenu
-import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.utils.PressFeedbackType
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
@@ -89,7 +88,7 @@ fun ExpenseListScreen(
     shouldRefresh: Boolean = false,
     onRefreshHandled: () -> Unit = {},
     onNavigateToAddExpense: () -> Unit = {},
-    onNavigateToAIExpense: () -> Unit = {},
+    onNavigateToAIChat: () -> Unit = {},
     onNavigateToEditExpense: (expenseId: String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -137,36 +136,17 @@ fun ExpenseListScreen(
                 scrollBehavior = scrollBehavior,
                 actions = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        val addMenuEntries = listOf(
-                            DropdownEntry(
-                                items = listOf(
-                                    DropdownItem(
-                                        text = context.getString(R.string.add_expense_title),
-                                        icon = { modifier ->
-                                            Icon(
-                                                imageVector = Icons.Default.Add,
-                                                contentDescription = null,
-                                                modifier = modifier
-                                            )
-                                        },
-                                        onClick = onNavigateToAddExpense
-                                    ),
-                                    DropdownItem(
-                                        text = context.getString(R.string.ai_expense_title),
-                                        icon = { modifier ->
-                                            Icon(
-                                                imageVector = Icons.Default.AutoAwesome,
-                                                contentDescription = null,
-                                                modifier = modifier
-                                            )
-                                        },
-                                        onClick = onNavigateToAIExpense
-                                    )
-                                )
+                        // AI chat is now a first-class entry sitting immediately to the
+                        // left of the add button, instead of a hidden dropdown item.
+                        CircularIconButton(onClick = onNavigateToAIChat) {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = context.getString(R.string.ai_chat_title),
+                                tint = MiuixTheme.colorScheme.primary
                             )
-                        )
-
-                        WindowIconDropdownMenu(entries = addMenuEntries) {
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        CircularIconButton(onClick = onNavigateToAddExpense) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = context.getString(R.string.add_expense_title)

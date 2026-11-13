@@ -95,6 +95,18 @@
     *** handleIncomingSyncRequest(...);
 }
 
+# On-device LLM JNI bridge (cpp/mnn/mnn_bridge.cpp)
+# nativeChat() resolves TokenListener.onToken(String) by name via JNI. R8
+# otherwise rewrites the SAM class (e.g. "wj1") and its method, so generation
+# failed with "no non-static method onToken" in release builds. Keep the owner,
+# the callback interface, and every implementation of its method.
+-keep class com.chronie.homemoney.data.vlm.MnnVlmEngine { *; }
+-keep interface com.chronie.homemoney.data.vlm.MnnVlmEngine$TokenListener { *; }
+-keep class com.chronie.homemoney.data.vlm.MnnVlmEngine$TokenRelay { *; }
+-keepclassmembers class * implements com.chronie.homemoney.data.vlm.MnnVlmEngine$TokenListener {
+    public void onToken(java.lang.String);
+}
+
 # 数据库实体类 (禁止混淆，修复 Gson 解析失败)
 -keep class com.chronie.homemoney.data.local.entity.** { *; }
 -keep class com.chronie.homemoney.domain.model.** { *; }

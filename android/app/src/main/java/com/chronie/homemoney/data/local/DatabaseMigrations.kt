@@ -12,6 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * - 3→4: Creates a unique index on server_id for server-side deduplication
  * - 4→5: Adds version, updated_at, and deleted_at columns for soft-delete sync
  * - 5→6: Rebuilds the expenses table with id as TEXT PRIMARY KEY, dropping server_id
+ * - 6→7: Creates local AI chat conversation/message tables
  *
  * Use [getAllMigrations] to retrieve the full migration array for Room's database builder.
  */
@@ -95,13 +96,54 @@ object DatabaseMigrations {
         }
     }
     
+    /**
+     * Adds the two AI chat tables. Both are local-only: chat history contains
+     * personal financial context and is intentionally excluded from sync.
+     * Column names must stay in sync with the @ColumnInfo declarations.
+     */
+    val MIGRATION_6_7 = object : Migration(6, 7) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS chat_conversations (
+                    id TEXT NOT NULL PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    created_at INTEGER NOT NULL,
+                    updated_at INTEGER NOT NULL,
+                    provider_id TEXT NOT NULL
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS chat_messages (
+                    id TEXT NOT NULL PRIMARY KEY,
+                    conversation_id TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    attachments_json TEXT NOT NULL,
+                    tool_calls_json TEXT NOT NULL,
+                    created_at INTEGER NOT NULL,
+                    status TEXT NOT NULL,
+                    provider_label TEXT
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_chat_messages_conversation_id " +
+                    "ON chat_messages(conversation_id)"
+            )
+        }
+    }
+
     fun getAllMigrations(): Array<Migration> {
         return arrayOf(
             MIGRATION_1_2,
             MIGRATION_2_3,
             MIGRATION_3_4,
             MIGRATION_4_5,
-            MIGRATION_5_6
+            MIGRATION_5_6,
+            MIGRATION_6_7
         )
     }
 }

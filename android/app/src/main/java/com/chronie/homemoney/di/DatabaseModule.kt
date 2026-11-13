@@ -6,6 +6,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.chronie.homemoney.data.local.AppDatabase
 import com.chronie.homemoney.data.local.DatabaseMigrations
+import com.chronie.homemoney.data.local.dao.ChatDao
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.MemberDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
@@ -137,5 +138,11 @@ object DatabaseModule {
     @Provides
     fun provideBudgetDao(database: AppDatabase): com.chronie.homemoney.data.local.dao.BudgetDao {
         return database.budgetDao()
+    }
+
+    /** Chat history DAO (local-only tables, protected by the same SQLCipher key). */
+    @Provides
+    fun provideChatDao(database: AppDatabase): ChatDao {
+        return database.chatDao()
     }
 }

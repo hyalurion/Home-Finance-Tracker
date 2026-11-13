@@ -196,6 +196,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)
+    // OkHttp SSE + Compose Markdown renderer for the streaming AI chat feature.
+    implementation(libs.okhttp.sse)
+    implementation(libs.markdown.renderer)
 
     implementation(libs.paging.runtime)
     implementation(libs.paging.compose)

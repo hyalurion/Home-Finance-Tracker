@@ -3,10 +3,13 @@ package com.chronie.homemoney.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.chronie.homemoney.data.local.dao.BudgetDao
+import com.chronie.homemoney.data.local.dao.ChatDao
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.MemberDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
 import com.chronie.homemoney.data.local.entity.BudgetEntity
+import com.chronie.homemoney.data.local.entity.ChatConversationEntity
+import com.chronie.homemoney.data.local.entity.ChatMessageEntity
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.data.local.entity.MemberEntity
 import com.chronie.homemoney.data.local.entity.SyncQueueEntity
@@ -19,18 +22,21 @@ import com.chronie.homemoney.data.local.entity.SyncQueueEntity
  * - [MemberEntity]: household member profiles
  * - [SyncQueueEntity]: offline sync queue for pending server operations
  * - [BudgetEntity]: monthly budget configuration
+ * - [ChatConversationEntity] / [ChatMessageEntity]: local AI chat history
  *
  * Exposes DAO interfaces for each table to enable type-safe database access.
- * Current schema version: 6.
+ * Current schema version: 7.
  */
 @Database(
     entities = [
         ExpenseEntity::class,
         MemberEntity::class,
         SyncQueueEntity::class,
-        BudgetEntity::class
+        BudgetEntity::class,
+        ChatConversationEntity::class,
+        ChatMessageEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -39,6 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun memberDao(): MemberDao
     abstract fun syncQueueDao(): SyncQueueDao
     abstract fun budgetDao(): BudgetDao
+    abstract fun chatDao(): ChatDao
     
     companion object {
         const val DATABASE_NAME = "homemoney.db"

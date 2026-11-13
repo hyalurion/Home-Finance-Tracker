@@ -1230,6 +1230,11 @@ fun FeaturesSettingsPage(
         item {
             AISettingsSection(viewModel = viewModel, context = context)
             Spacer(modifier = Modifier.height(24.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(24.dp))
+            // Model sources (built-in / OpenAI / Anthropic) and tool permissions.
+            AiProviderSettingsSection(context = context)
+            Spacer(modifier = Modifier.height(24.dp))
             BudgetSettingsSection(context = context)
         }
     }

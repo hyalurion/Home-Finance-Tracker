@@ -43,7 +43,7 @@ import com.chronie.homemoney.data.sync.LocalNetworkPermission
 import com.chronie.homemoney.data.sync.SyncRequestBus
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.service.HealthCheckService
-import com.chronie.homemoney.ui.expense.AIExpenseScreen
+import com.chronie.homemoney.ui.chat.AIChatScreen
 import com.chronie.homemoney.ui.expense.AddExpenseScreen
 import com.chronie.homemoney.ui.main.MainScreen
 import com.chronie.homemoney.ui.membership.MembershipScreen
@@ -474,9 +474,9 @@ fun HomeMoneyApp(
                                 selectedTab = 0
                                 backStack.add(AppRoute.AddExpense())
                             },
-                            onNavigateToAIExpense = {
+                            onNavigateToAIChat = {
                                 selectedTab = 0
-                                backStack.add(AppRoute.AIExpense)
+                                backStack.add(AppRoute.AIChat)
                             },
                             onNavigateToEditExpense = { expenseId ->
                                 selectedTab = 0
@@ -524,15 +524,13 @@ fun HomeMoneyApp(
                     }
                 }
 
-                entry<AppRoute.AIExpense> {
+                entry<AppRoute.AIChat> {
                     Box(Modifier.fillMaxSize()) {
-                        AIExpenseScreen(
+                        AIChatScreen(
                             context = context,
                             onNavigateBack = { backStack.removeLastOrNull() },
-                            onRecordsSaved = {
-                                shouldRefreshExpenses = true
-                                backStack.removeLastOrNull()
-                            }
+                            // Tool-written records must be reflected in the ledger list.
+                            onRecordsChanged = { shouldRefreshExpenses = true }
                         )
                     }
                 }

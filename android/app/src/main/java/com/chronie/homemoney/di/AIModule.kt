@@ -3,9 +3,11 @@ package com.chronie.homemoney.di
 import android.content.Context
 import com.chronie.homemoney.data.ocr.DocumentScanProcessor
 import com.chronie.homemoney.data.repository.AIRecordRepositoryImpl
+import com.chronie.homemoney.data.repository.ChatRepositoryImpl
 import com.chronie.homemoney.data.vlm.MnnVlmEngine
 import com.chronie.homemoney.data.vlm.OnDeviceModelManager
 import com.chronie.homemoney.domain.repository.AIRecordRepository
+import com.chronie.homemoney.domain.repository.ChatRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -17,9 +19,9 @@ import javax.inject.Singleton
 /**
  * AI Module Dependency Injection
  *
- * Everything AI-related runs on-device now: OpenCV document scanning plus
- * the MNN-backed Qwen3-VL engine. The former SiliconFlow cloud Retrofit
- * stack was removed together with its API key handling.
+ * Two AI paths coexist: the original on-device recognition stack (OpenCV +
+ * MNN Qwen3-VL, still used for writes) and the new chat repository, which can
+ * drive the built-in engine or user-supplied OpenAI/Anthropic-compatible APIs.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -33,6 +35,13 @@ abstract class AIModule {
     abstract fun bindAIRecordRepository(
         impl: AIRecordRepositoryImpl
     ): AIRecordRepository
+
+    /** Conversations, streaming generation and tool execution. */
+    @Binds
+    @Singleton
+    abstract fun bindChatRepository(
+        impl: ChatRepositoryImpl
+    ): ChatRepository
 
     companion object {
         /**
