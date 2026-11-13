@@ -7,6 +7,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.chronie.homemoney.domain.model.chat.AiProviderConfig
 import com.chronie.homemoney.domain.model.chat.ProviderFormat
+import com.chronie.homemoney.domain.model.chat.ProviderToolMode
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -76,12 +77,33 @@ class AiProviderConfigManager @Inject constructor(
     )
     val autoWriteRecords: StateFlow<Boolean> = _autoWriteRecords.asStateFlow()
 
-    /** Resolves the currently selected provider, falling back to built-in. */
+    /**
+     * The 8B on-device model is heavy on battery and noticeably weaker than
+     * hosted models. Users can switch it off entirely; the provider picker and
+     * the active-provider resolution then skip it.
+     */
+    private val _onDeviceEnabled = MutableStateFlow(
+        prefs.getBoolean(KEY_ON_DEVICE_ENABLED, true)
+    )
+    val onDeviceEnabled: StateFlow<Boolean> = _onDeviceEnabled.asStateFlow()
+
+    /** Resolves the currently selected provider, skipping a disabled built-in. */
     fun activeProvider(): AiProviderConfig {
         val id = _activeProviderId.value
+        if (id == BUILT_IN_ID && !_onDeviceEnabled.value) {
+            return firstCustomProvider() ?: builtInProvider
+        }
         if (id == BUILT_IN_ID) return builtInProvider
-        return _providers.value.firstOrNull { it.id == id } ?: builtInProvider
+        return _providers.value.firstOrNull { it.id == id } ?: firstCustomProvider() ?: builtInProvider
     }
+
+    /** Custom providers ordered as stored; empty when none were configured. */
+    private fun firstCustomProvider(): AiProviderConfig? =
+        _providers.value.firstOrNull { !it.isBuiltIn }
+
+    /** Providers the user may actually select in the chat model picker. */
+    fun selectableProviders(): List<AiProviderConfig> =
+        if (_onDeviceEnabled.value) _providers.value else _providers.value.filterNot { it.isBuiltIn }
 
     /** Reads the secret for [providerId]; returns an empty string when unset. */
     fun apiKeyFor(providerId: String): String =
@@ -117,13 +139,63 @@ class AiProviderConfigManager @Inject constructor(
         if (id == BUILT_IN_ID) return
         persistProviders(_providers.value.filter { !it.isBuiltIn && it.id != id })
         securePrefs.edit { remove(KEY_API_KEY_PREFIX + id) }
-        if (_activeProviderId.value == id) setActiveProvider(BUILT_IN_ID)
+        if (_activeProviderId.value == id) {
+            val next = firstCustomProvider()
+                ?: builtInProvider.takeIf { _onDeviceEnabled.value }
+            if (next != null) {
+                setActiveProvider(next.id)
+            } else {
+                prefs.edit { remove(KEY_ACTIVE_PROVIDER) }
+                _activeProviderId.value = ""
+            }
+        }
     }
 
     fun setActiveProvider(id: String) {
+        if (id == BUILT_IN_ID && !_onDeviceEnabled.value) return
         prefs.edit { putString(KEY_ACTIVE_PROVIDER, id) }
         _activeProviderId.value = id
     }
+
+    /**
+     * Remembers that a provider rejected native function calling, so later
+     * turns skip the doomed HTTP 400 request instead of retrying every time.
+     */
+    fun rememberTextToolFallback(providerId: String) {
+        if (providerId == BUILT_IN_ID) return
+        val updated = _providers.value.map { provider ->
+            if (provider.id == providerId) {
+                provider.copy(toolMode = ProviderToolMode.TEXT.name)
+            } else {
+                provider
+            }
+        }
+        persistProviders(updated.filterNot { it.isBuiltIn })
+    }
+
+    /** Persists the user's explicit tool-mode choice for a provider. */
+    fun setToolMode(providerId: String, mode: ProviderToolMode) {
+        val updated = _providers.value
+            .filterNot { it.isBuiltIn }
+            .map { provider ->
+                if (provider.id == providerId) provider.copy(toolMode = mode.name) else provider
+            }
+        persistProviders(updated)
+    }
+
+    /**
+     * Disabling the on-device model switches away from it and lets callers
+     * release the mmap-ed weights, which is the main battery/RSS win.
+     */
+    fun setOnDeviceEnabled(enabled: Boolean) {
+        prefs.edit { putBoolean(KEY_ON_DEVICE_ENABLED, enabled) }
+        _onDeviceEnabled.value = enabled
+        if (!enabled && _activeProviderId.value == BUILT_IN_ID) {
+            firstCustomProvider()?.let { setActiveProvider(it.id) }
+        }
+    }
+
+    fun isOnDeviceEnabled(): Boolean = _onDeviceEnabled.value
 
     /**
      * Explicit user consent required before query tools are even advertised
@@ -192,6 +264,7 @@ class AiProviderConfigManager @Inject constructor(
         private const val KEY_ACTIVE_PROVIDER = "active_provider"
         private const val KEY_QUERY_AUTHORIZED = "query_authorized"
         private const val KEY_AUTO_WRITE = "auto_write_records"
+        private const val KEY_ON_DEVICE_ENABLED = "on_device_enabled"
         private const val KEY_API_KEY_PREFIX = "api_key_"
     }
 }

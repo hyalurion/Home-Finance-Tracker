@@ -659,4 +659,22 @@
     <string name="settings_ai_query_permission">Cho phép AI truy vấn bản ghi</string>
     <string name="settings_ai_query_permission_desc">Khi tắt, AI hoàn toàn không đọc được dữ liệu chi tiêu.</string>
 
+
+    <!-- AI Chat: reasoning (chain-of-thought) panel -->
+    <string name="chat_reasoning_thinking">Đang suy nghĩ…</string>
+    <string name="chat_reasoning_done">Đã suy nghĩ %1$s giây</string>
+    <string name="chat_reasoning_show">Hiển thị quá trình suy nghĩ</string>
+    <string name="chat_reasoning_hide">Ẩn quá trình suy nghĩ</string>
+
+
+    <!-- AI Chat: tool-call capability and on-device model opt-out -->
+    <string name="settings_ai_provider_tool_mode">Chế độ gọi công cụ</string>
+    <string name="settings_ai_tool_mode_auto">Tự động (khuyên dùng)</string>
+    <string name="settings_ai_tool_mode_text">Giao thức văn bản (không có function calling)</string>
+    <string name="settings_ai_tool_mode_off">Tắt công cụ</string>
+    <string name="settings_ai_tool_mode_hint">Tự động chuyển sang giao thức văn bản khi mô hình từ chối function calling và ghi nhớ cài đặt.</string>
+    <string name="settings_ai_on_device_enabled">Bật mô hình trên thiết bị (thử nghiệm)</string>
+    <string name="settings_ai_on_device_warning">Mô hình 8B trên thiết bị chạy chậm, hao pin và kém chính xác. Nên thêm mô hình trực tuyến; tắt sẽ giải phóng bộ nhớ.</string>
+    <string name="chat_no_model_available">Không có mô hình khả dụng. Hãy thêm nhà cung cấp API hoặc bật lại mô hình trên thiết bị trong Cài đặt &gt; AI.</string>
+
 </resources>

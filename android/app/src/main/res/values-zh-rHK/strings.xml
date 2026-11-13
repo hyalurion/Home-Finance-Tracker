@@ -659,4 +659,22 @@
     <string name="settings_ai_query_permission">允許 AI 查詢帳單</string>
     <string name="settings_ai_query_permission_desc">關閉時，AI 完全無法讀取你的帳單資料。</string>
 
+
+    <!-- AI Chat: reasoning (chain-of-thought) panel -->
+    <string name="chat_reasoning_thinking">思考中…</string>
+    <string name="chat_reasoning_done">已思考 %1$s 秒</string>
+    <string name="chat_reasoning_show">展開思考過程</string>
+    <string name="chat_reasoning_hide">收起思考過程</string>
+
+
+    <!-- AI Chat: tool-call capability and on-device model opt-out -->
+    <string name="settings_ai_provider_tool_mode">工具呼叫方式</string>
+    <string name="settings_ai_tool_mode_auto">自動（建議）</string>
+    <string name="settings_ai_tool_mode_text">文字協定（不支援 function calling）</string>
+    <string name="settings_ai_tool_mode_off">關閉工具呼叫</string>
+    <string name="settings_ai_tool_mode_hint">若模型回傳「Function call is not supported」，自動模式會降級為文字協定並記住設定。</string>
+    <string name="settings_ai_on_device_enabled">啟用內建裝置端模型（實驗性）</string>
+    <string name="settings_ai_on_device_warning">裝置端 8B 模型速度慢、耗電且準確度較低，建議新增線上模型；關閉後可釋放記憶體並省電。</string>
+    <string name="chat_no_model_available">沒有可用模型：請在「設定 &gt; AI」新增 API 服務或重新啟用裝置端模型。</string>
+
 </resources>

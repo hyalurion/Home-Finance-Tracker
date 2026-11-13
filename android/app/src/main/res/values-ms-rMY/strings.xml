@@ -659,4 +659,22 @@
     <string name="settings_ai_query_permission">Benarkan AI membaca rekod</string>
     <string name="settings_ai_query_permission_desc">Jika dimatikan, AI langsung tidak dapat membaca data perbelanjaan.</string>
 
+
+    <!-- AI Chat: reasoning (chain-of-thought) panel -->
+    <string name="chat_reasoning_thinking">Berfikir…</string>
+    <string name="chat_reasoning_done">Berfikir selama %1$s saat</string>
+    <string name="chat_reasoning_show">Tunjuk proses pemikiran</string>
+    <string name="chat_reasoning_hide">Sembunyikan proses pemikiran</string>
+
+
+    <!-- AI Chat: tool-call capability and on-device model opt-out -->
+    <string name="settings_ai_provider_tool_mode">Mod panggilan alat</string>
+    <string name="settings_ai_tool_mode_auto">Automatik (disyorkan)</string>
+    <string name="settings_ai_tool_mode_text">Protokol teks (tiada function calling)</string>
+    <string name="settings_ai_tool_mode_off">Lumpuhkan alat</string>
+    <string name="settings_ai_tool_mode_hint">Automatik beralih kepada protokol teks jika model menolak function calling dan mengingatnya.</string>
+    <string name="settings_ai_on_device_enabled">Dayakan model pada peranti (eksperimen)</string>
+    <string name="settings_ai_on_device_warning">Model 8B pada peranti perlahan, menggunakan banyak bateri dan kurang tepat. Tambah model dalam talian untuk hasil lebih baik; mematikannya membebaskan memori.</string>
+    <string name="chat_no_model_available">Tiada model tersedia. Tambah penyedia API atau dayakan semula model peranti dalam Tetapan &gt; AI.</string>
+
 </resources>

@@ -703,4 +703,22 @@
     <string name="settings_ai_query_permission">Allow AI to query records</string>
     <string name="settings_ai_query_permission_desc">When off, the AI cannot read your expense data at all.</string>
 
+
+    <!-- AI Chat: reasoning (chain-of-thought) panel -->
+    <string name="chat_reasoning_thinking">Thinking…</string>
+    <string name="chat_reasoning_done">Thought for %1$s s</string>
+    <string name="chat_reasoning_show">Show reasoning</string>
+    <string name="chat_reasoning_hide">Hide reasoning</string>
+
+
+    <!-- AI Chat: tool-call capability and on-device model opt-out -->
+    <string name="settings_ai_provider_tool_mode">Tool call mode</string>
+    <string name="settings_ai_tool_mode_auto">Auto (recommended)</string>
+    <string name="settings_ai_tool_mode_text">Text protocol (no function calling)</string>
+    <string name="settings_ai_tool_mode_off">Disable tools</string>
+    <string name="settings_ai_tool_mode_hint">Auto falls back to text tools when a model rejects function calling, and remembers it.</string>
+    <string name="settings_ai_on_device_enabled">Enable on-device model (experimental)</string>
+    <string name="settings_ai_on_device_warning">The 8B on-device model is slow, battery hungry and less accurate. Add an online model for better answers; turning it off frees memory.</string>
+    <string name="chat_no_model_available">No model available. Add an API provider or re-enable the on-device model in Settings &gt; AI.</string>
+
 </resources>

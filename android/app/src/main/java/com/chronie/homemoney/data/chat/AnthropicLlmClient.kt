@@ -6,6 +6,7 @@ import com.chronie.homemoney.domain.model.chat.LlmRequest
 import com.chronie.homemoney.domain.model.chat.LlmTurn
 import com.chronie.homemoney.domain.model.chat.PendingToolCall
 import com.chronie.homemoney.domain.model.chat.StreamEvent
+import com.chronie.homemoney.domain.model.chat.ToolProtocol
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -40,38 +41,98 @@ class AnthropicLlmClient @Inject constructor(
     ): Flow<StreamEvent> = flow {
         val httpRequest = buildRequest(request, config, apiKey, streaming = true)
         var activeTool: MutableAnthropicCall? = null
+        var reasoningActive = false
+        val signature = StringBuilder()
+        val textParser = if (request.toolProtocol == ToolProtocol.TEXT) {
+            TextProtocolParser(gson)
+        } else {
+            null
+        }
+
+        suspend fun dispatchText(parsed: TextEmission) {
+            if (parsed.reasoningDelta.isNotEmpty()) {
+                reasoningActive = true
+                emit(StreamEvent.ReasoningDelta(parsed.reasoningDelta))
+            }
+            if (reasoningActive && (parsed.reasoningEnded || parsed.textDelta.isNotEmpty())) {
+                reasoningActive = false
+                emit(StreamEvent.ReasoningEnded(signature.toString()))
+            }
+            if (parsed.textDelta.isNotEmpty()) emit(StreamEvent.TextDelta(parsed.textDelta))
+            parsed.tools.forEach { emit(StreamEvent.ToolCallCompleted(it)) }
+        }
 
         sseData(httpRequest).collect { data ->
             val frame = parseObject(data) ?: return@collect
-            frame.getAsJsonObject("error")?.let { err ->
-                error(err.getAsJsonPrimitive("message")?.asString ?: "Model returned an error")
+            objectField(frame, "error")?.let { err ->
+                error(stringField(err, "message") ?: "Model returned an error")
             }
-            when (frame.getAsJsonPrimitive("type")?.asString) {
+            when (stringField(frame, "type")) {
                 "content_block_start" -> {
-                    val block = frame.getAsJsonObject("content_block") ?: return@collect
-                    if (block.getAsJsonPrimitive("type")?.asString == "tool_use") {
-                        activeTool = MutableAnthropicCall(
-                            id = block.getAsJsonPrimitive("id")?.asString
+                    val block = objectField(frame, "content_block") ?: return@collect
+                    when (stringField(block, "type")) {
+                        "tool_use" -> activeTool = MutableAnthropicCall(
+                            id = stringField(block, "id")
                                 ?: java.util.UUID.randomUUID().toString(),
-                            name = block.getAsJsonPrimitive("name")?.asString.orEmpty(),
-                            initialInput = block.getAsJsonObject("input")?.toString().orEmpty()
+                            name = stringField(block, "name").orEmpty(),
+                            initialInput = objectField(block, "input")?.toString().orEmpty()
                         )
+
+                        // Extended thinking blocks carry their text in
+                        // thinking_delta frames; `redacted_thinking` is skipped.
+                        "thinking" -> {
+                            reasoningActive = true
+                            stringField(block, "thinking")
+                                ?.takeIf { it.isNotEmpty() }
+                                ?.let { emit(StreamEvent.ReasoningDelta(it)) }
+                        }
                     }
                 }
 
                 "content_block_delta" -> {
-                    val delta = frame.getAsJsonObject("delta") ?: return@collect
-                    when (delta.getAsJsonPrimitive("type")?.asString) {
-                        "text_delta" -> delta.getAsJsonPrimitive("text")?.asString
-                            ?.takeIf { it.isNotEmpty() }
-                            ?.let { emit(StreamEvent.TextDelta(it)) }
+                    val delta = objectField(frame, "delta") ?: return@collect
+                    // Anthropic-format gateways sometimes reuse the OpenAI field name.
+                    stringField(delta, "reasoning_content", "reasoning")
+                        ?.takeIf { it.isNotEmpty() }
+                        ?.let {
+                            reasoningActive = true
+                            emit(StreamEvent.ReasoningDelta(it))
+                        }
+                    when (stringField(delta, "type")) {
+                        "thinking_delta" -> {
+                            reasoningActive = true
+                            stringField(delta, "thinking")
+                                ?.takeIf { it.isNotEmpty() }
+                                ?.let { emit(StreamEvent.ReasoningDelta(it)) }
+                        }
 
-                        "input_json_delta" -> delta.getAsJsonPrimitive("partial_json")?.asString
+                        "signature_delta" -> stringField(delta, "signature")
+                            ?.let { signature.append(it) }
+
+                        "text_delta" -> stringField(delta, "text")
+                            ?.takeIf { it.isNotEmpty() }
+                            ?.let { text ->
+                                if (textParser != null) {
+                                    dispatchText(textParser.feed(text))
+                                } else {
+                                    if (reasoningActive) {
+                                        reasoningActive = false
+                                        emit(StreamEvent.ReasoningEnded(signature.toString()))
+                                    }
+                                    emit(StreamEvent.TextDelta(text))
+                                }
+                            }
+
+                        "input_json_delta" -> stringField(delta, "partial_json")
                             ?.let { activeTool?.arguments?.append(it) }
                     }
                 }
 
                 "content_block_stop" -> {
+                    if (reasoningActive) {
+                        reasoningActive = false
+                        emit(StreamEvent.ReasoningEnded(signature.toString()))
+                    }
                     activeTool?.let { slot ->
                         if (slot.name.isNotBlank()) {
                             val args = slot.arguments.toString().ifBlank {
@@ -88,12 +149,17 @@ class AnthropicLlmClient @Inject constructor(
                 }
 
                 "error" -> error(
-                    frame.getAsJsonObject("error")?.getAsJsonPrimitive("message")?.asString
+                    objectField(frame, "error")?.let { stringField(it, "message") }
                         ?: "Anthropic stream error"
                 )
             }
         }
 
+        if (textParser != null) dispatchText(textParser.finish())
+        if (reasoningActive) {
+            reasoningActive = false
+            emit(StreamEvent.ReasoningEnded(signature.toString()))
+        }
         activeTool?.let { slot ->
             if (slot.name.isNotBlank()) {
                 emit(
@@ -124,7 +190,11 @@ class AnthropicLlmClient @Inject constructor(
             addProperty("stream", streaming)
             addProperty("system", request.systemPrompt)
             add("messages", buildMessages(request))
-            if (streaming && request.tools.isNotEmpty()) add("tools", buildTools(request))
+            if (streaming && request.toolProtocol == ToolProtocol.NATIVE &&
+                request.tools.isNotEmpty()
+            ) {
+                add("tools", buildTools(request))
+            }
         }
 
         return Request.Builder()
@@ -138,6 +208,7 @@ class AnthropicLlmClient @Inject constructor(
 
     private fun buildMessages(request: LlmRequest): JsonArray {
         val messages = JsonArray()
+        val native = request.toolProtocol == ToolProtocol.NATIVE
         var pendingToolResults: JsonArray? = null
 
         fun flushToolResults() {
@@ -164,17 +235,33 @@ class AnthropicLlmClient @Inject constructor(
                     flushToolResults()
                     messages.add(JsonObject().apply {
                         addProperty("role", "assistant")
-                        add("content", assistantContent(turn))
+                        add("content", assistantContent(turn, native))
                     })
                 }
 
                 ChatRole.TOOL -> {
                     if (pendingToolResults == null) pendingToolResults = JsonArray()
-                    pendingToolResults!!.add(JsonObject().apply {
-                        addProperty("type", "tool_result")
-                        addProperty("tool_use_id", turn.toolCallId.orEmpty())
-                        addProperty("content", turn.toolResult ?: "{}")
-                    })
+                    pendingToolResults!!.add(
+                        if (native) {
+                            JsonObject().apply {
+                                addProperty("type", "tool_result")
+                                addProperty("tool_use_id", turn.toolCallId.orEmpty())
+                                addProperty("content", turn.toolResult ?: "{}")
+                            }
+                        } else {
+                            // `tool_result` without a matching `tool_use` is a
+                            // 400 on strict Anthropic-compatible endpoints.
+                            JsonObject().apply {
+                                addProperty("type", "text")
+                                addProperty(
+                                    "text",
+                                    TextProtocolMarkers.renderToolResult(
+                                        turn.toolName, turn.toolResult
+                                    )
+                                )
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -217,23 +304,44 @@ class AnthropicLlmClient @Inject constructor(
         }
     }
 
-    private fun assistantContent(turn: LlmTurn): JsonArray = JsonArray().apply {
-        if (turn.content.isNotBlank()) {
+    private fun assistantContent(turn: LlmTurn, native: Boolean): JsonArray = JsonArray().apply {
+        // Anthropic requires a signed thinking block to be replayed verbatim
+        // ahead of any tool_use block in the same assistant turn. Gateways that
+        // do not emit a signature get a plain text turn instead.
+        if (native && turn.reasoningContent.isNotBlank() && turn.reasoningSignature.isNotBlank()) {
             add(JsonObject().apply {
-                addProperty("type", "text")
-                addProperty("text", turn.content)
+                addProperty("type", "thinking")
+                addProperty("thinking", turn.reasoningContent)
+                addProperty("signature", turn.reasoningSignature)
             })
         }
-        turn.toolCalls.forEach { call ->
-            val input = runCatching {
-                gson.fromJson(call.argumentsJson, JsonObject::class.java)
-            }.getOrNull() ?: JsonObject()
+        val body = buildString {
+            append(turn.content)
+            if (!native) {
+                turn.toolCalls.forEach { call ->
+                    append("\n")
+                    append(TextProtocolMarkers.renderToolCall(call.name, call.argumentsJson))
+                }
+            }
+        }
+        if (body.isNotBlank()) {
             add(JsonObject().apply {
-                addProperty("type", "tool_use")
-                addProperty("id", call.id)
-                addProperty("name", call.name)
-                add("input", input)
+                addProperty("type", "text")
+                addProperty("text", body)
             })
+        }
+        if (native) {
+            turn.toolCalls.forEach { call ->
+                val input = runCatching {
+                    gson.fromJson(call.argumentsJson, JsonObject::class.java)
+                }.getOrNull() ?: JsonObject()
+                add(JsonObject().apply {
+                    addProperty("type", "tool_use")
+                    addProperty("id", call.id)
+                    addProperty("name", call.name)
+                    add("input", input)
+                })
+            }
         }
         if (size() == 0) {
             add(JsonObject().apply {

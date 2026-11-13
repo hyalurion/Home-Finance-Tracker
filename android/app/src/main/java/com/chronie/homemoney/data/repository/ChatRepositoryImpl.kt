@@ -5,6 +5,7 @@ import com.chronie.homemoney.data.chat.AgentToolExecutor
 import com.chronie.homemoney.data.chat.AgentToolSpecs
 import com.chronie.homemoney.data.chat.ChatAttachmentCodec
 import com.chronie.homemoney.data.chat.ChatSystemPrompt
+import com.chronie.homemoney.data.chat.LlmClient
 import com.chronie.homemoney.data.chat.LlmClientFactory
 import com.chronie.homemoney.data.local.AiProviderConfigManager
 import com.chronie.homemoney.data.local.dao.ChatDao
@@ -19,9 +20,12 @@ import com.chronie.homemoney.domain.model.chat.ChatRole
 import com.chronie.homemoney.domain.model.chat.LlmRequest
 import com.chronie.homemoney.domain.model.chat.LlmTurn
 import com.chronie.homemoney.domain.model.chat.PendingToolCall
+import com.chronie.homemoney.domain.model.chat.ProviderToolMode
 import com.chronie.homemoney.domain.model.chat.StreamEvent
 import com.chronie.homemoney.domain.model.chat.ToolCallRecord
 import com.chronie.homemoney.domain.model.chat.ToolCallStatus
+import com.chronie.homemoney.domain.model.chat.ToolProtocol
+import com.chronie.homemoney.domain.model.chat.ToolSpec
 import com.chronie.homemoney.domain.repository.ChatRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.channels.Channel
@@ -37,9 +41,10 @@ import javax.inject.Singleton
  * Orchestrates conversations: persistence, streaming generation, and the
  * tool-call loop (model -> tool result -> model) up to [MAX_TOOL_ROUNDS].
  *
- * Messages are only written to Room once a turn completes; live tokens are
- * delivered through [ChatProgress] so the ViewModel can render them without
- * hammering the encrypted database on every token.
+ * Tool delivery is per-provider. Many OpenAI-compatible gateways reject a
+ * `tools` member with `HTTP 400 Function call is not supported for this
+ * model`; AUTO mode retries the same turn with a plain-text tool protocol and
+ * remembers the capability so later turns never repeat the failed request.
  */
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
@@ -192,9 +197,17 @@ class ChatRepositoryImpl @Inject constructor(
         val config = configManager.activeProvider()
         val apiKey = configManager.apiKeyFor(config.id)
         val client = clientFactory.create(config)
-        val tools = AgentToolSpecs.available(configManager.isQueryAuthorized())
-        val systemPrompt = ChatSystemPrompt.build(tools, config.isBuiltIn)
+
+        val tools: List<ToolSpec> = if (config.resolvedToolMode == ProviderToolMode.OFF) {
+            emptyList()
+        } else {
+            AgentToolSpecs.available(configManager.isQueryAuthorized())
+        }
+
+        var protocol = resolveProtocol(config, tools)
         var turns = loadTurns(conversationId)
+        val maxTokens = if (config.isBuiltIn) ON_DEVICE_OUTPUT_TOKENS else MAX_OUTPUT_TOKENS
+        var fallbackUsed = false
 
         repeat(MAX_TOOL_ROUNDS) {
             val assistant = ChatMessage(
@@ -205,35 +218,35 @@ class ChatRepositoryImpl @Inject constructor(
             )
             trySend(ChatProgress.AssistantStarted(assistant))
 
-            val answer = StringBuilder()
-            val requested = mutableListOf<PendingToolCall>()
-            var failure: String? = null
+            var outcome = runAttempt(
+                client, config, apiKey, turns, tools, protocol, maxTokens
+            )
 
-            client.stream(
-                LlmRequest(
-                    systemPrompt = systemPrompt,
-                    turns = turns,
-                    tools = tools,
-                    maxTokens = MAX_OUTPUT_TOKENS
-                ),
-                config,
-                apiKey
-            ).collect { event ->
-                when (event) {
-                    is StreamEvent.TextDelta -> {
-                        answer.append(event.text)
-                        trySend(ChatProgress.AssistantDelta(event.text))
-                    }
-                    is StreamEvent.ToolCallCompleted -> requested.add(event.call)
-                    is StreamEvent.Failed -> failure = event.message
-                    StreamEvent.Completed -> Unit
-                }
+            // A native tool request can be rejected before the first SSE frame
+            // (HTTP 400 / code 20037). Retry the same turn with text markers;
+            // the partial answer is empty in that case, so no UI text doubles.
+            val firstFailure = outcome.failure
+            if (firstFailure != null && !fallbackUsed &&
+                protocol == ToolProtocol.NATIVE && !outcome.emittedDeltas &&
+                (isToolUnsupportedError(firstFailure) || isBareHttpRejection(firstFailure))
+            ) {
+                Log.i(TAG, "Provider rejected native tools; switching to text protocol")
+                configManager.rememberTextToolFallback(config.id)
+                protocol = ToolProtocol.TEXT
+                fallbackUsed = true
+                outcome = runAttempt(
+                    client, config, apiKey, turns, tools, protocol, maxTokens
+                )
             }
 
+            val failure = outcome.failure
             if (failure != null) {
                 persist(
                     assistant.copy(
-                        content = answer.toString(),
+                        content = outcome.answer,
+                        reasoningContent = outcome.reasoning,
+                        reasoningDurationMs = outcome.reasoningDurationMs,
+                        reasoningSignature = outcome.reasoningSignature,
                         status = ChatMessageStatus.FAILED
                     )
                 )
@@ -241,10 +254,13 @@ class ChatRepositoryImpl @Inject constructor(
                 return
             }
 
-            if (requested.isEmpty()) {
+            if (outcome.requested.isEmpty()) {
                 persist(
                     assistant.copy(
-                        content = answer.toString(),
+                        content = outcome.answer,
+                        reasoningContent = outcome.reasoning,
+                        reasoningDurationMs = outcome.reasoningDurationMs,
+                        reasoningSignature = outcome.reasoningSignature,
                         status = ChatMessageStatus.COMPLETE
                     )
                 )
@@ -254,7 +270,7 @@ class ChatRepositoryImpl @Inject constructor(
 
             // Persist the assistant turn with pending tool cards, then execute
             // each tool and update the same message as results arrive.
-            var toolRecords: List<ToolCallRecord> = requested.map { call ->
+            var toolRecords: List<ToolCallRecord> = outcome.requested.map { call ->
                 ToolCallRecord(
                     id = call.id,
                     name = call.name,
@@ -263,7 +279,10 @@ class ChatRepositoryImpl @Inject constructor(
                 )
             }
             var stored = assistant.copy(
-                content = answer.toString(),
+                content = outcome.answer,
+                reasoningContent = outcome.reasoning,
+                reasoningDurationMs = outcome.reasoningDurationMs,
+                reasoningSignature = outcome.reasoningSignature,
                 toolCalls = toolRecords,
                 status = ChatMessageStatus.COMPLETE
             )
@@ -271,7 +290,7 @@ class ChatRepositoryImpl @Inject constructor(
 
             val toolTurns = mutableListOf<LlmTurn>()
             var awaitingConfirmation = false
-            requested.forEach { call ->
+            outcome.requested.forEach { call ->
                 val execution = toolExecutor.execute(call)
                 toolRecords = toolRecords.map {
                     if (it.id == execution.record.id) execution.record else it
@@ -298,12 +317,142 @@ class ChatRepositoryImpl @Inject constructor(
             }
 
             turns = turns +
-                LlmTurn(role = ChatRole.ASSISTANT, content = answer.toString(), toolCalls = requested) +
+                LlmTurn(
+                    role = ChatRole.ASSISTANT,
+                    content = outcome.answer,
+                    toolCalls = outcome.requested,
+                    reasoningContent = outcome.reasoning,
+                    reasoningSignature = outcome.reasoningSignature
+                ) +
                 toolTurns
         }
 
         Log.w(TAG, "Tool loop reached its round limit")
         trySend(ChatProgress.Finished)
+    }
+
+    /** Resolves how tools reach the model for this provider and permission set. */
+    private fun resolveProtocol(
+        config: AiProviderConfig,
+        tools: List<ToolSpec>
+    ): ToolProtocol = when {
+        tools.isEmpty() -> ToolProtocol.NONE
+        config.isBuiltIn -> ToolProtocol.TEXT
+        config.resolvedToolMode == ProviderToolMode.TEXT -> ToolProtocol.TEXT
+        else -> ToolProtocol.NATIVE
+    }
+
+    /**
+     * Runs one model turn, forwarding live deltas to the UI and collecting the
+     * final state. Kept separate from the tool loop so a capability fallback
+     * can re-run the same turn with a different protocol without duplicating
+     * persisted or rendered content.
+     */
+    private suspend fun ProducerScope<ChatProgress>.runAttempt(
+        client: LlmClient,
+        config: AiProviderConfig,
+        apiKey: String,
+        turns: List<LlmTurn>,
+        tools: List<ToolSpec>,
+        protocol: ToolProtocol,
+        maxTokens: Int
+    ): AttemptOutcome {
+        val answer = StringBuilder()
+        val reasoning = StringBuilder()
+        val requested = mutableListOf<PendingToolCall>()
+        var failure: String? = null
+        var reasoningStartedAt: Long? = null
+        var reasoningDurationMs = 0L
+        var reasoningSignature = ""
+        var reasoningActive = false
+        var emittedDeltas = false
+
+        fun endReasoning(signature: String = "") {
+            if (!reasoningActive) return
+            reasoningActive = false
+            if (signature.isNotBlank()) reasoningSignature = signature
+            reasoningDurationMs = reasoningStartedAt
+                ?.let { System.currentTimeMillis() - it } ?: 0L
+            trySend(ChatProgress.ReasoningEnded(reasoningDurationMs))
+        }
+
+        val systemPrompt = ChatSystemPrompt.build(tools, protocol, config.isBuiltIn)
+        client.stream(
+            LlmRequest(
+                systemPrompt = systemPrompt,
+                turns = turns,
+                tools = tools,
+                maxTokens = maxTokens,
+                toolProtocol = protocol
+            ),
+            config,
+            apiKey
+        ).collect { event ->
+            when (event) {
+                is StreamEvent.ReasoningDelta -> {
+                    if (reasoningStartedAt == null) {
+                        reasoningStartedAt = System.currentTimeMillis()
+                    }
+                    reasoningActive = true
+                    reasoning.append(event.text)
+                    emittedDeltas = true
+                    trySend(ChatProgress.ReasoningDelta(event.text))
+                }
+
+                is StreamEvent.ReasoningEnded -> endReasoning(event.signature)
+
+                is StreamEvent.TextDelta -> {
+                    // The first visible token also closes the thinking phase
+                    // for gateways that never emit an explicit end marker.
+                    endReasoning()
+                    answer.append(event.text)
+                    emittedDeltas = true
+                    trySend(ChatProgress.AssistantDelta(event.text))
+                }
+
+                is StreamEvent.ToolCallCompleted -> {
+                    requested.add(event.call)
+                    emittedDeltas = true
+                }
+
+                is StreamEvent.Failed -> failure = event.message
+                StreamEvent.Completed -> Unit
+            }
+        }
+        endReasoning()
+
+        return AttemptOutcome(
+            answer = answer.toString(),
+            reasoning = reasoning.toString(),
+            reasoningDurationMs = reasoningDurationMs,
+            reasoningSignature = reasoningSignature,
+            requested = requested,
+            failure = failure,
+            emittedDeltas = emittedDeltas
+        )
+    }
+
+    /**
+     * A bare 4xx/5xx on the very first frame of a request carrying `tools`
+     * is almost always a schema rejection — some gateways close the body
+     * before we can read the explanatory JSON. Retry with text tools anyway.
+     */
+    private fun isBareHttpRejection(message: String): Boolean =
+        Regex("HTTP\\s+(400|404|405|415|422|501)", RegexOption.IGNORE_CASE)
+            .containsMatchIn(message)
+
+    /** Detects "this model does not support function calling" errors. */
+    private fun isToolUnsupportedError(message: String): Boolean {
+        val lower = message.lowercase()
+        val negative = listOf(
+            "not supported", "unsupported", "not support", "does not support",
+            "doesn't support", "not available", "20037"
+        ).any { lower.contains(it) }
+        val toolRelated = listOf(
+            "function call", "function_call", "tool call", "tool_call",
+            "tool_use", "tools", "function"
+        ).any { lower.contains(it) }
+        return negative && toolRelated
     }
 
     /** Rebuilds a provider-neutral transcript from persisted messages. */
@@ -331,7 +480,9 @@ class ChatRepositoryImpl @Inject constructor(
                             content = message.content,
                             toolCalls = message.toolCalls.map {
                                 PendingToolCall(it.id, it.name, it.argumentsJson)
-                            }
+                            },
+                            reasoningContent = message.reasoningContent,
+                            reasoningSignature = message.reasoningSignature
                         )
                     )
                     message.toolCalls.filter { it.resultJson != null }.forEach { tool ->
@@ -361,9 +512,22 @@ class ChatRepositoryImpl @Inject constructor(
         )
     }
 
+    private data class AttemptOutcome(
+        val answer: String,
+        val reasoning: String,
+        val reasoningDurationMs: Long,
+        val reasoningSignature: String,
+        val requested: List<PendingToolCall>,
+        val failure: String?,
+        val emittedDeltas: Boolean
+    )
+
     private companion object {
         const val TAG = "ChatRepositoryImpl"
         const val MAX_TOOL_ROUNDS = 4
-        const val MAX_OUTPUT_TOKENS = 2048
+        // Reasoning models consume part of the output budget on chain of thought.
+        const val MAX_OUTPUT_TOKENS = 4096
+        // The on-device 8B model is slow and power hungry; keep replies short.
+        const val ON_DEVICE_OUTPUT_TOKENS = 512
     }
 }

@@ -916,7 +916,9 @@ class OnDeviceModelManager @Inject constructor(
                 )
             }
 
-            val body = response.body ?: throw IOException("Empty body for ${mf.name}")
+            // OkHttp 5 exposes a non-null ResponseBody, so an Elvis fallback
+            // here is dead code. Keep the guard as an explicit stream check.
+            val body = response.body
             val expectedBytes = endByte - startByte
 
             body.byteStream().use { input ->

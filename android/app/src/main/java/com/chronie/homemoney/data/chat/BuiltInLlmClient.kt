@@ -1,33 +1,35 @@
 package com.chronie.homemoney.data.chat
 
 import com.chronie.homemoney.data.vlm.MnnVlmEngine
+import com.chronie.homemoney.data.vlm.NativeChatTurn
 import com.chronie.homemoney.data.vlm.OnDeviceModelManager
 import com.chronie.homemoney.domain.model.chat.AiProviderConfig
 import com.chronie.homemoney.domain.model.chat.ChatRole
 import com.chronie.homemoney.domain.model.chat.LlmRequest
-import com.chronie.homemoney.domain.model.chat.PendingToolCall
+import com.chronie.homemoney.domain.model.chat.LlmTurn
 import com.chronie.homemoney.domain.model.chat.StreamEvent
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.catch
 import java.io.File
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Built-in on-device backend (MNN / Qwen3-VL 8B).
  *
- * The existing `MnnVlmEngine.generate(onToken)` already exposes token-level
- * streaming via its JNI TokenListener — this client is the first consumer of
- * that callback. The native bridge only accepts a flat prompt, so conversation
- * history is rendered into labelled turns, images are passed as file paths,
- * and tool calls use a strict text marker protocol instead of native function
- * calling. Markers are stripped from the visible answer as tokens arrive.
+ * History is handed to MNN as role-tagged [NativeChatTurn]s so the runtime
+ * applies the model's real chat template. The earlier implementation flattened
+ * everything into one `[User]/[Assistant]` labelled string, which made the
+ * model *continue the transcript* with invented dialogue and garbage dates.
+ *
+ * Tool calls and reasoning use plain-text markers (see [TextProtocolParser]):
+ * `<think>` is a Qwen3 special token and MNN's template already injects an
+ * empty `<think>\n\n</think>\n\n` assistant prefix, so special-token markers
+ * never reach the stream. A short output budget keeps battery use bounded.
  */
 @Singleton
 class BuiltInLlmClient @Inject constructor(
@@ -52,32 +54,49 @@ class BuiltInLlmClient @Inject constructor(
             return@channelFlow
         }
 
+        val turns = buildNativeTurns(request)
         val imagePaths = request.turns
             .flatMap { it.attachments }
             .filter { it.isImage && File(it.path).exists() }
             .map { it.path }
 
-        val prompt = buildFlatPrompt(request)
-        val raw = StringBuilder()
-        var visibleLength = 0
+        val parser = TextProtocolParser(gson)
+        var reasoningActive = false
 
-        // channelFlow is required here: the JNI TokenListener is invoked from
-        // a native/Dispatchers.Default thread through runBlocking, so a plain
-        // flow {} builder would violate Flow's single-coroutine emission rule.
-        val result = engine.generate(prompt, imagePaths) { token ->
-            raw.append(token)
-            val visible = visiblePrefix(raw.toString())
-            if (visible.length > visibleLength) {
-                trySend(StreamEvent.TextDelta(visible.substring(visibleLength)))
-                visibleLength = visible.length
+        /** Applies one incremental emission on the native callback thread. */
+        fun dispatch(result: TextEmission) {
+            if (result.reasoningDelta.isNotEmpty()) {
+                reasoningActive = true
+                trySend(StreamEvent.ReasoningDelta(result.reasoningDelta))
             }
+            // Reasoning closes either on an explicit marker or on the first
+            // visible answer token; whichever arrives first wins.
+            if (reasoningActive && (result.reasoningEnded || result.textDelta.isNotEmpty())) {
+                reasoningActive = false
+                trySend(StreamEvent.ReasoningEnded())
+            }
+            if (result.textDelta.isNotEmpty()) {
+                trySend(StreamEvent.TextDelta(result.textDelta))
+            }
+            result.tools.forEach { call -> trySend(StreamEvent.ToolCallCompleted(call)) }
         }
+
+        // channelFlow is required: the JNI TokenListener runs on a native
+        // generation thread and calls back through runBlocking, so a plain
+        // flow {} builder would violate Flow's single-coroutine emission rule.
+        val result = engine.generateTurns(
+            turns = turns,
+            imagePaths = imagePaths,
+            endWith = "[User]",
+            maxNewTokens = MAX_NEW_TOKENS
+        ) { token -> dispatch(parser.feed(token)) }
         result.exceptionOrNull()?.let {
             trySend(StreamEvent.Failed(it.message ?: "On-device generation failed"))
             return@channelFlow
         }
 
-        parseToolCalls(raw.toString()).forEach { trySend(StreamEvent.ToolCallCompleted(it)) }
+        dispatch(parser.finish())
+        if (reasoningActive) trySend(StreamEvent.ReasoningEnded())
         trySend(StreamEvent.Completed)
     }.buffer(Channel.UNLIMITED).catch { e ->
         emit(StreamEvent.Failed(e.message ?: "On-device generation failed"))
@@ -90,64 +109,63 @@ class BuiltInLlmClient @Inject constructor(
             Result.failure(IllegalStateException("On-device model is not downloaded"))
         }
 
-    /** Flattens provider-neutral turns into the single-prompt format MNN expects. */
-    private fun buildFlatPrompt(request: LlmRequest): String {
-        val history = request.turns.joinToString("\n\n") { turn ->
-            when (turn.role) {
-                ChatRole.USER -> buildString {
-                    append("[User]\n").append(turn.content)
-                    turn.attachments.forEach { attachment ->
-                        if (attachment.isImage) {
-                            append("\n[Image attached: ${attachment.displayName}]")
-                        } else {
-                            append("\n[File attached: ${attachment.displayName}]\n")
-                            append(codec.readText(attachment, 4_000))
-                        }
-                    }
-                }
+    /**
+     * Maps provider-neutral turns onto chat-template roles. Tool results are
+     * merged into a user turn (Qwen3 has no tool role), and consecutive turns
+     * with the same role are collapsed so the template stays valid.
+     */
+    private fun buildNativeTurns(request: LlmRequest): List<NativeChatTurn> {
+        val recent = request.turns.takeLast(MAX_HISTORY_TURNS)
+        val mapped = mutableListOf<NativeChatTurn>()
+        mapped.add(NativeChatTurn("system", request.systemPrompt))
 
-                ChatRole.ASSISTANT -> buildString {
-                    append("[Assistant]\n").append(turn.content)
-                    turn.toolCalls.forEach {
-                        append("\n[Requested tool ${it.name} with ${it.argumentsJson}]")
-                    }
-                }
-
-                ChatRole.TOOL -> "[Tool result (${turn.toolName ?: "tool"})]\n${turn.toolResult ?: "{}"}"
+        recent.forEach { turn ->
+            val (role, content) = when (turn.role) {
+                ChatRole.USER -> "user" to renderUser(turn)
+                ChatRole.ASSISTANT -> "assistant" to renderAssistant(turn)
+                ChatRole.TOOL -> "user" to
+                    "[Tool result: ${turn.toolName ?: "tool"}]\n${turn.toolResult ?: "{}"}"
+            }
+            val last = mapped.lastOrNull()
+            if (last != null && last.role == role && role != "system") {
+                mapped[mapped.lastIndex] = NativeChatTurn(role, last.content + "\n\n" + content)
+            } else {
+                mapped.add(NativeChatTurn(role, content))
             }
         }
-        return "${request.systemPrompt}\n\n### Conversation\n$history\n\n[Assistant]\n"
+        // A trailing assistant turn would make the model continue itself; end
+        // on a user turn so the template opens a fresh assistant response.
+        if (mapped.last().role != "user") {
+            mapped.add(NativeChatTurn("user", "请现在给出唯一一次回答。"))
+        }
+        return mapped
     }
 
-    /** Hides complete tool markers and any partial marker currently streaming in. */
-    private fun visiblePrefix(raw: String): String {
-        val marker = ChatSystemPrompt.TOOL_MARKER_START
-        val fullIndex = raw.indexOf(marker)
-        if (fullIndex >= 0) return raw.substring(0, fullIndex)
-
-        val maxProbe = minOf(marker.length - 1, raw.length)
-        for (length in maxProbe downTo 1) {
-            if (raw.endsWith(marker.take(length))) {
-                return raw.substring(0, raw.length - length)
+    private fun renderUser(turn: LlmTurn): String = buildString {
+        append(turn.content)
+        turn.attachments.forEach { attachment ->
+            if (attachment.isImage) {
+                append("\n[图片附件: ${attachment.displayName}]")
+            } else {
+                append("\n[文件附件: ${attachment.displayName}]\n")
+                append(codec.readText(attachment, 2_000))
             }
         }
-        return raw
     }
 
-    private fun parseToolCalls(raw: String): List<PendingToolCall> {
-        val cleaned = raw.replace("```json", "").replace("```", "")
-        val regex = Regex(
-            Regex.escape(ChatSystemPrompt.TOOL_MARKER_START) +
-                "([\\s\\S]*?)" +
-                Regex.escape(ChatSystemPrompt.TOOL_MARKER_END)
-        )
-        return regex.findAll(cleaned).mapNotNull { match ->
-            val payload = match.groupValues[1].trim()
-            val obj = runCatching { gson.fromJson(payload, JsonObject::class.java) }.getOrNull()
-                ?: return@mapNotNull null
-            val name = obj.getAsJsonPrimitive("name")?.asString ?: return@mapNotNull null
-            val arguments = obj.get("arguments")?.toString() ?: "{}"
-            PendingToolCall(UUID.randomUUID().toString(), name, arguments)
-        }.toList()
+    private fun renderAssistant(turn: LlmTurn): String = buildString {
+        append(turn.content)
+        turn.toolCalls.forEach { call ->
+            append("\n")
+            append(TextProtocolMarkers.TOOL_START)
+            append("""{"name":"${call.name}","arguments":${call.argumentsJson}}""")
+            append(TextProtocolMarkers.TOOL_END)
+        }
+    }
+
+    private companion object {
+        /** Longer histories cost a full prefill on every turn (and battery). */
+        const val MAX_HISTORY_TURNS = 10
+        const val MAX_NEW_TOKENS = 512
     }
 }

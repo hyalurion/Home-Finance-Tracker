@@ -11,6 +11,9 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** One role/content pair handed to MNN's native chat template. */
+data class NativeChatTurn(val role: String, val content: String)
+
 /**
  * Kotlin facade for the on-device multimodal LLM (Qwen3-VL 8B, MNN runtime).
  *
@@ -98,6 +101,21 @@ class MnnVlmEngine @Inject constructor() {
     ): String
     private external fun nativeReset()
 
+    /**
+     * Multi-turn overload. MNN applies the model's real chat template to these
+     * role/content pairs, so history is no longer flattened into one user
+     * message — that flattening was what made small models continue the
+     * transcript with invented `[User]` / `[Assistant]` lines.
+     */
+    private external fun nativeChatTurns(
+        roles: Array<String>,
+        contents: Array<String>,
+        imagePaths: String?,
+        listener: TokenListener?,
+        endWith: String?,
+        maxNewTokens: Int
+    ): String
+
     /** Serializes load/destroy so concurrent coroutines cannot interleave. */
     private val lifecycleMutex = Mutex()
 
@@ -171,6 +189,50 @@ class MnnVlmEngine @Inject constructor() {
             nativeChat(prompt, imagePathsStr, listener)
         } catch (e: Throwable) {
             Log.e(TAG, "nativeChat threw", e)
+            return@withContext Result.failure(e)
+        }
+
+        if (output.isBlank()) {
+            Result.failure(IllegalStateException("The on-device model returned an empty response"))
+        } else {
+            Result.success(output)
+        }
+    }
+
+    /**
+     * Runs generation over properly role-tagged turns.
+     *
+     * @param endWith optional literal stop string (e.g. `[User]`) that cuts off
+     *   a model which still tries to continue a fake dialogue.
+     * @param maxNewTokens hard cap kept low on-device to bound battery usage.
+     */
+    suspend fun generateTurns(
+        turns: List<NativeChatTurn>,
+        imagePaths: List<String>? = null,
+        endWith: String? = null,
+        maxNewTokens: Int = 512,
+        onToken: (suspend (String) -> Unit)? = null
+    ): Result<String> = withContext(Dispatchers.Default) {
+        if (!isReady()) {
+            return@withContext Result.failure(IllegalStateException("Engine not loaded"))
+        }
+        if (turns.isEmpty()) {
+            return@withContext Result.failure(IllegalArgumentException("No chat turns supplied"))
+        }
+        val paths = if (imagePaths.isNullOrEmpty()) null else imagePaths.joinToString(",")
+        val listener: TokenListener? = if (onToken == null) null else TokenRelay(onToken)
+
+        val output = try {
+            nativeChatTurns(
+                turns.map { it.role }.toTypedArray(),
+                turns.map { it.content }.toTypedArray(),
+                paths,
+                listener,
+                endWith,
+                maxNewTokens
+            )
+        } catch (e: Throwable) {
+            Log.e(TAG, "nativeChatTurns threw", e)
             return@withContext Result.failure(e)
         }
 

@@ -3,6 +3,7 @@ package com.chronie.homemoney.data.chat
 import com.chronie.homemoney.domain.model.chat.AiProviderConfig
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.google.gson.JsonElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
@@ -100,6 +101,29 @@ abstract class SseLlmClient(
     protected fun parseObject(data: String): JsonObject? = runCatching {
         gson.fromJson(data, JsonObject::class.java)
     }.getOrNull()
+
+    /**
+     * Null-safe string lookup. Reasoning frames routinely carry `"content": null`
+     * or `"reasoning_content": null`; `getAsJsonPrimitive` throws on `JsonNull`
+     * and would abort the whole stream, so every optional member goes through here.
+     * Returns the first non-null string among [keys], letting one client accept
+     * several vendor aliases for the reasoning field.
+     */
+    protected fun stringField(obj: JsonObject, vararg keys: String): String? {
+        keys.forEach { key ->
+            val element: JsonElement = obj.get(key) ?: return@forEach
+            if (!element.isJsonPrimitive) return@forEach
+            val primitive = element.asJsonPrimitive
+            if (primitive.isString) return primitive.asString
+        }
+        return null
+    }
+
+    /** Null-safe object lookup, for optional `error` / `delta` members. */
+    protected fun objectField(obj: JsonObject, key: String): JsonObject? {
+        val element = obj.get(key) ?: return null
+        return if (element.isJsonObject) element.asJsonObject else null
+    }
 
     /** Non-streaming one-shot call used by the "Test connection" button. */
     protected suspend fun executeProbe(httpRequest: Request): Result<String> =

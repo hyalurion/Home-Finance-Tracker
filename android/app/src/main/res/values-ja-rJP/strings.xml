@@ -659,4 +659,22 @@
     <string name="settings_ai_query_permission">AI による記録照会を許可</string>
     <string name="settings_ai_query_permission_desc">オフにすると、AI は支出データを一切読み取れません。</string>
 
+
+    <!-- AI Chat: reasoning (chain-of-thought) panel -->
+    <string name="chat_reasoning_thinking">思考中…</string>
+    <string name="chat_reasoning_done">%1$s 秒間思考しました</string>
+    <string name="chat_reasoning_show">思考過程を表示</string>
+    <string name="chat_reasoning_hide">思考過程を隠す</string>
+
+
+    <!-- AI Chat: tool-call capability and on-device model opt-out -->
+    <string name="settings_ai_provider_tool_mode">ツール呼び出し方式</string>
+    <string name="settings_ai_tool_mode_auto">自動（推奨）</string>
+    <string name="settings_ai_tool_mode_text">テキストプロトコル（function calling 非対応）</string>
+    <string name="settings_ai_tool_mode_off">ツールを無効化</string>
+    <string name="settings_ai_tool_mode_hint">モデルが function calling を拒否した場合、自動モードはテキスト方式へフォールバックし設定を記憶します。</string>
+    <string name="settings_ai_on_device_enabled">内蔵オンデバイス模型を有効化（実験的）</string>
+    <string name="settings_ai_on_device_warning">オンデバイス 8B モデルは遅く、電池を多く消費し、精度も低めです。オンラインモデルの追加をおすすめします。オフにするとメモリを解放できます。</string>
+    <string name="chat_no_model_available">利用できるモデルがありません。「設定 &gt; AI」で API プロバイダーを追加するか、オンデバイス模型を再度有効にしてください。</string>
+
 </resources>

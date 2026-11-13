@@ -44,7 +44,10 @@ object ChatMapper {
         toolCalls = decodeToolCalls(entity.toolCallsJson, gson),
         createdAt = entity.createdAt,
         status = ChatMessageStatus.fromStorage(entity.status),
-        providerLabel = entity.providerLabel
+        providerLabel = entity.providerLabel,
+        reasoningContent = entity.reasoningContent,
+        reasoningDurationMs = entity.reasoningDurationMs,
+        reasoningSignature = entity.reasoningSignature
     )
 
     fun messageToEntity(model: ChatMessage, gson: Gson): ChatMessageEntity = ChatMessageEntity(
@@ -56,7 +59,10 @@ object ChatMapper {
         toolCallsJson = gson.toJson(model.toolCalls),
         createdAt = model.createdAt,
         status = model.status.name,
-        providerLabel = model.providerLabel
+        providerLabel = model.providerLabel,
+        reasoningContent = model.reasoningContent,
+        reasoningDurationMs = model.reasoningDurationMs,
+        reasoningSignature = model.reasoningSignature
     )
 
     private fun decode(json: String, gson: Gson): List<ChatAttachment> = runCatching {

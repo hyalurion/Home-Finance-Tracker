@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.chronie.homemoney.data.chat.AgentToolSpecs
 import com.chronie.homemoney.data.chat.ChatAttachmentCodec
 import com.chronie.homemoney.data.local.AiProviderConfigManager
+import com.chronie.homemoney.data.vlm.MnnVlmEngine
 import com.chronie.homemoney.domain.model.chat.AiProviderConfig
 import com.chronie.homemoney.domain.model.chat.ChatAttachment
 import com.chronie.homemoney.domain.model.chat.ChatConversation
@@ -43,6 +44,8 @@ data class AIChatUiState(
     val showHistory: Boolean = false,
     val showProviderPicker: Boolean = false,
     val queryAuthorized: Boolean = false,
+    /** Id of the message whose reasoning phase is still running. */
+    val thinkingMessageId: String? = null,
     /** Incremented whenever the AI writes expense records, so the list can refresh. */
     val recordsChangedTick: Int = 0
 )
@@ -59,7 +62,8 @@ class AIChatViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val repository: ChatRepository,
     private val configManager: AiProviderConfigManager,
-    private val codec: ChatAttachmentCodec
+    private val codec: ChatAttachmentCodec,
+    private val onDeviceEngine: MnnVlmEngine
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AIChatUiState())
@@ -81,10 +85,15 @@ class AIChatViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
 
-        combine(configManager.activeProviderId, configManager.providers) { id, list ->
-            val name = list.firstOrNull { it.id == id }?.name
-                ?: configManager.builtInProvider.name
-            Pair(name, list)
+        combine(
+            configManager.activeProviderId,
+            configManager.providers,
+            configManager.onDeviceEnabled
+        ) { activeId: String, allProviders: List<AiProviderConfig>, enabled: Boolean ->
+            // Re-read from the manager so the disabled built-in model is
+            // resolved away in one place regardless of which flow fired.
+            val resolved = configManager.activeProvider()
+            Pair(resolved.name, configManager.selectableProviders())
         }.onEach { (name, list) ->
             _uiState.update {
                 it.copy(
@@ -120,7 +129,13 @@ class AIChatViewModel @Inject constructor(
         streaming = null
         dbMessages = emptyList()
         _uiState.update {
-            it.copy(conversationId = id, messages = emptyList(), error = null, isGenerating = false)
+            it.copy(
+                conversationId = id,
+                messages = emptyList(),
+                error = null,
+                isGenerating = false,
+                thinkingMessageId = null
+            )
         }
         messagesJob = repository.observeMessages(id).onEach { rows ->
             dbMessages = rows
@@ -155,7 +170,15 @@ class AIChatViewModel @Inject constructor(
     }
 
     fun selectProvider(id: String) {
+        val previous = configManager.activeProviderId.value
         configManager.setActiveProvider(id)
+        // Leaving the 8B engine for a hosted model frees its mmap-ed weights
+        // immediately instead of keeping them resident for the whole session.
+        if (previous == AiProviderConfigManager.BUILT_IN_ID &&
+            id != AiProviderConfigManager.BUILT_IN_ID
+        ) {
+            viewModelScope.launch { runCatching { onDeviceEngine.release() } }
+        }
         _uiState.update { it.copy(showProviderPicker = false) }
     }
 
@@ -189,6 +212,12 @@ class AIChatViewModel @Inject constructor(
         val text = state.input.trim()
         if (state.isGenerating) return
         if (text.isBlank() && state.pendingAttachments.isEmpty()) return
+        if (configManager.selectableProviders().isEmpty()) {
+            _uiState.update {
+                it.copy(error = context.getString(com.chronie.homemoney.R.string.chat_no_model_available))
+            }
+            return
+        }
         val conversationId = state.conversationId ?: return
         val attachments = state.pendingAttachments
 
@@ -210,7 +239,7 @@ class AIChatViewModel @Inject constructor(
         generationJob = null
         val partial = streaming
         streaming = null
-        _uiState.update { it.copy(isGenerating = false) }
+        _uiState.update { it.copy(isGenerating = false, thinkingMessageId = null) }
         recompute()
         if (partial != null) {
             viewModelScope.launch {
@@ -248,11 +277,27 @@ class AIChatViewModel @Inject constructor(
         when (progress) {
             is ChatProgress.AssistantStarted -> {
                 streaming = progress.message
+                _uiState.update { it.copy(thinkingMessageId = null) }
+                recompute()
+            }
+
+            is ChatProgress.ReasoningDelta -> {
+                streaming = streaming?.let {
+                    it.copy(reasoningContent = it.reasoningContent + progress.text)
+                }
+                _uiState.update { it.copy(thinkingMessageId = streaming?.id) }
+                recompute()
+            }
+
+            is ChatProgress.ReasoningEnded -> {
+                streaming = streaming?.copy(reasoningDurationMs = progress.durationMs)
+                _uiState.update { it.copy(thinkingMessageId = null) }
                 recompute()
             }
 
             is ChatProgress.AssistantDelta -> {
                 streaming = streaming?.let { it.copy(content = it.content + progress.text) }
+                _uiState.update { it.copy(thinkingMessageId = null) }
                 recompute()
             }
 
@@ -281,13 +326,19 @@ class AIChatViewModel @Inject constructor(
 
             ChatProgress.Finished -> {
                 streaming = null
-                _uiState.update { it.copy(isGenerating = false) }
+                _uiState.update { it.copy(isGenerating = false, thinkingMessageId = null) }
                 recompute()
             }
 
             is ChatProgress.Failed -> {
                 streaming = null
-                _uiState.update { it.copy(isGenerating = false, error = progress.message) }
+                _uiState.update {
+                    it.copy(
+                        isGenerating = false,
+                        thinkingMessageId = null,
+                        error = progress.message
+                    )
+                }
                 recompute()
             }
         }

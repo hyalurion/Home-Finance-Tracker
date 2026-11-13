@@ -42,5 +42,17 @@ data class ChatMessageEntity(
     val status: String,
 
     @ColumnInfo(name = "provider_label")
-    val providerLabel: String?
+    val providerLabel: String?,
+
+    /** Chain-of-thought text shown in a separate, dimmed block. */
+    @ColumnInfo(name = "reasoning_content", defaultValue = "''")
+    val reasoningContent: String = "",
+
+    /** Duration of the reasoning phase in milliseconds. */
+    @ColumnInfo(name = "reasoning_duration_ms", defaultValue = "0")
+    val reasoningDurationMs: Long = 0L,
+
+    /** Anthropic extended-thinking signature for replaying a thinking block. */
+    @ColumnInfo(name = "reasoning_signature", defaultValue = "''")
+    val reasoningSignature: String = ""
 )

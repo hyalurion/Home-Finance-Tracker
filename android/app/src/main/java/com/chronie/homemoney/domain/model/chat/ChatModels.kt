@@ -93,7 +93,13 @@ data class ChatMessage(
     val toolCalls: List<ToolCallRecord> = emptyList(),
     val createdAt: Long = System.currentTimeMillis(),
     val status: ChatMessageStatus = ChatMessageStatus.COMPLETE,
-    val providerLabel: String? = null
+    val providerLabel: String? = null,
+    /** Chain-of-thought text rendered separately from the final answer. */
+    val reasoningContent: String = "",
+    /** Wall-clock time spent in the reasoning phase, in milliseconds. */
+    val reasoningDurationMs: Long = 0L,
+    /** Anthropic extended-thinking signature, needed to replay a thinking block. */
+    val reasoningSignature: String = ""
 )
 
 /** A resumable chat session. */

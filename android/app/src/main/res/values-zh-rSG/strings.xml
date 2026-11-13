@@ -659,4 +659,22 @@
     <string name="settings_ai_query_permission">允许 AI 查询账单</string>
     <string name="settings_ai_query_permission_desc">关闭时，AI 完全无法读取你的账单数据。</string>
 
+
+    <!-- AI Chat: reasoning (chain-of-thought) panel -->
+    <string name="chat_reasoning_thinking">思考中…</string>
+    <string name="chat_reasoning_done">已思考 %1$s 秒</string>
+    <string name="chat_reasoning_show">展开思考过程</string>
+    <string name="chat_reasoning_hide">收起思考过程</string>
+
+
+    <!-- AI Chat: tool-call capability and on-device model opt-out -->
+    <string name="settings_ai_provider_tool_mode">工具调用方式</string>
+    <string name="settings_ai_tool_mode_auto">自动（推荐）</string>
+    <string name="settings_ai_tool_mode_text">文本协议（不支持 function calling）</string>
+    <string name="settings_ai_tool_mode_off">关闭工具调用</string>
+    <string name="settings_ai_tool_mode_hint">若模型返回「Function call is not supported」，自动模式会降级为文本协议并记住该设置。</string>
+    <string name="settings_ai_on_device_enabled">启用内置端侧模型（实验性）</string>
+    <string name="settings_ai_on_device_warning">端侧 8B 模型速度慢、耗电且准确性较低，建议添加在线模型；关闭后可释放内存并省电。</string>
+    <string name="chat_no_model_available">没有可用模型：请在「设置 &gt; AI」添加 API 服务或重新启用端侧模型。</string>
+
 </resources>

@@ -41,6 +41,14 @@ Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeChat(
     return env->NewStringUTF("");
 }
 
+// Multi-turn chat entry point; mirrors the real bridge's signature.
+JNIEXPORT jstring JNICALL
+Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeChatTurns(
+        JNIEnv* env, jobject, jobjectArray, jobjectArray, jstring, jobject,
+        jstring, jint) {
+    return env->NewStringUTF("");
+}
+
 JNIEXPORT void JNICALL
 Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeReset(JNIEnv*, jobject) {
 }

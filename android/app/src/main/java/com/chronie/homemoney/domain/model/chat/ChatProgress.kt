@@ -4,6 +4,8 @@ package com.chronie.homemoney.domain.model.chat
 sealed interface ChatProgress {
     data class AssistantStarted(val message: ChatMessage) : ChatProgress
     data class AssistantDelta(val text: String) : ChatProgress
+    data class ReasoningDelta(val text: String) : ChatProgress
+    data class ReasoningEnded(val durationMs: Long) : ChatProgress
     data class ToolUpdated(val call: ToolCallRecord) : ChatProgress
     data object Finished : ChatProgress
     data class Failed(val message: String) : ChatProgress

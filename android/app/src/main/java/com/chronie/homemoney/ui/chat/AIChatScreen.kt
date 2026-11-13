@@ -77,7 +77,13 @@ fun AIChatScreen(
             listState.animateScrollToItem(state.messages.lastIndex)
         }
     }
-    LaunchedEffect(state.messages.lastOrNull()?.content?.length?.div(80)) {
+    val lastMessage = state.messages.lastOrNull()
+    // Reasoning can be much longer than the answer; keep the live bubble in
+    // view while either stream grows, without scrolling on every single token.
+    LaunchedEffect(
+        (lastMessage?.content?.length ?: 0) / 80,
+        (lastMessage?.reasoningContent?.length ?: 0) / 120
+    ) {
         if (state.isGenerating && state.messages.isNotEmpty()) {
             listState.scrollToItem(state.messages.lastIndex)
         }
@@ -170,6 +176,7 @@ fun AIChatScreen(
                     items(state.messages, key = { it.id }) { message ->
                         ChatMessageItem(
                             message = message,
+                            isThinking = state.thinkingMessageId == message.id,
                             onConfirmTool = { toolCallId ->
                                 viewModel.confirmToolCall(message.id, toolCallId)
                             }

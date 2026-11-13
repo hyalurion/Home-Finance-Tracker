@@ -2,32 +2,35 @@
 //
 // JNI bridge between Kotlin (MnnVlmEngine) and the MNN-LLM runtime.
 //
-// The bridge is intentionally thin: one process-wide Llm instance is created
-// from a model config.json on disk, response() is invoked with a plain prompt
-// or MultimodalPrompt, and generated text is streamed back to Java through a
-// custom streambuf that forwards every write to a TokenListener callback.
+// Two generation entry points are exposed:
+//   * nativeChat       - legacy single-string prompt, kept for bill OCR.
+//   * nativeChatTurns  - role-tagged ChatMessages, used by AI chat so MNN
+//                        applies the model's real chat template. Flattening
+//                        history into one user string made small models
+//                        continue the transcript with invented [User] turns.
 //
-// Threading contract:
-//   * All native entry points take a global mutex, so Kotlin may call them
-//     from any thread, but response() blocks until generation finishes.
-//   * The callback may arrive on a worker thread that was never attached to
-//     the JVM, so tokens are delivered through AttachCurrentThread when needed.
+// Generated text is streamed to Java through a zero-buffering streambuf.
+// All Java strings are converted through UTF-16 explicitly: NewStringUTF /
+// GetStringUTFChars use *modified* UTF-8 and corrupt 4-byte code points
+// (emoji and some CJK extension characters), which showed up as "??" in the
+// chat UI.
 //
-// JNI naming contract:
-//   * MnnVlmEngine, MnnVlmEngine$TokenListener and onToken(String) are kept
-//     by @Keep / proguard-rules.pro. See resolveTokenMethod() below.
+// JNI naming contract: MnnVlmEngine, MnnVlmEngine$TokenListener and
+// onToken(String) are kept by @Keep / proguard-rules.pro.
 
 #include <jni.h>
 #include <android/log.h>
 
 #include <cstddef>
+#include <cstdint>
+#include <functional>
 #include <mutex>
 #include <sstream>
 #include <string>
 #include <streambuf>
 #include <vector>
 
-#include "llm/llm.hpp"  // MNN::Transformer::Llm, MultimodalPrompt
+#include "llm/llm.hpp"  // MNN::Transformer::Llm, ChatMessages
 
 #define LOG_TAG "MnnBridge"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -41,23 +44,155 @@ bool g_llm_loaded = false;
 std::mutex g_engine_mutex;
 
 // Resolved JNI metadata for the token listener, refreshed on every call.
-// Kept in file scope so the C++ streambuf can reach them without captures.
 jobject g_listener_ref = nullptr;
 jmethodID g_on_token_mid = nullptr;
 JavaVM* g_vm = nullptr;
 
-/**
- * Resolves TokenListener.onToken(String) for the current call.
- *
- * R8 may rename a SAM implementation class (e.g. "wj1") together with its
- * bridge method, so try the concrete class first and fall back to the kept
- * interface class. A failed lookup must be cleared: leaving a pending JNI
- * exception here aborts the whole generation when the next JNI call runs.
- * Returning null degrades the call to non-streaming generation, never a crash.
- */
-jmethodID resolveTokenMethod(JNIEnv* env, jobject listener) {
-    jmethodID mid = nullptr;
+// ------------------------------------------------------------------
+// UTF-8 <-> UTF-16 helpers (Java strings use UTF-16, MNN uses UTF-8)
+// ------------------------------------------------------------------
 
+void AppendCodepoint(std::string& out, uint32_t cp) {
+    if (cp < 0x80) {
+        out.push_back(static_cast<char>(cp));
+    } else if (cp < 0x800) {
+        out.push_back(static_cast<char>(0xC0 | (cp >> 6)));
+        out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+    } else if (cp < 0x10000) {
+        out.push_back(static_cast<char>(0xE0 | (cp >> 12)));
+        out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+        out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+    } else {
+        out.push_back(static_cast<char>(0xF0 | (cp >> 18)));
+        out.push_back(static_cast<char>(0x80 | ((cp >> 12) & 0x3F)));
+        out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+        out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+    }
+}
+
+std::string Utf16ToUtf8(const jchar* chars, jsize length) {
+    std::string out;
+    if (chars == nullptr) return out;
+    out.reserve(static_cast<size_t>(length));
+    for (jsize i = 0; i < length; ++i) {
+        uint32_t cp = chars[i];
+        if (cp >= 0xD800 && cp <= 0xDBFF && i + 1 < length &&
+            chars[i + 1] >= 0xDC00 && chars[i + 1] <= 0xDFFF) {
+            cp = 0x10000 + ((cp - 0xD800) << 10) + (chars[++i] - 0xDC00);
+        } else if (cp >= 0xD800 && cp <= 0xDFFF) {
+            cp = 0xFFFD;  // lone surrogate
+        }
+        AppendCodepoint(out, cp);
+    }
+    return out;
+}
+
+std::u16string Utf8ToUtf16(const char* data, size_t length) {
+    std::u16string out;
+    if (data == nullptr) return out;
+    out.reserve(length);
+    size_t i = 0;
+    while (i < length) {
+        const auto lead = static_cast<unsigned char>(data[i]);
+        uint32_t cp = 0;
+        size_t width = 0;
+        if (lead < 0x80) {
+            cp = lead;
+            width = 1;
+        } else if (lead >= 0xC2 && lead <= 0xDF) {
+            cp = lead & 0x1F;
+            width = 2;
+        } else if (lead >= 0xE0 && lead <= 0xEF) {
+            cp = lead & 0x0F;
+            width = 3;
+        } else if (lead >= 0xF0 && lead <= 0xF4) {
+            cp = lead & 0x07;
+            width = 4;
+        } else {
+            out.push_back(u'\uFFFD');
+            ++i;
+            continue;
+        }
+        if (i + width > length) {
+            out.push_back(u'\uFFFD');
+            break;
+        }
+        bool valid = true;
+        for (size_t k = 1; k < width; ++k) {
+            const auto cont = static_cast<unsigned char>(data[i + k]);
+            if ((cont & 0xC0) != 0x80) {
+                valid = false;
+                break;
+            }
+            cp = (cp << 6) | (cont & 0x3F);
+        }
+        if (!valid) {
+            out.push_back(u'\uFFFD');
+            ++i;
+            continue;
+        }
+        i += width;
+        if (cp > 0xFFFF) {
+            cp -= 0x10000;
+            out.push_back(static_cast<char16_t>(0xD800 + (cp >> 10)));
+            out.push_back(static_cast<char16_t>(0xDC00 + (cp & 0x3FF)));
+        } else {
+            out.push_back(static_cast<char16_t>(cp));
+        }
+    }
+    return out;
+}
+
+std::string ReadJavaString(JNIEnv* env, jstring value) {
+    if (value == nullptr) return std::string();
+    const jchar* chars = env->GetStringChars(value, nullptr);
+    if (chars == nullptr) return std::string();
+    std::string result = Utf16ToUtf8(chars, env->GetStringLength(value));
+    env->ReleaseStringChars(value, chars);
+    return result;
+}
+
+jstring NewJavaString(JNIEnv* env, const std::string& value) {
+    std::u16string utf16 = Utf8ToUtf16(value.data(), value.size());
+    return env->NewString(
+        reinterpret_cast<const jchar*>(utf16.data()),
+        static_cast<jsize>(utf16.size()));
+}
+
+std::vector<std::string> ReadJavaStringArray(JNIEnv* env, jobjectArray array) {
+    std::vector<std::string> result;
+    if (array == nullptr) return result;
+    const jsize count = env->GetArrayLength(array);
+    result.reserve(static_cast<size_t>(count));
+    for (jsize i = 0; i < count; ++i) {
+        auto element = static_cast<jstring>(env->GetObjectArrayElement(array, i));
+        result.push_back(ReadJavaString(env, element));
+        if (element != nullptr) env->DeleteLocalRef(element);
+    }
+    return result;
+}
+
+std::vector<std::string> ParseImagePaths(const std::string& joined) {
+    std::vector<std::string> images;
+    std::istringstream stream(joined);
+    std::string segment;
+    while (std::getline(stream, segment, ',')) {
+        const auto start = segment.find_first_not_of(" \t\r\n");
+        const auto end = segment.find_last_not_of(" \t\r\n");
+        if (start != std::string::npos && end != std::string::npos) {
+            images.push_back(segment.substr(start, end - start + 1));
+        }
+    }
+    return images;
+}
+
+/**
+ * Resolves TokenListener.onToken(String). R8 may rename a SAM implementation
+ * class, so try the concrete class first and fall back to the kept interface.
+ * A failed lookup MUST be cleared: a pending JNI exception aborts generation.
+ */
+jmethodID ResolveTokenMethod(JNIEnv* env, jobject listener) {
+    jmethodID mid = nullptr;
     jclass concrete = env->GetObjectClass(listener);
     if (concrete != nullptr) {
         mid = env->GetMethodID(concrete, "onToken", "(Ljava/lang/String;)V");
@@ -67,7 +202,6 @@ jmethodID resolveTokenMethod(JNIEnv* env, jobject listener) {
         }
         env->DeleteLocalRef(concrete);
     }
-
     if (mid == nullptr) {
         jclass iface = env->FindClass(
             "com/chronie/homemoney/data/vlm/MnnVlmEngine$TokenListener");
@@ -82,7 +216,6 @@ jmethodID resolveTokenMethod(JNIEnv* env, jobject listener) {
             env->ExceptionClear();
         }
     }
-
     if (mid == nullptr) {
         LOGE("TokenListener.onToken(String) not found; token streaming disabled");
     }
@@ -90,55 +223,46 @@ jmethodID resolveTokenMethod(JNIEnv* env, jobject listener) {
 }
 
 /**
- * Zero-buffering streambuf: every write from MNN's response() is forwarded
- * to the Kotlin TokenListener immediately, which is what makes tokens show up
- * on screen while the model is still generating. The previous 256-byte buffer
- * only flushed on overflow or explicit sync(), so short token writes were
- * delivered in large late bursts (or only at the very end).
- *
- * A tiny UTF-8 tail buffer keeps multi-byte characters intact when MNN splits
- * a token in the middle of a CJK character. Complete prefixes are emitted at
- * once; the incomplete tail is flushed by sync().
+ * Zero-buffering streambuf: every write is forwarded immediately, which is
+ * what makes tokens appear while the model is still generating. A tiny tail
+ * buffer keeps multi-byte UTF-8 characters intact when MNN splits a token.
  */
 class ListenerStreambuf : public std::streambuf {
 public:
     ListenerStreambuf() = default;
     ~ListenerStreambuf() override { sync(); }
 
-    // Non-copyable
     ListenerStreambuf(const ListenerStreambuf&) = delete;
     ListenerStreambuf& operator=(const ListenerStreambuf&) = delete;
 
-    /** Full text seen so far; used when LlmContext.generate_str is empty. */
     const std::string& text() const { return full_; }
 
 protected:
     int_type overflow(int_type ch) override {
         if (ch != traits_type::eof()) {
             const char c = static_cast<char>(ch);
-            pushBytes(&c, 1);
+            PushBytes(&c, 1);
         }
         return traits_type::not_eof(ch);
     }
 
     std::streamsize xsputn(const char* data, std::streamsize count) override {
         if (count > 0 && data != nullptr) {
-            pushBytes(data, static_cast<size_t>(count));
+            PushBytes(data, static_cast<size_t>(count));
         }
         return count;
     }
 
     int sync() override {
         if (!pending_.empty()) {
-            emit(pending_.data(), pending_.size());
+            Emit(pending_.data(), pending_.size());
             pending_.clear();
         }
         return 0;
     }
 
 private:
-    /** Appends bytes and emits the longest complete UTF-8 prefix. */
-    void pushBytes(const char* data, size_t len) {
+    void PushBytes(const char* data, size_t len) {
         pending_.append(data, len);
         size_t safe = 0;
         while (safe < pending_.size()) {
@@ -152,13 +276,12 @@ private:
             safe += width;
         }
         if (safe > 0) {
-            emit(pending_.data(), safe);
+            Emit(pending_.data(), safe);
             pending_.erase(0, safe);
         }
     }
 
-    /** Delivers one chunk to Java, tolerating unattached threads and throws. */
-    void emit(const char* data, size_t len) {
+    void Emit(const char* data, size_t len) {
         if (len == 0) return;
         full_.append(data, len);
         if (g_listener_ref == nullptr || g_on_token_mid == nullptr || g_vm == nullptr) return;
@@ -174,13 +297,12 @@ private:
             attached = true;
         }
 
-        jstring chunk = env->NewStringUTF(std::string(data, len).c_str());
+        jstring chunk = NewJavaString(env, std::string(data, len));
         if (chunk != nullptr) {
             env->CallVoidMethod(g_listener_ref, g_on_token_mid, chunk);
             env->DeleteLocalRef(chunk);
         }
         if (env->ExceptionCheck()) {
-            // A throwing listener must not poison the native generation loop.
             env->ExceptionDescribe();
             env->ExceptionClear();
         }
@@ -191,9 +313,60 @@ private:
     std::string full_;
 };
 
+/**
+ * Common setup/teardown for one response() call. Returns the exact text that
+ * was streamed (not MNN's post-processed generate_str, which can drop the
+ * model's reasoning markers).
+ */
+template <typename Invoke>
+std::string ExecuteResponse(JNIEnv* env, jobject listener, Invoke&& invoke) {
+    if (listener != nullptr) {
+        g_listener_ref = env->NewGlobalRef(listener);
+        g_on_token_mid = ResolveTokenMethod(env, listener);
+        if (g_on_token_mid == nullptr && g_listener_ref != nullptr) {
+            env->DeleteGlobalRef(g_listener_ref);
+            g_listener_ref = nullptr;
+        }
+    } else {
+        g_listener_ref = nullptr;
+        g_on_token_mid = nullptr;
+    }
+
+    std::string result;
+    bool failed = false;
+    ListenerStreambuf streambuf;
+    std::ostream outputStream(&streambuf);
+    try {
+        invoke(&outputStream);
+        outputStream.flush();
+        streambuf.pubsync();
+        const bool streaming = g_listener_ref != nullptr;
+        const MNN::Transformer::LlmContext* ctx = g_llm->getContext();
+        if (streaming && !streambuf.text().empty()) {
+            result = streambuf.text();
+        } else if (ctx != nullptr && !ctx->generate_str.empty()) {
+            result = ctx->generate_str;
+        } else {
+            result = streambuf.text();
+        }
+    } catch (const std::exception& e) {
+        LOGE("response() threw: %s", e.what());
+        failed = true;
+    } catch (...) {
+        LOGE("response() threw an unknown exception");
+        failed = true;
+    }
+
+    if (g_listener_ref != nullptr) {
+        env->DeleteGlobalRef(g_listener_ref);
+        g_listener_ref = nullptr;
+        g_on_token_mid = nullptr;
+    }
+    return failed ? std::string() : result;
+}
+
 }  // namespace
 
-// Called once when the library is loaded, so we can cache the JavaVM.
 jint JNI_OnLoad(JavaVM* vm, void*) {
     g_vm = vm;
     return JNI_VERSION_1_6;
@@ -201,27 +374,13 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
 
 extern "C" {
 
-/**
- * Creates and loads the Llm instance from a model directory's config.json.
- *
- * @param configPath   absolute path to <modelDir>/config.json
- * @param extraConfig  JSON string merged into the engine config, e.g.
- *                     {"max_new_tokens":1024,"use_mmap":true}
- * @return 0 on success, -1 when creation failed, -2 when already created,
- *         -3 when model files are missing (runtime not bundled).
- */
 JNIEXPORT jint JNICALL
 Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeCreate(
         JNIEnv* env, jobject, jstring configPath, jstring extraConfig) {
     std::lock_guard<std::mutex> lock(g_engine_mutex);
-    if (g_llm != nullptr) {
-        return -2;
-    }
+    if (g_llm != nullptr) return -2;
 
-    const char* pathChars = env->GetStringUTFChars(configPath, nullptr);
-    std::string path(pathChars);
-    env->ReleaseStringUTFChars(configPath, pathChars);
-
+    const std::string path = ReadJavaString(env, configPath);
     LOGI("Creating LLM from config: %s", path.c_str());
     g_llm = MNN::Transformer::Llm::createLLM(path);
     if (g_llm == nullptr) {
@@ -229,22 +388,15 @@ Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeCreate(
         return -1;
     }
 
-    // Optional runtime tweaks supplied as a JSON string (set_config merges them).
-    if (extraConfig != nullptr) {
-        const char* configChars = env->GetStringUTFChars(extraConfig, nullptr);
-        std::string config(configChars);
-        env->ReleaseStringUTFChars(extraConfig, configChars);
-        if (!config.empty()) {
-            try {
-                g_llm->set_config(config);
-            } catch (const std::exception& e) {
-                // Config tweaks are best-effort; a rejected key must not kill the session.
-                LOGE("set_config failed (non-fatal): %s", e.what());
-            }
+    const std::string extra = ReadJavaString(env, extraConfig);
+    if (!extra.empty()) {
+        try {
+            g_llm->set_config(extra);
+        } catch (const std::exception& e) {
+            LOGE("set_config failed (non-fatal): %s", e.what());
         }
     }
 
-    // Explicit load is required in the current MNN API.
     try {
         if (!g_llm->load()) {
             LOGE("Llm::load() returned false");
@@ -264,18 +416,12 @@ Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeCreate(
     return 0;
 }
 
-/**
- * Returns 1 when an Llm instance is alive, 0 otherwise.
- */
 JNIEXPORT jint JNICALL
 Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeIsCreated(JNIEnv*, jobject) {
     std::lock_guard<std::mutex> lock(g_engine_mutex);
     return (g_llm != nullptr && g_llm_loaded) ? 1 : 0;
 }
 
-/**
- * Releases the Llm instance and all native resources. Safe to call repeatedly.
- */
 JNIEXPORT void JNICALL
 Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeDestroy(JNIEnv*, jobject) {
     std::lock_guard<std::mutex> lock(g_engine_mutex);
@@ -291,129 +437,96 @@ Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeDestroy(JNIEnv*, jobject)
     }
 }
 
-/**
- * Runs one-shot generation. Two modes:
- *
- * 1) Multimodal (imagePaths non-empty):
- *    Images are embedded as <img>path</img> markers, matching MNN's visual
- *    model prompt convention (LLM_SUPPORT_VISION).
- *
- * 2) Text-only (imagePaths empty):
- *    Calls response(user_content, ...) directly.
- *
- * @param prompt      user prompt text
- * @param imagePaths  comma-separated absolute paths to pre-processed images
- * @param listener    optional TokenListener whose onToken(String) receives
- *                    every generated chunk (may be null)
- * @return the complete generated text, or an empty string on failure.
- */
+/** Legacy single-string prompt path, still used by bill OCR. */
 JNIEXPORT jstring JNICALL
 Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeChat(
         JNIEnv* env, jobject, jstring prompt, jstring imagePaths, jobject listener) {
     std::lock_guard<std::mutex> lock(g_engine_mutex);
     if (g_llm == nullptr || !g_llm_loaded) {
         LOGE("nativeChat called before nativeCreate/load");
-        return env->NewStringUTF("");
+        return NewJavaString(env, "");
     }
 
-    const char* promptChars = env->GetStringUTFChars(prompt, nullptr);
-    std::string promptStr(promptChars);
-    env->ReleaseStringUTFChars(prompt, promptChars);
+    std::string promptStr = ReadJavaString(env, prompt);
+    const std::vector<std::string> images =
+        ParseImagePaths(ReadJavaString(env, imagePaths));
 
-    // Parse comma-separated image paths.
-    std::vector<std::string> images;
-    if (imagePaths != nullptr) {
-        const char* pathsChars = env->GetStringUTFChars(imagePaths, nullptr);
-        std::string pathsStr(pathsChars);
-        env->ReleaseStringUTFChars(imagePaths, pathsChars);
-
-        std::istringstream pathStream(pathsStr);
-        std::string segment;
-        while (std::getline(pathStream, segment, ',')) {
-            // Trim whitespace.
-            auto start = segment.find_first_not_of(" \t\r\n");
-            auto end = segment.find_last_not_of(" \t\r\n");
-            if (start != std::string::npos && end != std::string::npos) {
-                images.push_back(segment.substr(start, end - start + 1));
-            }
-        }
-    }
-
-    // Register the listener for the duration of this call. Resolution is
-    // best-effort: failure degrades to a one-shot answer instead of leaving a
-    // pending JNI exception that would abort response() on its first token.
-    if (listener != nullptr) {
-        g_listener_ref = env->NewGlobalRef(listener);
-        g_on_token_mid = resolveTokenMethod(env, listener);
-        if (g_on_token_mid == nullptr && g_listener_ref != nullptr) {
-            env->DeleteGlobalRef(g_listener_ref);
-            g_listener_ref = nullptr;
-        }
-    } else {
-        g_listener_ref = nullptr;
-        g_on_token_mid = nullptr;
-    }
-
-    std::string result;
-    bool failed = false;
-    ListenerStreambuf streambuf;
-    std::ostream outputStream(&streambuf);
-
-    try {
+    const std::string result = ExecuteResponse(env, listener, [&](std::ostream* os) {
+        std::string effective = promptStr;
         if (!images.empty()) {
-            // <img>path</img> markers are what LLM_SUPPORT_VISION resolves.
-            // They are prepended so the visual encoder sees the images before
-            // the textual instruction, matching MNN's chat template.
-            std::string imgPrompt;
-            for (size_t i = 0; i < images.size(); ++i) {
-                imgPrompt += "<img>" + images[i] + "</img>\n";
+            std::string prefix;
+            for (const auto& image : images) {
+                prefix += "<img>" + image + "</img>\n";
             }
-            imgPrompt += promptStr;
-
-            g_llm->response(imgPrompt, &outputStream, nullptr, -1);
-        } else {
-            // Text-only mode.
-            g_llm->response(promptStr, &outputStream, nullptr, -1);
+            effective = prefix + effective;
         }
+        g_llm->response(effective, os, nullptr, -1);
+    });
 
-        // Flush any incomplete UTF-8 tail still held by the streambuf.
-        outputStream.flush();
-        streambuf.pubsync();
-
-        // Prefer the runtime's accumulated text, but fall back to what was
-        // actually written to the stream: some MNN builds leave generate_str
-        // empty even though response() streamed the whole answer.
-        auto ctx = g_llm->getContext();
-        if (ctx != nullptr && !ctx->generate_str.empty()) {
-            result = ctx->generate_str;
-        } else {
-            result = streambuf.text();
-        }
-    } catch (const std::exception& e) {
-        LOGE("response() threw: %s", e.what());
-        failed = true;
-    } catch (...) {
-        LOGE("response() threw an unknown exception");
-        failed = true;
-    }
-
-    if (g_listener_ref != nullptr) {
-        env->DeleteGlobalRef(g_listener_ref);
-        g_listener_ref = nullptr;
-        g_on_token_mid = nullptr;
-    }
-
-    if (failed) {
-        return env->NewStringUTF("");
-    }
-
-    LOGI("response() produced %zu chars", result.size());
-    return env->NewStringUTF(result.c_str());
+    LOGI("nativeChat produced %zu chars", result.size());
+    return NewJavaString(env, result);
 }
 
 /**
- * Resets the conversation/KV cache. Keeps the model loaded in memory.
+ * Multi-turn path used by AI chat. Roles are real chat-template roles, so the
+ * model stops at its own EOS instead of continuing a flattened transcript.
+ *
+ * endWith is a literal stop string (e.g. "[User]") passed straight to MNN.
  */
+JNIEXPORT jstring JNICALL
+Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeChatTurns(
+        JNIEnv* env, jobject, jobjectArray roles, jobjectArray contents,
+        jstring imagePaths, jobject listener, jstring endWith, jint maxNewTokens) {
+    std::lock_guard<std::mutex> lock(g_engine_mutex);
+    if (g_llm == nullptr || !g_llm_loaded) {
+        LOGE("nativeChatTurns called before nativeCreate/load");
+        return NewJavaString(env, "");
+    }
+
+    const std::vector<std::string> roleList = ReadJavaStringArray(env, roles);
+    const std::vector<std::string> contentList = ReadJavaStringArray(env, contents);
+    const std::string endWithStr = ReadJavaString(env, endWith);
+    const std::vector<std::string> images =
+        ParseImagePaths(ReadJavaString(env, imagePaths));
+
+    if (roleList.empty() || roleList.size() != contentList.size()) {
+        LOGE("nativeChatTurns: role/content arrays differ in size");
+        return NewJavaString(env, "");
+    }
+
+    MNN::Transformer::ChatMessages messages;
+    messages.reserve(roleList.size());
+    for (size_t i = 0; i < roleList.size(); ++i) {
+        messages.emplace_back(roleList[i], contentList[i]);
+    }
+
+    // Vision markers belong to the most recent user turn.
+    if (!images.empty()) {
+        std::string prefix;
+        for (const auto& image : images) {
+            prefix += "<img>" + image + "</img>\n";
+        }
+        size_t lastUser = messages.size();
+        while (lastUser > 0) {
+            --lastUser;
+            if (messages[lastUser].first == "user") break;
+        }
+        if (lastUser < messages.size() && messages[lastUser].first == "user") {
+            messages[lastUser].second = prefix + messages[lastUser].second;
+        } else {
+            messages.emplace_back("user", prefix);
+        }
+    }
+
+    const char* stop = endWithStr.empty() ? nullptr : endWithStr.c_str();
+    const std::string result = ExecuteResponse(env, listener, [&](std::ostream* os) {
+        g_llm->response(messages, os, stop, static_cast<int>(maxNewTokens));
+    });
+
+    LOGI("nativeChatTurns produced %zu chars", result.size());
+    return NewJavaString(env, result);
+}
+
 JNIEXPORT void JNICALL
 Java_com_chronie_homemoney_data_vlm_MnnVlmEngine_nativeReset(JNIEnv*, jobject) {
     std::lock_guard<std::mutex> lock(g_engine_mutex);

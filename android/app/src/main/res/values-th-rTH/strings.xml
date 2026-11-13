@@ -659,4 +659,22 @@
     <string name="settings_ai_query_permission">อนุญาตให้ AI ค้นหาบันทึก</string>
     <string name="settings_ai_query_permission_desc">เมื่อปิด AI จะไม่สามารถอ่านข้อมูลค่าใช้จ่ายได้เลย</string>
 
+
+    <!-- AI Chat: reasoning (chain-of-thought) panel -->
+    <string name="chat_reasoning_thinking">กำลังคิด…</string>
+    <string name="chat_reasoning_done">คิดเป็นเวลา %1$s วิ</string>
+    <string name="chat_reasoning_show">แสดงกระบวนการคิด</string>
+    <string name="chat_reasoning_hide">ซ่อนกระบวนการคิด</string>
+
+
+    <!-- AI Chat: tool-call capability and on-device model opt-out -->
+    <string name="settings_ai_provider_tool_mode">รูปแบบเรียกใช้เครื่องมือ</string>
+    <string name="settings_ai_tool_mode_auto">อัตโนมัติ (แนะนำ)</string>
+    <string name="settings_ai_tool_mode_text">โปรโตคอลข้อความ (ไม่รองรับ function calling)</string>
+    <string name="settings_ai_tool_mode_off">ปิดการใช้เครื่องมือ</string>
+    <string name="settings_ai_tool_mode_hint">โหมดอัตโนมัติจะสลับไปใช้ข้อความเมื่อโมเดลปฏิเสธ function calling และจำค่าไว้</string>
+    <string name="settings_ai_on_device_enabled">เปิดใช้งานโมเดลในเครื่อง (ทดลอง)</string>
+    <string name="settings_ai_on_device_warning">โมเดล 8B ในเครื่องช้า ใช้แบตเตอรี่มาก และแม่นยำต่ำ แนะนำให้เพิ่มโมเดลออนไลน์ การปิดจะคืนหน่วยความจำ</string>
+    <string name="chat_no_model_available">ไม่มีโมเดลที่ใช้งานได้ โปรดเพิ่มผู้ให้บริการ API หรือเปิดโมเดลในเครื่องอีกครั้งที่ การตั้งค่า &gt; AI</string>
+
 </resources>

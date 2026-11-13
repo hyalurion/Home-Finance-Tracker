@@ -25,7 +25,7 @@ import com.chronie.homemoney.data.local.entity.SyncQueueEntity
  * - [ChatConversationEntity] / [ChatMessageEntity]: local AI chat history
  *
  * Exposes DAO interfaces for each table to enable type-safe database access.
- * Current schema version: 7.
+ * Current schema version: 8.
  */
 @Database(
     entities = [
@@ -36,7 +36,7 @@ import com.chronie.homemoney.data.local.entity.SyncQueueEntity
         ChatConversationEntity::class,
         ChatMessageEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

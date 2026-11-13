@@ -4,7 +4,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
- * Defines all Room database migration steps from version 1 to version 6.
+ * Defines all Room database migration steps from version 1 to version 8.
  *
  * Each migration handles schema changes incrementally:
  * - 1→2: Creates the budgets table
@@ -13,6 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * - 4→5: Adds version, updated_at, and deleted_at columns for soft-delete sync
  * - 5→6: Rebuilds the expenses table with id as TEXT PRIMARY KEY, dropping server_id
  * - 6→7: Creates local AI chat conversation/message tables
+ * - 7→8: Adds reasoning text/duration/signature columns to chat messages
  *
  * Use [getAllMigrations] to retrieve the full migration array for Room's database builder.
  */
@@ -136,6 +137,25 @@ object DatabaseMigrations {
         }
     }
 
+    /**
+     * Stores the model's chain of thought alongside the answer. Defaults keep
+     * every pre-existing chat row valid; history stays local-only and is never
+     * part of the cloud/LAN sync payload.
+     */
+    val MIGRATION_7_8 = object : Migration(7, 8) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE chat_messages ADD COLUMN reasoning_content TEXT NOT NULL DEFAULT ''"
+            )
+            db.execSQL(
+                "ALTER TABLE chat_messages ADD COLUMN reasoning_duration_ms INTEGER NOT NULL DEFAULT 0"
+            )
+            db.execSQL(
+                "ALTER TABLE chat_messages ADD COLUMN reasoning_signature TEXT NOT NULL DEFAULT ''"
+            )
+        }
+    }
+
     fun getAllMigrations(): Array<Migration> {
         return arrayOf(
             MIGRATION_1_2,
@@ -143,7 +163,8 @@ object DatabaseMigrations {
             MIGRATION_3_4,
             MIGRATION_4_5,
             MIGRATION_5_6,
-            MIGRATION_6_7
+            MIGRATION_6_7,
+            MIGRATION_7_8
         )
     }
 }

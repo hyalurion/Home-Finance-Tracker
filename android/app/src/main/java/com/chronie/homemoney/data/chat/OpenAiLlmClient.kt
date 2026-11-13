@@ -6,6 +6,7 @@ import com.chronie.homemoney.domain.model.chat.LlmRequest
 import com.chronie.homemoney.domain.model.chat.LlmTurn
 import com.chronie.homemoney.domain.model.chat.PendingToolCall
 import com.chronie.homemoney.domain.model.chat.StreamEvent
+import com.chronie.homemoney.domain.model.chat.ToolProtocol
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -42,45 +43,98 @@ class OpenAiLlmClient @Inject constructor(
         val httpRequest = buildRequest(request, config, apiKey, streaming = true)
         // OpenAI streams tool call arguments in fragments keyed by array index.
         val pending = linkedMapOf<Int, MutableOpenAiCall>()
+        var reasoningActive = false
+        // Providers without native function calling emit tool calls and a
+        // short reasoning block as plain text inside `content`.
+        val textParser = if (request.toolProtocol == ToolProtocol.TEXT) {
+            TextProtocolParser(gson)
+        } else {
+            null
+        }
+
+        suspend fun dispatchText(parsed: TextEmission) {
+            if (parsed.reasoningDelta.isNotEmpty()) {
+                reasoningActive = true
+                emit(StreamEvent.ReasoningDelta(parsed.reasoningDelta))
+            }
+            if (reasoningActive && (parsed.reasoningEnded || parsed.textDelta.isNotEmpty())) {
+                reasoningActive = false
+                emit(StreamEvent.ReasoningEnded())
+            }
+            if (parsed.textDelta.isNotEmpty()) emit(StreamEvent.TextDelta(parsed.textDelta))
+            parsed.tools.forEach { emit(StreamEvent.ToolCallCompleted(it)) }
+        }
 
         sseData(httpRequest).collect { data ->
             if (data.trim() == DONE_MARKER) return@collect
             val frame = parseObject(data) ?: return@collect
-            frame.getAsJsonObject("error")?.let { err ->
-                error(err.getAsJsonPrimitive("message")?.asString ?: "Model returned an error")
+            objectField(frame, "error")?.let { err ->
+                error(stringField(err, "message") ?: "Model returned an error")
             }
             val choice = frame.getAsJsonArray("choices")
                 ?.firstOrNull()?.asJsonObject ?: return@collect
-            val delta = choice.getAsJsonObject("delta") ?: return@collect
+            // A few gateways deliver the final chunk under "message" instead of "delta".
+            val delta = objectField(choice, "delta")
+                ?: objectField(choice, "message")
+                ?: return@collect
 
-            delta.getAsJsonPrimitive("content")?.asString
-                ?.takeIf { it.isNotEmpty() }
-                ?.let { emit(StreamEvent.TextDelta(it)) }
+            // Reasoning models (DeepSeek-R1, Qwen3, o-series through gateways,
+            // vLLM, OpenRouter...) expose the chain of thought under one of
+            // these aliases while "content" stays null. Never treat a null
+            // member as a string: JsonNull.getAsJsonPrimitive throws.
+            stringField(
+                delta,
+                "reasoning_content", "reasoning", "thinking", "thinking_content"
+            )?.takeIf { it.isNotEmpty() }?.let {
+                reasoningActive = true
+                emit(StreamEvent.ReasoningDelta(it))
+            }
+
+            stringField(delta, "content")?.takeIf { it.isNotEmpty() }?.let { content ->
+                if (textParser != null) {
+                    dispatchText(textParser.feed(content))
+                } else {
+                    if (reasoningActive) {
+                        reasoningActive = false
+                        emit(StreamEvent.ReasoningEnded())
+                    }
+                    emit(StreamEvent.TextDelta(content))
+                }
+            }
 
             delta.getAsJsonArray("tool_calls")?.forEachIndexed { fallbackIndex, element ->
                 val call = element.asJsonObject
-                val index = call.getAsJsonPrimitive("index")?.asInt ?: fallbackIndex
-                val function = call.getAsJsonObject("function")
+                val index = call.get("index")
+                    ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }
+                    ?.asInt ?: fallbackIndex
+                val function = objectField(call, "function")
                 val slot = pending.getOrPut(index) {
                     MutableOpenAiCall(
-                        id = call.getAsJsonPrimitive("id")?.asString.orEmpty(),
-                        name = function?.getAsJsonPrimitive("name")?.asString.orEmpty()
+                        id = stringField(call, "id").orEmpty(),
+                        name = function?.let { stringField(it, "name") }.orEmpty()
                     )
                 }
-                call.getAsJsonPrimitive("id")?.asString?.takeIf { it.isNotBlank() }
-                    ?.let { slot.id = it }
-                function?.getAsJsonPrimitive("name")?.asString?.takeIf { it.isNotBlank() }
-                    ?.let { slot.name = it }
-                function?.getAsJsonPrimitive("arguments")?.asString
-                    ?.let { slot.arguments.append(it) }
+                stringField(call, "id")?.takeIf { it.isNotBlank() }?.let { slot.id = it }
+                function?.let { stringField(it, "name") }
+                    ?.takeIf { it.isNotBlank() }?.let { slot.name = it }
+                function?.let { stringField(it, "arguments") }?.let { slot.arguments.append(it) }
             }
 
             val finish = choice.get("finish_reason")
             if (finish != null && !finish.isJsonNull) {
+                if (reasoningActive) {
+                    reasoningActive = false
+                    emit(StreamEvent.ReasoningEnded())
+                }
                 drainPending(pending).forEach { emit(StreamEvent.ToolCallCompleted(it)) }
             }
         }
 
+        if (textParser != null) dispatchText(textParser.finish())
+        if (reasoningActive) {
+            reasoningActive = false
+            emit(StreamEvent.ReasoningEnded())
+        }
         drainPending(pending).forEach { emit(StreamEvent.ToolCallCompleted(it)) }
         emit(StreamEvent.Completed)
     }.catch { e ->
@@ -111,10 +165,14 @@ class OpenAiLlmClient @Inject constructor(
     ): Request {
         val body = JsonObject().apply {
             addProperty("model", config.model)
-            addProperty("max_tokens", if (streaming) request.maxTokens else 1)
+            addProperty(tokenLimitKey(config.model), if (streaming) request.maxTokens else 1)
             addProperty("stream", streaming)
             add("messages", buildMessages(request))
-            if (streaming && request.tools.isNotEmpty()) {
+            // Only NATIVE may send `tools`. Gateways such as code 20037 reject
+            // the member outright with HTTP 400 before any SSE frame arrives.
+            if (streaming && request.toolProtocol == ToolProtocol.NATIVE &&
+                request.tools.isNotEmpty()
+            ) {
                 add("tools", buildTools(request))
                 addProperty("tool_choice", "auto")
             }
@@ -134,6 +192,7 @@ class OpenAiLlmClient @Inject constructor(
             addProperty("content", request.systemPrompt)
         })
 
+        val native = request.toolProtocol == ToolProtocol.NATIVE
         request.turns.forEach { turn ->
             when (turn.role) {
                 ChatRole.USER -> add(JsonObject().apply {
@@ -143,28 +202,58 @@ class OpenAiLlmClient @Inject constructor(
 
                 ChatRole.ASSISTANT -> add(JsonObject().apply {
                     addProperty("role", "assistant")
-                    addProperty("content", turn.content)
-                    if (turn.toolCalls.isNotEmpty()) {
-                        add("tool_calls", JsonArray().apply {
-                            turn.toolCalls.forEach { call ->
-                                add(JsonObject().apply {
-                                    addProperty("id", call.id)
-                                    addProperty("type", "function")
-                                    add("function", JsonObject().apply {
-                                        addProperty("name", call.name)
-                                        addProperty("arguments", call.argumentsJson)
+                    if (native) {
+                        addProperty("content", turn.content)
+                        if (turn.toolCalls.isNotEmpty()) {
+                            add("tool_calls", JsonArray().apply {
+                                turn.toolCalls.forEach { call ->
+                                    add(JsonObject().apply {
+                                        addProperty("id", call.id)
+                                        addProperty("type", "function")
+                                        add("function", JsonObject().apply {
+                                            addProperty("name", call.name)
+                                            addProperty("arguments", call.argumentsJson)
+                                        })
                                     })
-                                })
+                                }
+                            })
+                        }
+                    } else {
+                        // A `tool_calls` member without a matching `tools`
+                        // request is rejected by strict gateways.
+                        addProperty("content", buildString {
+                            append(turn.content)
+                            turn.toolCalls.forEach { call ->
+                                append("\n")
+                                append(
+                                    TextProtocolMarkers.renderToolCall(
+                                        call.name, call.argumentsJson
+                                    )
+                                )
                             }
                         })
                     }
                 })
 
-                ChatRole.TOOL -> add(JsonObject().apply {
-                    addProperty("role", "tool")
-                    addProperty("tool_call_id", turn.toolCallId.orEmpty())
-                    addProperty("content", turn.toolResult ?: "{}")
-                })
+                ChatRole.TOOL -> add(
+                    if (native) {
+                        JsonObject().apply {
+                            addProperty("role", "tool")
+                            addProperty("tool_call_id", turn.toolCallId.orEmpty())
+                            addProperty("content", turn.toolResult ?: "{}")
+                        }
+                    } else {
+                        JsonObject().apply {
+                            addProperty("role", "user")
+                            addProperty(
+                                "content",
+                                TextProtocolMarkers.renderToolResult(
+                                    turn.toolName, turn.toolResult
+                                )
+                            )
+                        }
+                    }
+                )
             }
         }
     }
@@ -221,6 +310,18 @@ class OpenAiLlmClient @Inject constructor(
             executeProbe(buildRequest(minimal, config, apiKey, streaming = false))
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    /** Reasoning-first models reject the legacy `max_tokens` parameter. */
+    private fun tokenLimitKey(model: String): String {
+        val normalized = model.lowercase()
+        return if (normalized.startsWith("o1") || normalized.startsWith("o3") ||
+            normalized.startsWith("o4") || normalized.startsWith("gpt-5")
+        ) {
+            "max_completion_tokens"
+        } else {
+            "max_tokens"
         }
     }
 

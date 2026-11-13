@@ -27,6 +27,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.chat.AiProviderConfig
 import com.chronie.homemoney.domain.model.chat.ProviderFormat
+import com.chronie.homemoney.domain.model.chat.ProviderToolMode
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ExpressiveSwitch
 import top.yukonga.miuix.kmp.basic.Button
@@ -54,16 +55,18 @@ fun AiProviderSettingsSection(
     viewModel: AiProviderSettingsViewModel = hiltViewModel()
 ) {
     val providers by viewModel.providers.collectAsState()
+    val selectable by viewModel.selectableProviders.collectAsState()
     val activeId by viewModel.activeProviderId.collectAsState()
     val queryAuthorized by viewModel.queryAuthorized.collectAsState()
     val autoWrite by viewModel.autoWriteRecords.collectAsState()
+    val onDeviceEnabled by viewModel.onDeviceEnabled.collectAsState()
 
     var editing by remember { mutableStateOf<AiProviderConfig?>(null) }
     var showEditor by remember { mutableStateOf(false) }
     var isNewProvider by remember { mutableStateOf(false) }
     var deleteTarget by remember { mutableStateOf<AiProviderConfig?>(null) }
 
-    val names = providers.map { provider ->
+    val names = selectable.map { provider ->
         if (provider.isBuiltIn) {
             context.getString(R.string.settings_ai_provider_builtin)
         } else {
@@ -80,18 +83,41 @@ fun AiProviderSettingsSection(
 
         WindowDropdownPreference(
             items = names,
-            selectedIndex = providers.indexOfFirst { it.id == activeId }.coerceAtLeast(0),
+            selectedIndex = selectable.indexOfFirst { it.id == activeId }.coerceAtLeast(0),
             title = context.getString(R.string.settings_ai_provider_active),
             onSelectedIndexChange = { index ->
-                providers.getOrNull(index)?.let { viewModel.setActive(it.id) }
+                selectable.getOrNull(index)?.let { viewModel.setActive(it.id) }
             }
         )
 
         Text(
-            text = context.getString(R.string.settings_ai_provider_builtin_desc),
+            text = context.getString(R.string.settings_ai_on_device_warning),
             style = MiuixTheme.textStyles.footnote2,
             color = MiuixTheme.colorScheme.onSurfaceSecondary,
             modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = context.getString(R.string.settings_ai_on_device_enabled),
+                style = MiuixTheme.textStyles.body2,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            ExpressiveSwitch(
+                checked = onDeviceEnabled,
+                onCheckedChange = viewModel::setOnDeviceEnabled
+            )
+        }
+        Text(
+            text = context.getString(R.string.settings_ai_provider_builtin_desc),
+            style = MiuixTheme.textStyles.footnote2,
+            color = MiuixTheme.colorScheme.onSurfaceSecondary,
+            modifier = Modifier.padding(start = 16.dp)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -240,6 +266,15 @@ private fun AiProviderEditorDialog(
     var formatIndex by remember(show, editing?.id) {
         mutableIntStateOf(if (editing?.format == ProviderFormat.ANTHROPIC) 1 else 0)
     }
+    var toolModeIndex by remember(show, editing?.id) {
+        mutableIntStateOf(
+            when (editing?.resolvedToolMode ?: ProviderToolMode.AUTO) {
+                ProviderToolMode.AUTO -> 0
+                ProviderToolMode.TEXT -> 1
+                ProviderToolMode.OFF -> 2
+            }
+        )
+    }
     var localError by remember(show, editing?.id) { mutableStateOf<String?>(null) }
     val testState by viewModel.testState.collectAsState()
 
@@ -247,6 +282,16 @@ private fun AiProviderEditorDialog(
     val formatItems = listOf(
         context.getString(R.string.settings_ai_provider_format_openai),
         context.getString(R.string.settings_ai_provider_format_anthropic)
+    )
+    val toolMode = when (toolModeIndex) {
+        1 -> ProviderToolMode.TEXT
+        2 -> ProviderToolMode.OFF
+        else -> ProviderToolMode.AUTO
+    }
+    val toolModeItems = listOf(
+        context.getString(R.string.settings_ai_tool_mode_auto),
+        context.getString(R.string.settings_ai_tool_mode_text),
+        context.getString(R.string.settings_ai_tool_mode_off)
     )
 
     fun saveProvider() {
@@ -256,7 +301,8 @@ private fun AiProviderEditorDialog(
             format = format,
             baseUrl = baseUrl,
             model = model,
-            apiKey = apiKey
+            apiKey = apiKey,
+            toolMode = toolMode
         )
         if (result.isSuccess) {
             onDismiss()
@@ -311,6 +357,20 @@ private fun AiProviderEditorDialog(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
+            WindowDropdownPreference(
+                items = toolModeItems,
+                selectedIndex = toolModeIndex,
+                title = context.getString(R.string.settings_ai_provider_tool_mode),
+                onSelectedIndexChange = { toolModeIndex = it }
+            )
+            Text(
+                text = context.getString(R.string.settings_ai_tool_mode_hint),
+                style = MiuixTheme.textStyles.footnote2,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
             TextField(
                 value = baseUrl,
                 onValueChange = { baseUrl = it; localError = null },
@@ -351,7 +411,9 @@ private fun AiProviderEditorDialog(
             Spacer(modifier = Modifier.height(12.dp))
             Button(
                 onClick = {
-                    viewModel.testConnection(editing?.id, name, format, baseUrl, model, apiKey)
+                    viewModel.testConnection(
+                        editing?.id, name, format, baseUrl, model, apiKey, toolMode
+                    )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = testState !is ProviderTestState.Testing
