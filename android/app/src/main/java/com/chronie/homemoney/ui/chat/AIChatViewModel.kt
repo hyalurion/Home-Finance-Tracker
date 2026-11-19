@@ -1,9 +1,12 @@
 package com.chronie.homemoney.ui.chat
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chronie.homemoney.R
 import com.chronie.homemoney.data.chat.AgentToolSpecs
 import com.chronie.homemoney.data.chat.ChatAttachmentCodec
 import com.chronie.homemoney.data.local.AiProviderConfigManager
@@ -14,6 +17,7 @@ import com.chronie.homemoney.domain.model.chat.ChatConversation
 import com.chronie.homemoney.domain.model.chat.ChatMessage
 import com.chronie.homemoney.domain.model.chat.ChatMessageStatus
 import com.chronie.homemoney.domain.model.chat.ChatProgress
+import com.chronie.homemoney.domain.model.chat.ChatRole
 import com.chronie.homemoney.domain.model.chat.ToolCallStatus
 import com.chronie.homemoney.domain.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,7 +51,13 @@ data class AIChatUiState(
     /** Id of the message whose reasoning phase is still running. */
     val thinkingMessageId: String? = null,
     /** Incremented whenever the AI writes expense records, so the list can refresh. */
-    val recordsChangedTick: Int = 0
+    val recordsChangedTick: Int = 0,
+    /** User message currently open in the edit sheet, or null. */
+    val editingMessage: ChatMessage? = null,
+    /** Draft text of the message being edited. */
+    val editDraft: String = "",
+    /** Short transient confirmation, e.g. after copying a message. */
+    val notice: String? = null
 )
 
 /**
@@ -250,6 +260,65 @@ class AIChatViewModel @Inject constructor(
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    // ------------------------------------------------------------------
+    // Message actions: copy and edit-and-resend
+    // ------------------------------------------------------------------
+
+    /** Copies the visible answer (or reasoning when the answer is empty). */
+    fun copyMessage(message: ChatMessage) {
+        val text = message.content.ifBlank { message.reasoningContent }
+        if (text.isBlank()) return
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE)
+            as? ClipboardManager ?: return
+        clipboard.setPrimaryClip(ClipData.newPlainText("AI Chat", text))
+        _uiState.update { it.copy(notice = context.getString(R.string.chat_copied)) }
+    }
+
+    fun clearNotice() {
+        _uiState.update { it.copy(notice = null) }
+    }
+
+    fun startEditing(message: ChatMessage) {
+        if (message.role != ChatRole.USER || _uiState.value.isGenerating) return
+        _uiState.update { it.copy(editingMessage = message, editDraft = message.content) }
+    }
+
+    fun updateEditDraft(text: String) {
+        _uiState.update { it.copy(editDraft = text) }
+    }
+
+    fun cancelEditing() {
+        _uiState.update { it.copy(editingMessage = null, editDraft = "") }
+    }
+
+    /** Rewrites the selected user turn and regenerates everything after it. */
+    fun submitEdit() {
+        val state = _uiState.value
+        val target = state.editingMessage ?: return
+        val text = state.editDraft.trim()
+        val conversationId = state.conversationId ?: return
+        if (state.isGenerating) return
+        if (text.isBlank() && target.attachments.isEmpty()) return
+        if (configManager.selectableProviders().isEmpty()) {
+            _uiState.update {
+                it.copy(
+                    editingMessage = null,
+                    error = context.getString(R.string.chat_no_model_available)
+                )
+            }
+            return
+        }
+        _uiState.update {
+            it.copy(
+                editingMessage = null,
+                editDraft = "",
+                error = null,
+                isGenerating = true
+            )
+        }
+        collectGeneration(repository.editAndResend(conversationId, target.id, text))
     }
 
     // ------------------------------------------------------------------

@@ -593,7 +593,7 @@
     <string name="model_download_eta_minutes">%1$d menit</string>
     <string name="model_download_eta_seconds">%1$d detik</string>
 
-    <string name="remark_translate_button">Terjemahkan catatan dengan AI di perangkat</string>
+    <string name="remark_translate_button">Terjemahkan catatan dengan AI</string>
     <string name="remark_translate_ai_result">Terjemahan AI</string>
     <string name="remark_translate_already_current_language">Catatan sudah dalam bahasa Anda</string>
     <string name="remark_translate_failed">Terjemahan gagal</string>
@@ -676,5 +676,14 @@
     <string name="settings_ai_on_device_enabled">Aktifkan model perangkat (eksperimental)</string>
     <string name="settings_ai_on_device_warning">Model 8B di perangkat lambat, boros baterai, dan kurang akurat. Tambahkan model online untuk hasil lebih baik; menonaktifkannya membebaskan memori.</string>
     <string name="chat_no_model_available">Tidak ada model tersedia. Tambahkan penyedia API atau aktifkan kembali model perangkat di Pengaturan &gt; AI.</string>
+
+
+    <!-- AI Chat: message copy and edit -->
+    <string name="chat_copy">Salin</string>
+    <string name="chat_copied">Disalin ke papan klip</string>
+    <string name="chat_edit">Edit pesan</string>
+    <string name="chat_edit_title">Edit pesan</string>
+    <string name="chat_edit_hint">Edit pesan Anda…</string>
+    <string name="chat_edit_resend_hint">Menyimpan akan mengirim ulang pesan ini dan menghapus semua balasan setelahnya.</string>
 
 </resources>

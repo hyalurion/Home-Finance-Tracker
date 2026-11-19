@@ -1,6 +1,8 @@
 package com.chronie.homemoney.data.chat
 
+import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.model.chat.ToolSpec
+import java.time.LocalDate
 
 /**
  * Tool schemas advertised to the model. JSON Schema is used verbatim for
@@ -16,13 +18,15 @@ object AgentToolSpecs {
     const val SPENDING_SUMMARY = "get_spending_summary"
     const val CURRENT_DATE = "get_current_date"
 
-    /** Canonical Chinese category names accepted by the local database. */
-    val CATEGORIES = listOf(
-        "日常用品", "奢侈品", "通讯费用", "食品", "零食糖果", "冷饮", "方便食品",
-        "纺织品", "饮品", "调味品", "交通出行", "餐饮", "医疗费用", "水果",
-        "其他", "水产品", "乳制品", "礼物人情", "旅行度假", "政务", "水电煤气",
-        "美容美发", "豆制品", "个护美妆", "电子产品", "家用电器", "五金", "服装"
-    )
+    /**
+     * Canonical Chinese category names accepted by the local database.
+     * Derived from the enum so a newly added category cannot be missing here.
+     */
+    val CATEGORIES: List<String> = ExpenseType.entries.map { it.chineseName }
+
+    /** One concrete record shape, injected into the system prompt for TEXT mode. */
+    val ADD_EXPENSE_EXAMPLE: String
+        get() = """{"name":"$ADD_EXPENSE","arguments":{"records":[{"category":"饮品","amount":18.0,"date":"${LocalDate.now()}","remark":"买的水"}]}}"""
 
     fun available(queryAuthorized: Boolean): List<ToolSpec> = buildList {
         add(
@@ -41,12 +45,13 @@ object AgentToolSpecs {
                       "items": {
                         "type": "object",
                         "properties": {
-                          "type": { "type": "string", "description": "One of the allowed Chinese category names" },
+                          "category": { "type": "string", "description": "One of the allowed Chinese category names, e.g. 饮品" },
+                          "type": { "type": "string", "description": "Legacy alias for category" },
                           "amount": { "type": "number", "description": "Positive amount" },
                           "date": { "type": "string", "description": "YYYY-MM-DD" },
                           "remark": { "type": "string", "description": "What was purchased, in the user's language" }
                         },
-                        "required": ["type", "amount", "date", "remark"]
+                        "required": ["amount", "date", "remark"]
                       }
                     }
                   },
@@ -68,7 +73,8 @@ object AgentToolSpecs {
                       "properties": {
                         "start_date": { "type": "string", "description": "YYYY-MM-DD inclusive" },
                         "end_date": { "type": "string", "description": "YYYY-MM-DD inclusive" },
-                        "type": { "type": "string", "description": "Optional Chinese category filter" },
+                        "category": { "type": "string", "description": "Optional Chinese category filter" },
+                        "type": { "type": "string", "description": "Legacy alias for category" },
                         "limit": { "type": "integer", "description": "Max rows, 1..50, default 20" }
                       },
                       "required": ["start_date", "end_date"]

@@ -593,7 +593,7 @@
     <string name="model_download_eta_minutes">%1$d분</string>
     <string name="model_download_eta_seconds">%1$d초</string>
 
-    <string name="remark_translate_button">기기 내 AI로 메모 번역</string>
+    <string name="remark_translate_button">AI로 메모 번역</string>
     <string name="remark_translate_ai_result">AI 번역</string>
     <string name="remark_translate_already_current_language">메모가 이미 현재 언어입니다</string>
     <string name="remark_translate_failed">번역 실패</string>
@@ -676,5 +676,14 @@
     <string name="settings_ai_on_device_enabled">내장 온디바이스 모델 사용 (실험적)</string>
     <string name="settings_ai_on_device_warning">온디바이스 8B 모델은 느리고 배터리 소모가 크며 정확도도 낮습니다. 온라인 모델 추가를 권장합니다. 끄면 메모리가 해제됩니다.</string>
     <string name="chat_no_model_available">사용 가능한 모델이 없습니다. 설정 &gt; AI에서 API 제공자를 추가하거나 온디바이스 모델을 다시 켜 주세요.</string>
+
+
+    <!-- AI Chat: message copy and edit -->
+    <string name="chat_copy">복사</string>
+    <string name="chat_copied">클립보드에 복사됨</string>
+    <string name="chat_edit">메시지 편집</string>
+    <string name="chat_edit_title">메시지 편집</string>
+    <string name="chat_edit_hint">메시지 편집…</string>
+    <string name="chat_edit_resend_hint">저장하면 이 메시지를 다시 보내고 이후 답변을 모두 삭제합니다.</string>
 
 </resources>

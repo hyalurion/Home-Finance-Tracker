@@ -58,6 +58,17 @@ interface ChatDao {
         providerId: String
     )
 
+    /**
+     * Removes an exact set of messages by id. Used when a user message is
+     * edited: that message and every later turn are dropped before the new
+     * text is sent, so the transcript never contains the stale branch.
+     */
+    @Query(
+        "DELETE FROM chat_messages WHERE conversation_id = :conversationId " +
+            "AND id IN (:messageIds)"
+    )
+    suspend fun deleteMessagesByIds(conversationId: String, messageIds: List<String>)
+
     @Query("DELETE FROM chat_messages WHERE conversation_id = :conversationId")
     suspend fun deleteMessages(conversationId: String)
 

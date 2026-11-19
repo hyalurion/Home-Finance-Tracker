@@ -595,7 +595,7 @@
     <string name="model_download_eta_minutes">%1$d分鐘</string>
     <string name="model_download_eta_seconds">%1$d秒</string>
 
-    <string name="remark_translate_button">使用端側AI翻譯備註</string>
+    <string name="remark_translate_button">使用 AI 翻譯備註</string>
     <string name="remark_translate_ai_result">AI 譯文</string>
     <string name="remark_translate_already_current_language">備註已是目前語言</string>
     <string name="remark_translate_failed">翻譯失敗</string>
@@ -678,5 +678,14 @@
     <string name="settings_ai_on_device_enabled">啟用內建裝置端模型（實驗性）</string>
     <string name="settings_ai_on_device_warning">裝置端 8B 模型速度慢、耗電且準確度較低，建議新增線上模型；關閉後可釋放記憶體並省電。</string>
     <string name="chat_no_model_available">沒有可用模型：請在「設定 &gt; AI」新增 API 服務或重新啟用裝置端模型。</string>
+
+
+    <!-- AI Chat: message copy and edit -->
+    <string name="chat_copy">複製</string>
+    <string name="chat_copied">已複製到剪貼簿</string>
+    <string name="chat_edit">編輯訊息</string>
+    <string name="chat_edit_title">編輯訊息</string>
+    <string name="chat_edit_hint">編輯你的訊息…</string>
+    <string name="chat_edit_resend_hint">儲存後會重新傳送此訊息，並刪除其後的所有回覆。</string>
 
 </resources>

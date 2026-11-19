@@ -33,12 +33,15 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import kotlinx.coroutines.delay
 
 /**
  * Full AI chat screen. Replaces the old one-shot "Smart Scan" form:
@@ -68,6 +71,14 @@ fun AIChatScreen(
     // A successful add_expense tool call must refresh the ledger list.
     LaunchedEffect(state.recordsChangedTick) {
         if (state.recordsChangedTick > 0) onRecordsChanged()
+    }
+
+    // Transient confirmation (e.g. "Copied") disappears on its own.
+    LaunchedEffect(state.notice) {
+        if (state.notice != null) {
+            delay(2_000)
+            viewModel.clearNotice()
+        }
     }
 
     // Scroll on new messages; during streaming only every ~80 characters to
@@ -119,6 +130,7 @@ fun AIChatScreen(
                 onNewChat = viewModel::newConversation,
                 onHistory = { viewModel.setShowHistory(true) }
             )
+            HorizontalDivider()
 
             if (!state.queryAuthorized) {
                 Row(
@@ -139,6 +151,27 @@ fun AIChatScreen(
                         style = MiuixTheme.textStyles.footnote2,
                         color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
+                }
+            }
+
+            state.notice?.let { notice ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Surface(
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                        color = MiuixTheme.colorScheme.primaryContainer
+                    ) {
+                        Text(
+                            text = notice,
+                            style = MiuixTheme.textStyles.footnote1,
+                            color = MiuixTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                        )
+                    }
                 }
             }
 
@@ -167,8 +200,8 @@ fun AIChatScreen(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                    contentPadding = PaddingValues(horizontal = 0.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     if (state.messages.isEmpty()) {
                         item { ChatEmptyHint() }
@@ -179,7 +212,9 @@ fun AIChatScreen(
                             isThinking = state.thinkingMessageId == message.id,
                             onConfirmTool = { toolCallId ->
                                 viewModel.confirmToolCall(message.id, toolCallId)
-                            }
+                            },
+                            onCopy = viewModel::copyMessage,
+                            onEdit = viewModel::startEditing
                         )
                     }
                 }
@@ -215,5 +250,13 @@ fun AIChatScreen(
         activeId = state.activeProviderId,
         onSelect = viewModel::selectProvider,
         onDismiss = { viewModel.setShowProviderPicker(false) }
+    )
+
+    ChatEditMessageSheet(
+        show = state.editingMessage != null,
+        draft = state.editDraft,
+        onDraftChange = viewModel::updateEditDraft,
+        onSubmit = viewModel::submitEdit,
+        onDismiss = viewModel::cancelEditing
     )
 }

@@ -38,6 +38,7 @@ import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import top.yukonga.miuix.kmp.window.WindowDialog
@@ -229,6 +230,68 @@ private fun HistoryRow(
                 contentDescription = stringResource(R.string.chat_delete_conversation),
                 tint = MiuixTheme.colorScheme.error,
                 modifier = Modifier.size(16.dp)
+            )
+        }
+    }
+}
+
+/**
+ * Edits a previously sent user message. Confirming resends the new text and
+ * drops every later turn, so the conversation never branches silently.
+ * The × / √ header actions match the rest of the app's bottom sheets.
+ */
+@Composable
+fun ChatEditMessageSheet(
+    show: Boolean,
+    draft: String,
+    onDraftChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    WindowBottomSheet(
+        show = show,
+        title = stringResource(R.string.chat_edit_title),
+        startAction = {
+            CircularIconButton(onClick = onDismiss) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.cancel),
+                    tint = MiuixTheme.colorScheme.onBackground
+                )
+            }
+        },
+        endAction = {
+            CircularIconButton(onClick = onSubmit) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = stringResource(R.string.confirm),
+                    tint = MiuixTheme.colorScheme.primary
+                )
+            }
+        },
+        onDismissRequest = onDismiss
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            TextField(
+                value = draft,
+                onValueChange = onDraftChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 120.dp),
+                label = stringResource(R.string.chat_edit_hint),
+                useLabelAsPlaceholder = true,
+                singleLine = false,
+                maxLines = 8
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.chat_edit_resend_hint),
+                style = MiuixTheme.textStyles.footnote2,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
         }
     }

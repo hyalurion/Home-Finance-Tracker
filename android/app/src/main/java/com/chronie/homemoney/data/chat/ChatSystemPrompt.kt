@@ -43,6 +43,8 @@ object ChatSystemPrompt {
                 TOOL CALL PROTOCOL: use the native tool/function calling API. Never print
                 raw JSON tool calls as text. Call a tool as soon as the user's request
                 requires reading or writing records; do not guess or fabricate data.
+                In add_expense arguments each record MUST have a "category" field
+                holding one of the Chinese category names listed below.
                 """.trimIndent()
 
             ToolProtocol.TEXT -> """
@@ -52,6 +54,8 @@ object ChatSystemPrompt {
                 Replace tool_name with a listed tool and put valid JSON in arguments.
                 Never wrap tool blocks in Markdown code fences. After the tool result
                 is supplied, answer the user normally.
+                Exact add_expense example (copy the field names verbatim):
+                ${TextProtocolMarkers.TOOL_START}${AgentToolSpecs.ADD_EXPENSE_EXAMPLE}${TextProtocolMarkers.TOOL_END}
                 """.trimIndent()
 
             ToolProtocol.NONE -> """
@@ -105,12 +109,17 @@ object ChatSystemPrompt {
 
             append("EXPENSE RULES:\n")
             append("- The only valid categories are these Chinese names: $categories\n")
+            append("- The category field is named \"category\" (never \"category_name\", \"type\" is a legacy alias).\n")
+            append("- Always reuse one of the exact names above; an unknown name becomes 其他.\n")
             append("- amounts must be positive numbers, dates must be YYYY-MM-DD\n")
             append("- keep the remark in the user's original language\n")
             append("- never invent a purchase or a financial figure\n")
             append("- after creating records, briefly list what was saved\n\n")
 
             append("AVAILABLE TOOLS:\n").append(toolList).append("\n\n")
+            append("ADD_EXPENSE ARGUMENT SHAPE (each item in \"records\"):\n")
+            append("""{"category":"饮品","amount":18.0,"date":"$dateStr","remark":"买的水"}""")
+            append("\n\n")
             append(protocolBlock).append("\n\n")
 
             append("RELATIVE DATE QUERIES:\n")

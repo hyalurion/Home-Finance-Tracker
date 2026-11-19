@@ -3,7 +3,9 @@ package com.chronie.homemoney.ui.expense
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.Language
+import com.chronie.homemoney.data.local.AiProviderConfigManager
 import com.chronie.homemoney.data.sync.SyncScheduler
 import com.chronie.homemoney.data.vlm.OnDeviceModelManager
 import com.chronie.homemoney.domain.model.Expense
@@ -18,6 +20,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -33,15 +36,17 @@ import javax.inject.Inject
  * The UI observes [uiState] which contains both the flat and
  * date-grouped expense lists suitable for a grouped LazyColumn.
  *
- * When the on-device AI model is downloaded, remarks can be translated
- * into the current app language via the local model — see
- * [remarkTranslations] and [translateRemark]. All inference runs offline.
+ * When an AI model is available in Settings > AI, remarks can be translated
+ * into the current app language — see [remarkTranslations] and
+ * [translateRemark]. The model follows the active provider rather than being
+ * hard-wired to the on-device engine.
  */
 @HiltViewModel
 class ExpenseListViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     private val syncScheduler: SyncScheduler,
     private val modelManager: OnDeviceModelManager,
+    private val configManager: AiProviderConfigManager,
     private val translateRemarkUseCase: TranslateRemarkUseCase,
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -51,25 +56,48 @@ class ExpenseListViewModel @Inject constructor(
 
     /**
      * Per-expense remark translation state, keyed by expense id.
-     * Only populated while the on-device AI model is downloaded.
+     * Populated whenever a model is usable through the active provider.
      */
     private val _remarkTranslations = MutableStateFlow<Map<String, RemarkTranslationState>>(emptyMap())
     val remarkTranslations: StateFlow<Map<String, RemarkTranslationState>> = _remarkTranslations.asStateFlow()
 
-    /** True once the on-device model package has been verified on disk. */
-    private val _isModelDownloaded = MutableStateFlow(modelManager.isModelReady())
-    val isModelDownloaded: StateFlow<Boolean> = _isModelDownloaded.asStateFlow()
+    /**
+     * True when the active provider can actually serve a request: either a
+     * configured API endpoint, or the built-in engine when it is enabled and
+     * its model package is verified. This replaces the old "is the on-device
+     * model downloaded?" gate, which hid the button even when an online model
+     * had been selected.
+     */
+    private val _isAiAvailable = MutableStateFlow(false)
+    val isAiAvailable: StateFlow<Boolean> = _isAiAvailable.asStateFlow()
 
     init {
         // Pick up a model downloaded/verified in a previous session.
         modelManager.refreshState()
+        updateAiAvailability()
         viewModelScope.launch {
-            modelManager.state.collect { state ->
-                _isModelDownloaded.value = state is OnDeviceModelManager.ModelState.Ready
-            }
+            combine(
+                configManager.providers,
+                configManager.activeProviderId,
+                configManager.onDeviceEnabled,
+                modelManager.state
+            ) { _, _, _, _ -> Unit }.collect { updateAiAvailability() }
         }
         loadExpenses()
         loadStatistics()
+    }
+
+    /** Re-evaluates whether the translate action should be offered. */
+    private fun updateAiAvailability() {
+        val selectable = configManager.selectableProviders()
+        val active = configManager.activeProvider()
+        _isAiAvailable.value = if (active.isBuiltIn) {
+            configManager.isOnDeviceEnabled() &&
+                modelManager.isModelReady() &&
+                selectable.any { it.isBuiltIn }
+        } else {
+            selectable.any { it.id == active.id }
+        }
     }
     
     /**
@@ -358,7 +386,7 @@ class ExpenseListViewModel @Inject constructor(
 
     /**
      * Translates the remark of [expense] into the current app language
-     * using the on-device AI model (offline, no network access).
+     * using the model selected in Settings > AI (hosted API or on-device).
      *
      * Tapping the button cycles through: Translating -> Success
      * (showing translated) -> toggles back to the original remark ->
@@ -400,8 +428,15 @@ class ExpenseListViewModel @Inject constructor(
                     }
                 },
                 onFailure = { error ->
+                    val message = when (error) {
+                        is TranslateRemarkUseCase.NoModelAvailableException ->
+                            context.getString(R.string.chat_no_model_available)
+                        is TranslateRemarkUseCase.ModelNotReadyException ->
+                            context.getString(R.string.ai_expense_model_not_ready)
+                        else -> error.message
+                    }
                     _remarkTranslations.update {
-                        it + (expense.id to RemarkTranslationState.Error(error.message))
+                        it + (expense.id to RemarkTranslationState.Error(message))
                     }
                 }
             )
@@ -459,8 +494,8 @@ data class ExpenseDateGroup(
 )
 
 /**
- * Translation lifecycle for a single expense remark, driven by the
- * on-device AI model. Keyed by expense id in
+ * Translation lifecycle for a single expense remark, driven by the active
+ * AI provider. Keyed by expense id in
  * [ExpenseListViewModel.remarkTranslations].
  */
 sealed interface RemarkTranslationState {

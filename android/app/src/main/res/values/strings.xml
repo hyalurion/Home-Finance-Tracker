@@ -637,7 +637,7 @@
     <string name="image_editor_load_failed">Failed to load image</string>
 
 
-    <string name="remark_translate_button">Translate note with on-device AI</string>
+    <string name="remark_translate_button">Translate note with AI</string>
     <string name="remark_translate_ai_result">AI translation</string>
     <string name="remark_translate_already_current_language">Already in your language</string>
     <string name="remark_translate_failed">Translation failed</string>
@@ -720,5 +720,14 @@
     <string name="settings_ai_on_device_enabled">Enable on-device model (experimental)</string>
     <string name="settings_ai_on_device_warning">The 8B on-device model is slow, battery hungry and less accurate. Add an online model for better answers; turning it off frees memory.</string>
     <string name="chat_no_model_available">No model available. Add an API provider or re-enable the on-device model in Settings &gt; AI.</string>
+
+
+    <!-- AI Chat: message copy and edit -->
+    <string name="chat_copy">Copy</string>
+    <string name="chat_copied">Copied to clipboard</string>
+    <string name="chat_edit">Edit message</string>
+    <string name="chat_edit_title">Edit message</string>
+    <string name="chat_edit_hint">Edit your message…</string>
+    <string name="chat_edit_resend_hint">Saving resends this message and removes all replies after it.</string>
 
 </resources>

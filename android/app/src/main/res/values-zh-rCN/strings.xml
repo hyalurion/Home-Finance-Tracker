@@ -594,7 +594,7 @@
     <string name="recycle_bin_delete_selected_message">%d 个选中项目将被永久移除且无法恢复。</string>
 
 
-    <string name="remark_translate_button">使用端侧AI翻译备注</string>
+    <string name="remark_translate_button">使用 AI 翻译备注</string>
     <string name="remark_translate_ai_result">AI 译文</string>
     <string name="remark_translate_already_current_language">备注已是当前语言</string>
     <string name="remark_translate_failed">翻译失败</string>
@@ -677,5 +677,14 @@
     <string name="settings_ai_on_device_enabled">启用内置端侧模型（实验性）</string>
     <string name="settings_ai_on_device_warning">端侧 8B 模型速度慢、耗电且准确性较低，建议添加在线模型；关闭后可释放内存并省电。</string>
     <string name="chat_no_model_available">没有可用模型：请在「设置 &gt; AI」添加 API 服务或重新启用端侧模型。</string>
+
+
+    <!-- AI Chat: message copy and edit -->
+    <string name="chat_copy">复制</string>
+    <string name="chat_copied">已复制到剪贴板</string>
+    <string name="chat_edit">编辑消息</string>
+    <string name="chat_edit_title">编辑消息</string>
+    <string name="chat_edit_hint">编辑你的消息…</string>
+    <string name="chat_edit_resend_hint">保存后会重新发送此消息，并删除其后的所有回复。</string>
 
 </resources>

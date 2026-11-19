@@ -92,7 +92,7 @@ fun ExpenseListScreen(
     onNavigateToEditExpense: (expenseId: String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val isAiModelDownloaded by viewModel.isModelDownloaded.collectAsState()
+    val isAiAvailable by viewModel.isAiAvailable.collectAsState()
     val remarkTranslations by viewModel.remarkTranslations.collectAsState()
     var showFilterDialog by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -360,7 +360,7 @@ fun ExpenseListScreen(
                                             context = context,
                                             onEdit = { expense -> onNavigateToEditExpense(expense.id) },
                                             onDelete = { expense -> viewModel.deleteExpense(expense) },
-                                            isAiModelDownloaded = isAiModelDownloaded,
+                                            isAiAvailable = isAiAvailable,
                                             remarkTranslations = remarkTranslations,
                                             onTranslateRemark = { expense -> viewModel.translateRemark(expense) },
                                             modifier = Modifier.padding(horizontal = 16.dp)
@@ -376,7 +376,7 @@ fun ExpenseListScreen(
                                             context = context,
                                             onEdit = { onNavigateToEditExpense(expense.id) },
                                             onDelete = { viewModel.deleteExpense(expense) },
-                                            isAiModelDownloaded = isAiModelDownloaded,
+                                            isAiAvailable = isAiAvailable,
                                             remarkTranslationState = remarkTranslations[expense.id],
                                             onTranslateRemark = { viewModel.translateRemark(expense) },
                                             modifier = Modifier.padding(horizontal = 16.dp)
@@ -578,7 +578,7 @@ fun LongPressExpenseItem(
     context: android.content.Context,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    isAiModelDownloaded: Boolean = false,
+    isAiAvailable: Boolean = false,
     remarkTranslationState: RemarkTranslationState? = null,
     onTranslateRemark: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -631,7 +631,7 @@ fun LongPressExpenseItem(
         ExpenseListItem(
             expense = expense,
             context = context,
-            isAiModelDownloaded = isAiModelDownloaded,
+            isAiAvailable = isAiAvailable,
             remarkTranslationState = remarkTranslationState,
             onTranslateRemark = onTranslateRemark,
             modifier = Modifier
@@ -806,7 +806,7 @@ fun LongPressExpenseItem(
 fun ExpenseListItem(
     expense: Expense,
     context: android.content.Context,
-    isAiModelDownloaded: Boolean = false,
+    isAiAvailable: Boolean = false,
     remarkTranslationState: RemarkTranslationState? = null,
     onTranslateRemark: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -871,14 +871,16 @@ fun ExpenseListItem(
                             }
                             if (remarkTranslationState is RemarkTranslationState.Error) {
                                 Text(
-                                    text = context.getString(R.string.remark_translate_failed),
+                                    text = remarkTranslationState.message
+                                        ?.takeIf { it.isNotBlank() }
+                                        ?: context.getString(R.string.remark_translate_failed),
                                     style = MiuixTheme.textStyles.footnote1,
                                     color = MiuixTheme.colorScheme.error
                                 )
                             }
                         }
-                        // Only offered when the on-device model package is verified.
-                        if (isAiModelDownloaded) {
+                        // Offered whenever the active AI provider can serve a request.
+                        if (isAiAvailable) {
                             RemarkTranslateButton(
                                 state = remarkTranslationState,
                                 onClick = onTranslateRemark,
@@ -905,7 +907,7 @@ fun ExpenseListItem(
 
 /**
  * Compact icon button shown right after a remark text that translates
- * the remark with the on-device AI model.
+ * the remark with the AI model selected in Settings > AI.
  *
  * While inference runs, a small spinner replaces the icon. Once a
  * translation exists, the icon turns primary-colored to signal that
@@ -1006,7 +1008,7 @@ fun ExpenseTableItems(
     context: android.content.Context,
     onEdit: (Expense) -> Unit,
     onDelete: (Expense) -> Unit,
-    isAiModelDownloaded: Boolean = false,
+    isAiAvailable: Boolean = false,
     remarkTranslations: Map<String, RemarkTranslationState> = emptyMap(),
     onTranslateRemark: (Expense) -> Unit = {},
     modifier: Modifier = Modifier
@@ -1122,14 +1124,16 @@ fun ExpenseTableItems(
                                 }
                                 if (remarkTranslation is RemarkTranslationState.Error) {
                                     Text(
-                                        text = context.getString(R.string.remark_translate_failed),
+                                        text = remarkTranslation.message
+                                            ?.takeIf { it.isNotBlank() }
+                                            ?: context.getString(R.string.remark_translate_failed),
                                         style = MiuixTheme.textStyles.footnote1,
                                         color = MiuixTheme.colorScheme.error
                                     )
                                 }
                             }
-                            // Only offered when the on-device model package is verified.
-                            if (isAiModelDownloaded) {
+                            // Offered whenever the active AI provider can serve a request.
+                            if (isAiAvailable) {
                                 RemarkTranslateButton(
                                     state = remarkTranslation,
                                     onClick = { onTranslateRemark(expense) },

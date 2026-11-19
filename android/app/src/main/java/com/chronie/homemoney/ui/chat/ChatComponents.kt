@@ -2,14 +2,15 @@ package com.chronie.homemoney.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,19 +19,24 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.runtime.Composable
@@ -43,27 +49,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.chronie.homemoney.R
-import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.domain.model.chat.ChatAttachment
 import com.chronie.homemoney.domain.model.chat.ChatMessage
 import com.chronie.homemoney.domain.model.chat.ChatMessageStatus
 import com.chronie.homemoney.domain.model.chat.ChatRole
 import com.chronie.homemoney.domain.model.chat.ToolCallRecord
 import com.chronie.homemoney.domain.model.chat.ToolCallStatus
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.DropdownImpl
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.theme.LocalDismissState
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowListPopup
 import java.io.File
+import java.text.DateFormat
+import java.util.Date
 
 /** Top strip: active model, new-chat and history actions. */
 @Composable
@@ -79,37 +93,53 @@ fun ChatProviderBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(18.dp),
             color = MiuixTheme.colorScheme.primaryContainer,
             modifier = Modifier
                 .weight(1f)
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(18.dp))
                 .clickable(onClick = onProviderClick)
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.AutoAwesome,
                     contentDescription = null,
                     tint = MiuixTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(15.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = providerName.ifBlank { modelFallback },
                     style = MiuixTheme.textStyles.footnote1,
                     color = MiuixTheme.colorScheme.onPrimaryContainer,
+                    maxLines = 1,
                     modifier = Modifier.weight(1f)
+                )
+                if (!queryAuthorized) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = null,
+                        tint = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.65f),
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    tint = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f),
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(4.dp))
         IconButton(onClick = onNewChat) {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -127,11 +157,19 @@ fun ChatProviderBar(
     }
 }
 
-/** One chat bubble with attachments, Markdown answer and tool cards. */
+/**
+ * One chat bubble with attachments, Markdown answer, reasoning and tool cards.
+ *
+ * Copy/edit are exposed twice on purpose: a long press opens the anchored
+ * context menu, and the small footer icons keep the actions discoverable on
+ * devices where long press is hard to reach.
+ */
 @Composable
 fun ChatMessageItem(
     message: ChatMessage,
     onConfirmTool: (toolCallId: String) -> Unit,
+    onCopy: (ChatMessage) -> Unit,
+    onEdit: (ChatMessage) -> Unit,
     isThinking: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -142,89 +180,194 @@ fun ChatMessageItem(
     } else {
         MiuixTheme.colorScheme.onSurface
     }
+    val subtleColor = MiuixTheme.colorScheme.onSurfaceSecondary.copy(alpha = 0.72f)
 
-    Row(
+    var showMenu by rememberSaveable(message.id) { mutableStateOf(false) }
+    val copyLabel = stringResource(R.string.chat_copy)
+    val editLabel = stringResource(R.string.chat_edit)
+    val menuItems = buildList<Pair<String, () -> Unit>> {
+        add(copyLabel to { onCopy(message) })
+        if (isUser) add(editLabel to { onEdit(message) })
+    }
+
+    // Scale with the screen instead of a hard-coded 320.dp, and keep a
+    // comfortable reading measure on tablets / landscape.
+    val maxBubbleWidth = (LocalConfiguration.current.screenWidthDp * 0.80f).dp
+        .coerceAtMost(460.dp)
+    val bubbleShape = if (isUser) {
+        RoundedCornerShape(18.dp, 18.dp, 6.dp, 18.dp)
+    } else {
+        RoundedCornerShape(18.dp, 18.dp, 18.dp, 6.dp)
+    }
+
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
-        verticalAlignment = Alignment.Top
+            .padding(horizontal = 14.dp, vertical = 3.dp)
     ) {
-        if (!isUser) {
-            Icon(
-                imageVector = Icons.Default.SmartToy,
-                contentDescription = null,
-                tint = MiuixTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(top = 10.dp, end = 6.dp)
-                    .size(22.dp)
-            )
-        }
-
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = if (isUser) {
-                MiuixTheme.colorScheme.primaryContainer
-            } else {
-                MiuixTheme.colorScheme.surfaceVariant
-            },
-            modifier = Modifier.widthIn(max = 320.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
+            verticalAlignment = Alignment.Top
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                if (message.attachments.isNotEmpty()) {
-                    AttachmentRow(message.attachments, removable = false, onRemove = {})
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                if (!isUser && (message.reasoningContent.isNotBlank() || isThinking)) {
-                    ReasoningBlock(
-                        messageId = message.id,
-                        content = message.reasoningContent,
-                        durationMs = message.reasoningDurationMs,
-                        isThinking = isThinking,
-                        textColor = bubbleTextColor
+            if (!isUser) {
+                Surface(
+                    shape = CircleShape,
+                    color = MiuixTheme.colorScheme.primaryContainer,
+                    modifier = Modifier
+                        .padding(top = 2.dp, end = 8.dp)
+                        .size(28.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SmartToy,
+                        contentDescription = null,
+                        tint = MiuixTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .size(18.dp)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
+            }
 
-                if (message.content.isNotBlank()) {
-                    ChatMarkdownText(
-                        content = message.content,
-                        isStreaming = streaming,
-                        textColor = bubbleTextColor,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                } else if (streaming && message.reasoningContent.isBlank()) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        ExpressiveLoadingIndicator(containerVisible = false)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.chat_streaming),
-                            style = MiuixTheme.textStyles.footnote1,
-                            color = MiuixTheme.colorScheme.onSurfaceSecondary
-                        )
+            Box {
+                Surface(
+                    shape = bubbleShape,
+                    color = if (isUser) {
+                        MiuixTheme.colorScheme.primaryContainer
+                    } else {
+                        MiuixTheme.colorScheme.surfaceVariant
+                    },
+                    modifier = Modifier
+                        .widthIn(max = maxBubbleWidth)
+                        .pointerInput(Unit) {
+                            detectTapGestures(onLongPress = { showMenu = true })
+                        }
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp)) {
+                        if (message.attachments.isNotEmpty()) {
+                            AttachmentRow(message.attachments, removable = false, onRemove = {})
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
+                        if (!isUser && (message.reasoningContent.isNotBlank() || isThinking)) {
+                            ReasoningBlock(
+                                messageId = message.id,
+                                content = message.reasoningContent,
+                                durationMs = message.reasoningDurationMs,
+                                isThinking = isThinking,
+                                textColor = bubbleTextColor
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
+                        if (message.content.isNotBlank()) {
+                            // No fillMaxWidth here: the bubble should hug short
+                            // answers instead of stretching to the max width.
+                            ChatMarkdownText(
+                                content = message.content,
+                                isStreaming = streaming,
+                                textColor = bubbleTextColor
+                            )
+                        } else if (streaming && message.reasoningContent.isBlank()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                ExpressiveLoadingIndicator(containerVisible = false)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = stringResource(R.string.chat_streaming),
+                                    style = MiuixTheme.textStyles.footnote1,
+                                    color = MiuixTheme.colorScheme.onSurfaceSecondary
+                                )
+                            }
+                        }
+
+                        message.toolCalls.forEach { call ->
+                            Spacer(modifier = Modifier.height(8.dp))
+                            ToolCallCard(record = call, onConfirm = { onConfirmTool(call.id) })
+                        }
+
+                        if (message.status == ChatMessageStatus.FAILED) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.chat_message_failed),
+                                style = MiuixTheme.textStyles.footnote2,
+                                color = MiuixTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
 
-                message.toolCalls.forEach { call ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ToolCallCard(record = call, onConfirm = { onConfirmTool(call.id) })
+                WindowListPopup(
+                    show = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    val dismiss = LocalDismissState.current
+                    ListPopupColumn {
+                        menuItems.forEachIndexed { index, (label, action) ->
+                            DropdownImpl(
+                                text = label,
+                                optionSize = menuItems.size,
+                                isSelected = false,
+                                index = index,
+                                onSelectedIndexChange = {
+                                    action()
+                                    showMenu = false
+                                    dismiss?.invoke()
+                                }
+                            )
+                        }
+                    }
                 }
+            }
+        }
 
-                if (message.status == ChatMessageStatus.FAILED) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = stringResource(R.string.chat_message_failed),
-                        style = MiuixTheme.textStyles.footnote2,
-                        color = MiuixTheme.colorScheme.error
-                    )
+        // Meta row: timestamp, model name and quick actions. Kept outside the
+        // bubble so long Markdown answers stay visually clean.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = if (isUser) 0.dp else 36.dp,
+                    end = if (isUser) 4.dp else 0.dp
+                ),
+            horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val meta = buildString {
+                append(DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(message.createdAt)))
+                if (!isUser && !message.providerLabel.isNullOrBlank()) {
+                    append(" · ")
+                    append(message.providerLabel)
                 }
-                if (!message.providerLabel.isNullOrBlank() && !isUser) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = message.providerLabel.orEmpty(),
-                        style = MiuixTheme.textStyles.footnote2,
-                        color = MiuixTheme.colorScheme.onSurfaceSecondary
+            }
+            Text(
+                text = meta,
+                style = MiuixTheme.textStyles.footnote2,
+                color = subtleColor,
+                maxLines = 1,
+                modifier = Modifier.weight(1f, fill = false)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            IconButton(
+                onClick = { onCopy(message) },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ContentCopy,
+                    contentDescription = copyLabel,
+                    tint = subtleColor,
+                    modifier = Modifier.size(13.dp)
+                )
+            }
+            if (isUser) {
+                IconButton(
+                    onClick = { onEdit(message) },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = editLabel,
+                        tint = subtleColor,
+                        modifier = Modifier.size(13.dp)
                     )
                 }
             }
@@ -498,7 +641,7 @@ fun ToolCallCard(
     }
 }
 
-/** Input row with attachment picker and send/stop control. */
+/** Rounded input card with attachment picker and a circular send/stop control. */
 @Composable
 fun ChatComposer(
     input: String,
@@ -515,40 +658,65 @@ fun ChatComposer(
         color = MiuixTheme.colorScheme.surface,
         modifier = modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
             if (attachments.isNotEmpty()) {
                 AttachmentRow(attachments, removable = true, onRemove = onRemoveAttachment)
                 Spacer(modifier = Modifier.height(8.dp))
             }
-            Row(verticalAlignment = Alignment.Bottom) {
-                IconButton(onClick = onAttach) {
-                    Icon(
-                        imageVector = Icons.Default.AttachFile,
-                        contentDescription = stringResource(R.string.chat_attach),
-                        tint = MiuixTheme.colorScheme.onSurfaceSecondary
+            Surface(
+                shape = RoundedCornerShape(22.dp),
+                color = MiuixTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(start = 2.dp, end = 6.dp, top = 2.dp, bottom = 2.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    IconButton(onClick = onAttach) {
+                        Icon(
+                            imageVector = Icons.Default.AttachFile,
+                            contentDescription = stringResource(R.string.chat_attach),
+                            tint = MiuixTheme.colorScheme.onSurfaceSecondary
+                        )
+                    }
+                    TextField(
+                        value = input,
+                        onValueChange = onInputChange,
+                        modifier = Modifier.weight(1f),
+                        label = stringResource(R.string.chat_input_hint),
+                        useLabelAsPlaceholder = true,
+                        singleLine = false,
+                        maxLines = 5
                     )
-                }
-                TextField(
-                    value = input,
-                    onValueChange = onInputChange,
-                    modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.chat_input_hint),
-                    useLabelAsPlaceholder = true,
-                    singleLine = false
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = if (isGenerating) onStop else onSend) {
-                    Icon(
-                        imageVector = if (isGenerating) {
-                            Icons.Default.Stop
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Surface(
+                        shape = CircleShape,
+                        color = if (isGenerating) {
+                            MiuixTheme.colorScheme.error
                         } else {
-                            Icons.AutoMirrored.Filled.Send
+                            MiuixTheme.colorScheme.primary
                         },
-                        contentDescription = stringResource(
-                            if (isGenerating) R.string.chat_stop else R.string.chat_send
-                        ),
-                        modifier = Modifier.size(18.dp)
-                    )
+                        modifier = Modifier
+                            .padding(bottom = 6.dp)
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .clickable(onClick = if (isGenerating) onStop else onSend)
+                    ) {
+                        Icon(
+                            imageVector = if (isGenerating) {
+                                Icons.Default.Stop
+                            } else {
+                                Icons.AutoMirrored.Filled.Send
+                            },
+                            contentDescription = stringResource(
+                                if (isGenerating) R.string.chat_stop else R.string.chat_send
+                            ),
+                            tint = MiuixTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .size(18.dp)
+                        )
+                    }
                 }
             }
         }

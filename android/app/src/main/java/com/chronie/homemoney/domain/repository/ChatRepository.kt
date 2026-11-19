@@ -36,6 +36,16 @@ interface ChatRepository {
         attachments: List<ChatAttachment>
     ): Flow<ChatProgress>
 
+    /**
+     * Edits a previously sent user message: drops it and every later turn,
+     * reuses its attachments, then regenerates the assistant answer.
+     */
+    fun editAndResend(
+        conversationId: String,
+        messageId: String,
+        text: String
+    ): Flow<ChatProgress>
+
     /** Approves a write that was held back by the auto-write consent switch. */
     fun confirmToolCall(
         conversationId: String,

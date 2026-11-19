@@ -26,10 +26,14 @@ fun getLocalProperty(key: String): String? {
 android {
     namespace = "com.chronie.homemoney"
     compileSdk = libs.versions.compileSdk.get().toInt()
+    // AAR metadata of Compose 1.13.0 requires android-37.1 or newer.
+    // Together with compileSdk = 37 this selects the installed android-37.2 platform.
+    // targetSdk/minSdk stay at 37/36 - only the compile target is bumped.
+    compileSdkMinor = libs.versions.compileSdkMinor.get().toInt()
     // NDK r30+ is required for platform 36+ support (r28 maxes out at API 35)
     ndkVersion = "30.0.15729638"
-    // Use the locally installed build-tools (AGP 9.4 defaults to 36.0.0,
-    // which is not installed on this machine)
+    // Newest build-tools installed locally; compatible with the 37.2 platform.
+    // AGP 9.x defaults to 36.0.0, so keep this pinned explicitly.
     buildToolsVersion = "37.0.0"
 
     defaultConfig {

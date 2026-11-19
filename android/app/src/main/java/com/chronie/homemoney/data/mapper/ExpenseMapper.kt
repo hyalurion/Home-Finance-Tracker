@@ -109,39 +109,9 @@ object ExpenseMapper {
     }
     
     /**
-     * Maps an [ExpenseType] enum value to its corresponding Chinese display name.
-     * This is the canonical mapping used for both database storage and API communication.
+     * Maps an [ExpenseType] enum value to its canonical Chinese storage name.
+     * The enum owns the name now, so adding a category can no longer leave
+     * this mapper behind (which previously turned new categories into OTHER).
      */
-    private fun getChineseTypeName(type: ExpenseType): String {
-        return when (type) {
-            ExpenseType.DAILY_GOODS -> "日常用品"
-            ExpenseType.LUXURY -> "奢侈品"
-            ExpenseType.COMMUNICATION -> "通讯费用"
-            ExpenseType.FOOD -> "食品"
-            ExpenseType.SNACKS -> "零食糖果"
-            ExpenseType.COLD_DRINKS -> "冷饮"
-            ExpenseType.CONVENIENCE_FOOD -> "方便食品"
-            ExpenseType.TEXTILES -> "纺织品"
-            ExpenseType.BEVERAGES -> "饮品"
-            ExpenseType.CONDIMENTS -> "调味品"
-            ExpenseType.TRANSPORTATION -> "交通出行"
-            ExpenseType.DINING -> "餐饮"
-            ExpenseType.MEDICAL -> "医疗费用"
-            ExpenseType.FRUITS -> "水果"
-            ExpenseType.OTHER -> "其他"
-            ExpenseType.SEAFOOD -> "水产品"
-            ExpenseType.DAIRY -> "乳制品"
-            ExpenseType.GIFTS -> "礼物人情"
-            ExpenseType.TRAVEL -> "旅行度假"
-            ExpenseType.GOVERNMENT -> "政务"
-            ExpenseType.UTILITIES -> "水电煤气"
-            ExpenseType.BEAUTY -> "美容美发"
-            ExpenseType.BEAN_PRODUCTS -> "豆制品"
-            ExpenseType.COSMETICS -> "个护美妆"
-            ExpenseType.ELECTRONICS -> "电子产品"
-            ExpenseType.HOUSEHOLD_APPLIANCES -> "家用电器"
-            ExpenseType.HARDWARE -> "五金"
-            ExpenseType.CLOTHING -> "服装"
-        }
-    }
+    private fun getChineseTypeName(type: ExpenseType): String = type.chineseName
 }

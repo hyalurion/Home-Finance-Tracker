@@ -80,20 +80,25 @@ class AgentToolExecutor @Inject constructor(
         val today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
         val records = rawArray.mapNotNull { element ->
+            if (!element.isJsonObject) return@mapNotNull null
             val obj = element.asJsonObject
-            val amount = obj.getAsJsonPrimitive("amount")?.asDouble ?: return@mapNotNull null
+            val amount = doubleField(obj, "amount") ?: return@mapNotNull null
             if (amount <= 0.0) return@mapNotNull null
-            val category = obj.getAsJsonPrimitive("type")?.asString.orEmpty()
-            val type = if (category in AgentToolSpecs.CATEGORIES) {
-                ExpenseType.fromString(category)
-            } else {
-                ExpenseType.OTHER
+            // The schema/prompt use "category"; "type" is kept as a legacy
+            // alias for older providers and for models that copied the DB
+            // column name. Both are normalized through the enum resolver.
+            val rawCategory = stringField(obj, "category", "type")
+            val resolved = ExpenseType.resolveCategory(rawCategory)
+            if (resolved == null && rawCategory.isNotBlank()) {
+                Log.w(TAG, "Unrecognized expense category: $rawCategory")
             }
-            val rawDate = obj.getAsJsonPrimitive("date")?.asString.orEmpty()
+            val type = resolved ?: ExpenseType.OTHER
+            // Small models sometimes insert stray spaces into a date.
+            val rawDate = stringField(obj, "date").replace(Regex("\\s"), "")
             val date = runCatching { LocalDate.parse(rawDate) }
                 .getOrNull()?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: today
-            val remark = obj.getAsJsonPrimitive("remark")?.asString?.takeIf { it.isNotBlank() }
-                ?: category.ifBlank { "Expense" }
+            val remark = stringField(obj, "remark").takeIf { it.isNotBlank() }
+                ?: rawCategory.ifBlank { "Expense" }
             AIExpenseRecord(type = type, amount = amount, date = date, remark = remark)
         }
 
@@ -133,7 +138,10 @@ class AgentToolExecutor @Inject constructor(
             add("records", JsonArray().apply {
                 records.forEach { r ->
                     add(JsonObject().apply {
-                        addProperty("category", r.type.name)
+                        // Echo back the canonical Chinese name, matching what
+                        // query_expenses returns, so the model sees one
+                        // consistent representation across the conversation.
+                        addProperty("category", r.type.chineseName)
                         addProperty("amount", r.amount)
                         addProperty("date", r.date)
                         addProperty("remark", r.remark)
@@ -160,8 +168,11 @@ class AgentToolExecutor @Inject constructor(
     private suspend fun queryExpenses(call: PendingToolCall, args: JsonObject): ToolExecution {
         requireQueryPermission(call)?.let { return it }
         val (start, end) = parseRange(args)
-        val category = args.getAsJsonPrimitive("type")?.asString?.takeIf { it.isNotBlank() }
-        val limit = (args.getAsJsonPrimitive("limit")?.asInt ?: 20).coerceIn(1, 50)
+        val rawCategory = stringField(args, "category", "type").takeIf { it.isNotBlank() }
+        val category = rawCategory?.let {
+            ExpenseType.resolveCategory(it)?.chineseName ?: it
+        }
+        val limit = (intField(args, "limit") ?: 20).coerceIn(1, 50)
 
         val rows = expenseDao.getExpensesByDateRange(start, end).first()
             .filter { it.deletedAt == null }
@@ -259,8 +270,8 @@ class AgentToolExecutor @Inject constructor(
             LocalDate.parse(value.orEmpty())
         }.getOrNull()?.format(formatter) ?: fallback.format(formatter)
 
-        var start = parse(args.getAsJsonPrimitive("start_date")?.asString, today.withDayOfMonth(1))
-        var end = parse(args.getAsJsonPrimitive("end_date")?.asString, today)
+        var start = parse(stringField(args, "start_date"), today.withDayOfMonth(1))
+        var end = parse(stringField(args, "end_date"), today)
         // Cap the range so a hallucinated query cannot dump the entire ledger.
         if (runCatching {
                 java.time.temporal.ChronoUnit.DAYS.between(
@@ -272,6 +283,28 @@ class AgentToolExecutor @Inject constructor(
         if (start > end) start = end
         return start to end
     }
+
+    /**
+     * Reads the first non-blank primitive string among [names]. Gson throws
+     * when a non-primitive member is cast, so JsonNull / nested objects are
+     * filtered out before conversion.
+     */
+    private fun stringField(obj: JsonObject, vararg names: String): String =
+        names.firstNotNullOfOrNull { name ->
+            obj.get(name)
+                ?.takeIf { it.isJsonPrimitive }
+                ?.asString
+                ?.takeIf { it.isNotBlank() }
+        }.orEmpty()
+
+    /** Null-safe numeric readers for tool arguments of varying strictness. */
+    private fun doubleField(obj: JsonObject, name: String): Double? = runCatching {
+        obj.get(name)?.takeIf { it.isJsonPrimitive }?.asDouble
+    }.getOrNull()
+
+    private fun intField(obj: JsonObject, name: String): Int? = runCatching {
+        obj.get(name)?.takeIf { it.isJsonPrimitive }?.asInt
+    }.getOrNull()
 
     private fun failure(call: PendingToolCall, message: String): ToolExecution {
         val payload = JsonObject().apply {

@@ -44,14 +44,12 @@ object ExpenseTypeLocalizer {
     }
     
     /**
-     * Get localized expense type name from string representation
+     * Resolves a stored type name (Chinese canonical name or enum name) to its
+     * localized label. Charts pass the Room value, which is Chinese, so a bare
+     * valueOf() used to throw and fall through to the untranslated raw string.
      */
     fun getLocalizedTypeName(context: Context, typeName: String): String {
-        return try {
-            val type = ExpenseType.valueOf(typeName)
-            getLocalizedName(context, type)
-        } catch (_: IllegalArgumentException) {
-            typeName // Return original name if parsing fails
-        }
+        val type = ExpenseType.resolveCategory(typeName) ?: return typeName
+        return getLocalizedName(context, type)
     }
 }

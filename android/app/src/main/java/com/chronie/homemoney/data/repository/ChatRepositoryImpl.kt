@@ -133,6 +133,50 @@ class ChatRepositoryImpl @Inject constructor(
         generate(conversationId, userMessage)
     }.buffer(Channel.UNLIMITED)
 
+    override fun editAndResend(
+        conversationId: String,
+        messageId: String,
+        text: String
+    ): Flow<ChatProgress> = channelFlow {
+        val rows = chatDao.getMessages(conversationId)
+        val index = rows.indexOfFirst { it.id == messageId }
+        if (index < 0) {
+            trySend(ChatProgress.Failed("Message not found"))
+            return@channelFlow
+        }
+        val original = ChatMapper.messageToDomain(rows[index], gson)
+        if (text.isBlank() && original.attachments.isEmpty()) {
+            trySend(ChatProgress.Failed("Message is empty"))
+            return@channelFlow
+        }
+
+        val tail = rows.drop(index)
+        chatDao.deleteMessagesByIds(conversationId, tail.map { it.id })
+
+        // Attachments of discarded later turns are no longer referenced.
+        codec.deleteFiles(tail.drop(1).flatMap { ChatMapper.messageToDomain(it, gson).attachments })
+
+        // Editing the first prompt must refresh the auto-generated title.
+        val conversation = chatDao.getConversationsOnce().firstOrNull { it.id == conversationId }
+        if (index == 0 && conversation != null) {
+            chatDao.updateConversation(
+                conversationId = conversationId,
+                title = text.trim().take(40).ifBlank { "New chat" },
+                updatedAt = System.currentTimeMillis(),
+                providerId = configManager.activeProviderId.value
+            )
+        }
+
+        val edited = ChatMessage(
+            conversationId = conversationId,
+            role = ChatRole.USER,
+            content = text,
+            attachments = original.attachments,
+            status = ChatMessageStatus.COMPLETE
+        )
+        generate(conversationId, edited)
+    }.buffer(Channel.UNLIMITED)
+
     override fun confirmToolCall(
         conversationId: String,
         messageId: String,

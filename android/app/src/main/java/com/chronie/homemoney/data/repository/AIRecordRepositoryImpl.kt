@@ -211,13 +211,15 @@ class AIRecordRepositoryImpl @Inject constructor(
 
         val contentPart = text?.let { "Text content: $text" }
             ?: if (hasImages) "Please read the bill images above." else ""
+        val categories = com.chronie.homemoney.domain.model.ExpenseType.entries
+            .joinToString("、") { it.chineseName }
 
         return """
 Today is $dateStr, $dayOfWeek. $contentPart Please extract all expense information from it.
 
 If there are multiple expense records, output them as a JSON array. Each record must contain:
 {
-  "type": "expense category", // must be chosen from the following Chinese list: 日常用品、奢侈品、通讯费用、食品、零食糖果、冷饮、方便食品、纺织品、饮品、调味品、交通出行、餐饮、医疗费用、水果、其他、水产品、乳制品、礼物人情、旅行度假、政务、水电煤气、美容美发、豆制品、个护美妆、电子产品、家用电器、五金、服装
+  "type": "expense category", // must be chosen from the following Chinese list: $categories
   "amount": amount, // numeric value
   "date": "date", // date format YYYY-MM-DD
   "remark": "remark" // name and description of the purchased item/service; keep the original language

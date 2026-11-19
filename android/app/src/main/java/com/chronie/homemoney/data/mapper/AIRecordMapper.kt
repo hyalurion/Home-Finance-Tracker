@@ -38,34 +38,13 @@ object AIRecordMapper {
     }
     
     /**
-     * Maps a Chinese type name string to an [ExpenseType] enum.
-     * Falls back to [ExpenseType.OTHER] for unrecognized types.
+     * Delegates to the enum-owned resolver so the OCR/smart-scan pipeline
+     * accepts exactly the same category names as the rest of the app.
+     * The old local table stopped at 20 entries and silently converted the
+     * seven newest categories to OTHER.
      */
-    private fun parseExpenseType(typeStr: String): ExpenseType {
-        return when (typeStr) {
-            "日常用品" -> ExpenseType.DAILY_GOODS
-            "奢侈品" -> ExpenseType.LUXURY
-            "通讯费用" -> ExpenseType.COMMUNICATION
-            "食品" -> ExpenseType.FOOD
-            "零食糖果" -> ExpenseType.SNACKS
-            "冷饮" -> ExpenseType.COLD_DRINKS
-            "方便食品" -> ExpenseType.CONVENIENCE_FOOD
-            "纺织品" -> ExpenseType.TEXTILES
-            "饮品" -> ExpenseType.BEVERAGES
-            "调味品" -> ExpenseType.CONDIMENTS
-            "交通出行" -> ExpenseType.TRANSPORTATION
-            "餐饮" -> ExpenseType.DINING
-            "医疗费用" -> ExpenseType.MEDICAL
-            "水果" -> ExpenseType.FRUITS
-            "水产品" -> ExpenseType.SEAFOOD
-            "乳制品" -> ExpenseType.DAIRY
-            "礼物人情" -> ExpenseType.GIFTS
-            "旅行度假" -> ExpenseType.TRAVEL
-            "政务" -> ExpenseType.GOVERNMENT
-            "水电煤气" -> ExpenseType.UTILITIES
-            else -> ExpenseType.OTHER
-        }
-    }
+    private fun parseExpenseType(typeStr: String): ExpenseType =
+        ExpenseType.fromString(typeStr)
     
     /**
      * Parses a date/datetime string into a [LocalDateTime].
